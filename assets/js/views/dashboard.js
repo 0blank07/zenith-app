@@ -192,17 +192,16 @@ async function loadTrendingPlayers() {
 
 // ========== SEARCH FUNCTIONALITY ==========
 
-// ========== DASHBOARD SEARCH FUNCTIONALITY (WITH BATCHING) ==========
-
 // ========== DASHBOARD SEARCH FUNCTIONALITY ==========
 
-let searchTimeout = null;
+// Renamed to avoid global conflict with app.js
+let dashboardSearchTimeout = null;
 
 async function searchDashboardPlayers(query) {
     const searchTerm = query.trim().toLowerCase();
 
-    if (searchTimeout) {
-        clearTimeout(searchTimeout);
+    if (dashboardSearchTimeout) {
+        clearTimeout(dashboardSearchTimeout);
     }
 
     if (!searchTerm) {
@@ -225,7 +224,7 @@ async function searchDashboardPlayers(query) {
         if (trendingSection) trendingSection.style.display = 'none';
     }
 
-    searchTimeout = setTimeout(async () => {
+    dashboardSearchTimeout = setTimeout(async () => {
         console.log(`[SEARCH] ========== SEARCHING FOR: "${searchTerm}" ==========`);
 
         try {
@@ -456,8 +455,6 @@ function animateNumber(elementId, targetValue, duration = 1000) {
 
 // ===== BANNER SLIDER FUNCTIONALITY =====
 
-// ===== BANNER SLIDER WITH REDIRECTS =====
-
 function initBannerSlider() {
   const slider = document.querySelector('.hero-banner-slider');
   if (!slider) return;
@@ -538,9 +535,6 @@ function initBannerSlider() {
         break;
     }
   }
-
-
-
 
   // ===== NEW: ADD CLICK HANDLERS TO BANNERS =====
   slides.forEach((banner) => {
@@ -628,13 +622,14 @@ function initBannerSlider() {
   startAutoplay();
 }
 
-// Initialize on page load
+// Add event listener for home search input
 document.addEventListener('DOMContentLoaded', () => {
-  initBannerSlider();
-});
-
-
-// Initialize banner when dashboard loads
-document.addEventListener('DOMContentLoaded', () => {
-  initBannerSlider();
+    const homeSearch = document.getElementById('home-search');
+    if (homeSearch) {
+        homeSearch.addEventListener('input', (e) => {
+            if (typeof searchDashboardPlayers === 'function') {
+                searchDashboardPlayers(e.target.value);
+            }
+        });
+    }
 });

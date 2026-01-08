@@ -297,8 +297,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     loadMoreBtn.addEventListener('click', loadMoreBtn._zenithLoadMoreHandler);
   }
 
-  // Home search (global search input) initialization
-  const searchInput = document.getElementById('search-input');
+  // Database search (was "Home search" but ID incorrect in previous version)
+  // Corrected ID to 'player-search' which exists in database-view
+  const searchInput = document.getElementById('player-search');
   if (searchInput) {
     let searchTimeout;
     searchInput.addEventListener('input', (e) => {
@@ -306,12 +307,15 @@ document.addEventListener('DOMContentLoaded', async function () {
       searchTimeout = setTimeout(() => {
         const query = e.target.value.trim();
         if (query.length >= 2) {
-          if (typeof searchPlayersInDatabase === 'function') { // Use function from dashboard.js if available or app.js logic if duplicated
-             // We removed duplication, so this might need to call specific view search
+          if (typeof searchPlayersInDatabase === 'function') {
+              searchPlayersInDatabase(query);
+          } else if (typeof loadDatabase === 'function') {
+              state.searchQuery = query;
+              loadDatabase();
           }
-        } else {
-          const dropdown = document.getElementById('search-dropdown');
-          if (dropdown) dropdown.classList.remove('active');
+        } else if (query.length === 0) {
+          state.searchQuery = '';
+          if (typeof loadDatabase === 'function') loadDatabase();
         }
       }, 300);
     });
@@ -793,7 +797,16 @@ if (document.getElementById('tools-sheet')) {
 window.toggleWatchlist = function (uniqueId) {
   if (!uniqueId) return;
   const index = state.watchlist.indexOf(uniqueId);
-  let savedPlayers = JSON.parse(localStorage.getItem('watchlistPlayers')) || [];
+  let savedPlayers = [];
+  try {
+      const val = localStorage.getItem('watchlistPlayers');
+      if (val && val !== "[object Object]") {
+          savedPlayers = JSON.parse(val);
+      }
+  } catch (e) {
+      console.error("Error parsing watchlistPlayers", e);
+      savedPlayers = [];
+  }
 
   if (index === -1) {
     state.watchlist.push(uniqueId);
@@ -868,7 +881,11 @@ function loadWatchlist() {
     `;
     return;
   }
-  let resolvedPlayers = JSON.parse(localStorage.getItem('watchlistPlayers')) || [];
+  let resolvedPlayers = [];
+  try {
+      resolvedPlayers = JSON.parse(localStorage.getItem('watchlistPlayers')) || [];
+  } catch(e) { resolvedPlayers = []; }
+
   // ... (Full implementation logic was here, assuming re-inserted above or by overwrite)
   // Since I am overwriting the file, I must include the implementation details here if I truncated them in the thought process.
   // I will assume the previous 'read_file' content + my edits are what I want.
@@ -991,3 +1008,22 @@ document.addEventListener('filterChanged', () => {
     applyFiltersToPickerPlayers();
   }
 });
+
+// Helper Functions for Watchlist
+function getRatingColor(rating) {
+    if (rating >= 90) return '#00c2a8';
+    if (rating >= 80) return '#6366f1';
+    if (rating >= 70) return '#f59e0b';
+    return '#ef4444';
+}
+
+function applyWatchlistFilters(players) {
+    // This function can filter players based on watchlist specific filters if implemented
+    // For now, return all
+    return players;
+}
+
+function removeFromWatchlist(playerId) {
+    const uniqueId = state.watchlist.find(id => id.startsWith(playerId + '_'));
+    if (uniqueId) toggleWatchlist(uniqueId);
+}
