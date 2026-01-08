@@ -102,7 +102,14 @@ function createPlayerCard(player) {
 
     // Add click event to card (using primaryId)
     card.addEventListener('click', function(e) {
-        viewPlayerDetail(primaryId);
+        // Avoid double triggering if clicking internal buttons
+        if (e.target.closest('.player-row-watchlist')) return;
+
+        if (typeof viewPlayerDetail === 'function') {
+            viewPlayerDetail(primaryId);
+        } else {
+            console.error('viewPlayerDetail function is not available');
+        }
     });
 
     // Add click event to watchlist button
@@ -179,7 +186,9 @@ function createDashboardPlayerCard(player) {
     if (viewBtn) {
         viewBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            viewPlayerDetail(primaryId);
+            if (typeof viewPlayerDetail === 'function') {
+                viewPlayerDetail(primaryId);
+            }
         });
     }
 
@@ -193,8 +202,12 @@ function createDashboardPlayerCard(player) {
     }
 
     // Add click event to card
-    card.addEventListener('click', function() {
-        viewPlayerDetail(primaryId);
+    card.addEventListener('click', function(e) {
+        if (e.target.closest('.clean-watchlist-heart') || e.target.closest('.clean-view-btn')) return;
+
+        if (typeof viewPlayerDetail === 'function') {
+            viewPlayerDetail(primaryId);
+        }
     });
 
     return card;

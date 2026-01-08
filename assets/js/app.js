@@ -589,7 +589,11 @@ function createDashboardPlayerCard(player) {
     card.className = 'dashboard-player-card';
     
     card.addEventListener('click', () => {
-        console.log('Clicked player:', player);
+        if (typeof viewPlayerDetail === 'function') {
+            viewPlayerDetail(player.player_id);
+        } else {
+            console.error('viewPlayerDetail function is not available');
+        }
     });
     
     card.innerHTML = `
@@ -828,7 +832,11 @@ function createSearchResultRow(player) {
     `;
     
     row.addEventListener('click', () => {
-        console.log('Clicked:', player);
+        if (typeof viewPlayerDetail === 'function') {
+            viewPlayerDetail(player.player_id);
+        } else {
+            console.error('viewPlayerDetail function is not available');
+        }
     });
     
     return row;

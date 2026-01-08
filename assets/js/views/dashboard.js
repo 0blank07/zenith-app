@@ -1,189 +1,433 @@
 // FC Market Pro - Dashboard View
 // Handles the main dashboard/homepage functionality
 
-function loadDashboard() {
-  // Animate stats
-  animateNumber('total-players', marketStats.totalPlayers);
+// ========== LOAD DASHBOARD FROM API ==========
+async function loadDashboard() {
+    console.log('[DASHBOARD] Loading dashboard...');
 
-  const marketVolumeEl = document.getElementById('market-volume');
-  if (marketVolumeEl) marketVolumeEl.textContent = marketStats.marketVolume;
+    // Initialize banner
+    if (typeof initBannerSlider === 'function') {
+        initBannerSlider();
+    }
 
-  // Top gainer and loser
-  const sorted = [...players].sort((a, b) => b.priceChange - a.priceChange);
-  const topGainer = sorted[0];
-  const topLoser = sorted[sorted.length - 1];
+    // Load stats
+    if (window.apiClient) {
+        try {
+            const health = await window.apiClient.checkHealth();
+            const totalEl = document.getElementById('total-players');
+            if (totalEl && health.total_players) {
+                animateNumber('total-players', health.total_players);
+            }
+        } catch (error) {
+            console.error('[DASHBOARD] Error loading stats:', error);
+        }
+    }
 
-  const topGainerEl = document.getElementById('top-gainer');
-  const topGainerChangeEl = document.getElementById('top-gainer-change');
-  const topLoserEl = document.getElementById('top-loser');
-  const topLoserChangeEl = document.getElementById('top-loser-change');
 
-  if (topGainerEl) topGainerEl.textContent = topGainer.name;
-  if (topGainerChangeEl) topGainerChangeEl.textContent = `+${topGainer.priceChange.toFixed(1)}%`;
-  if (topLoserEl) topLoserEl.textContent = topLoser.name;
-  if (topLoserChangeEl) topLoserChangeEl.textContent = `${topLoser.priceChange.toFixed(1)}%`;
+    // Load Latest and Trending
+    await Promise.all([
+        loadLatestPlayers(),
+        loadTrendingPlayers()
+    ]);
 
-  // Load Latest Players Section
-  loadLatestPlayers();
+    // Search initialization moved to DOMContentLoaded (dropdown version)
+    console.log('[DASHBOARD] Search initialized');
 
-  // Load Trending Players Section
-  loadTrendingPlayers();
-
-  // Recent updates
-  const updatesContainer = document.getElementById('recent-updates');
-  if (updatesContainer) {
-    updatesContainer.innerHTML = '';
-    const recentPlayers = [...players]
-      .sort((a, b) => Math.abs(b.priceChange) - Math.abs(a.priceChange))
-      .slice(0, 5);
-
-    recentPlayers.forEach(player => {
-      const updateItem = document.createElement('div');
-      updateItem.className = 'update-item';
-      updateItem.style.cursor = 'pointer';
-      updateItem.onclick = () => viewPlayerDetail(player.id);
-
-      const changeClass = player.priceChange >= 0 ? 'up' : 'down';
-      const changeSymbol = player.priceChange >= 0 ? '↑' : '↓';
-
-      updateItem.innerHTML = `
-                <div class="update-player">
-                    <div class="update-avatar">${getInitials(player.name)}</div>
-                    <div class="update-info">
-                        <h4>${player.name}</h4>
-                        <p>${player.position} • ${player.club}</p>
-                    </div>
-                </div>
-                <div class="update-price">
-                    <div class="price-value">${formatPrice(player.price)}</div>
-                    <div class="price-change ${changeClass}">
-                        ${changeSymbol} ${Math.abs(player.priceChange).toFixed(1)}%
-                    </div>
-                </div>
-            `;
-
-      updatesContainer.appendChild(updateItem);
-    });
-  }
 }
 
 
-// Load Trending Players Section
-function loadTrendingPlayers() {
-  const grid = document.getElementById('trending-players-grid');
-  if (!grid) return;
-
-  grid.innerHTML = '';
-
-  // Trending: top 6 most volatile (highest absolute price change)
-  const trendingPlayers = [...players]
-    .sort((a, b) => Math.abs(b.priceChange) - Math.abs(a.priceChange))
-    .slice(0, 6);    
-
-
-const sliderText = "FC Points & More to Be Won with Futbin's Festive Rewards!";
-document.querySelector(".slider span").textContent = sliderText;
-
-
-  trendingPlayers.forEach((player, index) => {
+// ========== CREATE DASHBOARD PLAYER CARD (Vertical Style) ==========
+// ========== DASHBOARD CARD CREATOR ==========
+function createDashboardPlayerCard(player) {
     const card = document.createElement('div');
-    card.className = 'latest-player-card';
-    const rank = index + 1;
+    card.className = 'dashboard-player-card';
 
-    // Watchlist status
-    const isWatchlisted = state.watchlist.includes(player.id);
-    const heartIcon = isWatchlisted ? '♥' : '♡';
-
-    // Rank badge class
-    let rankClass = '';
-    if (rank === 1) rankClass = 'rank-1';
-    else if (rank === 2) rankClass = 'rank-2';
-    else if (rank === 3) rankClass = 'rank-3';
+    card.addEventListener('click', () => {
+        if (typeof viewPlayerDetail === 'function') {
+            viewPlayerDetail(player.player_id);
+        } else {
+            console.error('viewPlayerDetail function is not available');
+        }
+    });
 
     card.innerHTML = `
-            <div class="trending-rank ${rankClass}">#${rank}</div>
-            <button class="latest-watchlist${isWatchlisted ? ' active' : ''}" title="Add to Watchlist" onclick="event.stopPropagation(); toggleTrendingWatchlist(${player.id}, this);">${heartIcon}</button>
+        <div class="card-container">
+            <img src="${player.card_background || 'https://via.placeholder.com/300x400'}"
+                 alt="Card Background"
+                 class="card-background-img"
+                 onerror="this.src='https://via.placeholder.com/300x400'">
+
+            <img src="${player.player_image || 'https://via.placeholder.com/200x300'}"
+                 alt="${player.name}"
+                 class="player-image-img"
+                 onerror="this.src='https://via.placeholder.com/200x300'">
+
+            <div class="card-ovr" style="color: ${player.color_rating || '#FFFFFF'}">
+                ${player.ovr && player.ovr > 0 ? player.ovr : 'N/A'}
+            </div>
+
+            <div class="card-position" style="color: ${player.color_position || '#FFFFFF'}">
+                ${player.position || 'N/A'}
+            </div>
+
+            <div class="card-player-name" style="color: ${player.color_name || '#FFFFFF'}">
+                ${player.name}
+            </div>
+
+            <img src="${player.nation_flag || ''}"
+                 alt="Nation"
+                 class="card-nation-flag"
+                 onerror="this.style.display='none'">
+
+            <img src="${player.club_flag || ''}"
+                 alt="Club"
+                 class="card-club-flag"
+                 onerror="this.style.display='none'">
+        </div>
+    `;
+
+    return card;
+}
+
+
+// ========== LATEST PLAYERS ==========
+async function loadLatestPlayers() {
+    console.log('[LATEST] Loading latest players...');
+
+    const players = await loadPlayersFromAPI({
+        limit: 100,  // Increased from 50
+        rank: 0
+    });
+
+    if (players.length === 0) {
+        console.warn('[LATEST] No players received from API');
+        return;
+    }
+
+    // ✅ MERGE into state.allPlayers to ensure they can be found by detail view
+    if (!state.allPlayers) state.allPlayers = [];
+    players.forEach(p => {
+        const uniqueId = `${p.player_id}_${p.rank || 0}_${p.is_untradable ? 1 : 0}`;
+        if (!state.allPlayers.some(existing => `${existing.player_id}_${existing.rank || 0}_${existing.is_untradable ? 1 : 0}` === uniqueId)) {
+            state.allPlayers.push(p);
+        }
+    });
+
+    console.log(`[LATEST] Received ${players.length} players from API`);
+
+    // Sort by date_added (newest first)
+    const sortedPlayers = players.sort((a, b) => {
+        const dateA = new Date(a.date_added || 0);
+        const dateB = new Date(b.date_added || 0);
+        return dateB - dateA;
+    });
+
+    // Don't filter by OVR - show all latest players
+    const validPlayers = sortedPlayers.filter(p => p.name && p.ovr && p.ovr > 0);
+
+    const container = document.getElementById('latest-players-grid');
+    if (!container) {
+        console.error('[LATEST] Container #latest-players-grid not found in DOM');
+        return;
+    }
+
+    container.innerHTML = '';
+
+    // Show up to 12 latest players
+    validPlayers.slice(0, 12).forEach(player => {
+        const card = createDashboardPlayerCard(player);
+        container.appendChild(card);
+    });
+
+    console.log(`[LATEST] Successfully displayed ${Math.min(validPlayers.length, 12)} latest players`);
+}
+
+
+// ========== TRENDING PLAYERS ==========
+async function loadTrendingPlayers() {
+    console.log('[TRENDING] Loading trending players...');
+
+    const players = await loadPlayersFromAPI({
+        limit: 50,
+        min_ovr: 100,
+        rank: 0
+    });
+
+    if (players.length === 0) {
+        console.warn('[TRENDING] No players received');
+        return;
+    }
+
+    // ✅ MERGE into state.allPlayers to ensure they can be found by detail view
+    if (!state.allPlayers) state.allPlayers = [];
+    players.forEach(p => {
+        const uniqueId = `${p.player_id}_${p.rank || 0}_${p.is_untradable ? 1 : 0}`;
+        if (!state.allPlayers.some(existing => `${existing.player_id}_${existing.rank || 0}_${existing.is_untradable ? 1 : 0}` === uniqueId)) {
+            state.allPlayers.push(p);
+        }
+    });
+
+    const sliderText = "FC Points & More to Be Won with Futbin's Festive Rewards!";
+    const sliderSpan = document.querySelector(".slider span");
+    if (sliderSpan) sliderSpan.textContent = sliderText;
+
+    // Sort by OVR (highest first)
+    const sortedPlayers = players.sort((a, b) => (b.ovr || 0) - (a.ovr || 0));
+
+    const container = document.getElementById('trending-players-grid');
+    if (!container) {
+        console.error('[TRENDING] Container not found');
+        return;
+    }
+
+    container.innerHTML = '';
+
+    sortedPlayers.slice(0, 12).forEach(player => {
+        const card = createDashboardPlayerCard(player);
+        container.appendChild(card);
+    });
+
+    console.log(`[TRENDING] Loaded ${sortedPlayers.length} trending players`);
+}
+
+// ========== SEARCH FUNCTIONALITY ==========
+
+// ========== DASHBOARD SEARCH FUNCTIONALITY (WITH BATCHING) ==========
+
+// ========== DASHBOARD SEARCH FUNCTIONALITY ==========
+
+let searchTimeout = null;
+
+async function searchDashboardPlayers(query) {
+    const searchTerm = query.trim().toLowerCase();
+
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+
+    if (!searchTerm) {
+        showNormalDashboard();
+        return;
+    }
+
+    const searchSection = document.getElementById('dashboard-search-results');
+    const resultsContainer = document.getElementById('search-results-container');
+    const resultsCount = document.getElementById('search-results-count');
+
+    if (searchSection && resultsContainer) {
+        searchSection.style.display = 'block';
+        resultsContainer.innerHTML = '<div class="search-loading">🔍 Searching...</div>';
+        if (resultsCount) resultsCount.textContent = 'Searching...';
+
+        const latestSection = document.querySelector('.dashboard-section:has(#latest-players-grid)');
+        const trendingSection = document.querySelector('.dashboard-section:has(#trending-players-grid)');
+        if (latestSection) latestSection.style.display = 'none';
+        if (trendingSection) trendingSection.style.display = 'none';
+    }
+
+    searchTimeout = setTimeout(async () => {
+        console.log(`[SEARCH] ========== SEARCHING FOR: "${searchTerm}" ==========`);
+
+        try {
+            // ✅ USE NEW FAST API - Load only 20 results
+            const response = await window.apiClient.searchPlayers({
+                q: searchTerm,
+                limit: 20,
+                offset: 0,
+                rank: 0
+            });
             
-            <div class="latest-player-top">
-                <div class="trending-avatar">${getInitials(player.name)}</div>
+            const results = response.results || [];
+            const total = response.total || 0;
+            
+            console.log(`[SEARCH] ✓ Got ${results.length} results (${total} total)`);
+
+            // Store for pagination
+            state.currentSearchQuery = searchTerm;
+            state.searchTotalResults = total;
+
+            showSearchResults(results, searchTerm, total);
+
+        } catch (error) {
+            console.error('[SEARCH] ✗ ERROR:', error);
+            if (resultsContainer) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <p>❌ Search error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    }, 300);
+}
+
+function createSearchResultRow(player) {
+    const row = document.createElement('div');
+    row.className = 'search-result-row';
+
+    // ===== DEBUG OVR ISSUE =====
+    if (!player.ovr || player.ovr === 0) {
+        console.warn(`[OVR DEBUG] Player has no OVR:`, {
+            name: player.name,
+            ovr: player.ovr,
+            ovr_type: typeof player.ovr,
+            player_id: player.player_id
+        });
+    }
+
+    const isUntradableText = String(player.is_untradable || '').toLowerCase();
+    const isNonAuctionable = isUntradableText === 'true' || isUntradableText === '1';
+
+    const tradableIcon = isNonAuctionable ?
+        `<span class="tradable-badge non-tradable">🔴 Non-auctionable</span>` :
+        `<span class="tradable-badge tradable">✅ Auctionable</span>`;
+
+    row.innerHTML = `
+        <div class="search-result-card">
+            <div class="search-card-image">
+                <img src="${player.card_background || 'https://via.placeholder.com/100x140'}"
+                     alt="${player.name}"
+                     class="search-card-bg"
+                     onerror="this.src='https://via.placeholder.com/100x140'">
+                <img src="${player.player_image || ''}"
+                     alt="${player.name}"
+                     class="search-player-img"
+                     onerror="this.style.display='none'">
             </div>
             
-            <div class="latest-player-center">
-                <div class="latest-player-name">${player.name}</div>
-                <div class="latest-position-badge">${player.position}</div>
-                
-                <div class="latest-player-stats">
-                    <div class="stat-item">
-                        <div class="stat-value">${player.pace}</div>
-                        <div class="stat-label">PAC</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${player.shooting}</div>
-                        <div class="stat-label">SHO</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${player.passing}</div>
-                        <div class="stat-label">PAS</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${player.dribbling}</div>
-                        <div class="stat-label">DRI</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${player.defending}</div>
-                        <div class="stat-label">DEF</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${player.physical}</div>
-                        <div class="stat-label">PHY</div>
-                    </div>
-                </div>
+            <div class="search-player-info">
+                <div class="search-player-name">${player.name || 'Unknown'}</div>
+                ${tradableIcon}
             </div>
             
-            <div class="latest-player-bottom">
-                <div class="latest-price">${formatPrice(player.price)}</div>
-                <div class="latest-change ${player.priceChange < 0 ? 'down' : 'up'}">
-                    ${player.priceChange > 0 ? '↑' : '↓'} ${Math.abs(player.priceChange).toFixed(1)}%
-                </div>
+            <div class="search-player-stats">
+                <div class="search-ovr">${player.ovr && player.ovr > 0 ? player.ovr : 'N/A'}</div>
+                <div class="search-position">${player.position || 'N/A'}</div>
             </div>
-            
-            <button class="latest-details-btn" onclick="viewPlayerDetail(${player.id})">View Details</button>
+        </div>
+    `;
+
+    row.addEventListener('click', () => {
+        if (typeof viewPlayerDetail === 'function') {
+            viewPlayerDetail(player.player_id);
+        } else {
+            console.error('viewPlayerDetail function is not available');
+        }
+    });
+
+    return row;
+}
+
+function showSearchResults(players, query, total, append = false) {
+    const searchSection = document.getElementById('dashboard-search-results');
+    const resultsContainer = document.getElementById('search-results-container');
+    const resultsCount = document.getElementById('search-results-count');
+
+    if (!searchSection || !resultsContainer || !resultsCount) return;
+
+    searchSection.style.display = 'block';
+
+    // Clear container if not appending
+    if (!append) {
+        state.searchResults = players;
+        state.searchDisplayed = players.length;
+        resultsContainer.innerHTML = '';
+        resultsCount.textContent = `${total} Result${total !== 1 ? 's' : ''}`;
+    } else {
+        state.searchResults = state.searchResults.concat(players);
+        state.searchDisplayed += players.length;
+    }
+
+    if (total === 0) {
+        resultsContainer.innerHTML = `
+            <div class="no-results">
+                <p>No players found starting with "${query}"</p>
+                <p style="color: var(--text-tertiary); font-size: 0.9rem;">Try a different search term</p>
+            </div>
         `;
+        return;
+    }
 
-    grid.appendChild(card);
+    // Add player cards
+    players.forEach(player => {
+        const row = createSearchResultRow(player);
+        resultsContainer.appendChild(row);
+    });
+
+    updateAllWatchlistButtons();
+
+
+    // Remove old load more button if exists
+    const oldLoadMore = document.getElementById('search-load-more-btn');
+    if (oldLoadMore) oldLoadMore.remove();
+
+    // Add "Load More" button if there are more results
+    if (state.searchDisplayed < total) {
+        const loadMoreBtn = document.createElement('button');
+        loadMoreBtn.id = 'search-load-more-btn';
+        loadMoreBtn.className = 'search-load-more-btn';
+        loadMoreBtn.innerHTML = `
+            <span>Load More</span>
+            <span class="load-more-count">(${total - state.searchDisplayed} remaining)</span>
+        `;
+        loadMoreBtn.addEventListener('click', async () => {
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.innerHTML = '<span>Loading...</span>';
+
+            try {
+                // Load next 20 results
+                const response = await window.apiClient.searchPlayers({
+                    q: state.currentSearchQuery,
+                    limit: 20,
+                    offset: state.searchDisplayed,
+                    rank: 0
+                });
+
+                const moreResults = response.results || [];
+                console.log(`[SEARCH] Loaded ${moreResults.length} more results`);
+
+                showSearchResults(moreResults, state.currentSearchQuery, total, true);
+
+            } catch (error) {
+                console.error('[SEARCH] Load more error:', error);
+                loadMoreBtn.innerHTML = '<span>Error - Try Again</span>';
+                loadMoreBtn.disabled = false;
+            }
+        });
+        resultsContainer.appendChild(loadMoreBtn);
+    }
+
+    console.log(`[SEARCH] Displayed ${state.searchDisplayed}/${total} results`);
+}
+
+// Show Normal Dashboard (Hide Search Results)
+function showNormalDashboard() {
+    // Show Latest and Trending sections
+    const latestSection = document.querySelector('.dashboard-section:has(#latest-players-grid)');
+    const trendingSection = document.querySelector('.dashboard-section:has(#trending-players-grid)');
+
+    if (latestSection) latestSection.style.display = 'block';
+    if (trendingSection) trendingSection.style.display = 'block';
+
+    // Hide search results
+    const searchSection = document.getElementById('dashboard-search-results');
+    if (searchSection) searchSection.style.display = 'none';
+}
+
+function updateAllWatchlistButtons() {
+  document.querySelectorAll('.player-row-watchlist').forEach(btn => {
+    const uniqueId = btn.dataset.uniqueId;
+    if (!uniqueId) return;
+
+    const isActive = state.watchlist.includes(uniqueId);
+
+    btn.classList.toggle('active', isActive);
+
+    const svg = btn.querySelector('svg');
+    if (svg) {
+      svg.setAttribute('fill', isActive ? 'currentColor' : 'none');
+    }
   });
-}
-
-// Watchlist toggle function for latest players section
-function toggleLatestWatchlist(id, btn) {
-  const idx = state.watchlist.indexOf(id);
-  if (idx === -1) {
-    state.watchlist.push(id);
-    btn.classList.add('active');
-    btn.innerHTML = '♥';
-    showToast('Added to Watchlist', 'success');
-  } else {
-    state.watchlist.splice(idx, 1);
-    btn.classList.remove('active');
-    btn.innerHTML = '♡';
-    showToast('Removed from Watchlist', 'error');
-  }
-}
-
-// Watchlist toggle for trending section
-function toggleTrendingWatchlist(id, btn) {
-  const idx = state.watchlist.indexOf(id);
-  if (idx === -1) {
-    state.watchlist.push(id);
-    btn.classList.add('active');
-    btn.innerHTML = '♥';
-    showToast('Added to Watchlist', 'success');
-  } else {
-    state.watchlist.splice(idx, 1);
-    btn.classList.remove('active');
-    btn.innerHTML = '♡';
-    showToast('Removed from Watchlist', 'error');
-  }
 }
 
 // Animate number counter
@@ -209,68 +453,6 @@ function animateNumber(elementId, targetValue, duration = 1000) {
   requestAnimationFrame(update);
 }
 
-// Search ALL players on home page
-function searchAllPlayersOnHome(searchTerm) {
-  const latestGrid = document.getElementById('latest-players-grid');
-  const trendingGrid = document.getElementById('trending-players-grid');
-
-  if (!latestGrid || !trendingGrid) return;
-
-  // If search is empty, reload normal dashboard
-  if (!searchTerm.trim()) {
-    loadLatestPlayers();
-    loadTrendingPlayers();
-    return;
-  }
-
-  // Filter ALL players by search term (case-insensitive)
-  const search = searchTerm.toLowerCase().trim();
-  const filteredPlayers = players.filter(player => {
-    const name = (player.name || '').toLowerCase();
-    const position = (player.position || '').toLowerCase();
-    const club = (player.club || '').toLowerCase();
-    const nation = (player.nation || '').toLowerCase();
-
-    return name.includes(search) ||
-      position.includes(search) ||
-      club.includes(search) ||
-      nation.includes(search);
-  });
-
-  // Clear both grids
-  latestGrid.innerHTML = '';
-  trendingGrid.innerHTML = '';
-
-  // Hide trending section header when searching
-  const trendingSection = document.querySelector('.section-header:has(+ #trending-players-grid)');
-  if (trendingSection) trendingSection.style.display = 'none';
-
-  // Update Latest section header to show search results
-  const latestHeader = document.querySelector('.section-header:has(+ #latest-players-grid)');
-  if (latestHeader) {
-    const headerTitle = latestHeader.querySelector('h2');
-    if (headerTitle) headerTitle.innerHTML = `⚡ Search Results (${filteredPlayers.length})`;
-  }
-
-  // Show results in latest grid
-  if (filteredPlayers.length === 0) {
-    latestGrid.innerHTML = `
-      <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-        <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 0.5rem;">
-          No players found for "${searchTerm}"
-        </p>
-        <p style="color: var(--text-tertiary); font-size: 0.9rem;">
-          Try searching by player name, position, club, or nation
-        </p>
-      </div>
-    `;
-  } else {
-    filteredPlayers.forEach(player => {
-      const card = createLatestPlayerCard(player);
-      latestGrid.appendChild(card);
-    });
-  }
-}
 
 // ===== BANNER SLIDER FUNCTIONALITY =====
 

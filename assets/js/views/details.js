@@ -3,28 +3,47 @@
 
 // Global function - accessible from HTML onclick
 window.viewPlayerDetail = function(playerId) {
-  const player = players.find(p => p.id === playerId);
-  if (!player) return;
+  // Try to find the player in various state arrays
+  let player = null;
+
+  // Helper to check if a player matches the ID
+  const matches = (p) => String(p.player_id || p.id) === String(playerId);
+
+  if (state.allPlayers) player = state.allPlayers.find(matches);
+  if (!player && state.filteredPlayers) player = state.filteredPlayers.find(matches);
+  if (!player && state.searchResults) player = state.searchResults.find(matches);
+  if (!player && state.watchlistFilteredPlayers) player = state.watchlistFilteredPlayers.find(matches);
+
+  if (!player) {
+    console.error(`Player with ID ${playerId} not found in state.`);
+    showToast('Player details not found', 'error');
+    return;
+  }
   
   state.selectedPlayer = player;
   
   const container = document.getElementById('detail-content');
   if (!container) return;
   
+  // Normalize player data (some might use 'ovr', others 'overall')
+  const rating = player.ovr || player.overall || 'N/A';
+  const price = player.price ? formatPrice(player.price) : 'N/A';
+  const priceChange = player.priceChange || 0;
+
   container.innerHTML = `
     <div class="detail-header">
       <div class="detail-card">
         <div class="detail-avatar">${getInitials(player.name)}</div>
-        <div class="detail-rating">${player.overall}</div>
+        <div class="detail-rating">${rating}</div>
         <div class="detail-position">${player.position}</div>
       </div>
       <div class="detail-info">
         <h1 class="detail-name">${player.name}</h1>
         <div class="detail-meta">
           <span class="detail-badge">${player.position}</span>
-          <span class="detail-badge">${player.club}</span>
-          <span class="detail-badge">${player.league}</span>
-          <span class="detail-badge">${player.nation}</span>
+          <span class="detail-badge">${player.club || player.team || 'Unknown Club'}</span>
+          <span class="detail-badge">${player.league || 'Unknown League'}</span>
+          <span class="detail-badge">${player.nation || 'Unknown Nation'}</span>
         </div>
         <div class="stats-grid-detail">
           ${createStatBar('PAC', player.pace)}
@@ -39,9 +58,9 @@ window.viewPlayerDetail = function(playerId) {
     
     <div class="detail-price-section">
       <h2>Market Price</h2>
-      <div class="detail-current-price">${formatPrice(player.price)}</div>
-      <div class="price-change ${player.priceChange >= 0 ? 'up' : 'down'}" style="font-size: 20px; margin-bottom: 24px;">
-        ${player.priceChange >= 0 ? '↑' : '↓'} ${Math.abs(player.priceChange).toFixed(1)}% (24h)
+      <div class="detail-current-price">${price}</div>
+      <div class="price-change ${priceChange >= 0 ? 'up' : 'down'}" style="font-size: 20px; margin-bottom: 24px;">
+        ${priceChange >= 0 ? '↑' : '↓'} ${Math.abs(priceChange).toFixed(1)}% (24h)
       </div>
       <div class="chart-container">
         <canvas id="detail-chart"></canvas>
@@ -49,8 +68,8 @@ window.viewPlayerDetail = function(playerId) {
     </div>
     
     <div style="display: flex; gap: 16px; justify-content: center;">
-      <button class="btn btn-primary" onclick="toggleWatchlist(${player.id})">
-        ${state.watchlist.includes(player.id) ? 'Remove from Watchlist' : 'Add to Watchlist'}
+      <button class="btn btn-primary" onclick="toggleWatchlist('${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}')">
+        ${state.watchlist.includes(`${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}`) ? 'Remove from Watchlist' : 'Add to Watchlist'}
       </button>
       <button class="btn btn-secondary" onclick="switchView('market')">View Market</button>
     </div>
@@ -65,14 +84,15 @@ window.viewPlayerDetail = function(playerId) {
 };
 
 function createStatBar(label, value) {
+  const val = value || 0;
   return `
     <div class="stat-bar">
       <div class="stat-bar-header">
         <span>${label}</span>
-        <span><strong>${value}</strong></span>
+        <span><strong>${val}</strong></span>
       </div>
       <div class="stat-bar-bg">
-        <div class="stat-bar-fill" style="width: ${value}%"></div>
+        <div class="stat-bar-fill" style="width: ${val}%"></div>
       </div>
     </div>
   `;
@@ -83,7 +103,9 @@ function createDetailChart(player) {
   if (!canvas) return;
   
   const ctx = canvas.getContext('2d');
-  const history = generatePriceHistory(player.price, 14);
+  // Use a default price if player price is missing/zero for chart generation purposes
+  const basePrice = player.price || 100000;
+  const history = generatePriceHistory(basePrice, 14);
   
   new Chart(ctx, {
     type: 'line',
