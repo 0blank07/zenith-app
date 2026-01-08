@@ -1,0 +1,3732 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/data/config.js"></script>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenith - Ultimate Market Tracker</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets\css\tool-style.css">
+</head>
+
+<body>
+  <div id="loading-indicator" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center;">
+      <div style="background: white; padding: 30px; border-radius: 10px; text-align: center;">
+          <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+          <p style="margin: 0; font-size: 16px; color: #333;">Loading players...</p>
+      </div>
+  </div>
+
+  <style>
+  @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+  }
+  </style>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="url(#gradient)"></rect>
+          <path d="M16 8L20 14H12L16 8Z" fill="white"></path>
+          <circle cx="16" cy="20" r="4" fill="white"></circle>
+          <defs>
+            <lineargradient id="gradient" x1="0" y1="0" x2="32" y2="32">
+              <stop offset="0%" stop-color="#6366F1"></stop>
+              <stop offset="100%" stop-color="#8B5CF6"></stop>
+            </lineargradient>
+          </defs>
+        </svg>
+        <span>Zenith</span>
+      </div>
+      <nav class="nav-desktop">
+        <button class="nav-link" data-view="dashboard">Home</button>
+        <button class="nav-link" data-view="database">Players</button>
+        <button class="nav-link" data-view="market">Market</button>
+        <button class="nav-link" data-view="watchlist">Watchlist</button>
+        <button class="tools-btn active">Tools</button>
+
+      </nav>
+      <div class="header-actions">
+        <div class="user-avatar">
+          <div class="avatar-circle">FC</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PASTE YOUR SLIDER HERE -->
+  <div class="slider">
+      <span>FC Points & More to Be Won with Futbin's Festive Rewards!</span>
+  </div>
+
+  <div class="search-container">
+
+
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Dashboard View -->
+    <div id="dashboard-view" class="view">
+      <!-- Search Section -->
+      <section class="search-section">
+        <div class="search-container">
+          <div class="search-box">
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" id="home-search" class="search-input" placeholder="Search for players..." autocomplete="off">
+          </div>
+          <!-- NEW: Dropdown Suggestions -->
+          <div id="search-dropdown" class="search-dropdown">
+              <div class="search-dropdown-content" id="search-results-dropdown">
+                  <!-- Results inserted here -->
+              </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Banner Section -->
+      <section class="hero-banner-section">
+        <div class="hero-banner-slider">
+          <div class="banner-slide active" data-redirect="view" data-target="market">
+            <img src="assets/images/banner1.webp" alt="FC Mobile Event" class="banner-image">
+            <div class="banner-overlay">
+              <div class="banner-content">
+                <h2 class="banner-title">Latest Event</h2>
+                <p class="banner-subtitle">Check out the newest players</p>
+              </div>
+            </div>
+          </div>
+          <div class="banner-slide" data-redirect="view" data-target="database">
+            <img src="assets/images/banner2.webp" alt="Market Update" class="banner-image">
+            <div class="banner-overlay">
+              <div class="banner-content">
+                <h2 class="banner-title">Market Trends</h2>
+                <p class="banner-subtitle">Track price movements</p>
+              </div>
+            </div>
+          </div>
+          <div class="banner-slide" data-redirect="tool" data-target="squadbuilder">
+            <img src="assets/images/squad-build-bg.jpeg" alt="Squad Building" class="banner-image">
+            <div class="banner-overlay">
+              <div class="banner-content">
+                <h2 class="banner-title">Build Your Squad</h2>
+                <p class="banner-subtitle">Create the perfect team</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Dots -->
+        <div class="banner-dots">
+          <span class="banner-dot active" data-slide="0"></span>
+          <span class="banner-dot" data-slide="1"></span>
+          <span class="banner-dot" data-slide="2"></span>
+        </div>
+
+        <!-- Navigation Arrows (Desktop Only) -->
+        <button class="banner-arrow banner-prev" aria-label="Previous banner">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <button class="banner-arrow banner-next" aria-label="Next banner">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+      </section>
+
+
+
+
+      <!-- Dashboard Search Results (Hidden by default) -->
+      <div id="dashboard-search-results" style="display: none;">
+          <div class="search-results-header">
+              <h3 id="search-results-count">0 Results</h3>
+          </div>
+          <div id="search-results-container"></div>
+      </div>
+    
+  
+      <!-- Latest Players Section -->
+      <section class="dashboard-section">
+          <div class="section-header">
+              <h2>⚡ Latest Players</h2>
+              <button class="view-all-btn" onclick="switchView('database')">View All</button>
+          </div>
+          <div id="latest-players-grid"></div>
+      </section>
+
+
+      <!-- Trending Players Section -->
+      <section class="dashboard-section">
+          <div class="section-header">
+              <h2>🔥 Trending Players</h2>
+              <button class="view-all-btn" onclick="switchView('database')">View All</button>
+          </div>
+          <div id="trending-players-grid"></div>
+      </section>
+
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Total Players</p>
+            <p class="stat-value" id="total-players">31,847</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Market Volume</p>
+            <p class="stat-value" id="market-volume">1.2B</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Top Gainer</p>
+            <p class="stat-value" id="top-gainer">Vinícius Jr</p>
+            <p class="stat-change positive" id="top-gainer-change">+15.3%</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+              <polyline points="17 18 23 18 23 12"></polyline>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Top Loser</p>
+            <p class="stat-value" id="top-loser">Virgil van Dijk</p>
+            <p class="stat-change negative" id="top-loser-change">-4.2%</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <h2>Recent Price Updates</h2>
+        </div>
+        <div class="updates-list" id="recent-updates">
+          <div class="update-item">
+            <div class="update-player">
+              <div class="update-avatar">KM</div>
+              <div class="update-info">
+                <h4>Kylian Mbappé</h4>
+                <p>ST • Real Madrid</p>
+              </div>
+            </div>
+            <div class="update-price">
+              <div class="price-value">4.25M</div>
+              <div class="price-change up">
+                ↑ 12.6%
+              </div>
+            </div>
+          </div>
+          <div class="update-item">
+            <div class="update-player">
+              <div class="update-avatar">MS</div>
+              <div class="update-info">
+                <h4>Mohamed Salah</h4>
+                <p>RW • Liverpool</p>
+              </div>
+            </div>
+            <div class="update-price">
+              <div class="price-value">1.95M</div>
+              <div class="price-change up">
+                ↑ 3.8%
+              </div>
+            </div>
+          </div>
+          <div class="update-item">
+            <div class="update-player">
+              <div class="update-avatar">VJ</div>
+              <div class="update-info">
+                <h4>Vinícius Jr</h4>
+                <p>LW • Real Madrid</p>
+              </div>
+            </div>
+            <div class="update-price">
+              <div class="price-value">3.20M</div>
+              <div class="price-change up">
+                ↑ 15.3%
+              </div>
+            </div>
+          </div>
+          <div class="update-item">
+            <div class="update-player">
+              <div class="update-avatar">EH</div>
+              <div class="update-info">
+                <h4>Erling Haaland</h4>
+                <p>ST • Manchester City</p>
+              </div>
+            </div>
+            <div class="update-price">
+              <div class="price-value">3.85M</div>
+              <div class="price-change up">
+                ↑ 8.7%
+              </div>
+            </div>
+          </div>
+          <div class="update-item">
+            <div class="update-player">
+              <div class="update-avatar">CR</div>
+              <div class="update-info">
+                <h4>Cristiano Ronaldo</h4>
+                <p>ST • Al Nassr</p>
+              </div>
+            </div>
+            <div class="update-price">
+              <div class="price-value">1.89M</div>
+              <div class="price-change down">
+                ↓ 3.1%
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Player Database View -->
+    <div id="database-view" class="view">
+
+      <!-- Mobile Integrated Search Bar (Google Lens Style) -->
+      <div class="mobile-search-container">
+        <button class="mobile-filter-icon" onclick="toggleMobileFilters()" aria-label="Open Filters">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="18" x2="20" y2="18" />
+            <circle cx="8" cy="6" r="2" fill="currentColor" />
+            <circle cx="16" cy="12" r="2" fill="currentColor" />
+            <circle cx="12" cy="18" r="2" fill="currentColor" />
+          </svg>
+          <span class="filter-badge" id="filter-badge" style="display: none;"></span>
+        </button>
+        <input type="text" class="mobile-search-input" placeholder="Search players..."
+          oninput="handleSearch(this.value)" />
+        <button class="mobile-search-icon" aria-label="Search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Desktop Layout -->
+      <div class="database-layout">
+        <aside class="filters-sidebar">
+          <div class="filters-header">
+            <h3>Filters</h3>
+            <button class="btn btn-text btn-sm" id="clear-filters">Clear All</button>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Position</label>
+            <select id="filter-position" class="filter-select">
+              <option value="">All Positions</option>
+              <option value="ST">Striker (ST)</option>
+              <option value="CF">Center Forward (CF)</option>
+              <option value="LW">Left Wing (LW)</option>
+              <option value="RW">Right Wing (RW)</option>
+              <option value="CAM">Central AM (CAM)</option>
+              <option value="LM">Left Midfielder (LM)</option>
+              <option value="RM">Right Midfielder (RM)</option>
+              <option value="CM">Central Midfielder (CM)</option>
+              <option value="CDM">Defensive Midfielder (CDM)</option>
+              <option value="LB">Left Back (LB)</option>
+              <option value="CB">Center Back (CB)</option>
+              <option value="RB">Right Back (RB)</option>
+              <option value="LWB">Left Wing Back (LWB)</option>
+              <option value="RWB">Right Wing Back (RWB)</option>
+              <option value="GK">Goalkeeper (GK)</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Overall Rating: <span id="rating-value">40-150</span></label>
+            <div class="range-inputs">
+              <input type="number" id="rating-min" value="40" min="40" max="150" class="range-input">
+              <span>-</span>
+              <input type="number" id="rating-max" value="150" min="40" max="150" class="range-input">
+            </div>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Price Range: <span id="price-value">Any</span></label>
+            <div class="range-inputs">
+              <input type="number" id="price-min" placeholder="Min" class="range-input">
+              <span>-</span>
+              <input type="number" id="price-max" placeholder="Max" class="range-input">
+            </div>
+          </div>
+
+
+          <!-- Event Filter -->
+          <div class="filter-group">
+              <label class="filter-label">Event</label>
+              <select id="filter-event" class="filter-select">
+                  <option value="">All Events</option>
+                  <option value="Footyverse 26">Footyverse 26</option>
+                  <option value="A Nation's Story 26">A Nation's Story 26</option>
+                  <option value="Anniversary Retro">Anniversary Retro</option>
+                  <option value="UEFA EURO 2024">UEFA EURO 2024</option>
+                  <option value="POTM 26">POTM 26</option>
+                  <option value="Ragnarok 25">Ragnarok 25</option>
+                  <option value="Thunderstruck">Thunderstruck</option>
+                  <option value="Festive Fixtures">Festive Fixtures</option>
+                  <option value="Shapeshifters">Shapeshifters</option>
+                  <option value="UCL TOP 11">UCL TOP 11</option>
+                  <option value="Aqua 25">Aqua 25</option>
+                  <option value="FC Base Gold">FC Base Gold</option>
+                  <option value="Glorious Eras">Glorious Eras</option>
+                  <option value="Winter Wildcards">Winter Wildcards</option>
+                  <option value="UEFA Heroes">UEFA Heroes</option>
+                  <option value="Universal Rank">Universal Rank</option>
+                  <option value="Team of The Year">Team of The Year</option>
+                  <option value="Rulebreakers">Rulebreakers</option>
+                  <option value="Base Icons">Base Icons</option>
+                  <option value="Songkran 25">Songkran 25</option>
+                  <option value="Prime Hero">Prime Hero</option>
+                  <option value="End of An Era">End of An Era</option>
+                  <option value="Ballon d'Or">Ballon d'Or</option>
+                  <option value="Captains 25">Captains 25</option>
+                  <option value="UCL 26 Primetime">UCL 26 Primetime</option>
+                  <option value="Ramadan">Ramadan</option>
+                  <option value="Día de Muertos">Día de Muertos</option>
+                  <option value="Record Breakers">Record Breakers</option>
+                  <option value="Best of UECL 25">Best of UECL 25</option>
+                  <option value="Captains Live">Captains Live</option>
+                  <option value="Dynasties">Dynasties</option>
+                  <option value="Icons Match 25">Icons Match 25</option>
+                  <option value="Copa América">Copa América</option>
+                  <option value="Retro Stars">Retro Stars</option>
+                  <option value="Holiday">Holiday</option>
+                  <option value="Showdown">Showdown</option>
+                  <option value="Defining Legacies 25">Defining Legacies 25</option>
+                  <option value="FC Base Elite">FC Base Elite</option>
+                  <option value="Grassroot Greats 25">Grassroot Greats 25</option>
+                  <option value="UCL Group Stage">UCL Group Stage</option>
+                  <option value="PEPSI x FC MOBILE">PEPSI x FC MOBILE</option>
+                  <option value="Carnival 25">Carnival 25</option>
+                  <option value="TOTY 25">TOTY 25</option>
+                  <option value="Inferno 25">Inferno 25</option>
+                  <option value="UCL Road to the Final">UCL Road to the Final</option>
+                  <option value="Icon Chronicles">Icon Chronicles</option>
+                  <option value="MLS 25">MLS 25</option>
+                  <option value="Icon Player">Icon Player</option>
+                  <option value="Kick Off">Kick Off</option>
+                  <option value="Base Heroes">Base Heroes</option>
+                  <option value="Moments">Moments</option>
+                  <option value="Welcome to FC Mobile">Welcome to FC Mobile</option>
+                  <option value="Anniversary Prodigies">Anniversary Prodigies</option>
+                  <option value="Trophy Titans">Trophy Titans</option>
+                  <option value="TOTW 25">TOTW 25</option>
+                  <option value="Hall of Legends">Hall of Legends</option>
+                  <option value="Lunar New Year">Lunar New Year</option>
+                  <option value="FC Base Silver">FC Base Silver</option>
+                  <option value="Ultimate TOTS 25">Ultimate TOTS 25</option>
+                  <option value="POTM 25">POTM 25</option>
+                  <option value="Bundesliga POTM">Bundesliga POTM</option>
+                  <option value="Winter Wonders 25">Winter Wonders 25</option>
+                  <option value="Team of the Season">Team of the Season</option>
+                  <option value="Pitch Beats 25">Pitch Beats 25</option>
+                  <option value="Holi">Holi</option>
+                  <option value="Mystery Player">Mystery Player</option>
+                  <option value="CODE: NEON">CODE: NEON</option>
+                  <option value="Star Pass">Star Pass</option>
+                  <option value="CONMEBOL Libertadores">CONMEBOL Libertadores</option>
+                  <option value="Centurions">Centurions</option>
+                  <option value="UCL 25">UCL 25</option>
+                  <option value="LALIGA 25">LALIGA 25</option>
+                  <option value="Best of UEL 25">Best of UEL 25</option>
+                  <option value="Icon Evolutions">Icon Evolutions</option>
+                  <option value="National Valour">National Valour</option>
+                  <option value="Founders">Founders</option>
+                  <option value="Ultimate Team of the Season">Ultimate Team of the Season</option>
+                  <option value="Ultimate Team of The Year">Ultimate Team of The Year</option>
+                  <option value="Sunshine Ballers">Sunshine Ballers</option>
+                  <option value="FC Base Bronze">FC Base Bronze</option>
+                  <option value="CONMEBOL Sudamericana">CONMEBOL Sudamericana</option>
+                  <option value="2nd Anniversary">2nd Anniversary</option>
+                  <option value="Serie A POTM">Serie A POTM</option>
+                  <option value="Soccer Aid 25">Soccer Aid 25</option>
+                  <option value="Rivals Live">Rivals Live</option>
+                  <option value="Ligue 1 POTM">Ligue 1 POTM</option>
+                  <option value="TOTW 24">TOTW 24</option>
+                  <option value="TOTW 26">TOTW 26</option>
+                  <option value="National Stars 25">National Stars 25</option>
+                  <option value="Premier League POTM">Premier League POTM</option>
+                  <option value="Hero Chronicles">Hero Chronicles</option>
+                  <option value="League Champions">League Champions</option>
+              </select>
+          </div>
+
+
+          <div class="filter-group">
+            <label class="filter-label">League</label>
+            <select id="filter-league" class="filter-select">
+              
+            <option value="">All Leagues</option>
+
+            <!-- 🌍 Tier 1 — Global Giants -->
+            <option value="Premier League">Premier League</option>
+            <option value="LALIGA EA SPORTS">LALIGA EA SPORTS</option>
+            <option value="Bundesliga">Bundesliga</option>
+            <option value="Serie A TIM">Serie A TIM</option>
+            <option value="Ligue 1 Uber Eats">Ligue 1 Uber Eats</option>
+
+            <!-- 🌍 Tier 2 — Major Competitive Leagues -->
+            <option value="Eredivisie">Eredivisie</option>
+            <option value="Liga Portugal">Liga Portugal</option>
+            <option value="ROSHN Saudi League">ROSHN Saudi League</option>
+            <option value="Major League Soccer">Major League Soccer</option>
+            <option value="Brasileirão">Brasileirão</option>
+            <option value="Argentine Primera División">Argentine Primera División</option>
+
+            <!-- 🌍 Tier 3 — Strong Regional / Second Divisions -->
+            <option value="EFL Championship">EFL Championship</option>
+            <option value="Bundesliga 2">Bundesliga 2</option>
+            <option value="LALIGA HYPERMOTION">LALIGA HYPERMOTION</option>
+            <option value="Serie BKT">Serie BKT</option>
+            <option value="Ligue 2 BKT">Ligue 2 BKT</option>
+            <option value="3. Liga">3. Liga</option>
+
+            <!-- 🌍 Tier 4 — Continental Competitions -->
+            <option value="CONMEBOL Libertadores">CONMEBOL Libertadores</option>
+            <option value="CONMEBOL Sudamericana">CONMEBOL Sudamericana</option>
+
+            <!-- 🌍 Tier 5 — Top Domestic Leagues (Mid Popularity) -->
+            <option value="K League 1">K League 1</option>
+            <option value="Isuzu UTE A League">Isuzu UTE A League</option>
+            <option value="Indian Super League">Indian Super League</option>
+            <option value="Chinese Football Association Super League">Chinese Football Association Super League</option>
+            <option value="1A Pro League">1A Pro League</option>
+            <option value="Eliteserien">Eliteserien</option>
+            <option value="Allsvenskan">Allsvenskan</option>
+            <option value="SUPERLIGA">SUPERLIGA</option>
+            <option value="3F Superliga">3F Superliga</option>
+            <option value="Credit Suisse Super League">Credit Suisse Super League</option>
+            <option value="PKO Bank Polski Ekstraklasa">PKO Bank Polski Ekstraklasa</option>
+            <option value="cinch Premiership">cinch Premiership</option>
+            <option value="Česká Liga">Česká Liga</option>
+            <option value="Ukrayina Liha">Ukrayina Liha</option>
+            <option value="Liga Hrvatska">Liga Hrvatska</option>
+            <option value="Magyar Liga">Magyar Liga</option>
+            <option value="Finnliiga">Finnliiga</option>
+
+            <!-- 🌍 Tier 6 — Smaller / Niche Leagues -->
+            <option value="Liga Chile">Liga Chile</option>
+            <option value="Liga Azerbaijan">Liga Azerbaijan</option>
+            <option value="Liga Cyprus">Liga Cyprus</option>
+            <option value="United Emirates League">United Emirates League</option>
+            <option value="Hellas Liga">Hellas Liga</option>
+
+            <!-- 🌍 Tier 7 — Cups / Misc / Special -->
+            <option value="International">International</option>
+            <option value="Icons">Icons</option>
+            <option value="SSE Airtricity Men's Premier Division">
+              SSE Airtricity Men's Premier Division
+            </option>
+            <option value="LeagueName_1980">LeagueName_1980</option>
+
+
+            </select>
+          </div>
+          
+
+          <div class="filter-group">
+            <label class="filter-label">Club</label>
+            <select id="filter-club" class="filter-select">
+              <option value="">All Clubs</option>
+              <option value="Real Madrid">Real Madrid</option>
+              <option value="FC Barcelona">FC Barcelona</option>
+              <option value="Manchester United">Manchester United</option>
+              <option value="Liverpool">Liverpool</option>
+              <option value="FC Bayern München">FC Bayern München</option>
+              <option value="Juventus">Juventus</option>
+              <option value="Paris Saint-Germain">Paris Saint-Germain</option>
+              <option value="Chelsea">Chelsea</option>
+              <option value="Arsenal">Arsenal</option>
+              <option value="Manchester City">Manchester City</option>
+              <option value="AC Milan">Milan</option>
+              <option value="Inter">Inter</option>
+              <option value="Atlético de Madrid">Atlético de Madrid</option>
+              <option value="Tottenham Hotspur">Tottenham Hotspur</option>
+              <option value="Borussia Dortmund">Borussia Dortmund</option>
+              <option value="Ajax">Ajax</option>
+              <option value="SL Benfica">SL Benfica</option>
+              <option value="FC Porto">FC Porto</option>
+              <option value="Sevilla FC">Sevilla FC</option>
+              <option value="SSC Napoli">SSC Napoli</option>
+              <option value="AS Monaco">AS Monaco</option>
+              <option value="Olympique de Marseille">Olympique de Marseille</option>
+              <option value="Olympique Lyonnais">Olympique Lyonnais</option>
+              <option value="PSV">PSV</option>
+              <option value="Feyenoord">Feyenoord</option>
+              <option value="Celtic">Celtic</option>
+              <option value="Rangers">Rangers</option>
+              <option value="Boca Juniors">Boca Juniors</option>
+              <option value="River Plate">River Plate</option>
+              <option value="Flamengo">Flamengo</option>
+              <option value="Palmeiras">Palmeiras</option>
+              <option value="Corinthians">Corinthians</option>
+              <option value="São Paulo">São Paulo</option>
+              <option value="Atlético Mineiro">Atlético Mineiro</option>
+              <option value="Vasco da Gama">Vasco da Gama</option>
+              <option value="Grêmio">Grêmio</option>
+              <option value="Internacional">Internacional</option>
+              <option value="Cruzeiro">Cruzeiro</option>
+              <option value="LA Galaxy">LA Galaxy</option>
+              <option value="LAFC">LAFC</option>
+              <option value="Inter Miami CF">Inter Miami CF</option>
+              <option value="New York City FC">New York City FC</option>
+              <option value="Seattle Sounders FC">Seattle Sounders FC</option>
+              <option value="Atlanta United">Atlanta United</option>
+              <option value="Orlando City Soccer Club">Orlando City Soccer Club</option>
+              <option value="New York Red Bulls">New York Red Bulls</option>
+              <option value="Toronto FC">Toronto FC</option>
+              <option value="CF Montréal">Club de Foot Montréal</option>
+              <option value="Vancouver Whitecaps FC">Vancouver Whitecaps FC</option>
+              <option value="FC Dallas">FC Dallas</option>
+              <option value="FC Cincinnati">FC Cincinnati</option>
+              <option value="Columbus Crew">Columbus Crew</option>
+              <option value="D.C. United">D.C. United</option>
+              <option value="Bayer 04 Leverkusen">Bayer 04 Leverkusen</option>
+              <option value="RB Leipzig">RB Leipzig</option>
+              <option value="Eintracht Frankfurt">Eintracht Frankfurt</option>
+              <option value="VfB Stuttgart">VfB Stuttgart</option>
+              <option value="VfL Wolfsburg">VfL Wolfsburg</option>
+              <option value="Sporting CP">Sporting CP</option>
+              <option value="FC Schalke 04">FC Schalke 04</option>
+              <option value="Hamburger SV">Hamburger SV</option>
+              <option value="Borussia Mönchengladbach">Borussia Mönchengladbach</option>
+              <option value="BSC Young Boys">BSC Young Boys</option>
+              <option value="FC Basel 1893">FC Basel 1893</option>
+              <option value="FC Zürich">FC Zürich</option>
+              <option value="Grasshopper Club Zürich">Grasshopper Club Zürich</option>
+              <option value="FC St. Gallen 1879">FC St. Gallen 1879</option>
+              <option value="FC Red Bull Salzburg">FC Red Bull Salzburg</option>
+              <option value="Club Brugge">Club Brugge</option>
+              <option value="RSC Anderlecht">RSC Anderlecht</option>
+              <option value="KRC Genk">KRC Genk</option>
+              <option value="KAA Gent">KAA Gent</option>
+              <option value="Standard de Liège">Standard de Liège</option>
+              <option value="Galatasaray SK">Galatasaray SK</option>
+              <option value="Fenerbahçe SK">Fenerbahçe SK</option>
+              <option value="Beşiktaş JK">Beşiktaş JK</option>
+              <option value="Olympiacos FC">Olympiacos FC</option>
+              <option value="Panathinaikos FC">Panathinaikos FC</option>
+              <option value="RSC Anderlecht">RSC Anderlecht</option>
+              <option value="FC Porto">FC Porto</option>
+              <option value="Valencia CF">Valencia CF</option>
+              <option value="Real Sociedad">Real Sociedad</option>
+              <option value="Real Betis Balompié">Real Betis Balompié</option>
+              <option value="Villarreal CF">Villarreal CF</option>
+              <option value="Real Valladolid CF">Real Valladolid CF</option>
+              <option value="Rayo Vallecano">Rayo Vallecano</option>
+              <option value="Real Club Celta de Vigo">Real Club Celta de Vigo</option>
+              <option value="Athletic Club">Athletic Club</option>
+              <option value="Aston Villa">Aston Villa</option>
+              <option value="Everton">Everton</option>
+              <option value="Leeds United">Leeds United</option>
+              <option value="Leicester City">Leicester City</option>
+              <option value="West Ham United">West Ham United</option>
+              <option value="Newcastle United">Newcastle United</option>
+              <option value="Wolverhampton Wanderers">Wolverhampton Wanderers</option>
+              <option value="Brighton & Hove Albion">Brighton & Hove Albion</option>
+              <option value="West Bromwich Albion">West Bromwich Albion</option>
+              <option value="Nottingham Forest">Nottingham Forest</option>
+              <option value="Crystal Palace">Crystal Palace</option>
+              <option value="Burnley">Burnley</option>
+              <option value="Blackburn Rovers">Blackburn Rovers</option>
+              <option value="Blackpool">Blackpool</option>
+              <option value="Bolton Wanderers">Bolton Wanderers</option>
+              <option value="Sunderland">Sunderland</option>
+              <option value="Bournemouth">AFC Bournemouth</option>
+              <option value="Brentford">Brentford</option>
+              <option value="Fulham">Fulham</option>
+              <option value="Celtic">Celtic</option>
+              <option value="Rangers">Rangers</option>
+              <option value="Sporting Cristal">Sporting Cristal</option>
+              <option value="Al Hilal">Al Hilal</option>
+              <option value="Al Nassr">Al Nassr</option>
+              <option value="Al Ittihad">Al Ittihad</option>
+              <option value="Al Shabab">Al Shabab</option>
+              <option value="Al Ahli">Al Ahli</option>
+              <option value="Al Riyadh">Al Riyadh</option>
+              <option value="Al Taawoun">Al Taawoun</option>
+              <option value="Al Wehda">Al Wehda</option>
+              <option value="Al Qadisiyah">Al Qadisiyah</option>
+              <option value="Al Raed">Al Raed</option>
+              <option value="Al Okhdood">Al Okhdood</option>
+              <option value="Al Fayha">Al Fayha</option>
+              <option value="Al Kholood">Al Kholood</option>
+              <option value="Al Khaleej">Al Khaleej</option>
+              <option value="Galatasaray SK">Galatasaray SK</option>
+              <option value="Besiktas JK">Beşiktaş JK</option>
+              <option value="Fenerbahçe SK">Fenerbahçe SK</option>
+              <option value="Shakhtar Donetsk">Shakhtar Donetsk</option>
+              <option value="Dynamo Kyiv">Dynamo Kyiv</option>
+              <option value="CSKA (if present)">(not in list)</option>
+              <option value="Fluminense">Fluminense</option>
+              <option value="Fortaleza">Fortaleza</option>
+              <option value="Bahia">Bahia</option>
+              <option value="Ceará (not in list)">(not in list)</option>
+              <option value="VfL Wolfsburg">VfL Wolfsburg</option>
+              <option value="VfB Stuttgart">VfB Stuttgart</option>
+              <option value="Bayer 04 Leverkusen">Bayer 04 Leverkusen</option>
+              <option value="Borussia Mönchengladbach">Borussia Mönchengladbach</option>
+              <option value="N.E.C. Nijmegen">N.E.C. Nijmegen</option>
+              <option value="AZ">AZ</option>
+              <option value="FC Twente">FC Twente</option>
+              <option value="FC Utrecht">FC Utrecht</option>
+              <option value="Vitesse">Vitesse</option>
+              <option value="FC Groningen">FC Groningen</option>
+              <option value="PSV">PSV</option>
+              <option value="Feyenoord">Feyenoord</option>
+              <option value="SC Heerenveen">sc Heerenveen</option>
+              <option value="FC Nantes">FC Nantes</option>
+              <option value="RC Lens">RC Lens</option>
+              <option value="LOSC Lille">LOSC Lille</option>
+              <option value="OGC Nice">OGC Nice</option>
+              <option value="Olympique Lyonnais">Olympique Lyonnais</option>
+              <option value="Stade Rennais FC">Stade Rennais FC</option>
+              <option value="Stade Brestois 29">Stade Brestois 29</option>
+              <option value="AS Saint-Étienne">AS Saint-Étienne</option>
+              <option value="Montpellier Hérault SC">Montpellier Hérault SC</option>
+              <option value="Stade de Reims">Stade de Reims</option>
+              <option value="RC Strasbourg Alsace">RC Strasbourg Alsace</option>
+              <option value="FC Girondins de Bordeaux">FC Girondins de Bordeaux</option>
+              <option value="Valencia CF">Valencia CF</option>
+              <option value="Getafe CF">Getafe CF</option>
+              <option value="RCD Espanyol de Barcelona">RCD Espanyol de Barcelona</option>
+              <option value="RCD Mallorca">RCD Mallorca</option>
+              <option value="Real Sociedad">Real Sociedad</option>
+              <option value="Real Betis Balompié">Real Betis Balompié</option>
+              <option value="Celta de Vigo">Real Club Celta de Vigo</option>
+              <option value="Real Oviedo">Real Oviedo</option>
+              <option value="Real Zaragoza">Real Zaragoza</option>
+              <option value="SD Huesca">SD Huesca</option>
+              <option value="Levante UD">Levante UD</option>
+              <option value="UD Almería">UD Almería</option>
+              <option value="UD Las Palmas">UD Las Palmas</option>
+              <option value="Granada CF">Granada CF</option>
+              <option value="Cádiz CF">Cádiz CF</option>
+              <option value="Celta (alternate)">Celta</option>
+              <option value="Atalanta (Bergamo Calcio)">Bergamo Calcio</option>
+              <option value="Roma FC">Roma FC</option>
+              <option value="AS Roma">AS Roma</option>
+              <option value="Lazio (not in list)">(not in list)</option>
+              <option value="Fiorentina">Fiorentina</option>
+              <option value="Torino">Torino</option>
+              <option value="Bologna">Bologna</option>
+              <option value="Lecce">Lecce</option>
+              <option value="Sassuolo">Sassuolo</option>
+              <option value="Sampdoria">Sampdoria</option>
+              <option value="Udinese">Udinese</option>
+              <option value="Cagliari">Cagliari</option>
+              <option value="Parma">Parma</option>
+              <option value="Bari">Bari</option>
+              <option value="Monza">Monza</option>
+              <option value="Modena">Modena</option>
+              <option value="Como 1907">Como 1907</option>
+              <option value="Salernitana">Salernitana</option>
+              <option value="Hellas Verona">Hellas Verona</option>
+              <option value="Empoli">Empoli</option>
+              <option value="Napoli">Napoli</option>
+              <option value="SSC Napoli">SSC Napoli</option>
+              <option value="Atalanta (duplicate)">(duplicate)</option>
+              <option value="RB Leipzig">RB Leipzig</option>
+              <option value="Sport-Club Freiburg">Sport-Club Freiburg</option>
+              <option value="SC Freiburg II">SC Freiburg II</option>
+              <option value="SC Paderborn 07">SC Paderborn 07</option>
+              <option value="1. FC Heidenheim 1846">1. FC Heidenheim 1846</option>
+              <option value="1. FSV Mainz 05">1. FSV Mainz 05</option>
+              <option value="VfL Bochum 1848">VfL Bochum 1848</option>
+              <option value="VfL Osnabrück">VfL Osnabrück</option>
+              <option value="1. FC Köln">1. FC Köln</option>
+              <option value="1. FC Nürnberg">1. FC Nürnberg</option>
+              <option value="1. FC Kaiserslautern">1. FC Kaiserslautern</option>
+              <option value="FC Schalke 04">FC Schalke 04</option>
+              <option value="FC St. Pauli">FC St. Pauli</option>
+              <option value="FC Augsburg">FC Augsburg</option>
+              <option value="TSG Hoffenheim">TSG Hoffenheim</option>
+              <option value="TSG Hoffenheim II">TSG Hoffenheim II</option>
+              <option value="Hertha BSC">Hertha BSC</option>
+              <option value="Hannover 96">Hannover 96</option>
+              <option value="Eintracht Frankfurt">Eintracht Frankfurt</option>
+              <option value="Bayer 04 Leverkusen">Bayer 04 Leverkusen</option>
+              <option value="VfB Stuttgart">VfB Stuttgart</option>
+              <option value="Hamburger SV">Hamburger SV</option>
+              <option value="Werder Bremen">SV Werder Bremen</option>
+              <option value="FC Ingolstadt 04">FC Ingolstadt 04</option>
+              <option value="FC Erzgebirge Aue">FC Erzgebirge Aue</option>
+              <option value="FC Energie Cottbus">FC Energie Cottbus</option>
+              <option value="Eintracht Braunschweig">Eintracht Braunschweig</option>
+              <option value="Arminia Bielefeld">DSC Arminia Bielefeld</option>
+              <option value="VfB Stuttgart II">VfB Stuttgart II</option>
+              <option value="TSV 1860 München">TSV 1860 München</option>
+              <option value="FC Luzern">FC Luzern</option>
+              <option value="FC Lugano">FC Lugano</option>
+              <option value="FC Lausanne-Sport">FC Lausanne-Sport</option>
+              <option value="FC Winterthur">FC Winterthur</option>
+              <option value="FC Zürich">FC Zürich</option>
+              <option value="FC Basel 1893">FC Basel 1893</option>
+              <option value="FC Sion">FC Sion</option>
+              <option value="St. Gallen">FC St. Gallen 1879</option>
+              <option value="BSC Young Boys">BSC Young Boys</option>
+              <option value="Grasshopper Club Zürich">Grasshopper Club Zürich</option>
+              <option value="Yverdon Sport FC">Yverdon Sport FC</option>
+              <option value="FC Annecy">FC Annecy</option>
+              <option value="FC Metz">FC Metz</option>
+              <option value="RC Strasbourg Alsace">RC Strasbourg Alsace</option>
+              <option value="Grenoble Foot 38">Grenoble Foot 38</option>
+              <option value="Toulouse FC">Toulouse FC</option>
+              <option value="FC Girondins de Bordeaux">FC Girondins de Bordeaux</option>
+              <option value="FC Lorient">FC Lorient</option>
+              <option value="FC Nantes">FC Nantes</option>
+              <option value="Montpellier Hérault SC">Montpellier Hérault SC</option>
+              <option value="RC Lens">RC Lens</option>
+              <option value="LOSC Lille">LOSC Lille</option>
+              <option value="OGC Nice">OGC Nice</option>
+              <option value="Stade Rennais FC">Stade Rennais FC</option>
+              <option value="Stade Brestois 29">Stade Brestois 29</option>
+              <option value="AC Ajaccio">AC Ajaccio</option>
+              <option value="Estoril Praia">Estoril Praia</option>
+              <option value="Sporting CP">Sporting CP</option>
+              <option value="Boavista FC">Boavista FC</option>
+              <option value="Porto">FC Porto</option>
+              <option value="Braga">SC Braga</option>
+              <option value="Gil Vicente FC">Gil Vicente FC</option>
+              <option value="Vitoria SC">Vitória SC</option>
+              <option value="Belenenses/Alverca/others">FC Alverca</option>
+              <option value="Moreirense FC">Moreirense FC</option>
+              <option value="Famalicão">FC Famalicão</option>
+              <option value="Santa Clara">Santa Clara</option>
+              <option value="Cork City">Cork City</option>
+              <option value="Dundee United">Dundee United</option>
+              <option value="Dundee FC">Dundee FC</option>
+              <option value="Celtic">Celtic</option>
+              <option value="Rangers">Rangers</option>
+              <option value="Hibernian">Hibernian</option>
+              <option value="Heart of Midlothian">Heart of Midlothian</option>
+              <option value="Aberdeen">Aberdeen</option>
+              <option value="Swansea City">Swansea City</option>
+              <option value="Cardiff City">Cardiff City</option>
+              <option value="Norwich City">Norwich City</option>
+              <option value="Ipswich Town">Ipswich Town</option>
+              <option value="Preston North End">Preston North End</option>
+              <option value="Blackburn Rovers">Blackburn Rovers</option>
+              <option value="Middlesbrough">Middlesbrough</option>
+              <option value="Birmingham City">Birmingham City</option>
+              <option value="Hull City">Hull City</option>
+              <option value="Coventry City">Coventry City</option>
+              <option value="Sunderland">Sunderland</option>
+              <option value="Leicester City">Leicester City</option>
+              <option value="Nottingham Forest">Nottingham Forest</option>
+              <option value="Sheffield United">Sheffield United</option>
+              <option value="Sheffield Wednesday">Sheffield Wednesday</option>
+              <option value="Derby County">Derby County</option>
+              <option value="Rotherham United">Rotherham United</option>
+              <option value="Rochdale/others">(not in list)</option>
+              <option value="Sunderland">Sunderland</option>
+              <option value="Bristol Rovers">Bristol Rovers</option>
+              <option value="Bristol City">Bristol City</option>
+              <option value="Barnsley">Barnsley</option>
+              <option value="Barnet">Barnet</option>
+              <option value="Bradford City">Bradford City</option>
+              <option value="Huddersfield Town">Huddersfield Town</option>
+              <option value="Reading">Reading</option>
+              <option value="Wycombe Wanderers">Wycombe Wanderers</option>
+              <option value="Oxford United">Oxford United</option>
+              <option value="Plymouth Argyle">Plymouth Argyle</option>
+              <option value="Portsmouth">Portsmouth</option>
+              <option value="Swansea City">Swansea City</option>
+              <option value="Swindon Town">Swindon Town</option>
+              <option value="Wigan Athletic">Wigan Athletic</option>
+              <option value="Walsall">Walsall</option>
+              <option value="Forest Green Rovers">Forest Green Rovers</option>
+              <option value="Notts County">Notts County</option>
+              <option value="Blackpool">Blackpool</option>
+              <option value="Morecambe">Morecambe</option>
+              <option value="Barrow">Barrow</option>
+              <option value="Grimsby Town">Grimsby Town</option>
+              <option value="Crawley Town">Crawley Town</option>
+              <option value="Charlton Athletic">Charlton Athletic</option>
+              <option value="Colchester United">Colchester United</option>
+              <option value="Cambridge United">Cambridge United</option>
+              <option value="Milton Keynes Dons">Milton Keynes Dons</option>
+              <option value="Leyton Orient">Leyton Orient</option>
+              <option value="Accrington Stanley">Accrington Stanley</option>
+              <option value="Crewe Alexandra">Crewe Alexandra</option>
+              <option value="Doncaster Rovers">Doncaster Rovers</option>
+              <option value="Carlisle United">Carlisle United</option>
+              <option value="Fleetwood Town">Fleetwood Town</option>
+              <option value="Peterborough United">Peterborough United</option>
+              <option value="AFC Wimbledon">AFC Wimbledon</option>
+              <option value="Sutton United">Sutton United</option>
+              <option value="Southampton">Southampton</option>
+              <option value="Watford">Watford</option>
+              <option value="Queens Park Rangers">Queens Park Rangers</option>
+              <option value="Blackburn Rovers">Blackburn Rovers</option>
+              <option value="Huddersfield Town">Huddersfield Town</option>
+              <option value="Millwall">Millwall</option>
+              <option value="Charlton Athletic">Charlton Athletic</option>
+              <option value="Shrewsbury">Shrewsbury</option>
+              <option value="Cheltenham Town">Cheltenham Town</option>
+              <option value="Lincoln City">Lincoln City</option>
+
+              <!-- Major Latin American / Argentine / Uruguayan clubs continued -->
+              <option value="Club Atlético Independiente">Club Atlético Independiente</option>
+              <option value="San Lorenzo de Almagro">San Lorenzo de Almagro</option>
+              <option value="Racing Club">Racing Club</option>
+              <option value="Racing Club de Montevideo">Racing Club de Montevideo</option>
+              <option value="Club Nacional de Football">Club Nacional de Football</option>
+              <option value="Club Nacional">Club Nacional</option>
+              <option value="Peñarol (Club Atlético Peñarol)">Club Atlético Peñarol</option>
+              <option value="Club Atlético Boca Juniors">Boca Juniors</option>
+              <option value="Club Atlético River Plate">Club Atlético River Plate</option>
+              <option value="Estudiantes de La Plata">Estudiantes de La Plata</option>
+              <option value="Argentinos Juniors">Argentinos Juniors</option>
+              <option value="Newell's Old Boys">Newell's Old Boys</option>
+              <option value="Vélez Sarsfield">Vélez Sarsfield</option>
+              <option value="Racing de Ferrol">Racing de Ferrol</option>
+              <option value="Belgrano de Córdoba">Belgrano de Córdoba</option>
+              <option value="Club Atlético Lanús">Club Atlético Lanús</option>
+              <option value="Club Atlético Banfield">Club Atlético Banfield</option>
+              <option value="Club Atlético Talleres">Club Atlético Talleres</option>
+              <option value="Club Atlético San Martín">Club Atlético San Martín</option>
+              <option value="Club Atlético Sarmiento">Club Atlético Sarmiento</option>
+              <option value="Club Atlético Central Córdoba">Club Atlético Central Córdoba</option>
+              <option value="Club Atlético Aldosivi">Club Atlético Aldosivi</option>
+              <option value="Club Atlético Platense">Club Atlético Platense</option>
+              <option value="Club Atlético Huracán">Club Atlético Huracán</option>
+              <option value="Gimnasia y Esgrima La Plata">Gimnasia y Esgrima La Plata</option>
+              <option value="Rosario Central">Rosario Central</option>
+              <option value="Defensa y Justicia">Defensa y Justicia</option>
+              <option value="Patronato">Patronato</option>
+              <option value="Godoy Cruz">Godoy Cruz</option>
+              <option value="Barracas Central">Barracas Central</option>
+              <option value="Central Córdoba">Club Atlético Central Córdoba</option>
+
+              <!-- South America other clubs -->
+              <option value="Millonarios FC">Millonarios FC</option>
+              <option value="Club Atlético Nacional">Atlético Nacional</option>
+              <option value="Atlético Nacional">Atlético Nacional</option>
+              <option value="Deportivo Pereira">Deportivo Pereira</option>
+              <option value="Independiente Medellín">Independiente Medellín</option>
+              <option value="Junior FC">Junior FC</option>
+              <option value="América de Cali">América de Cali</option>
+              <option value="Atlético Bucaramanga">Atlético Bucaramanga</option>
+              <option value="Universidad de Chile">Universidad de Chile</option>
+              <option value="Colo-Colo">Colo-Colo</option>
+              <option value="Universidad Católica">Universidad Católica</option>
+              <option value="Universidad Católica del Ecuador">Universidad Católica del Ecuador</option>
+              <option value="Barcelona SC">Barcelona SC</option>
+              <option value="Universidad César Vallejo">Universidad César Vallejo</option>
+              <option value="Universitario">Universitario</option>
+              <option value="Alianza Lima">Alianza Lima</option>
+              <option value="Sporting Cristal">Sporting Cristal</option>
+              <option value="Emelec">CS Emelec</option>
+              <option value="Deportivo Táchira">Deportivo Táchira</option>
+              <option value="Caracas FC">Caracas FC</option>
+              <option value="Club Bolívar">Club Bolívar</option>
+              <option value="The Strongest">The Strongest</option>
+              <option value="Club Always Ready">Club Always Ready</option>
+              <option value="Club Olimpia">Club Olimpia</option>
+              <option value="Cerro Porteño">Cerro Porteño</option>
+              <option value="Club Guaraní">Club Guaraní</option>
+              <option value="Club Blooming">Club Blooming</option>
+
+              <!-- Major Latin American domestic clubs / Brazil continued -->
+              <option value="Fluminense">Fluminense</option>
+              <option value="Fortaleza">Fortaleza</option>
+              <option value="Bahia">Bahia</option>
+              <option value="Cuiabá">Cuiabá</option>
+              <option value="Goiás">Goiás</option>
+              <option value="Atlético Mineiro">Atlético Mineiro</option>
+              <option value="Red Bull Bragantino">Red Bull Bragantino</option>
+              <option value="Vasco da Gama">Vasco da Gama</option>
+              <option value="Cruzeiro">Cruzeiro</option>
+
+              <!-- MLS / Concacaf / US clubs -->
+              <option value="Atlanta United">Atlanta United</option>
+              <option value="Charlotte FC">Charlotte FC</option>
+              <option value="New England Revolution">New England Revolution</option>
+              <option value="New York Red Bulls">New York Red Bulls</option>
+              <option value="LA Galaxy">LA Galaxy</option>
+              <option value="LAFC">LAFC</option>
+              <option value="Seattle Sounders FC">Seattle Sounders FC</option>
+              <option value="Inter Miami CF">Inter Miami CF</option>
+              <option value="Toronto FC">Toronto FC</option>
+              <option value="Vancouver Whitecaps FC">Vancouver Whitecaps FC</option>
+              <option value="San Jose Earthquakes">San Jose Earthquakes</option>
+              <option value="Colorado Rapids">Colorado Rapids</option>
+              <option value="Portland Timbers">Portland Timbers</option>
+              <option value="Houston Dynamo">Houston Dynamo</option>
+              <option value="D.C. United">D.C. United</option>
+              <option value="FC Cincinnati">FC Cincinnati</option>
+              <option value="FC Dallas">FC Dallas</option>
+              <option value="Orlando City Soccer Club">Orlando City Soccer Club</option>
+              <option value="New York City FC">New York City FC</option>
+              <option value="Minnesota United FC">Minnesota United FC</option>
+              <option value="St. Louis CITY SC">St. Louis CITY SC</option>
+
+              <!-- China / Super League / Asia big clubs -->
+              <option value="Beijing Guoan Football Club">Beijing Guoan Football Club</option>
+              <option value="Shanghai Shenhua Football Club">Shanghai Shenhua Football Club</option>
+              <option value="Shanghai Port Football Club">Shanghai Port Football Club</option>
+              <option value="Shandong Taishan Football Club">Shandong Taishan Football Club</option>
+              <option value="Shenzhen Football Club">Shenzhen Football Club</option>
+              <option value="Nantong Zhiyun Football Club">Nantong Zhiyun Football Club</option>
+              <option value="Zhejiang Professional Football Club">Zhejiang Professional Football Club</option>
+              <option value="Changchun Yatai Football Club">Changchun Yatai Football Club</option>
+
+              <!-- K-League / J-League / Asian clubs -->
+              <option value="Ulsan Hyundai">Ulsan Hyundai</option>
+              <option value="Jeonbuk Hyundai Motors">Jeonbuk Hyundai Motors</option>
+              <option value="Suwon Samsung Bluewings">Suwon Samsung Bluewings</option>
+              <option value="Jeju United FC">Jeju United FC</option>
+              <option value="Daegu FC">Daegu FC</option>
+              <option value="Pohang Steelers">Pohang Steelers</option>
+              <option value="Gangwon FC">Gangwon FC</option>
+              <option value="GwangJu FC">GwangJu FC</option>
+              <option value="FC Seoul">FC Seoul</option>
+
+              <!-- Australia / A-League -->
+              <option value="Melbourne Victory">Melbourne Victory</option>
+              <option value="Melbourne City">Melbourne City</option>
+              <option value="Sydney FC">Sydney FC</option>
+              <option value="Western Sydney Wanderers">Western Sydney Wanderers</option>
+              <option value="Brisbane Roar">Brisbane Roar</option>
+              <option value="Central Coast Mariners">Central Coast Mariners</option>
+              <option value="Wellington Phoenix">Wellington Phoenix</option>
+              <option value="Perth Glory">Perth Glory</option>
+              <option value="Macarthur FC">Macarthur FC</option>
+              <option value="Newcastle Jets">Newcastle Jets</option>
+
+              <!-- Major Turkish, Greek and Eastern Europe clubs -->
+              <option value="Galatasaray SK">Galatasaray SK</option>
+              <option value="Fenerbahçe SK">Fenerbahçe SK</option>
+              <option value="Beşiktaş JK">Beşiktaş JK</option>
+              <option value="Trabzonspor">Trabzonspor</option>
+              <option value="Kasımpaşa SK">Kasımpaşa SK</option>
+              <option value="Adana Demirspor">Adana Demirspor</option>
+              <option value="Eyüpspor">Eyüpspor</option>
+              <option value="Alanyaspor">Corendon Alanyaspor</option>
+              <option value="Istanbulspor">İstanbulspor</option>
+              <option value="Gençlerbirliği SK">Gençlerbirliği SK</option>
+              <option value="KVC Westerlo">KVC Westerlo</option>
+              <option value="Royal Antwerp FC">Royal Antwerp FC</option>
+              <option value="RWD Molenbeek">RWD Molenbeek</option>
+              <option value="PAOK FC">PAOK FC</option>
+              <option value="Olympiacos FC">Olympiacos FC</option>
+              <option value="Sk Rapid">SK Rapid</option>
+              <option value="FK Austria Wien">FK Austria Wien</option>
+              <option value="SK Sturm Graz">SK Sturm Graz</option>
+              <option value="FK Bodø/Glimt">FK Bodø/Glimt</option>
+              <option value="Rosenborg BK">Rosenborg BK</option>
+
+              <!-- Scandinavian clubs -->
+              <option value="Malmö FF">Malmö FF</option>
+              <option value="IFK Göteborg">IFK Göteborg</option>
+              <option value="IFK Norrköping">IFK Norrköping</option>
+              <option value="Hammarby IF">Hammarby IF</option>
+              <option value="BK Häcken">BK Häcken</option>
+              <option value="Vålerenga Fotball">Vålerenga Fotball</option>
+              <option value="Viking FK">Viking FK</option>
+              <option value="Molde FK">Molde FK</option>
+
+              <!-- Belgium / Netherlands / Portugal / Czech / Poland / Romania mid-tier -->
+              <option value="KRC Genk">KRC Genk</option>
+              <option value="Cercle Brugge KSV">Cercle Brugge KSV</option>
+              <option value="Sint-Truidense VV">Sint-Truidense VV</option>
+              <option value="KVC Westerlo">KVC Westerlo</option>
+              <option value="Club Brugge">Club Brugge</option>
+              <option value="Standard de Liège">Standard de Liège</option>
+              <option value="KAA Gent">KAA Gent</option>
+              <option value="Sparta Rotterdam">Sparta Rotterdam</option>
+              <option value="Excelsior Rotterdam">Excelsior Rotterdam</option>
+              <option value="Go Ahead Eagles">Go Ahead Eagles</option>
+              <option value="PEC Zwolle">PEC Zwolle</option>
+              <option value="AZ">AZ</option>
+              <option value="SC Heerenveen">sc Heerenveen</option>
+              <option value="Vitesse">Vitesse</option>
+              <option value="FC Twente">FC Twente</option>
+              <option value="FC Groningen">FC Groningen</option>
+              <option value="Legia Warszawa">Legia Warszawa</option>
+              <option value="Lech Poznań">Lech Poznań</option>
+              <option value="Piast Gliwice">Piast Gliwice</option>
+              <option value="Raków Częstochowa">RKS Raków Częstochowa</option>
+              <option value="Warta Poznań">Warta Poznań</option>
+              <option value="Cracovia">Cracovia</option>
+              <option value="Górnik Zabrze">Górnik Zabrze</option>
+              <option value="FK Csíkszereda Miercurea Ciuc">FK Csíkszereda Miercurea Ciuc</option>
+              <option value="FCV Farul Constanța">FCV Farul Constanța</option>
+              <option value="FC Rapid 1923">FC Rapid 1923</option>
+              <option value="CFR 1907 Cluj">CFR 1907 Cluj</option>
+
+              <!-- Switzerland / Austria / Hungary / Czech / Romania clubs -->
+              <option value="FC Luzern">FC Luzern</option>
+              <option value="FC Lugano">FC Lugano</option>
+              <option value="FC Sion">FC Sion</option>
+              <option value="Red Star FC">Red Star FC</option>
+              <option value="HNK Hajduk Split">HNK Hajduk Split</option>
+              <option value="GNK Dinamo Zagreb">GNK Dinamo Zagreb</option>
+              <option value="Ferencvárosi TC">Ferencvárosi TC</option>
+
+              <!-- Mid and lower-tier European clubs (preserve relative order) -->
+              <option value="AFC Bournemouth">AFC Bournemouth</option>
+              <option value="Brighton & Hove Albion">Brighton & Hove Albion</option>
+              <option value="West Ham United">West Ham United</option>
+              <option value="Everton">Everton</option>
+              <option value="Leeds United">Leeds United</option>
+              <option value="Nottingham Forest">Nottingham Forest</option>
+              <option value="Wolverhampton Wanderers">Wolverhampton Wanderers</option>
+              <option value="Aston Villa">Aston Villa</option>
+              <option value="Southampton">Southampton</option>
+              <option value="Crystal Palace">Crystal Palace</option>
+              <option value="Fulham">Fulham</option>
+              <option value="Brentford">Brentford</option>
+              <option value="Brighton">Brighton & Hove Albion</option>
+
+              <!-- Mid-tier LaLiga / Segunda / Spanish clubs -->
+              <option value="Rayo Vallecano">Rayo Vallecano</option>
+              <option value="RCD Espanyol de Barcelona">RCD Espanyol de Barcelona</option>
+              <option value="RCD Mallorca">RCD Mallorca</option>
+              <option value="Real Betis Balompié">Real Betis Balompié</option>
+              <option value="Real Sociedad">Real Sociedad</option>
+              <option value="Real Valladolid CF">Real Valladolid CF</option>
+              <option value="Levante UD">Levante UD</option>
+              <option value="CD Tenerife">CD Tenerife</option>
+              <option value="SD Huesca">SD Huesca</option>
+              <option value="CD Leganés">CD Leganés</option>
+              <option value="CD Mirandés">CD Mirandés</option>
+              <option value="CD Eldense">CD Eldense</option>
+              <option value="CD Castellón">CD Castellón</option>
+              <option value="CD Ñublense">CD Ñublense</option>
+              <option value="CD Cobresal">CD Cobresal</option>
+              <option value="CD Palestino">CD Palestino</option>
+              <option value="CD Magallanes">CD Magallanes</option>
+
+              <!-- Italy mid-tier and Serie B/C -->
+              <option value="Sampdoria">Sampdoria</option>
+              <option value="Pisa">Pisa</option>
+              <option value="Brescia">Brescia</option>
+              <option value="Pescara Calcio">Pescara Calcio</option>
+              <option value="Salernitana">Salernitana</option>
+              <option value="Spezia">Spezia</option>
+              <option value="Frosinone">Frosinone</option>
+              <option value="Cosenza">Cosenza</option>
+              <option value="Reggiana">Reggiana</option>
+              <option value="Ternana">Ternana</option>
+              <option value="Ascoli">Ascoli</option>
+              <option value="Catanzaro">Catanzaro</option>
+              <option value="Cesena">Cesena</option>
+              <option value="Como 1907">Como 1907</option>
+              <option value="Lecco">Lecco</option>
+              <option value="Mantova">Mantova</option>
+              <option value="Avellino">Avellino</option>
+              <option value="Carrarese Calcio 1908">Carrarese Calcio 1908</option>
+              <option value="Virtus Entella">Virtus Entella</option>
+
+              <!-- Germany mid-tier and 2. Bundesliga -->
+              <option value="Holstein Kiel">Holstein Kiel</option>
+              <option value="Heidenheim">1. FC Heidenheim 1846</option>
+              <option value="Hoffenheim">TSG Hoffenheim</option>
+              <option value="Hannover 96">Hannover 96</option>
+              <option value="St. Pauli">FC St. Pauli</option>
+              <option value="VfB Lübeck">VfB Lübeck</option>
+              <option value="Waldhof Mannheim">SV Waldhof Mannheim 07</option>
+              <option value="Regensburg">SSV Jahn Regensburg</option>
+              <option value="Dynamo Dresden">SG Dynamo Dresden</option>
+              <option value="FC Erzgebirge Aue">FC Erzgebirge Aue</option>
+              <option value="FC Viktoria Köln">FC Viktoria Köln</option>
+              <option value="SV Elversberg">SV Elversberg</option>
+
+              <!-- France mid-tier and Ligue 2 -->
+              <option value="Amiens SC">Amiens SC</option>
+              <option value="Pau FC">Pau FC</option>
+              <option value="US Concarneau">US Concarneau</option>
+              <option value="Le Mans FC">Le Mans FC</option>
+              <option value="Stade Lavallois MFC">Stade Lavallois MFC</option>
+              <option value="Rodez Aveyron Football">Rodez Aveyron Football</option>
+
+              <!-- Portugal mid-tier -->
+              <option value="Rio Ave FC">Rio Ave FC</option>
+              <option value="Gil Vicente FC">Gil Vicente FC</option>
+              <option value="Boavista FC">Boavista FC</option>
+              <option value="Portimonense SC">Portimonense SC</option>
+              <option value="SC Farense">SC Farense</option>
+              <option value="FC Arouca">FC Arouca</option>
+
+              <!-- Belgium / Poland / Romania / Czech secondary -->
+              <option value="KV Mechelen">KV Mechelen</option>
+              <option value="KVC Westerlo">KVC Westerlo</option>
+              <option value="Oud-Heverlee Leuven">Oud-Heverlee Leuven</option>
+              <option value="Sint-Truidense VV">Sint-Truidense VV</option>
+              <option value="CFR 1907 Cluj">CFR 1907 Cluj</option>
+              <option value="FCV Farul Constanța">FCV Farul Constanța</option>
+
+              <!-- Scandinavian lower/mid -->
+              <option value="IFK Värnamo">IFK Värnamo</option>
+              <option value="IF Brommapojkarna">IF Brommapojkarna</option>
+              <option value="IF Elfsborg">IF Elfsborg</option>
+              <option value="Kalmar FF">Kalmar FF</option>
+              <option value="Halmstads BK">Halmstads BK</option>
+              <option value="Varbergs BoIS FC">Varbergs BoIS FC</option>
+              <option value="Mjällby AIF">Mjällby AIF</option>
+              <option value="Västerås SK">Västerås SK</option>
+              <option value="Östers IF">Östers IF</option>
+              <option value="Degerfors IF">Degerfors IF</option>
+
+              <!-- Norway / Finland -->
+              <option value="Rosenborg BK">Rosenborg BK</option>
+              <option value="Molde FK">Molde FK</option>
+              <option value="FK Bodø/Glimt">FK Bodø/Glimt</option>
+              <option value="Lillestrøm SK">Lillestrøm SK</option>
+              <option value="Vålerenga Fotball">Vålerenga Fotball</option>
+              <option value="Aalesunds FK">Aalesunds FK</option>
+              <option value="Tromsø IL">Tromsø IL</option>
+              <option value="FK Haugesund">FK Haugesund</option>
+              <option value="Fredrikstad FK">Fredrikstad FK</option>
+
+              <!-- Eastern Europe / Balkans / Romania -->
+              <option value="FC Rapid 1923">FC Rapid 1923</option>
+              <option value="FC Argeş">FC Argeş</option>
+              <option value="U Craiova 1948 Club Sportiv">U Craiova 1948 Club Sportiv</option>
+              <option value="FC Voluntari">FC Voluntari</option>
+              <option value="FC Hermannstadt">FC Hermannstadt</option>
+              <option value="FC Dinamo 1948">FC Dinamo 1948</option>
+              <option value="FCV Dender EH">FCV Dender EH</option>
+              <option value="RAAL La Louvière">RAAL La Louvière</option>
+
+              <!-- Smaller European, Middle East and Asia clubs preserved in original relative order -->
+              <option value="FC Volendam">FC Volendam</option>
+              <option value="FC Annecy">FC Annecy</option>
+              <option value="FC Erzgebirge Aue">FC Erzgebirge Aue</option>
+              <option value="FC Martigues">FC Martigues</option>
+              <option value="FC Alverca">FC Alverca</option>
+              <option value="FC Famalicão">FC Famalicão</option>
+              <option value="FC Thun">FC Thun</option>
+              <option value="FC Cartagena">FC Cartagena</option>
+              <option value="FC Anyang">FC Anyang</option>
+
+              <!-- Remaining clubs (preserved relative order from your original block) -->
+              <option value="Real Sociedad B">Real Sociedad B</option>
+              <option value="RKS Raków Częstochowa">RKS Raków Częstochowa</option>
+              <option value="SC Austria Lustenau">SC Austria Lustenau</option>
+              <option value="SV Oberbank Ried">SV Oberbank Ried</option>
+              <option value="RZ Pellets Wolfsberger AC">RZ Pellets Wolfsberger AC</option>
+              <option value="FC Blau-Weiss Linz">FC Blau-Weiss Linz</option>
+              <option value="SV Zulte Waregem">SV Zulte Waregem</option>
+              <option value="KV Kortrijk">KV Kortrijk</option>
+              <option value="Cercle Brugge KSV">Cercle Brugge KSV</option>
+              <option value="KV Mechelen">KV Mechelen</option>
+              <option value="KAS Eupen">KAS Eupen</option>
+              <option value="KVC Westerlo">KVC Westerlo</option>
+              <option value="RWD Molenbeek">RWD Molenbeek</option>
+              <option value="Royale Union Saint-Gilloise">Royale Union Saint-Gilloise</option>
+              <option value="Standard de Liège">Standard de Liège</option>
+
+              <!-- Long tail preserved: every remaining club from your original block in their relative order -->
+              <option value="Empoli">Empoli</option>
+              <option value="Al Hazem">Al Hazem</option>
+              <option value="AD Alcorcón">AD Alcorcón</option>
+              <option value="Unión La Calera">Unión La Calera</option>
+              <option value="Danubio">Danubio</option>
+              <option value="FC Stade-Lausanne-Ouchy">FC Stade-Lausanne-Ouchy</option>
+              <option value="SC Austria Lustenau">SC Austria Lustenau</option>
+              <option value="Racing Club de Montevideo">Racing Club de Montevideo</option>
+              <option value="CD Tenerife">CD Tenerife</option>
+              <option value="HamKam Fotball">HamKam Fotball</option>
+              <option value="Nacional Potosí">Nacional Potosí</option>
+              <option value="Dundee United">Dundee United</option>
+              <option value="Malmö FF">Malmö FF</option>
+              <option value="Coquimbo Unido">Coquimbo Unido</option>
+              <option value="FC Universitario">FC Universitario</option>
+              <option value="Cosenza">Cosenza</option>
+              <option value="Randers FC">Randers FC</option>
+              <option value="Al Shabab">Al Shabab</option>
+              <option value="Gaziantep FK">Gaziantep FK</option>
+              <option value="Barnet">Barnet</option>
+              <option value="İstanbulspor">İstanbulspor</option>
+              <option value="Toronto FC">Toronto FC</option>
+              <option value="Birmingham City">Birmingham City</option>
+              <option value="Wycombe Wanderers">Wycombe Wanderers</option>
+              <option value="Pogoń Szczecin">Pogoń Szczecin</option>
+              <option value="Heracles Almelo">Heracles Almelo</option>
+              <option value="Sportclub Verl">Sportclub Verl</option>
+              <option value="Dalian Professional Football Club">Dalian Professional Football Club</option>
+              <option value="Carlisle United">Carlisle United</option>
+              <option value="CS Independiente Rivadavia">CS Independiente Rivadavia</option>
+              <option value="Lillestrøm SK">Lillestrøm SK</option>
+              <option value="Corendon Alanyaspor">Corendon Alanyaspor</option>
+              <option value="Gangwon FC">Gangwon FC</option>
+              <option value="Bromley Football Club">Bromley Football Club</option>
+              <option value="Rangers">Rangers</option>
+              <option value="Udinese">Udinese</option>
+              <option value="UCD AFC">UCD AFC</option>
+              <option value="Carabobo Fútbol Club">Carabobo Fútbol Club</option>
+              <option value="West Bromwich Albion">West Bromwich Albion</option>
+              <option value="GV San José">GV San José</option>
+              <option value="Sandefjord Fotball">Sandefjord Fotball</option>
+              <option value="River Plate">River Plate</option>
+              <option value="Cerro Largo">Cerro Largo</option>
+              <option value="Jeonbuk Hyundai Motors">Jeonbuk Hyundai Motors</option>
+              <option value="Club Atlético Tigre">Club Atlético Tigre</option>
+              <option value="América de Cali">América de Cali</option>
+              <option value="KFUM-Kameratene Oslo">KFUM-Kameratene Oslo</option>
+              <option value="IFK Norrköping">IFK Norrköping</option>
+              <option value="N.E.C. Nijmegen">N.E.C. Nijmegen</option>
+              <option value="Universidad Católica">Universidad Católica</option>
+              <option value="Macarthur FC">Macarthur FC</option>
+              <option value="RC Lens">RC Lens</option>
+              <option value="Brentford">Brentford</option>
+              <option value="Ipswich Town">Ipswich Town</option>
+              <option value="Botafogo">Botafogo</option>
+              <option value="Doncaster Rovers">Doncaster Rovers</option>
+              <option value="Bristol Rovers">Bristol Rovers</option>
+              <option value="Belgrano de Córdoba">Belgrano de Córdoba</option>
+              <option value="Crewe Alexandra">Crewe Alexandra</option>
+              <option value="RZ Pellets Wolfsberger AC">RZ Pellets Wolfsberger AC</option>
+              <option value="Huddersfield Town">Huddersfield Town</option>
+              <option value="SD Amorebieta">SD Amorebieta</option>
+              <option value="Reggiana">Reggiana</option>
+              <option value="PAOK FC">PAOK FC</option>
+              <option value="Holstein Kiel">Holstein Kiel</option>
+              <option value="Harrogate Town">Harrogate Town</option>
+              <option value="FC Goa">FC Goa</option>
+              <option value="Colo-Colo">Colo-Colo</option>
+              <option value="Millonarios FC">Millonarios FC</option>
+              <option value="Pohang Steelers">Pohang Steelers</option>
+              <option value="Brøndby IF">Brøndby IF</option>
+              <option value="FC Augsburg">FC Augsburg</option>
+              <option value="Fortuna Sittard">Fortuna Sittard</option>
+              <option value="Borussia Dortmund II">Borussia Dortmund II</option>
+              <option value="Portland Timbers">Portland Timbers</option>
+              <option value="Bari">Bari</option>
+              <option value="Club Atlético Banfield">Club Atlético Banfield</option>
+              <option value="Girona FC">Girona FC</option>
+              <option value="SD Aucas">SD Aucas</option>
+              <option value="Qingdao Hainiu Football Club">Qingdao Hainiu Football Club</option>
+              <option value="Tranmere Rovers">Tranmere Rovers</option>
+              <option value="St. Johnstone">St. Johnstone</option>
+              <option value="F.C. Hansa Rostock">F.C. Hansa Rostock</option>
+              <option value="LASK">LASK</option>
+              <option value="Lincoln City">Lincoln City</option>
+              <option value="Beijing Guoan Football Club">Beijing Guoan Football Club</option>
+              <option value="CSM Politehnica Iași">CSM Politehnica Iași</option>
+              <option value="Estudiantes de La Plata">Estudiantes de La Plata</option>
+              <option value="Eyüpspor">Eyüpspor</option>
+              <option value="Spezia">Spezia</option>
+              <option value="Frosinone">Frosinone</option>
+              <option value="Henan Football Club">Henan Football Club</option>
+              <option value="SC Telstar">SC Telstar</option>
+              <option value="Deportivo Binacional">Deportivo Binacional</option>
+              <option value="Real Racing Club">Real Racing Club</option>
+              <option value="Arka Gdynia">Arka Gdynia</option>
+              <option value="Liga Deportiva Universitaria">Liga Deportiva Universitaria</option>
+              <option value="Palmeiras">Palmeiras</option>
+              <option value="Kasımpaşa SK">Kasımpaşa SK</option>
+              <option value="Gimnasia y Esgrima La Plata">Gimnasia y Esgrima La Plata</option>
+              <option value="FBC Melgar">FBC Melgar</option>
+              <option value="Deportivo La Guaira">Deportivo La Guaira</option>
+              <option value="Catanzaro">Catanzaro</option>
+              <option value="Le Mans FC">Le Mans FC</option>
+              <option value="Argentinos Juniors">Argentinos Juniors</option>
+              <option value="Deportivo Táchira">Deportivo Táchira</option>
+              <option value="IF Brommapojkarna">IF Brommapojkarna</option>
+              <option value="San Jose Earthquakes">San Jose Earthquakes</option>
+              <option value="Club Libertad">Club Libertad</option>
+              <option value="Motor Lublin">Motor Lublin</option>
+              <option value="Mansfield Town">Mansfield Town</option>
+              <option value="Lecce">Lecce</option>
+              <option value="Vitória SC">Vitória SC</option>
+              <option value="CD Mirandés">CD Mirandés</option>
+              <option value="Bohemian FC">Bohemian FC</option>
+              <option value="CD Nacional">CD Nacional</option>
+              <option value="Bradford City">Bradford City</option>
+              <option value="Pisa">Pisa</option>
+              <option value="Brescia">Brescia</option>
+              <option value="Hull City">Hull City</option>
+              <option value="IF Elfsborg">IF Elfsborg</option>
+              <option value="Pescara Calcio">Pescara Calcio</option>
+              <option value="Sport-Club Freiburg">Sport-Club Freiburg</option>
+              <option value="CS Emelec">CS Emelec</option>
+              <option value="Real Tomayapo">Real Tomayapo</option>
+              <option value="Reading">Reading</option>
+              <option value="APOEL FC">APOEL FC</option>
+              <option value="Feralpisalò">Feralpisalò</option>
+              <option value="SC Preußen Münster">SC Preußen Münster</option>
+              <option value="Barnsley">Barnsley</option>
+              <option value="Modena">Modena</option>
+              <option value="Junior FC">Junior FC</option>
+              <option value="BK Häcken">BK Häcken</option>
+              <option value="Alianza Lima">Alianza Lima</option>
+              <option value="Mushuc Runa">Mushuc Runa</option>
+              <option value="VfB Lübeck">VfB Lübeck</option>
+              <option value="Piast Gliwice">Piast Gliwice</option>
+              <option value="RWD Molenbeek">RWD Molenbeek</option>
+              <option value="Västerås SK">Västerås SK</option>
+              <option value="FK Bodø/Glimt">FK Bodø/Glimt</option>
+              <option value="Fortuna Düsseldorf">Fortuna Düsseldorf</option>
+              <option value="CD Palestino">CD Palestino</option>
+              <option value="FC Blau-Weiss Linz">FC Blau-Weiss Linz</option>
+              <option value="Club Nacional de Football">Club Nacional de Football</option>
+              <option value="Bruk-Bet Termalica Nieciecza">Bruk-Bet Termalica Nieciecza</option>
+              <option value="Bolton Wanderers">Bolton Wanderers</option>
+              <option value="Shelbourne FC">Shelbourne FC</option>
+              <option value="Club Atlético Sarmiento">Club Atlético Sarmiento</option>
+              <option value="Athletico Paranaense">Athletico Paranaense</option>
+              <option value="Calcio Padova">Calcio Padova</option>
+              <option value="Walsall">Walsall</option>
+              <option value="Drogheda United">Drogheda United</option>
+              <option value="Al Ain FC">Al Ain FC</option>
+              <option value="Independiente Medellín">Independiente Medellín</option>
+              <option value="S.S. Juve Stabia 1907">S.S. Juve Stabia 1907</option>
+              <option value="Palermo">Palermo</option>
+              <option value="FC Martigues">FC Martigues</option>
+              <option value="Universidad César Vallejo">Universidad César Vallejo</option>
+              <option value="GAIS">GAIS</option>
+              <option value="Grêmio">Grêmio</option>
+              <option value="FC Ingolstadt 04">FC Ingolstadt 04</option>
+              <option value="Tacuary FBC">Tacuary FBC</option>
+              <option value="SV Zulte Waregem">SV Zulte Waregem</option>
+              <option value="Yunnan Yukun Football Club">Yunnan Yukun Football Club</option>
+              <option value="Estoril Praia">Estoril Praia</option>
+              <option value="Ettifaq FC">Ettifaq FC</option>
+              <option value="Mohun Bagan Super Giant">Mohun Bagan Super Giant</option>
+              <option value="ACS Sepsi OSK din Sf. Gheorghe">ACS Sepsi OSK din Sf. Gheorghe</option>
+              <option value="Jorge Wilstermann">Jorge Wilstermann</option>
+              <option value="Santa Clara">Santa Clara</option>
+              <option value="Al Ittihad">Al Ittihad</option>
+              <option value="Stevenage">Stevenage</option>
+              <option value="Lombardia FC">Lombardia FC</option>
+              <option value="Tianjin Jinmen Tiger Football Club">Tianjin Jinmen Tiger Football Club</option>
+              <option value="Club Guaraní">Club Guaraní</option>
+              <option value="SK Sturm Graz">SK Sturm Graz</option>
+              <option value="Livingston">Livingston</option>
+              <option value="K. Beerschot VA">K. Beerschot VA</option>
+              <option value="Leyton Orient">Leyton Orient</option>
+              <option value="Gimcheon Sangmu FC">Gimcheon Sangmu FC</option>
+              <option value="Al Okhdood">Al Okhdood</option>
+              <option value="Ross County">Ross County</option>
+              <option value="SV Elversberg">SV Elversberg</option>
+              <option value="Monza">Monza</option>
+              <option value="Göztepe SK">Göztepe SK</option>
+              <option value="Bryne Fotballklubb">Bryne Fotballklubb</option>
+              <option value="HJK Helsinki">HJK Helsinki</option>
+              <option value="Peterborough United">Peterborough United</option>
+              <option value="Delfín SC">Delfín SC</option>
+              <option value="Atakaş Hatayspor">Atakaş Hatayspor</option>
+              <option value="Atlético Grau">Atlético Grau</option>
+              <option value="Sheffield United">Sheffield United</option>
+              <option value="Racing de Ferrol">Racing de Ferrol</option>
+              <option value="Atlético Bucaramanga">Atlético Bucaramanga</option>
+              <option value="Academia Puerto Cabello">Academia Puerto Cabello</option>
+              <option value="TSV Egger Glas Hartberg">TSV Egger Glas Hartberg</option>
+              <option value="Newcastle Jets">Newcastle Jets</option>
+              <option value="Dundalk">Dundalk</option>
+              <option value="Rodez Aveyron Football">Rodez Aveyron Football</option>
+              <option value="FC Anyang">FC Anyang</option>
+              <option value="Stade Rennais FC">Stade Rennais FC</option>
+              <option value="HNK Hajduk Split">HNK Hajduk Split</option>
+              <option value="Lechia Gdańsk">Lechia Gdańsk</option>
+              <option value="Dundee FC">Dundee FC</option>
+              <option value="Fortaleza">Fortaleza</option>
+              <option value="Mumbai City FC">Mumbai City FC</option>
+              <option value="Club Atlético Peñarol">Club Atlético Peñarol</option>
+              <option value="San Diego FC">San Diego FC</option>
+              <option value="Oxford United">Oxford United</option>
+              <option value="Virtus Entella">Virtus Entella</option>
+              <option value="Estudiantes de Mérida">Estudiantes de Mérida</option>
+              <option value="Nantong Zhiyun Football Club">Nantong Zhiyun Football Club</option>
+              <option value="Técnico Universitario">Técnico Universitario</option>
+              <option value="Deportivo Alavés">Deportivo Alavés</option>
+              <option value="Strømsgodset IF">Strømsgodset IF</option>
+              <option value="Hellas Verona">Hellas Verona</option>
+              <option value="Club Always Ready">Club Always Ready</option>
+              <option value="Varbergs BoIS FC">Varbergs BoIS FC</option>
+              <option value="Royale Union Saint-Gilloise">Royale Union Saint-Gilloise</option>
+              <option value="Monagas SC">Monagas SC</option>
+              <option value="Seattle Sounders FC">Seattle Sounders FC</option>
+              <option value="Damac FC">Damac FC</option>
+              <option value="Hallescher FC">Hallescher FC</option>
+              <option value="Carrarese Calcio 1908">Carrarese Calcio 1908</option>
+              <option value="Shenzhen Football Club">Shenzhen Football Club</option>
+              <option value="Swindon Town">Swindon Town</option>
+              <option value="Sassuolo">Sassuolo</option>
+              <option value="Boston River">Boston River</option>
+              <option value="Deportivo Cuenca">Deportivo Cuenca</option>
+              <option value="Chesterfield">Chesterfield</option>
+              <option value="Cheltenham Town">Cheltenham Town</option>
+              <option value="Daegu FC">Daegu FC</option>
+              <option value="Servette FC">Servette FC</option>
+              <option value="EMS Yapı Sivasspor">EMS Yapı Sivasspor</option>
+              <option value="Shanghai Port Football Club">Shanghai Port Football Club</option>
+              <option value="Sønderjyske Fodbold">Sønderjyske Fodbold</option>
+              <option value="AC Sparta Praha">AC Sparta Praha</option>
+              <option value="Shrewsbury">Shrewsbury</option>
+              <option value="Coventry City">Coventry City</option>
+              <option value="Club de Foot Montréal">Club de Foot Montréal</option>
+              <option value="MKE Ankaragücü">MKE Ankaragücü</option>
+              <option value="Jeju United FC">Jeju United FC</option>
+              <option value="Odense BK">Odense BK</option>
+              <option value="Fredrikstad FK">Fredrikstad FK</option>
+              <option value="Plymouth Argyle">Plymouth Argyle</option>
+              <option value="Nashville SC">Nashville SC</option>
+              <option value="Western Sydney Wanderers">Western Sydney Wanderers</option>
+              <option value="Meizhou Hakka Football Club">Meizhou Hakka Football Club</option>
+              <option value="Abha Club">Abha Club</option>
+              <option value="Grazer AK 1902">Grazer AK 1902</option>
+              <option value="Sevilla FC">Sevilla FC</option>
+              <option value="SV Werder Bremen">SV Werder Bremen</option>
+              <option value="ASFC Universitatea Cluj">ASFC Universitatea Cluj</option>
+              <option value="Dalian Young Boy Football Club">Dalian Young Boy Football Club</option>
+              <option value="Yverdon Sport FC">Yverdon Sport FC</option>
+              <option value="F.C. København">F.C. København</option>
+              <option value="ACS Petrolul 52">ACS Petrolul 52</option>
+              <option value="SK Rapid">SK Rapid</option>
+              <option value="Wuhan Three Towns Football Club">Wuhan Three Towns Football Club</option>
+              <option value="The Strongest">The Strongest</option>
+              <option value="FC Winterthur">FC Winterthur</option>
+              <option value="Warta Poznań">Warta Poznań</option>
+              <option value="FC Argeş">FC Argeş</option>
+              <option value="Cerro Porteño">Cerro Porteño</option>
+              <option value="SC Bastia">SC Bastia</option>
+              <option value="Karlsruher SC">Karlsruher SC</option>
+              <option value="Shamrock Rovers">Shamrock Rovers</option>
+              <option value="Barracas Central">Barracas Central</option>
+              <option value="Al Fayha">Al Fayha</option>
+              <option value="Deportivo Garcilaso">Deportivo Garcilaso</option>
+              <option value="Amiens SC">Amiens SC</option>
+              <option value="Patronato">Patronato</option>
+              <option value="SV Wehen Wiesbaden">SV Wehen Wiesbaden</option>
+              <option value="SK Slavia Praha">SK Slavia Praha</option>
+              <option value="St. Mirren">St. Mirren</option>
+              <option value="San Antonio de Bulo Bulo">San Antonio de Bulo Bulo</option>
+              <option value="FC Viktoria Köln">FC Viktoria Köln</option>
+              <option value="FC Groningen">FC Groningen</option>
+              <option value="Instituto de Córdoba">Instituto de Córdoba</option>
+              <option value="SpVgg Unterhaching">SpVgg Unterhaching</option>
+              <option value="Waterford FC">Waterford FC</option>
+              <option value="Real Salt Lake">Real Salt Lake</option>
+              <option value="Deportes Iquique">Deportes Iquique</option>
+              <option value="Viborg FF">Viborg FF</option>
+              <option value="Oud-Heverlee Leuven">Oud-Heverlee Leuven</option>
+              <option value="Cienciano">Cienciano</option>
+              <option value="VfB Stuttgart II">VfB Stuttgart II</option>
+              <option value="Parma">Parma</option>
+              <option value="Rotherham United">Rotherham United</option>
+              <option value="MSV Duisburg">MSV Duisburg</option>
+              <option value="Sarpsborg 08">Sarpsborg 08</option>
+              <option value="Melbourne Victory">Melbourne Victory</option>
+              <option value="Montevideo Wanderers">Montevideo Wanderers</option>
+              <option value="KAS Eupen">KAS Eupen</option>
+              <option value="Cagliari">Cagliari</option>
+              <option value="FC Sion">FC Sion</option>
+              <option value="Kalmar FF">Kalmar FF</option>
+              <option value="Sporting Charleroi">Sporting Charleroi</option>
+              <option value="FC Hermannstadt">FC Hermannstadt</option>
+              <option value="Melbourne City">Melbourne City</option>
+              <option value="U Craiova 1948 Club Sportiv">U Craiova 1948 Club Sportiv</option>
+              <option value="Alemannia Aachen">Alemannia Aachen</option>
+              <option value="Legia Warszawa">Legia Warszawa</option>
+              <option value="FC FCSB">FC FCSB</option>
+              <option value="Al Khaleej">Al Khaleej</option>
+              <option value="TSG Hoffenheim II">TSG Hoffenheim II</option>
+              <option value="Rot-Weiss Essen">Rot-Weiss Essen</option>
+              <option value="VavaCars Fatih Karagümrük SK">VavaCars Fatih Karagümrük SK</option>
+              <option value="AFC Unirea Slobozia">AFC Unirea Slobozia</option>
+              <option value="Paris FC">Paris FC</option>
+              <option value="Real Sociedad B">Real Sociedad B</option>
+              <option value="FCU 1948 Craiova">FCU 1948 Craiova</option>
+              <option value="Milton Keynes Dons">Milton Keynes Dons</option>
+              <option value="Mantova">Mantova</option>
+              <option value="Djurgårdens IF">Djurgårdens IF</option>
+              <option value="Ruch Chorzów">Ruch Chorzów</option>
+              <option value="GKS Katowice">GKS Katowice</option>
+              <option value="CD Tondela">CD Tondela</option>
+              <option value="RKS Radomiak Radom">RKS Radomiak Radom</option>
+              <option value="Wellington Phoenix">Wellington Phoenix</option>
+              <option value="Forest Green Rovers">Forest Green Rovers</option>
+              <option value="Pendikspor">Pendikspor</option>
+              <option value="1. FC Schweinfurt 05">1. FC Schweinfurt 05</option>
+              <option value="Gençlerbirliği SK">Gençlerbirliği SK</option>
+              <option value="Cracovia">Cracovia</option>
+              <option value="SC Oțelul Galați">SC Oțelul Galați</option>
+              <option value="SV Waldhof Mannheim 07">SV Waldhof Mannheim 07</option>
+              <option value="Daejeon Hana Citizen">Daejeon Hana Citizen</option>
+              <option value="Genoa">Genoa</option>
+              <option value="Clermont Foot 63">Clermont Foot 63</option>
+              <option value="Angers SCO">Angers SCO</option>
+              <option value="Asociación Deportiva Tarma">Asociación Deportiva Tarma</option>
+              <option value="Deportivo Palmaflor del Trópico">Deportivo Palmaflor del Trópico</option>
+              <option value="Oldham Athletic">Oldham Athletic</option>
+              <option value="Ulsan Hyundai">Ulsan Hyundai</option>
+              <option value="RC Deportivo">RC Deportivo</option>
+              <option value="FC Seoul">FC Seoul</option>
+              <option value="Sydney FC">Sydney FC</option>
+              <option value="GNK Dinamo Zagreb">GNK Dinamo Zagreb</option>
+              <option value="Excelsior Rotterdam">Excelsior Rotterdam</option>
+              <option value="AS Nancy Lorraine">AS Nancy Lorraine</option>
+              <option value="Korona Kielce">Korona Kielce</option>
+              <option value="SpVgg Greuther Fürth">SpVgg Greuther Fürth</option>
+              <option value="1. FC Saarbrücken">1. FC Saarbrücken</option>
+              <option value="Águilas Doradas Rionegro">Águilas Doradas Rionegro</option>
+              <option value="Northampton Town">Northampton Town</option>
+              <option value="Sportivo Trinidense">Sportivo Trinidense</option>
+              <option value="RTS Widzew Łódź">RTS Widzew Łódź</option>
+              <option value="Zhejiang Professional Football Club">Zhejiang Professional Football Club</option>
+              <option value="Newell's Old Boys">Newell's Old Boys</option>
+              <option value="Valenciennes FC">Valenciennes FC</option>
+              <option value="AFC Botoșani">AFC Botoșani</option>
+              <option value="Unión Española">Unión Española</option>
+              <option value="Südtirol">Südtirol</option>
+              <option value="FC Arouca">FC Arouca</option>
+              <option value="Club Blooming">Club Blooming</option>
+              <option value="AS Roma">AS Roma</option>
+              <option value="Wrexham">Wrexham</option>
+              <option value="SG Dynamo Dresden">SG Dynamo Dresden</option>
+              <option value="New York Red Bulls">New York Red Bulls</option>
+              <option value="FC Cartagena">FC Cartagena</option>
+              <option value="Central Coast Mariners">Central Coast Mariners</option>
+              <option value="Universidad de Chile">Universidad de Chile</option>
+              <option value="SV Sandhausen">SV Sandhausen</option>
+              <option value="Minnesota United FC">Minnesota United FC</option>
+              <option value="Gillingham">Gillingham</option>
+              <option value="PEC Zwolle">PEC Zwolle</option>
+              <option value="ŁKS Łódź">ŁKS Łódź</option>
+              <option value="AGF">AGF</option>
+              <option value="Elche CF">Elche CF</option>
+              <option value="Brisbane Roar">Brisbane Roar</option>
+              <option value="St. Louis CITY SC">St. Louis CITY SC</option>
+              <option value="General Caballero de JLM">General Caballero de JLM</option>
+              <option value="SV Darmstadt 98">SV Darmstadt 98</option>
+              <option value="Burton Albion">Burton Albion</option>
+              <option value="Vejle Boldklub">Vejle Boldklub</option>
+              <option value="FC St. Pauli">FC St. Pauli</option>
+              <option value="Cangzhou Mighty Lions Football Club">Cangzhou Mighty Lions Football Club</option>
+              <option value="Hyderabad FC">Hyderabad FC</option>
+              <option value="Odds BK">Odds BK</option>
+              <option value="WSG Tirol">WSG Tirol</option>
+              <option value="Burgos CF">Burgos CF</option>
+              <option value="FC Gloria Buzău">FC Gloria Buzău</option>
+              <option value="Quevilly-Rouen Métropole">Quevilly-Rouen Métropole</option>
+              <option value="CD Cobresal">CD Cobresal</option>
+              <option value="Kerala Blasters FC">Kerala Blasters FC</option>
+              <option value="Caracas FC">Caracas FC</option>
+              <option value="Stade Lavallois MFC">Stade Lavallois MFC</option>
+              <option value="Exeter City">Exeter City</option>
+              <option value="Sport Huancayo">Sport Huancayo</option>
+              <option value="Stabæk Fotball">Stabæk Fotball</option>
+              <option value="Suwon FC">Suwon FC</option>
+              <option value="SSV Jahn Regensburg">SSV Jahn Regensburg</option>
+              <option value="GwangJu FC">GwangJu FC</option>
+              <option value="Chennaiyin FC">Chennaiyin FC</option>
+              <option value="Silkeborg IF">Silkeborg IF</option>
+              <option value="Arsenal de Sarandí">Arsenal de Sarandí</option>
+              <option value="AVS Futebol SAD">AVS Futebol SAD</option>
+              <option value="1. FC Magdeburg">1. FC Magdeburg</option>
+              <option value="Sheffield Wednesday">Sheffield Wednesday</option>
+              <option value="Alianza Fútbol Club">Alianza Fútbol Club</option>
+              <option value="Club Nacional">Club Nacional</option>
+              <option value="Deportivo Riestra">Deportivo Riestra</option>
+              <option value="Kristiansund BK">Kristiansund BK</option>
+              <option value="UD Las Palmas">UD Las Palmas</option>
+              <option value="Cambridge United">Cambridge United</option>
+              <option value="Colón de Santa Fe">Colón de Santa Fe</option>
+              <option value="Philadelphia Union">Philadelphia Union</option>
+              <option value="Rosenborg BK">Rosenborg BK</option>
+              <option value="FC Viktoria Plzeň">FC Viktoria Plzeň</option>
+              <option value="Moreirense FC">Moreirense FC</option>
+              <option value="US Concarneau">US Concarneau</option>
+              <option value="Atlanta United">Atlanta United</option>
+              <option value="FK Austria Wien">FK Austria Wien</option>
+              <option value="Club Bolívar">Club Bolívar</option>
+              <option value="AaB">AaB</option>
+              <option value="Unión de Santa Fe">Unión de Santa Fe</option>
+              <option value="Sportivo Ameliano">Sportivo Ameliano</option>
+              <option value="Swansea City">Swansea City</option>
+              <option value="Chicago Fire Football Club">Chicago Fire Football Club</option>
+              <option value="Sporting Kansas City">Sporting Kansas City</option>
+              <option value="Stade Malherbe Caen">Stade Malherbe Caen</option>
+              <option value="Salford City">Salford City</option>
+              <option value="FCV Dender EH">FCV Dender EH</option>
+              <option value="Barcelona SC">Barcelona SC</option>
+              <option value="SC Farense">SC Farense</option>
+              <option value="SD Huesca">SD Huesca</option>
+              <option value="Defensor Sporting">Defensor Sporting</option>
+              <option value="FK Csíkszereda Miercurea Ciuc">FK Csíkszereda Miercurea Ciuc</option>
+              <option value="Wisła Płock">Wisła Płock</option>
+              <option value="Lyngby BK">Lyngby BK</option>
+              <option value="Wigan Athletic">Wigan Athletic</option>
+              <option value="Tümosan Konyaspor">Tümosan Konyaspor</option>
+              <option value="Oriente Petrolero">Oriente Petrolero</option>
+              <option value="Rio Ave FC">Rio Ave FC</option>
+              <option value="KV Kortrijk">KV Kortrijk</option>
+              <option value="FK Haugesund">FK Haugesund</option>
+              <option value="AFC UTA Arad">AFC UTA Arad</option>
+              <option value="USL Dunkerque">USL Dunkerque</option>
+              <option value="Milano FC">Milano FC</option>
+              <option value="Venezia">Venezia</option>
+              <option value="St. Patrick's Athletic">St. Patrick's Athletic</option>
+              <option value="Notts County">Notts County</option>
+              <option value="Blackpool">Blackpool</option>
+              <option value="Al Tai">Al Tai</option>
+              <option value="Portsmouth">Portsmouth</option>
+              <option value="NorthEast United FC">NorthEast United FC</option>
+              <option value="Kocaelispor">Kocaelispor</option>
+              <option value="Hannover 96 II">Hannover 96 II</option>
+              <option value="1. FC Union Berlin">1. FC Union Berlin</option>
+              <option value="Sligo Rovers">Sligo Rovers</option>
+              <option value="Grimsby Town">Grimsby Town</option>
+              <option value="Casa Pia AC">Casa Pia AC</option>
+              <option value="Avellino">Avellino</option>
+              <option value="Yılport Samsunspor">Yılport Samsunspor</option>
+              <option value="Adana Demirspor">Adana Demirspor</option>
+              <option value="América-MG">América-MG</option>
+              <option value="FC Vizela">FC Vizela</option>
+              <option value="SD Eibar">SD Eibar</option>
+              <option value="Western United FC">Western United FC</option>
+              <option value="Adelaide United">Adelaide United</option>
+              <option value="Audax Italiano">Audax Italiano</option>
+              <option value="FC Metaloglobus București">FC Metaloglobus București</option>
+              <option value="AEK Athens">AEK Athens</option>
+              <option value="RAMS Başakşehir">RAMS Başakşehir</option>
+              <option value="Villarreal CF B">Villarreal CF B</option>
+              <option value="FKS Stal Mielec">FKS Stal Mielec</option>
+              <option value="CA Osasuna">CA Osasuna</option>
+              <option value="SSV Ulm 1846">SSV Ulm 1846</option>
+              <option value="VfB Stuttgart">VfB Stuttgart</option>
+              <option value="Bologna">Bologna</option>
+              <option value="Almere City FC">Almere City FC</option>
+              <option value="Al Taawoun">Al Taawoun</option>
+              <option value="Deportes Tolima">Deportes Tolima</option>
+              <option value="Al Orobah">Al Orobah</option>
+              <option value="Club Deportivo Guabirá">Club Deportivo Guabirá</option>
+              <option value="Independiente del Valle">Independiente del Valle</option>
+              <option value="US Boulogne CO">US Boulogne CO</option>
+              <option value="Tottenham Hotspur">Tottenham Hotspur</option>
+              <option value="Al Qadisiyah">Al Qadisiyah</option>
+              <option value="Auckland Football Club">Auckland Football Club</option>
+              <option value="Falkirk">Falkirk</option>
+              <option value="Independiente Santa Fe">Independiente Santa Fe</option>
+              <option value="Qarabağ FK">Qarabağ FK</option>
+              <option value="Punjab FC">Punjab FC</option>
+              <option value="Puszcza Niepołomice">Puszcza Niepołomice</option>
+              <option value="Cultural Leonesa">Cultural Leonesa</option>
+              <option value="Shenzhen Peng City">Shenzhen Peng City</option>
+              <option value="FC Nordsjælland">FC Nordsjælland</option>
+              <option value="FC Midtjylland">FC Midtjylland</option>
+              <option value="Club Atlético Talleres">Club Atlético Talleres</option>
+              <option value="Suwon Samsung Bluewings">Suwon Samsung Bluewings</option>
+              <option value="ESTAC Troyes">ESTAC Troyes</option>
+              <option value="Royal Antwerp FC">Royal Antwerp FC</option>
+              <option value="Cittadella">Cittadella</option>
+              <option value="Real Sporting">Real Sporting</option>
+              <option value="Port Vale">Port Vale</option>
+              <option value="Jamshedpur FC">Jamshedpur FC</option>
+              <option value="Columbus Crew">Columbus Crew</option>
+              <option value="Luton Town">Luton Town</option>
+              <option value="Aberdeen">Aberdeen</option>
+              <option value="Kilmarnock">Kilmarnock</option>
+              <option value="AD Ceuta FC">AD Ceuta FC</option>
+              <option value="Sparta Rotterdam">Sparta Rotterdam</option>
+              <option value="Rosario Central">Rosario Central</option>
+              <option value="Sint-Truidense VV">Sint-Truidense VV</option>
+              <option value="Huachipato">Huachipato</option>
+              <option value="Queens Park Rangers">Queens Park Rangers</option>
+              <option value="Trabzonspor">Trabzonspor</option>
+              <option value="Sunderland">Sunderland</option>
+              <option value="AJ Auxerre">AJ Auxerre</option>
+              <option value="Everton de Viña del Mar">Everton de Viña del Mar</option>
+              <option value="SK Austria Klagenfurt">SK Austria Klagenfurt</option>
+              <option value="Sipay Bodrum FK">Sipay Bodrum FK</option>
+              <option value="Deportivo Rayo Zuliano">Deportivo Rayo Zuliano</option>
+              <option value="Al Ahli">Al Ahli</option>
+              <option value="Cuiabá">Cuiabá</option>
+              <option value="Ferencvárosi TC">Ferencvárosi TC</option>
+              <option value="SK Brann">SK Brann</option>
+              <option value="Al Fateh">Al Fateh</option>
+              <option value="Stockport County">Stockport County</option>
+              <option value="SC Rheindorf Altach">SC Rheindorf Altach</option>
+              <option value="Club Atlético Aldosivi">Club Atlético Aldosivi</option>
+              <option value="Havre AC">Havre AC</option>
+              <option value="Çaykur Rizespor">Çaykur Rizespor</option>
+              <option value="Cremonese">Cremonese</option>
+              <option value="Motherwell">Motherwell</option>
+              <option value="Hibernian">Hibernian</option>
+              <option value="Willem II">Willem II</option>
+              <option value="TSV Havelse">TSV Havelse</option>
+              <option value="KGHM Zagłębie Lubin">KGHM Zagłębie Lubin</option>
+              <option value="Newport County">Newport County</option>
+              <option value="Once Caldas">Once Caldas</option>
+              <option value="Qingdao West Coast FC">Qingdao West Coast FC</option>
+              <option value="Córdoba CF">Córdoba CF</option>
+              <option value="Middlesbrough">Middlesbrough</option>
+              <option value="Morecambe">Morecambe</option>
+              <option value="Fraport TAV Antalyaspor">Fraport TAV Antalyaspor</option>
+              <option value="Mohammedan Sporting Club">Mohammedan Sporting Club</option>
+              <option value="Napoli">Napoli</option>
+              <option value="Liverpool Fútbol Club">Liverpool Fútbol Club</option>
+              <option value="Galatasaray SK">Galatasaray SK</option>
+              <option value="GD Chaves">GD Chaves</option>
+              <option value="Málaga CF">Málaga CF</option>
+              <option value="IK Sirius">IK Sirius</option>
+              <option value="VfL Osnabrück">VfL Osnabrück</option>
+              <option value="Al Wehda">Al Wehda</option>
+              <option value="RAAL La Louvière">RAAL La Louvière</option>
+              <option value="DSC Arminia Bielefeld">DSC Arminia Bielefeld</option>
+              <option value="Derry City">Derry City</option>
+              <option value="Austin FC">Austin FC</option>
+              <option value="RKC Waalwijk">RKC Waalwijk</option>
+              <option value="Neom">Neom</option>
+              <option value="Albacete Balompié">Albacete Balompié</option>
+              <option value="Vitória">Vitória</option>
+              <option value="Metropolitanos FC">Metropolitanos FC</option>
+              <option value="AIK">AIK</option>
+              <option value="Incheon United FC">Incheon United FC</option>
+              <option value="FC Fredericia">FC Fredericia</option>
+              <option value="En Avant Guingamp">En Avant Guingamp</option>
+              <option value="Pau FC">Pau FC</option>
+              <option value="SC Braga">SC Braga</option>
+
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Nation</label>
+
+            <div class="autocomplete" id="filter-nation-wrapper">
+              <img
+                id="filter-nation-flag"
+                class="nation-flag"
+                src=""
+                alt=""
+                style="display:none;"
+              />
+
+              <input
+                id="filter-nation"
+                class="filter-input"
+                placeholder="Search country..."
+                autocomplete="off"
+              />
+
+              <div class="autocomplete-list" id="filter-nation-list"></div>
+            </div>
+          </div>
+
+
+
+
+          <div class="filter-group">
+            <label class="filter-label">Skill Moves</label>
+
+            <div class="star-select-wrapper">
+              <span id="skill-star-display" class="skill-star-display any">Any</span>
+
+              <select id="filter-skill" class="filter-select">
+                <option value="">Any</option>
+                <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+                <option value="4">&#9733;&#9733;&#9733;&#9733;</option>
+                <option value="3">&#9733;&#9733;&#9733;</option>
+                <option value="2">&#9733;&#9733;</option>
+                <option value="1">&#9733;</option>
+              </select>
+            </div>
+          </div>
+
+
+        </aside>
+
+        <div class="database-content">
+          <div class="database-toolbar">
+            <div class="search-container">
+              <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+              <input type="text" id="player-search" placeholder="Search by name..." class="search-input">
+            </div>
+
+            <div class="toolbar-actions">
+              <button id="open-stats-modal" class="stats-btn" onclick="openStatsModal()">
+                <span class="stats-icon"></span>
+                Stats
+              </button>
+            </div>
+
+            <div class="toolbar-actions">
+              <select id="sort-by" class="sort-select">
+                <option value="name">Sort by Name</option>
+                <option value="rating">Sort by Rating</option>
+                <option value="price">Sort by Price</option>
+                <option value="change">Sort by Change</option>
+              </select>
+            </div>
+
+
+          </div>
+          <div class="active-filters" id="active-filters"></div>
+
+          <div class="results-info" style="margin-bottom: 1rem; color: #6b7280; font-size: 0.9rem;"></div>
+
+          <!-- Player grid container (NO button inside) -->
+          <div class="players-grid" id="players-grid">
+              <!-- Player cards will be rendered here by database.js -->
+          </div>
+
+          <!-- Load More button OUTSIDE the grid -->
+
+          <div class="load-more-wrapper">
+              <button id="load-more-btn" class="btn btn-primary load-more-btn" style="display: none;">
+                  Load More Players
+              </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Mobile Filter Modal -->
+      <div class="mobile-filter-modal" id="mobile-filter-modal">
+        <div class="mobile-filter-backdrop" onclick="toggleMobileFilters()"></div>
+        <div class="mobile-filter-drawer">
+          <div class="mobile-filter-header">
+            <h3>Filters</h3>
+            <button class="mobile-filter-close" onclick="toggleMobileFilters()">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="mobile-filter-content">
+            <!-- Position Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Position</label>
+              <select id="mobile-filter-position" class="filter-select">
+                <option value="">All Positions</option>
+                <option value="ST">Striker (ST)</option>
+                <option value="CF">Center Forward (CF)</option>
+                <option value="LW">Left Wing (LW)</option>
+                <option value="RW">Right Wing (RW)</option>
+                <option value="CAM">Central AM (CAM)</option>
+                <option value="CM">Central Midfielder (CM)</option>
+                <option value="CDM">Defensive Midfielder (CDM)</option>
+                <option value="LB">Left Back (LB)</option>
+                <option value="RB">Right Back (RB)</option>
+                <option value="CB">Center Back (CB)</option>
+                <option value="GK">Goalkeeper (GK)</option>
+              </select>
+            </div>
+
+            <!-- Rating Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Overall Rating</label>
+              <div class="range-inputs">
+                <input type="number" id="mobile-rating-min" value="40" min="40" max="150" class="range-input">
+                <span>-</span>
+                <input type="number" id="mobile-rating-max" value="150" min="40" max="150" class="range-input">
+              </div>
+            </div>
+
+            <!-- Price Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Price Range</label>
+              <div class="range-inputs">
+                <input type="number" id="mobile-price-min" placeholder="Min" class="range-input">
+                <span>-</span>
+                <input type="number" id="mobile-price-max" placeholder="Max" class="range-input">
+              </div>
+            </div>
+
+
+
+
+            <!-- Event Filter -->
+            <div class="filter-group">
+                <label class="filter-label">Event</label>
+                <select id="mobile-filter-event" class="filter-select">
+                    <option value="">All Events</option>
+                    <option value="Footyverse 26">Footyverse 26</option>
+                    <option value="A Nation's Story 26">A Nation's Story 26</option>
+                    <option value="Anniversary Retro">Anniversary Retro</option>
+                    <option value="UEFA EURO 2024">UEFA EURO 2024</option>
+                    <option value="POTM 26">POTM 26</option>
+                    <option value="Ragnarok 25">Ragnarok 25</option>
+                    <option value="Thunderstruck">Thunderstruck</option>
+                    <option value="Festive Fixtures">Festive Fixtures</option>
+                    <option value="Shapeshifters">Shapeshifters</option>
+                    <option value="UCL TOP 11">UCL TOP 11</option>
+                    <option value="Aqua 25">Aqua 25</option>
+                    <option value="FC Base Gold">FC Base Gold</option>
+                    <option value="Glorious Eras">Glorious Eras</option>
+                    <option value="Winter Wildcards">Winter Wildcards</option>
+                    <option value="UEFA Heroes">UEFA Heroes</option>
+                    <option value="Universal Rank">Universal Rank</option>
+                    <option value="Team of The Year">Team of The Year</option>
+                    <option value="Rulebreakers">Rulebreakers</option>
+                    <option value="Base Icons">Base Icons</option>
+                    <option value="Songkran 25">Songkran 25</option>
+                    <option value="Prime Hero">Prime Hero</option>
+                    <option value="End of An Era">End of An Era</option>
+                    <option value="Ballon d'Or">Ballon d'Or</option>
+                    <option value="Captains 25">Captains 25</option>
+                    <option value="UCL 26 Primetime">UCL 26 Primetime</option>
+                    <option value="Ramadan">Ramadan</option>
+                    <option value="Día de Muertos">Día de Muertos</option>
+                    <option value="Record Breakers">Record Breakers</option>
+                    <option value="Best of UECL 25">Best of UECL 25</option>
+                    <option value="Captains Live">Captains Live</option>
+                    <option value="Dynasties">Dynasties</option>
+                    <option value="Icons Match 25">Icons Match 25</option>
+                    <option value="Copa América">Copa América</option>
+                    <option value="Retro Stars">Retro Stars</option>
+                    <option value="Holiday">Holiday</option>
+                    <option value="Showdown">Showdown</option>
+                    <option value="Defining Legacies 25">Defining Legacies 25</option>
+                    <option value="FC Base Elite">FC Base Elite</option>
+                    <option value="Grassroot Greats 25">Grassroot Greats 25</option>
+                    <option value="UCL Group Stage">UCL Group Stage</option>
+                    <option value="PEPSI x FC MOBILE">PEPSI x FC MOBILE</option>
+                    <option value="Carnival 25">Carnival 25</option>
+                    <option value="TOTY 25">TOTY 25</option>
+                    <option value="Inferno 25">Inferno 25</option>
+                    <option value="UCL Road to the Final">UCL Road to the Final</option>
+                    <option value="Icon Chronicles">Icon Chronicles</option>
+                    <option value="MLS 25">MLS 25</option>
+                    <option value="Icon Player">Icon Player</option>
+                    <option value="Kick Off">Kick Off</option>
+                    <option value="Base Heroes">Base Heroes</option>
+                    <option value="Moments">Moments</option>
+                    <option value="Welcome to FC Mobile">Welcome to FC Mobile</option>
+                    <option value="Anniversary Prodigies">Anniversary Prodigies</option>
+                    <option value="Trophy Titans">Trophy Titans</option>
+                    <option value="TOTW 25">TOTW 25</option>
+                    <option value="Hall of Legends">Hall of Legends</option>
+                    <option value="Lunar New Year">Lunar New Year</option>
+                    <option value="FC Base Silver">FC Base Silver</option>
+                    <option value="Ultimate TOTS 25">Ultimate TOTS 25</option>
+                    <option value="POTM 25">POTM 25</option>
+                    <option value="Bundesliga POTM">Bundesliga POTM</option>
+                    <option value="Winter Wonders 25">Winter Wonders 25</option>
+                    <option value="Team of the Season">Team of the Season</option>
+                    <option value="Pitch Beats 25">Pitch Beats 25</option>
+                    <option value="Holi">Holi</option>
+                    <option value="Mystery Player">Mystery Player</option>
+                    <option value="CODE: NEON">CODE: NEON</option>
+                    <option value="Star Pass">Star Pass</option>
+                    <option value="CONMEBOL Libertadores">CONMEBOL Libertadores</option>
+                    <option value="Centurions">Centurions</option>
+                    <option value="UCL 25">UCL 25</option>
+                    <option value="LALIGA 25">LALIGA 25</option>
+                    <option value="Best of UEL 25">Best of UEL 25</option>
+                    <option value="Icon Evolutions">Icon Evolutions</option>
+                    <option value="National Valour">National Valour</option>
+                    <option value="Founders">Founders</option>
+                    <option value="Ultimate Team of the Season">Ultimate Team of the Season</option>
+                    <option value="Ultimate Team of The Year">Ultimate Team of The Year</option>
+                    <option value="Sunshine Ballers">Sunshine Ballers</option>
+                    <option value="FC Base Bronze">FC Base Bronze</option>
+                    <option value="CONMEBOL Sudamericana">CONMEBOL Sudamericana</option>
+                    <option value="2nd Anniversary">2nd Anniversary</option>
+                    <option value="Serie A POTM">Serie A POTM</option>
+                    <option value="Soccer Aid 25">Soccer Aid 25</option>
+                    <option value="Rivals Live">Rivals Live</option>
+                    <option value="Ligue 1 POTM">Ligue 1 POTM</option>
+                    <option value="TOTW 24">TOTW 24</option>
+                    <option value="TOTW 26">TOTW 26</option>
+                    <option value="National Stars 25">National Stars 25</option>
+                    <option value="Premier League POTM">Premier League POTM</option>
+                    <option value="Hero Chronicles">Hero Chronicles</option>
+                    <option value="League Champions">League Champions</option>
+                </select>
+            </div>
+
+
+
+
+            <!-- League Filter -->
+            <div class="filter-group">
+              <label class="filter-label">League</label>
+              <select id="mobile-filter-league" class="filter-select">
+                <option value="">All Leagues</option>
+                <option value="Premier League">Premier League</option>
+                <option value="La Liga">La Liga</option>
+                <option value="Serie A">Serie A</option>
+                <option value="Bundesliga">Bundesliga</option>
+                <option value="Ligue 1">Ligue 1</option>
+                <option value="MLS">MLS</option>
+                <option value="Saudi Pro League">Saudi Pro League</option>
+              </select>
+            </div>
+
+            <!-- Nation Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Nation</label>
+              <div class="autocomplete">
+                <input
+                  id="mobile-filter-nation"
+                  class="filter-input"
+                  placeholder="Search country..."
+                  autocomplete="off"
+                >
+                <div class="autocomplete-list" id="mobile-filter-nation-list"></div>
+              </div>
+            </div>
+
+
+            <!-- Skill Moves Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Skill Moves</label>
+              <select id="mobile-filter-skill" class="filter-select">
+                <option value="">Any</option>
+                <option value="5">5 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="2">2 Stars</option>
+                <option value="1">1 Star</option>
+              </select>
+            </div>
+
+            <!-- Sort By -->
+            <div class="filter-group">
+              <label class="filter-label">Sort By</label>
+              <select id="mobile-sort-by" class="sort-select">
+                <option value="name">Sort by Name</option>
+                <option value="rating">Sort by Rating</option>
+                <option value="price">Sort by Price</option>
+                <option value="change">Sort by Change</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mobile-filter-footer">
+            <button class="btn-secondary" onclick="clearMobileFilters()">Clear All</button>
+            <button class="btn-primary" onclick="applyMobileFilters()">Apply Filters</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Market Tracker View -->
+    <div id="market-view" class="view">
+
+      <div class="market-overview">
+        <div class="market-card">
+          <p class="market-label">Market Index</p>
+          <p class="market-value" id="market-index">1,247</p>
+        </div>
+        <div class="market-card">
+          <p class="market-label">Avg Price Change</p>
+          <p class="market-value" id="avg-change">+2.4%</p>
+        </div>
+        <div class="market-card">
+          <p class="market-label">Volume Traded</p>
+          <p class="market-value" id="volume-traded">1.2B</p>
+        </div>
+        <div class="market-card">
+          <p class="market-label">Active Listings</p>
+          <p class="market-value" id="active-listings">45,823</p>
+        </div>
+      </div>
+
+      <div class="time-filters">
+        <button class="time-btn active" data-time="24h">24H</button>
+        <button class="time-btn" data-time="7d">7D</button>
+        <button class="time-btn" data-time="30d">30D</button>
+      </div>
+
+      <div class="market-sections">
+        <section class="market-section gainers">
+          <h2 class="market-section-title">
+            <span>Top Gainers</span>
+            <span class="update-indicator">Live</span>
+          </h2>
+          <div class="market-table" id="gainers-table">
+            <div class="market-row" style="cursor: pointer;">
+              <div class="market-player">
+                <div class="market-player-avatar">VJ</div>
+                <div class="market-player-info">
+                  <h4>Vinícius Jr</h4>
+                  <p>LW • Real Madrid</p>
+                </div>
+              </div>
+              <div class="market-ovr">95</div>
+              <div class="market-price">3.20M</div>
+              <div class="market-change positive">
+                +15.3%
+              </div>
+            </div>
+            <div class="market-row" style="cursor: pointer;">
+              <div class="market-player">
+                <div class="market-player-avatar">KM</div>
+                <div class="market-player-info">
+                  <h4>Kylian Mbappé</h4>
+                  <p>ST • Real Madrid</p>
+                </div>
+              </div>
+              <div class="market-ovr">97</div>
+              <div class="market-price">4.25M</div>
+              <div class="market-change positive">
+                +12.6%
+              </div>
+            </div>
+            <div class="market-row" style="cursor: pointer;">
+              <div class="market-player">
+                <div class="market-player-avatar">JB</div>
+                <div class="market-player-info">
+                  <h4>Jude Bellingham</h4>
+                  <p>CM • Real Madrid</p>
+                </div>
+              </div>
+              <div class="market-ovr">93</div>
+              <div class="market-price">2.65M</div>
+              <div class="market-change positive">
+                +9.2%
+              </div>
+            </div>
+            <div class="market-row" style="cursor: pointer;">
+              <div class="market-player">
+                <div class="market-player-avatar">EH</div>
+                <div class="market-player-info">
+                  <h4>Erling Haaland</h4>
+                  <p>ST • Manchester City</p>
+                </div>
+              </div>
+              <div class="market-ovr">96</div>
+              <div class="market-price">3.85M</div>
+              <div class="market-change positive">
+                +8.7%
+              </div>
+            </div>
+            <div class="market-row" style="cursor: pointer;">
+              <div class="market-player">
+                <div class="market-player-avatar">LM</div>
+                <div class="market-player-info">
+                  <h4>Lionel Messi</h4>
+                  <p>RW • Inter Miami</p>
+                </div>
+              </div>
+              <div class="market-ovr">93</div>
+              <div class="market-price">2.45M</div>
+              <div class="market-change positive">
+                +5.2%
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="market-section losers">
+          <h2 class="market-section-title">
+            <span>Top Losers</span>
+            <span class="update-indicator">Live</span>
+          </h2>
+          <div class="market-table" id="losers-table">
+            <div class="market-row" style="cursor: pointer;">
+              <div class="market-player">
+                <div class="market-player-avatar">VV</div>
+                <div class="market-player-info">
+                  <h4>Virgil van Dijk</h4>
+                  <p>CB • Liverpool</p>
+                </div>
+              </div>
+              <div class="market-ovr">91</div>
+              <div class="market-price">850K</div>
+              <div class="market-change negative">
+                -4.2%
+              </div>
+            </div>
+            <div class="market-row" style="cursor: pointer;">
+              <div class="market-player">
+                <div class="market-player-avatar">CR</div>
+                <div class="market-player-info">
+                  <h4>Cristiano Ronaldo</h4>
+                  <p>ST • Al Nassr</p>
+                </div>
+              </div>
+              <div class="market-ovr">91</div>
+              <div class="market-price">1.89M</div>
+              <div class="market-change negative">
+                -3.1%
+              </div>
+            </div>
+            <div class="market-row" style="cursor: pointer;">
+              <div class="market-player">
+                <div class="market-player-avatar">KD</div>
+                <div class="market-player-info">
+                  <h4>Kevin De Bruyne</h4>
+                  <p>CAM • Manchester City</p>
+                </div>
+              </div>
+              <div class="market-ovr">94</div>
+              <div class="market-price">2.10M</div>
+              <div class="market-change negative">
+                -1.5%
+              </div>
+            </div>
+            <div class="market-row" style="cursor: pointer;">
+              <div class="market-player">
+                <div class="market-player-avatar">AB</div>
+                <div class="market-player-info">
+                  <h4>Alisson Becker</h4>
+                  <p>GK • Liverpool</p>
+                </div>
+              </div>
+              <div class="market-ovr">91</div>
+              <div class="market-price">450K</div>
+              <div class="market-change positive">
+                +2.1%
+              </div>
+            </div>
+            <div class="market-row" style="cursor: pointer;">
+              <div class="market-player">
+                <div class="market-player-avatar">MS</div>
+                <div class="market-player-info">
+                  <h4>Mohamed Salah</h4>
+                  <p>RW • Liverpool</p>
+                </div>
+              </div>
+              <div class="market-ovr">92</div>
+              <div class="market-price">1.95M</div>
+              <div class="market-change positive">
+                +3.8%
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Player Detail View -->
+    <div id="detail-view" class="view">
+      <button class="btn btn-secondary back-btn" id="back-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"></path>
+        </svg>
+        Back
+      </button>
+
+      <div class="detail-layout" id="detail-content">
+        <!-- Content loaded dynamically -->
+      </div>
+    </div>
+
+    <!-- Watchlist View -->
+    <!-- Watchlist View -->
+    <!-- ================= WATCHLIST SECTION ================= -->
+    <!-- ======== WATCHLIST VIEW ======== -->
+    <div id="watchlist-view" class="view">
+      <div class="main-content">
+        <!-- Header -->
+        <div class="view-header">
+          <h1>Your Watchlist</h1>
+          <div class="watchlist-count-badge" id="watchlist-count-badge">0 Players</div>
+        </div>
+
+        <!-- Watchlist Layout (2-column on desktop) -->
+        <div class="watchlist-layout">
+          <!-- Filters Sidebar -->
+          <aside class="filters-sidebar" id="watchlist-filters-sidebar">
+            <div class="filters-header">
+              <h3>Filters</h3>
+              <button class="btn btn-text btn-sm" id="watchlist-clear-filters">Clear All</button>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Position</label>
+              <select id="watchlist-filter-position" class="filter-select">
+                <option value="">All Positions</option>
+                <option value="ST">Striker (ST)</option>
+                <option value="CF">Center Forward (CF)</option>
+                <option value="LW">Left Wing (LW)</option>
+                <option value="RW">Right Wing (RW)</option>
+                <option value="CAM">Central AM (CAM)</option>
+                <option value="LM">Left Midfielder (LM)</option>
+                <option value="RM">Right Midfielder (RM)</option>
+                <option value="CM">Central Midfielder (CM)</option>
+                <option value="CDM">Defensive Midfielder (CDM)</option>
+                <option value="LB">Left Back (LB)</option>
+                <option value="CB">Center Back (CB)</option>
+                <option value="RB">Right Back (RB)</option>
+                <option value="LWB">Left Wing Back (LWB)</option>
+                <option value="RWB">Right Wing Back (RWB)</option>
+                <option value="GK">Goalkeeper (GK)</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Overall Rating: <span id="watchlist-rating-value">40-150</span></label>
+              <div class="range-inputs">
+                <input type="number" id="watchlist-rating-min" value="40" min="40" max="150" class="range-input">
+                <span>-</span>
+                <input type="number" id="watchlist-rating-max" value="150" min="40" max="150" class="range-input">
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Price Range: <span id="watchlist-price-value">Any</span></label>
+              <div class="range-inputs">
+                <input type="number" id="watchlist-price-min" placeholder="Min" class="range-input">
+                <span>-</span>
+                <input type="number" id="watchlist-price-max" placeholder="Max" class="range-input">
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">League</label>
+              <select id="watchlist-filter-league" class="filter-select">
+                <option value="">All Leagues</option>
+                <option value="Premier League">Premier League</option>
+                <option value="LALIGA EA SPORTS">LALIGA EA SPORTS</option>
+                <option value="Bundesliga">Bundesliga</option>
+                <option value="Serie A TIM">Serie A TIM</option>
+                <option value="Ligue 1 Uber Eats">Ligue 1 Uber Eats</option>
+                <option value="Eredivisie">Eredivisie</option>
+                <option value="Liga Portugal">Liga Portugal</option>
+                <option value="ROSHN Saudi League">ROSHN Saudi League</option>
+                <option value="Major League Soccer">Major League Soccer</option>
+                <option value="Brasileirão">Brasileirão</option>
+                <option value="Argentine Primera División">Argentine Primera División</option>
+                <option value="EFL Championship">EFL Championship</option>
+                <option value="Bundesliga 2">Bundesliga 2</option>
+                <option value="LALIGA HYPERMOTION">LALIGA HYPERMOTION</option>
+                <option value="Serie BKT">Serie BKT</option>
+                <option value="Ligue 2 BKT">Ligue 2 BKT</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Club</label>
+              <select id="watchlist-filter-club" class="filter-select">
+                <option value="">All Clubs</option>
+                <option value="Real Madrid">Real Madrid</option>
+                <option value="FC Barcelona">FC Barcelona</option>
+                <option value="Manchester United">Manchester United</option>
+                <option value="Liverpool">Liverpool</option>
+                <option value="FC Bayern München">FC Bayern München</option>
+                <option value="Juventus">Juventus</option>
+                <option value="Paris Saint-Germain">Paris Saint-Germain</option>
+                <option value="Chelsea">Chelsea</option>
+                <option value="Arsenal">Arsenal</option>
+                <option value="Manchester City">Manchester City</option>
+                <option value="AC Milan">Milan</option>
+                <option value="Inter">Inter</option>
+                <option value="Atlético de Madrid">Atlético de Madrid</option>
+                <option value="Tottenham Hotspur">Tottenham Hotspur</option>
+                <option value="Borussia Dortmund">Borussia Dortmund</option>
+                <option value="Ajax">Ajax</option>
+                <option value="SL Benfica">SL Benfica</option>
+                <option value="FC Porto">FC Porto</option>
+                <option value="Sevilla FC">Sevilla FC</option>
+                <option value="SSC Napoli">SSC Napoli</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Nation</label>
+              <div style="position: relative;">
+                <input type="text" id="watchlist-filter-nation-input" class="filter-select" placeholder="Search country..." autocomplete="off">
+                <img id="watchlist-filter-nation-flag" style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px;">
+              </div>
+              <div id="watchlist-filter-nation-list" style="max-height: 200px; overflow-y: auto; margin-top: 8px; border: 1px solid var(--color-border); border-radius: 6px; display: none;"></div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Skill Moves</label>
+              <select id="watchlist-filter-skillmoves" class="filter-select">
+                <option value="">Any</option>
+                <option value="1">★</option>
+                <option value="2">★★</option>
+                <option value="3">★★★</option>
+                <option value="4">★★★★</option>
+                <option value="5">★★★★★</option>
+              </select>
+            </div>
+          </aside>
+
+          <!-- Watchlist Content -->
+          <div class="watchlist-content">
+            <!-- Toolbar -->
+            <div class="watchlist-toolbar">
+              <!-- Mobile Filter Toggle -->
+              <button class="watchlist-filter-toggle" id="watchlist-filter-toggle" style="display: none;">
+                <span>⚙️ Filters</span>
+              </button>
+
+              <!-- Search Container -->
+              <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="watchlist-search-input" class="search-input" placeholder="Search players...">
+                <button class="search-clear-btn" id="watchlist-search-clear" style="display: none;">✕</button>
+              </div>
+
+              <!-- Sort Dropdown -->
+              <select id="watchlist-sort-select" class="sort-select">
+                <option value="ovr">Overall (High to Low)</option>
+                <option value="price">Price (High to Low)</option>
+                <option value="name">Name (A to Z)</option>
+                <option value="position">Position</option>
+              </select>
+            </div>
+
+            <!-- Active Filter Chips -->
+            <div class="active-filters" id="watchlist-active-filters"></div>
+
+            <!-- Players Grid -->
+            <div class="watchlist-grid" id="watchlist-grid"></div>
+
+            <!-- Empty State -->
+            <div class="watchlist-empty-state" id="watchlist-empty-state" style="display: none;">
+              <div class="empty-state-box">
+                <div class="empty-state-icon">📋</div>
+                <h2>Your Watchlist is Empty</h2>
+                <p>Start building your watchlist by adding players you're interested in.</p>
+                <button class="btn btn--primary" id="watchlist-browse-players-btn">
+                  <span>Browse Players</span>
+                  <span class="arrow-icon">→</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+    <!-- Event Guide View -->
+    <div id="event-guide-view" class="view">
+      <div id="event-guide-container" class="event-guide-container">
+        <!-- Event cards will be dynamically inserted here -->
+      </div>
+    </div>
+
+    <!-- SHARD CALCULATOR VIEW -->
+    <div id="shard-calculator-view" class="view">
+      <!-- Tab Selector -->
+      <div class="shard-tabs-container">
+        <button class="shard-tab-btn active" data-mode="counter" onclick="switchShardMode('counter')">
+          💎 Shard Counter
+        </button>
+        <button class="shard-tab-btn" data-mode="cost" onclick="switchShardMode('cost')">
+          🧮 Shard Cost
+        </button>
+      </div>
+
+      <!-- SHARD COUNTER MODE -->
+      <div id="shard-counter-section" class="shard-section">
+        <div class="shard-counter-card">
+          <div class="shard-counter-header">
+            <h2>💎 SHARD COUNTER CALCULATOR</h2>
+            <p>Count total number of shards and tokens in your account.</p>
+          </div>
+
+          <!-- Stats Display -->
+          <div class="shard-counter-stats">
+            <div class="stat-item">
+              <span class="stat-label">Shard Count:</span>
+              <span class="stat-value" id="shard-count-display">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Total Players Added:</span>
+              <span class="stat-value" id="player-count-display">0</span>
+            </div>
+          </div>
+
+          <!-- OVR Levels Grid -->
+          <div class="shard-levels-grid">
+            <div class="shard-level-item">
+              <div class="level-title">OVR 105 (5 shards)</div>
+              <div class="level-counter">
+                <button class="counter-btn minus" onclick="decrementShardLevel(105)">−</button>
+                <span class="counter-value" id="counter-105">0</span>
+                <button class="counter-btn plus" onclick="incrementShardLevel(105)">+</button>
+              </div>
+            </div>
+
+            <div class="shard-level-item">
+              <div class="level-title">OVR 106 (10 shards)</div>
+              <div class="level-counter">
+                <button class="counter-btn minus" onclick="decrementShardLevel(106)">−</button>
+                <span class="counter-value" id="counter-106">0</span>
+                <button class="counter-btn plus" onclick="incrementShardLevel(106)">+</button>
+              </div>
+            </div>
+
+            <div class="shard-level-item">
+              <div class="level-title">OVR 107 (10 shards)</div>
+              <div class="level-counter">
+                <button class="counter-btn minus" onclick="decrementShardLevel(107)">−</button>
+                <span class="counter-value" id="counter-107">0</span>
+                <button class="counter-btn plus" onclick="incrementShardLevel(107)">+</button>
+              </div>
+            </div>
+
+            <div class="shard-level-item">
+              <div class="level-title">OVR 108 (10 shards)</div>
+              <div class="level-counter">
+                <button class="counter-btn minus" onclick="decrementShardLevel(108)">−</button>
+                <span class="counter-value" id="counter-108">0</span>
+                <button class="counter-btn plus" onclick="incrementShardLevel(108)">+</button>
+              </div>
+            </div>
+
+            <div class="shard-level-item">
+              <div class="level-title">OVR 109 (30 shards)</div>
+              <div class="level-counter">
+                <button class="counter-btn minus" onclick="decrementShardLevel(109)">−</button>
+                <span class="counter-value" id="counter-109">0</span>
+                <button class="counter-btn plus" onclick="incrementShardLevel(109)">+</button>
+              </div>
+            </div>
+
+            <div class="shard-level-item">
+              <div class="level-title">OVR 110 (60 shards)</div>
+              <div class="level-counter">
+                <button class="counter-btn minus" onclick="decrementShardLevel(110)">−</button>
+                <span class="counter-value" id="counter-110">0</span>
+                <button class="counter-btn plus" onclick="incrementShardLevel(110)">+</button>
+              </div>
+            </div>
+
+            <div class="shard-level-item">
+              <div class="level-title">OVR 111 (120 shards)</div>
+              <div class="level-counter">
+                <button class="counter-btn minus" onclick="decrementShardLevel(111)">−</button>
+                <span class="counter-value" id="counter-111">0</span>
+                <button class="counter-btn plus" onclick="incrementShardLevel(111)">+</button>
+              </div>
+            </div>
+
+            <div class="shard-level-item">
+              <div class="level-title">OVR 112 (180 shards)</div>
+              <div class="level-counter">
+                <button class="counter-btn minus" onclick="decrementShardLevel(112)">−</button>
+                <span class="counter-value" id="counter-112">0</span>
+                <button class="counter-btn plus" onclick="incrementShardLevel(112)">+</button>
+              </div>
+            </div>
+
+            <div class="shard-level-item">
+              <div class="level-title">OVR 113 (250 shards)</div>
+              <div class="level-counter">
+                <button class="counter-btn minus" onclick="decrementShardLevel(113)">−</button>
+                <span class="counter-value" id="counter-113">0</span>
+                <button class="counter-btn plus" onclick="incrementShardLevel(113)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reset Button -->
+          <button class="shard-reset-btn" onclick="resetShardCounter()">🔄 Reset Counter</button>
+        </div>
+      </div>
+
+      <!-- SHARD COST MODE -->
+      <div id="shard-cost-section" class="shard-section" style="display: none;">
+        <div class="shard-cost-card">
+          <span class="update-indicator">Live</span>
+          <div class="shard-cost-header">
+            <h2>🧮 SHARD COST CALCULATOR</h2>
+          </div>
+
+          <!-- Shard Input -->
+          <div class="shard-cost-form">
+            <label for="shard-required-input">Enter Shards Required</label>
+            <div class="shard-input-wrapper">
+              <button class="input-btn minus"
+                onclick="setShardValue(Math.max(0, parseInt(document.getElementById('shard-required-input').value) - 10))">−</button>
+              <input type="text" id="shard-required-input" placeholder="10" value="0">
+              <button class="input-btn plus"
+                onclick="setShardValue(parseInt(document.getElementById('shard-required-input').value) + 10)">+</button>
+            </div>
+
+            <!-- Preset Buttons -->
+            <div class="shard-preset-btns">
+              <button onclick="setShardValue(100)">100</button>
+              <button onclick="setShardValue(200)">200</button>
+              <button onclick="setShardValue(300)">300</button>
+              <button onclick="setShardValue(600)">600</button>
+              <button onclick="setShardValue(700)">700</button>
+              <button onclick="setShardValue(750)">750</button>
+              <button onclick="setShardValue(800)">800</button>
+              <button onclick="setShardValue(850)">850</button>
+              <button onclick="setShardValue(900)">900</button>
+              <button onclick="setShardValue(1000)">1k</button>
+              <button onclick="setShardValue(1500)">1.5k</button>
+            </div>
+          </div>
+
+          <!-- Player OVR Selection -->
+          <div class="shard-cost-form">
+            <label for="shard-player-ovr">Select Player OVR</label>
+            <select id="shard-player-ovr" onchange="calculateShardCost()">
+              <option value="105">OVR 105</option>
+              <option value="106">OVR 106</option>
+              <option value="107">OVR 107</option>
+              <option value="108">OVR 108</option>
+              <option value="109">OVR 109</option>
+              <option value="110">OVR 110</option>
+              <option value="111">OVR 111</option>
+              <option value="112">OVR 112</option>
+              <option value="113">OVR 113</option>
+            </select>
+          </div>
+
+          <!-- Results -->
+          <div class="shard-cost-results">
+            <div class="result-item players">
+              <div class="result-icon">👥</div>
+              <div class="result-info">
+                <span class="result-value" id="shard-cost-players-result">34</span>
+                <span class="result-label">Players to Purchase</span>
+              </div>
+            </div>
+
+            <div class="result-item cost">
+              <div class="result-icon">💰</div>
+              <div class="result-info">
+                <span class="result-value" id="shard-cost-total-result">839.8M</span>
+                <span class="result-label">Total Cost</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="shard-reset-btn" onclick="resetShardCost()">🔄 RESET COST</button>
+          <style>
+            .shard-reset-btn {
+              text-align-last: center;
+            }
+          </style>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+
+  <!-- ===== TOOLS MENU MODAL & SHEET ===== -->
+
+  <!-- TOOLS MENU MODAL (for desktop) -->
+  <div id="tools-modal" class="tools-modal">
+    <div class="tools-modal-content">
+      <div class="tools-modal-header">
+        <h2>Tools & Features</h2>
+        <button class="tools-modal-close" onclick="closeToolsModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="tools-grid">
+        <!-- Squad Builder -->
+        <div class="tool-card" onclick="openTool('squadbuilder')">
+          <div class="tool-card-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M3 20c0-1.5 3-2.5 6-2.5s6 1 6 2.5"></path>
+              <circle cx="17" cy="7" r="4"></circle>
+              <path d="M15 20c0-1.5 2-2.5 4-2.5s4 1 4 2.5"></path>
+            </svg>
+          </div>
+          <h3>Squad Builder</h3>
+          <p>Create and organize your dream squad</p>
+          <span class="tool-badge pro">New</span>
+        </div>
+
+        <!-- Player Comparison -->
+        <div class="tool-card" onclick="openTool('compare')">
+          <div class="tool-card-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
+              <line x1="12" y1="12" x2="20" y2="7.5"></line>
+              <line x1="12" y1="12" x2="12" y2="21"></line>
+              <line x1="12" y1="12" x2="4" y2="7.5"></line>
+            </svg>
+          </div>
+          <h3>Compare Players</h3>
+          <p>Head-to-head stat comparison</p>
+        </div>
+
+        <!-- Card Generator -->
+        <div class="tool-card" onclick="openTool('cardgen')">
+          <div class="tool-card-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <path d="M7 9h.01M7 13h.01M11 9h.01M11 13h.01M15 9h.01M15 13h.01M19 9h.01M19 13h.01"></path>
+            </svg>
+          </div>
+          <h3>Card Generator</h3>
+          <p>Create custom player cards</p>
+        </div>
+
+        <!-- Squad Programs -->
+        <div class="tool-card" onclick="openTool('programs')">
+          <div class="tool-card-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </div>
+          <h3>Squad Programs</h3>
+          <p>Explore seasonal squad challenges</p>
+        </div>
+
+        <!-- Price Tracker -->
+        <div class="tool-card" onclick="openTool('pricetracker')">
+          <div class="tool-card-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+          </div>
+          <h3>Price Tracker</h3>
+          <p>Track player values over time</p>
+        </div>
+
+        <!-- Marketplace Sync -->
+        <div class="tool-card" onclick="openTool('sync')">
+          <div class="tool-card-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"></path>
+            </svg>
+          </div>
+          <h3>Marketplace Sync</h3>
+          <p>Connect & sync your club data</p>
+          <span class="tool-badge beta">Beta</span>
+        </div>
+
+        <!-- Watchlist Manager -->
+        <div class="tool-card" onclick="openTool('watchlist')">
+          <div class="tool-card-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 17 8"></polyline>
+            </svg>
+          </div>
+          <h3>Watchlist Manager</h3>
+          <p>Organize & filter your watchlist</p>
+        </div>
+
+        <!-- Investment Calculator / ROI Calculator -->
+        <div class="tool-card" onclick="openTool('calculator')">
+          <div class="tool-card-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="9" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="12" x2="15" y2="12"></line>
+              <line x1="15" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <h3>Profit Calculator</h3>
+          <p>Calculate investment returns</p>
+        </div>
+
+        <!-- Shard Calculator -->
+        <div class="tool-card" onclick="openTool('shardcalculator')">
+          <div class="tool-card-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8 12h8M12 8v8"></path>
+            </svg>
+          </div>
+          <h3>Shard Calculator</h3>
+          <p>Calculate shard requirements</p>
+        </div>
+
+
+        <!-- Event Guide -->
+        <div class="tool-card" onclick="switchView('event-guide'); closeToolsMenu();">
+          <div class="tool-card-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <h3>Event Guide</h3>
+          <p>FC Mobile events and rewards</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLS MENU SHEET (for mobile) -->
+  <div id="tools-sheet" class="tools-sheet">
+    <div class="tools-sheet-header">
+      <h3>Tools & Features</h3>
+      <button class="tools-sheet-close" onclick="closeToolsSheet()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="tools-sheet-content">
+      <!-- Mobile Tool Items -->
+      <div class="tool-item" onclick="openTool('squadbuilder'); closeToolsSheet();">
+        <div class="tool-item-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M3 20c0-1.5 3-2.5 6-2.5s6 1 6 2.5"></path>
+            <circle cx="17" cy="7" r="4"></circle>
+            <path d="M15 20c0-1.5 2-2.5 4-2.5s4 1 4 2.5"></path>
+          </svg>
+        </div>
+        <span>Squad Builder</span>
+      </div>
+
+      <div class="tool-item" onclick="openTool('compare'); closeToolsSheet();">
+        <div class="tool-item-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
+            <line x1="12" y1="12" x2="20" y2="7.5"></line>
+            <line x1="12" y1="12" x2="12" y2="21"></line>
+            <line x1="12" y1="12" x2="4" y2="7.5"></line>
+          </svg>
+        </div>
+        <span>Compare</span>
+      </div>
+
+      <div class="tool-item" onclick="openTool('cardgen'); closeToolsSheet();">
+        <div class="tool-item-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+            <path d="M7 9h.01M7 13h.01M11 9h.01M11 13h.01M15 9h.01M15 13h.01M19 9h.01M19 13h.01"></path>
+          </svg>
+        </div>
+        <span>Card Gen</span>
+      </div>
+
+      <div class="tool-item" onclick="openTool('programs'); closeToolsSheet();">
+        <div class="tool-item-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </div>
+        <span>Programs</span>
+      </div>
+
+      <div class="tool-item" onclick="openTool('pricetracker'); closeToolsSheet();">
+        <div class="tool-item-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+        </div>
+        <span>Price Tracker</span>
+      </div>
+
+      <div class="tool-item" onclick="openTool('sync'); closeToolsSheet();">
+        <div class="tool-item-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"></path>
+          </svg>
+        </div>
+        <span>Sync</span>
+      </div>
+
+      <div class="tool-item" onclick="openTool('watchlist'); closeToolsSheet();">
+        <div class="tool-item-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 17 8"></polyline>
+          </svg>
+        </div>
+        <span>Watchlist</span>
+      </div>
+
+      <div class="tool-item" onclick="openTool('calculator'); closeToolsSheet();">
+        <div class="tool-item-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="12" x2="15" y2="12"></line>
+            <line x1="15" y1="9" x2="15" y2="15"></line>
+          </svg>
+        </div>
+        <span>ROI Calc</span>
+      </div>
+
+      <div class="tool-item" onclick="openTool('eventguide'); closeToolsSheet();">
+        <div class="tool-item-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <span>Event Guide</span>
+      </div>
+
+      <div class="tool-item" onclick="openTool('shardcalculator'); closeToolsSheet();">
+        <div class="tool-item-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <span>Shard Calculator</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ROI CALCULATOR MODAL (Standalone Popup) ===== -->
+  <div id="roi-calculator-modal" class="roi-modal-overlay" style="display: none;">
+    <div class="roi-modal-container">
+      <!-- Header -->
+      <div class="roi-modal-header">
+        <h1>💰 ROI CALCULATOR</h1>
+        <button class="roi-modal-close" onclick="closeROIModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Form Section -->
+      <div class="roi-modal-form">
+        <!-- Buying Price (Required) -->
+        <div class="roi-form-group">
+          <label for="roi-buying-price">
+            Buying Price
+            <span class="required-asterisk">*</span>
+          </label>
+          <input type="number" id="roi-buying-price" placeholder="Enter buying price in coins" min="0" step="1000"
+            class="roi-input" />
+          <small class="input-hint">e.g., 2450000</small>
+        </div>
+
+        <!-- Selling Price (Required) -->
+        <div class="roi-form-group">
+          <label for="roi-selling-price">
+            Selling Price
+            <span class="required-asterisk">*</span>
+          </label>
+          <input type="number" id="roi-selling-price" placeholder="Enter selling price in coins" min="0" step="1000"
+            class="roi-input" />
+          <small class="input-hint">e.g., 3100000</small>
+        </div>
+
+        <!-- Quantity (Optional) -->
+        <div class="roi-form-group">
+          <label for="roi-quantity">
+            Quantity
+            <span class="optional-text">(Optional)</span>
+          </label>
+          <input type="number" id="roi-quantity" placeholder="How many cards?" min="1" step="1" value="1"
+            class="roi-input" />
+          <small class="input-hint">Default: 1 card</small>
+        </div>
+
+        <!-- Tax Rate (Optional) -->
+        <div class="roi-form-group">
+          <label for="roi-tax-rate">
+            Tax Rate
+            <span class="optional-text">(Optional)</span>
+          </label>
+          <div class="tax-rate-container">
+            <input type="number" id="roi-tax-rate" placeholder="Tax percentage" min="0" max="100" value="10" step="0.5"
+              class="roi-input tax-input" />
+            <span class="tax-percent">%</span>
+          </div>
+          <small class="input-hint">Default: 10%</small>
+        </div>
+      </div>
+
+      <!-- Calculate Button -->
+      <button class="roi-calculate-btn" onclick="calculateROIModal()">
+        Calculate ROI
+      </button>
+
+      <!-- Results Section (Hidden until calculated) -->
+      <div id="roi-results-section" class="roi-results-section" style="display: none;">
+        <div class="roi-results-divider"></div>
+
+        <div class="roi-result-item">
+          <span class="roi-result-label">Tax:</span>
+          <span id="roi-result-tax" class="roi-result-value tax-value">62M</span>
+        </div>
+
+        <div class="roi-result-item">
+          <span class="roi-result-label">Profit:</span>
+          <span id="roi-result-profit" class="roi-result-value profit-value">9.273M</span>
+        </div>
+
+        <div class="roi-result-item">
+          <span class="roi-result-label">ROI %:</span>
+          <span id="roi-result-roi-percent" class="roi-result-value roi-percent-value">15.2%</span>
+        </div>
+
+        <button class="roi-reset-btn" onclick="resetROIModal()">
+          Reset Calculator
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Squad Builder Modal -->
+  <div id="squad-builder-modal" class="squad-modal-overlay" style="display:none;">
+    <div class="squad-modal">
+      <div class="squad-header">
+        <div class="squad-header-left">
+          <h2>Squad Builder</h2>
+          <input id="squad-name-input" class="squad-input" placeholder="Squad Name" />
+          <!-- ✅ THEME BUTTON: -->
+          <button id="squad-theme-btn" class="squad-theme-btn" title="Change Field Theme">
+            🎨
+          </button>
+        </div>
+        <div class="squad-header-center">
+          <div class="squad-stat">
+            <span class="squad-stat-label">OVR</span>
+            <span id="squad-ovr" class="squad-stat-value">0</span>
+          </div>
+          <div class="squad-stat">
+            <span class="squad-stat-label">VALUE</span>
+            <span id="squad-value" class="squad-stat-value">0</span>
+          </div>
+        </div>
+        <div class="squad-header-right">
+          <select id="formation-select" class="squad-select" onchange="changeFormation(this.value)">
+            <option value="3-4-1-2">3-4-1-2</option>
+            <option value="3-4-2-1">3-4-2-1</option>
+            <option value="3-4-3-DIAMOND">3-4-3 DIAMOND</option>
+            <option value="3-4-3-FLAT">3-4-3 FLAT</option>
+            <option value="3-5-1-1">3-5-1-1</option>
+            <option value="3-5-2">3-5-2</option>
+            <option value="4-1-2-1-2-NARROW">4-1-2-1-2 NARROW</option>
+            <option value="4-1-2-1-2-WIDE">4-1-2-1-2 WIDE</option>
+            <option value="4-1-3-2">4-1-3-2</option>
+            <option value="4-1-4-1">4-1-4-1</option>
+            <option value="4-4-1-1-FLAT">4-4-1-1 FLAT</option>
+            <option value="4-2-1-3">4-2-1-3</option>
+            <option value="4-2-1-3-WIDE">4-2-1-3 WIDE</option>
+            <option value="3-1-4-2">3-1-4-2</option>
+            <option value="4-2-2-2">4-2-2-2</option>
+            <option value="4-2-3-1-NARROW">4-2-3-1 NARROW</option>
+            <option value="4-2-3-1-WIDE">4-2-3-1 WIDE</option>
+            <option value="4-2-4">4-2-4</option>
+            <option value="4-3-1-2">4-3-1-2</option>
+            <option value="4-3-2-1">4-3-2-1</option>
+            <option value="4-3-3" selected>4-3-3</option>
+            <option value="4-3-3-ATTACK">4-3-3 ATTACK</option>
+            <option value="4-3-3-DEFEND">4-3-3 DEFEND</option>
+            <option value="4-3-3-FALSE9">4-3-3 FALSE 9</option>
+            <option value="4-3-3-HOLDING">4-3-3 HOLDING</option>
+            <option value="4-4-1-1">4-4-1-1</option>
+            <option value="4-4-1-1-ATTACK">4-4-1-1 ATTACK</option>
+            <option value="4-4-2-FLAT">4-4-2 FLAT</option>
+            <option value="4-4-2-HOLDING">4-4-2 HOLDING</option>
+            <option value="4-5-1">4-5-1</option>
+            <option value="4-5-1-FLAT">4-5-1 FLAT</option>
+            <option value="5-2-1-2">5-2-1-2</option>
+            <option value="5-2-2-1">5-2-2-1</option>
+            <option value="5-3-2">5-3-2</option>
+            <option value="5-4-1">5-4-1</option>
+            <option value="5-4-1-HOLDING">5-4-1-HOLDING</option>
+            <option value="5-4-1-FLAT">5-4-1-FLAT</option>
+            <option value="5-4-1-DEFEND">5-4-1-DEFEND</option>
+          </select>
+
+          <button class="btn squad-btn" onclick="saveSquadLocally()">Save</button>
+          <button class="btn squad-btn" onclick="loadSquadLocally()">Load</button>
+          <button class="squad-close" onclick="closeSquadBuilderModal()">✕</button>
+        </div>
+      </div>
+
+      <div class="squad-body">
+        <div class="squad-field-container">
+          <div id="squad-field" class="squad-field"></div>
+          <div id="squad-bench" class="squad-bench"></div>
+        </div>
+        <div class="squad-picker">
+          <!-- NEW: Filter & Stats Toolbar -->
+          <div class="squad-picker-toolbar">
+            <!-- Filters Button -->
+            <button class="btn btn--outline btn--sm squad-filter-btn" onclick="openFilterSidebar()"
+              title="Filter players">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+              </svg>
+              <span>Filters</span>
+            </button>
+
+            <!-- Stats Button -->
+            <button class="btn btn--outline btn--sm squad-stats-btn" onclick="openStatModalForPicker()"
+              title="Advanced stats filter">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 3v18h18"></path>
+                <path d="M18 17V9"></path>
+                <path d="M13 17V5"></path>
+                <path d="M8 17v-3"></path>
+              </svg>
+              <span>Stats</span>
+            </button>
+
+            <!-- Search Bar -->
+            <input type="text" id="squad-picker-search" class="squad-picker-search" placeholder="Search players..."
+              oninput="updatePickerSearch(this.value)" />
+
+            <!-- Clear Filters Button -->
+            <button class="icon-btn" onclick="clearSquadFilters()" title="Clear all filters">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+
+          </div>
+
+          <!-- Hint Message -->
+          <div id="squad-player-hint" class="squad-hint">Select a slot then pick a player.</div>
+
+          <!-- Player List Container (unchanged) -->
+          <div id="squad-player-list" class="squad-player-list"></div>
+        </div>
+
+      </div>
+
+      <!-- ✅ THEME SELECTOR MODAL: -->
+      <div id="theme-selector-overlay" class="theme-selector-overlay" style="display: none;">
+        <div class="theme-selector-content">
+          <div class="theme-selector-header">
+            <h3>Choose Field Theme</h3>
+            <button id="close-theme-selector" class="theme-close-btn">✕</button>
+          </div>
+
+          <div id="theme-gallery" class="theme-gallery">
+            <!-- Themes generated here -->
+          </div>
+
+          <div class="theme-selector-footer">
+            <button id="apply-theme-btn" class="apply-theme-btn">Apply Theme</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ MOBILE PLAYER SELECTOR MODAL: -->
+      <div id="mobile-player-selector" class="mobile-player-selector" style="display: none;">
+        <div class="mobile-player-selector-content">
+          <div class="mobile-selector-header">
+            <h3>Select Player</h3>
+            <button onclick="closeMobilePlayerSelector()" class="mobile-close-btn">✕</button>
+          </div>
+
+          <div class="mobile-search-box">
+            <input id="mobile-search-input" type="text" placeholder="Search player..." class="mobile-search-input">
+          </div>
+
+          <div id="mobile-player-list" class="mobile-player-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Include the new script -->
+  <script src="themeSelector.js"></script>
+  <script src="squadBuilder.js"></script>
+
+
+  <!-- ===== END ROI CALCULATOR MODAL ===== -->
+
+
+  <!-- TOOLS MENU SHEET (for mobile) -->
+  <div id="tools-sheet" class="tools-sheet">
+    <div class="tools-sheet-handle"></div>
+    <div class="tools-sheet-content">
+      <div class="tools-sheet-header">
+        <h2>Tools & Features</h2>
+        <button class="tools-sheet-close" onclick="closeToolsSheet()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="tools-sheet-grid">
+        <!-- Squad Builder (Mobile) -->
+        <div class="tool-item" onclick="openTool('squadbuilder'); closeToolsSheet();">
+          <div class="tool-item-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M3 20c0-1.5 3-2.5 6-2.5s6 1 6 2.5"></path>
+              <circle cx="17" cy="7" r="4"></circle>
+              <path d="M15 20c0-1.5 2-2.5 4-2.5s4 1 4 2.5"></path>
+            </svg>
+          </div>
+          <span>Squad Builder</span>
+          <span class="tool-item-badge pro">New</span>
+        </div>
+
+        <!-- Player Comparison (Mobile) -->
+        <div class="tool-item" onclick="openTool('compare'); closeToolsSheet();">
+          <div class="tool-item-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
+              <line x1="12" y1="12" x2="20" y2="7.5"></line>
+              <line x1="12" y1="12" x2="12" y2="21"></line>
+              <line x1="12" y1="12" x2="4" y2="7.5"></line>
+            </svg>
+          </div>
+          <span>Compare</span>
+        </div>
+
+
+        <!-- Card Generator (Mobile) -->
+        <div class="tool-item" onclick="openTool('cardgen'); closeToolsSheet();">
+          <div class="tool-item-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <path d="M7 9h.01M7 13h.01M11 9h.01M11 13h.01M15 9h.01M15 13h.01M19 9h.01M19 13h.01"></path>
+            </svg>
+          </div>
+          <span>Card Gen</span>
+        </div>
+
+        <!-- Squad Programs (Mobile) -->
+        <div class="tool-item" onclick="openTool('programs'); closeToolsSheet();">
+          <div class="tool-item-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </div>
+          <span>Programs</span>
+        </div>
+
+        <!-- Price Tracker (Mobile) -->
+        <div class="tool-item" onclick="openTool('pricetracker'); closeToolsSheet();">
+          <div class="tool-item-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+          </div>
+          <span>Price Tracker</span>
+        </div>
+
+        <!-- Marketplace Sync (Mobile) -->
+        <div class="tool-item" onclick="openTool('sync'); closeToolsSheet();">
+          <div class="tool-item-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"></path>
+            </svg>
+          </div>
+          <span>Marketplace</span>
+          <span class="tool-item-badge beta">Beta</span>
+        </div>
+
+        <!-- Watchlist Manager (Mobile) -->
+        <div class="tool-item" onclick="openTool('watchlist'); closeToolsSheet();">
+          <div class="tool-item-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 17 8"></polyline>
+            </svg>
+          </div>
+          <span>Watchlist</span>
+        </div>
+
+        <!-- Investment Calculator (Mobile) -->
+        <div class="tool-item" onclick="openTool('calculator'); closeToolsSheet();">
+          <div class="tool-item-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="9" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="12" x2="15" y2="12"></line>
+              <line x1="15" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <span>ROI Calc</span>
+        </div>
+
+        <!-- Event Guide (Mobile) -->
+        <div class="tool-item" onclick="switchView('event-guide'); closeToolsSheet();">
+          <div class="tool-item-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <span>Event Guide</span>
+        </div>
+
+        <!-- Shard Calculator -->
+        <div class="tool-item" onclick="openTool('shardcalculator'); closeToolsSheet();">
+          <div class="tool-item-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8 12h8M12 8v8"></path>
+            </svg>
+          </div>
+          <span>Shard Calculator</span>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+  <!-- END TOOLS MENU -->
+
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-nav">
+    <button class="mobile-nav-btn" data-view="dashboard">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      <span>Home</span>
+    </button>
+    <button class="mobile-nav-btn" data-view="database">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.35-4.35"></path>
+      </svg>
+      <span>Players</span>
+    </button>
+    <button class="mobile-nav-btn" data-view="market">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+      </svg>
+      <span>Market</span>
+    </button>
+    <button class="mobile-nav-btn" data-view="watchlist">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path
+          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+        </path>
+      </svg>
+      <span>Watchlist</span>
+    </button>
+    <button class="mobile-nav-btn tools-btn" onclick="openToolsSheet()" title="Tools">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+      <span>Tools</span>
+    </button>
+  </nav>
+
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Application JavaScript Files -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="assets/js/data/config.js"></script>
+  <script src="assets/js/data/api-client.js"></script>
+  <script src="assets/js/data/supabase-provider.js"></script>
+
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/components/playerCard.js"></script>
+
+  <script src="assets/js/views/dashboard.js"></script>
+  <script src="assets/js/views/database.js"></script>
+  <script src="assets/js/views/market.js"></script>
+  <script src="assets/js/views/details.js"></script>
+  <script src="assets/js/views/history.js"></script>
+  <script src="assets/js/views/stats-modal.js"></script>
+  <script src="assets/js/views/roiCalculator.js"></script>
+  <script src="assets/js/views/themeSelector.js"></script>
+  <script src="assets/js/views/squadBuilder.js"></script>
+  <script src="assets/js/views/eventGuide.js"></script>
+  <script src="assets/js/views/shardCalculator.js"></script>
+
+  <script src="assets/js/app.js"></script>
+
+  <!-- Custom Stats Modal -->
+  <!-- Custom Stats Modal -->
+  <!-- Enhanced Custom Stats Modal -->
+  <div class="stats-modal-wrapper" id="custom-stats-modal">
+    <div class="stats-modal-backdrop" id="stats-modal-backdrop"></div>
+
+    <div class="stats-modal-container">
+      <!-- Modal Header -->
+      <div class="stats-modal-header">
+        <div class="stats-modal-title-group">
+          <h2 class="stats-modal-title">⚙️ Advanced Stats Filter</h2>
+        </div>
+        <button class="stats-modal-close" onclick="closeStatsModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Content with Tabs -->
+      <div class="stats-modal-content">
+        <!-- Tab Buttons -->
+        <div class="stats-tabs">
+          <button class="stats-tab-btn active" data-tab="player" onclick="switchStatsTab('player')">
+            <span class="tab-icon">⚽</span>
+            <span class="tab-label">Field Players</span>
+          </button>
+          <button class="stats-tab-btn" data-tab="goalkeeper" onclick="switchStatsTab('goalkeeper')">
+            <span class="tab-icon">🧤</span>
+            <span class="tab-label">Goalkeepers</span>
+          </button>
+        </div>
+
+        <!-- Section 1: Stat Templates -->
+        <div class="stats-section">
+          <div class="section-header">
+            <h3 class="section-title">📊 Select Stat Templates</h3>
+            <div class="section-helpers">
+              <span class="selection-counter">
+                <span class="template-count">0</span>/<span class="template-total">6</span> Selected
+              </span>
+              <button class="select-all-btn template-select-all" onclick="selectAllTemplates(event)">
+                Select All
+              </button>
+            </div>
+          </div>
+
+          <div class="stats-section-content">
+            <p class="section-description">Choose pre-built stat combinations for quick filtering</p>
+            <div class="stat-templates-grid" id="stat-templates-grid">
+              <!-- Templates rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="modal-divider"></div>
+
+        <!-- Section 2: Price Tiers -->
+        <div class="stats-section">
+          <div class="section-header">
+            <h3 class="section-title">💎 Price Tiers</h3>
+            <div class="section-helpers">
+              <span class="selection-counter">
+                <span class="price-count">0</span>/<span class="price-total">6</span> Selected
+              </span>
+              <button class="select-all-btn price-select-all" onclick="selectAllPrices(event)">
+                Select All
+              </button>
+            </div>
+          </div>
+
+          <div class="stats-section-content">
+            <p class="section-description">Filter players by rarity and market value tiers</p>
+            <div class="price-tiers-grid" id="price-tiers-grid">
+              <!-- Price tiers rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="modal-divider"></div>
+
+        <!-- Section 3: All Stats -->
+        <div class="stats-section">
+          <div class="section-header">
+            <h3 class="section-title">🎯 All Stats Options</h3>
+            <div class="section-helpers">
+              <span class="selection-counter">
+                <span class="stat-count">0</span>/<span class="stat-total">30+</span> Selected
+              </span>
+              <button class="select-all-btn allstats-select-all" onclick="selectAllStats(event)">
+                Select All
+              </button>
+            </div>
+          </div>
+
+          <div class="stats-section-content">
+            <div class="search-container">
+              <input type="text" id="all-stats-search" class="stats-search-input" placeholder="🔍 Search stats..."
+                oninput="searchAllStats(this.value)">
+            </div>
+            <div class="all-stats-grid" id="all-stats-grid">
+              <!-- All stats rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="stats-modal-footer">
+        <div class="footer-actions">
+          <button class="btn-secondary" onclick="resetStatsFilters()">
+            <span class="btn-icon">↺</span> Reset
+          </button>
+          <button class="btn-primary" onclick="applyStatsFilters()">
+            <span class="btn-icon">✓</span> Apply
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const select = document.getElementById("filter-skill");
+  const display = document.getElementById("skill-star-display");
+
+  function syncSkillStars() {
+    const opt = select.options[select.selectedIndex];
+
+    if (!opt || opt.value === "") {
+      display.textContent = "Any";
+      display.classList.add("any");
+    } else {
+      display.textContent = opt.text;
+      display.classList.remove("any");
+    }
+  }
+
+  select.addEventListener("change", syncSkillStars);
+  window.addEventListener("DOMContentLoaded", syncSkillStars);
+</script>
+
+<!-- Add this right before </body> -->
+
+<!-- ======================== PLAYER COMPARISON MODAL ======================== -->
+<div id="compare-players-modal" class="compare-modal-overlay" style="display: none;">
+  <div class="compare-modal">
+    
+    <!-- Header -->
+    <div class="compare-header">
+      <div class="compare-header-left">
+        <h2>⚡ Compare Players</h2>
+        <span id="compare-count-badge" class="compare-count-badge">0/5</span>
+      </div>
+      <button class="compare-close-btn" onclick="closeCompareModal()">✕</button>
+    </div>
+
+    <!-- Player Cards Container -->
+    <div class="compare-cards-container">
+      <div id="compare-cards-grid" class="compare-cards-grid">
+        <!-- Cards will be dynamically inserted here -->
+      </div>
+    </div>
+
+    <!-- Stats View Toggle -->
+    <div class="compare-view-toggle">
+      <button id="basic-stats-btn" class="compare-stats-btn active" onclick="switchCompareStatsView('basic')">
+        📊 Basic Stats
+      </button>
+      <button id="advanced-stats-btn" class="compare-stats-btn" onclick="switchCompareStatsView('advanced')">
+        🔧 Advanced Stats
+      </button>
+    </div>
+
+    <!-- Stats Comparison Grid -->
+    <div class="compare-stats-section">
+      <div class="compare-stats-header">
+        <h3 id="compare-stats-view-title">Major Stats Comparison</h3>
+        <p id="compare-stats-subtitle" class="compare-stats-subtitle">Add at least 2 players to see comparison</p>
+      </div>
+      
+      <div id="compare-stats-grid" class="compare-stats-grid">
+        <!-- Stats rows will be inserted here dynamically -->
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Nested Player Search Modal for Comparison -->
+<div id="compare-search-modal" class="compare-search-overlay" style="display: none;">
+  <div class="compare-search-modal">
+    <div class="compare-search-header">
+      <h3>🔍 Search Players</h3>
+      <button class="compare-search-close" onclick="closeCompareSearch()">✕</button>
+    </div>
+    
+    <div class="compare-search-body">
+      <input 
+        type="text" 
+        id="compare-search-input" 
+        class="compare-search-input" 
+        placeholder="Search player name..."
+        autocomplete="off"
+      >
+      
+      <div id="compare-search-results" class="compare-search-results">
+        <!-- Search results will appear here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+
+
+<div id="thunderbit-crx-side-bar"
+  style="display:block;opacity:1;pointer-events:all;top:0;right:0;z-index:9007199254740991;position:fixed;pointer-events:none;user-select:none;">
+  <template shadowrootmode="open">
+    <div id="#react-app-root">
+      <div id="#react-app-slot" style="display:flex"></div>
+    </div>
+  </template>
+</div><button id="open-side-panel"
+  style="width:0;height:0;opacity:0;user-select:none;pointer-events:all;position:absolute;bottom:0;right:0;padding:0;border:0;outline:none;"></button>
+</body>
+
+</html>
