@@ -720,8 +720,6 @@ async function loadTrendingPlayers() {
 
 // ========== DASHBOARD SEARCH FUNCTIONALITY ==========
 
-let searchTimeout = null;
-
 async function searchDashboardPlayers(query) {
     const searchTerm = query.trim().toLowerCase();
     
