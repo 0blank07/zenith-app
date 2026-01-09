@@ -1,6 +1,163 @@
 // FC Market Pro - Main Application
 // Handles app initialization, routing, and event listeners
 
+// ========== VIEW PLAYER DETAIL ==========
+function viewPlayerDetail(playerId) {
+    // Find the player from available data sources
+    const allAvailable = [
+        ...(state.allPlayers || []),
+        ...(state.filteredPlayers || []),
+        ...(state.searchResults || [])
+    ];
+    
+    const player = allAvailable.find(p => String(p.player_id) === String(playerId));
+    
+    if (!player) {
+        console.error('[DETAIL] Player not found:', playerId);
+        if (typeof showToast === 'function') showToast('Player not found', 'error');
+        return;
+    }
+    
+    // Store selected player in state
+    state.selectedPlayer = player;
+    
+    // Switch to player detail view
+    switchView('player-detail');
+    
+    // Render the player detail page
+    renderPlayerDetail(player);
+}
+
+function renderPlayerDetail(player) {
+    const container = document.getElementById('player-detail-view');
+    if (!container) {
+        console.error('[DETAIL] player-detail-view container not found in HTML');
+        return;
+    }
+    
+    const uniqueId = `${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}`;
+    const isWatchlisted = state.watchlist && state.watchlist.includes(uniqueId);
+    const flagUrl = typeof getCountryFlagUrl === 'function' ? getCountryFlagUrl(player.nation) : '';
+    
+    container.innerHTML = `
+        <div class="player-detail-wrapper">
+            <div class="player-detail-header">
+                <button class="back-btn" onclick="switchView('database')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Back to Players
+                </button>
+            </div>
+            
+            <div class="player-detail-content">
+                <div class="player-detail-card-section">
+                    <div class="player-detail-card">
+                        ${player.card_background ? 
+                            `<img src="${player.card_background}" alt="Card" class="player-card-bg">` : 
+                            ''
+                        }
+                        ${player.player_image ? 
+                            `<img src="${player.player_image}" alt="${player.name}" class="player-detail-image">` :
+                            `<span class="player-initials-large">${typeof getInitials === 'function' ? getInitials(player.name) : player.name.substring(0,2)}</span>`
+                        }
+                        <div class="player-detail-rating">${player.ovr || 'N/A'}</div>
+                        <div class="player-detail-position">${player.position || 'N/A'}</div>
+                    </div>
+                    
+                    <h1 class="player-detail-name">${player.name}</h1>
+                    
+                    <button class="watchlist-detail-btn ${isWatchlisted ? 'active' : ''}" 
+                            onclick="toggleWatchlist('${uniqueId}'); renderPlayerDetail(state.selectedPlayer);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="${isWatchlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                        ${isWatchlisted ? 'In Watchlist' : 'Add to Watchlist'}
+                    </button>
+                </div>
+                
+                <div class="player-detail-info-section">
+                    <div class="player-info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Team</span>
+                            <span class="info-value">${player.team || 'N/A'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">League</span>
+                            <span class="info-value">${player.league || 'N/A'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Nation</span>
+                            <span class="info-value">
+                                ${flagUrl ? `<img src="${flagUrl}" alt="${player.nation}" class="nation-flag">` : ''}
+                                ${player.nation || 'N/A'}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Skill Moves</span>
+                            <span class="info-value skill-stars">${'★'.repeat(player.skill_moves || 0)}${'☆'.repeat(5 - (player.skill_moves || 0))}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Weak Foot</span>
+                            <span class="info-value skill-stars">${'★'.repeat(player.weak_foot || 0)}${'☆'.repeat(5 - (player.weak_foot || 0))}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Price</span>
+                            <span class="info-value price-value">${player.price ? (typeof formatPrice === 'function' ? formatPrice(player.price) : player.price.toLocaleString()) : 'Non-Auctionable'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="player-stats-section">
+                        <h3>Player Stats</h3>
+                        <div class="stats-grid">
+                            <div class="stat-box"><div class="stat-value">${player.pace || 0}</div><div class="stat-label">PAC</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.shooting || 0}</div><div class="stat-label">SHO</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.passing || 0}</div><div class="stat-label">PAS</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.dribbling || 0}</div><div class="stat-label">DRI</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.defending || 0}</div><div class="stat-label">DEF</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.physical || 0}</div><div class="stat-label">PHY</div></div>
+                        </div>
+                    </div>
+                    
+                    <div class="player-detailed-stats">
+                        <h3>Detailed Attributes</h3>
+                        <div class="detailed-stats-grid">
+                            <div class="detailed-stat"><span>Acceleration</span><span>${player.acceleration || 0}</span></div>
+                            <div class="detailed-stat"><span>Sprint Speed</span><span>${player.sprint_speed || 0}</span></div>
+                            <div class="detailed-stat"><span>Positioning</span><span>${player.positioning || 0}</span></div>
+                            <div class="detailed-stat"><span>Finishing</span><span>${player.finishing || 0}</span></div>
+                            <div class="detailed-stat"><span>Shot Power</span><span>${player.shot_power || 0}</span></div>
+                            <div class="detailed-stat"><span>Long Shots</span><span>${player.long_shots || 0}</span></div>
+                            <div class="detailed-stat"><span>Volleys</span><span>${player.volleys || 0}</span></div>
+                            <div class="detailed-stat"><span>Penalties</span><span>${player.penalties || 0}</span></div>
+                            <div class="detailed-stat"><span>Vision</span><span>${player.vision || 0}</span></div>
+                            <div class="detailed-stat"><span>Crossing</span><span>${player.crossing || 0}</span></div>
+                            <div class="detailed-stat"><span>FK Accuracy</span><span>${player.fk_accuracy || 0}</span></div>
+                            <div class="detailed-stat"><span>Short Passing</span><span>${player.short_passing || 0}</span></div>
+                            <div class="detailed-stat"><span>Long Passing</span><span>${player.long_passing || 0}</span></div>
+                            <div class="detailed-stat"><span>Curve</span><span>${player.curve || 0}</span></div>
+                            <div class="detailed-stat"><span>Agility</span><span>${player.agility || 0}</span></div>
+                            <div class="detailed-stat"><span>Balance</span><span>${player.balance || 0}</span></div>
+                            <div class="detailed-stat"><span>Reactions</span><span>${player.reactions || 0}</span></div>
+                            <div class="detailed-stat"><span>Ball Control</span><span>${player.ball_control || 0}</span></div>
+                            <div class="detailed-stat"><span>Composure</span><span>${player.composure || 0}</span></div>
+                            <div class="detailed-stat"><span>Interceptions</span><span>${player.interceptions || 0}</span></div>
+                            <div class="detailed-stat"><span>Heading</span><span>${player.heading || 0}</span></div>
+                            <div class="detailed-stat"><span>Marking</span><span>${player.marking || 0}</span></div>
+                            <div class="detailed-stat"><span>Standing Tackle</span><span>${player.standing_tackle || 0}</span></div>
+                            <div class="detailed-stat"><span>Sliding Tackle</span><span>${player.sliding_tackle || 0}</span></div>
+                            <div class="detailed-stat"><span>Jumping</span><span>${player.jumping || 0}</span></div>
+                            <div class="detailed-stat"><span>Stamina</span><span>${player.stamina_stat || 0}</span></div>
+                            <div class="detailed-stat"><span>Strength</span><span>${player.strength || 0}</span></div>
+                            <div class="detailed-stat"><span>Aggression</span><span>${player.aggression || 0}</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
 // Application State
 // Application State
 const state = {
