@@ -25,6 +25,315 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
   }
+
+  /* ========== PLAYER DETAIL VIEW STYLES ========== */
+  #player-detail-view {
+    padding: 0;
+    background: var(--bg-primary, #0a0a0f);
+    min-height: 100vh;
+  }
+
+  .player-detail-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .player-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .player-detail-header .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .player-detail-header .back-btn:hover {
+    background: rgba(255,255,255,0.15);
+    transform: translateX(-3px);
+  }
+
+  .player-detail-content {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .player-detail-content {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .player-detail-card-section {
+    text-align: center;
+  }
+
+  .player-detail-card {
+    position: relative;
+    width: 220px;
+    height: 300px;
+    margin: 0 auto 20px;
+    background: linear-gradient(145deg, #1a1a2e, #0f0f1a);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .player-detail-card .player-card-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+  }
+
+  .player-detail-card .player-detail-image {
+    position: relative;
+    z-index: 2;
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+    margin-bottom: 10px;
+  }
+
+  .player-detail-card .player-initials-large {
+    position: relative;
+    z-index: 2;
+    font-size: 48px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .player-detail-card .player-detail-rating {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 3;
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #000;
+    font-size: 24px;
+    font-weight: 800;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(255,215,0,0.4);
+  }
+
+  .player-detail-card .player-detail-position {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 3;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .player-detail-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 15px;
+  }
+
+  .watchlist-detail-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #ef4444;
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .watchlist-detail-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+    transform: scale(1.02);
+  }
+
+  .watchlist-detail-btn.active {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border-color: #ef4444;
+    color: #fff;
+  }
+
+  .player-detail-info-section {
+    color: #fff;
+  }
+
+  .player-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .info-label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .info-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .info-value .nation-flag {
+    width: 20px;
+    height: 14px;
+    border-radius: 2px;
+  }
+
+  .skill-stars {
+    color: #ffd700;
+    letter-spacing: 2px;
+  }
+
+  .price-value {
+    color: #fbbf24;
+    font-weight: 700;
+  }
+
+  .player-stats-section {
+    margin-bottom: 30px;
+  }
+
+  .player-stats-section h3,
+  .player-detailed-stats h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .stat-box {
+    background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 15px 10px;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .stat-box:hover {
+    transform: translateY(-2px);
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 5px 20px rgba(99, 102, 241, 0.2);
+  }
+
+  .stat-box .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    display: block;
+  }
+
+  .stat-box .stat-label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .player-detailed-stats {
+    background: rgba(255,255,255,0.03);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .detailed-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .detailed-stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .detailed-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    font-size: 13px;
+  }
+
+  .detailed-stat span:first-child {
+    color: #888;
+  }
+
+  .detailed-stat span:last-child {
+    color: #fff;
+    font-weight: 600;
+  }
   </style>
 
   <!-- Toast Notification Container -->
@@ -2527,8 +2836,10 @@
       </div>
     </div>
 
-
-
+    <!-- Player Detail View -->
+    <div id="player-detail-view" class="view">
+      <!-- Player detail content will be rendered dynamically by viewPlayerDetail() -->
+    </div>
 
     <!-- Event Guide View -->
     <div id="event-guide-view" class="view">
