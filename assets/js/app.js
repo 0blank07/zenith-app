@@ -8,9 +8,17 @@ const state = {
     watchlist: (function() {
         try {
             const val = localStorage.getItem('watchlist');
-            if (!val || val === "[object Object]") return [];
+            if (!val) return [];
+            if (val === "[object Object]") {
+                localStorage.removeItem('watchlist');
+                return [];
+            }
             return JSON.parse(val);
-        } catch(e) { return []; }
+        } catch(e) {
+            console.warn('Resetting corrupted watchlist', e);
+            localStorage.removeItem('watchlist');
+            return [];
+        }
     })(),
     selectedPlayer: null,
     filters: {
@@ -716,13 +724,13 @@ async function loadTrendingPlayers() {
 
 // ========== DASHBOARD SEARCH FUNCTIONALITY ==========
 
-let searchTimeout = null;
+let dashboardSearchTimeout = null;
 
 async function searchDashboardPlayers(query) {
     const searchTerm = query.trim().toLowerCase();
     
-    if (searchTimeout) {
-        clearTimeout(searchTimeout);
+    if (dashboardSearchTimeout) {
+        clearTimeout(dashboardSearchTimeout);
     }
     
     if (!searchTerm) {
@@ -745,7 +753,7 @@ async function searchDashboardPlayers(query) {
         if (trendingSection) trendingSection.style.display = 'none';
     }
     
-    searchTimeout = setTimeout(async () => {
+    dashboardSearchTimeout = setTimeout(async () => {
         console.log(`[SEARCH] ========== SEARCHING FOR: "${searchTerm}" ==========`);
         
         try {
@@ -955,7 +963,13 @@ window.toggleWatchlist = function (uniqueId) {
 
   // 1. Manage the ID list (for the Heart Icon state)
   const index = state.watchlist.indexOf(uniqueId);
-  let savedPlayers = JSON.parse(localStorage.getItem('watchlistPlayers')) || [];
+  let savedPlayers = [];
+  try {
+    const saved = localStorage.getItem('watchlistPlayers');
+    if (saved && saved !== "[object Object]") {
+      savedPlayers = JSON.parse(saved);
+    }
+  } catch (e) { console.warn('Corrupted watchlistPlayers', e); }
 
   if (index === -1) {
     // === ADDING ===
@@ -1270,7 +1284,13 @@ function loadWatchlist() {
   // ============================================================
   // 🔥 FIX: Load full player objects from storage first
   // ============================================================
-  let resolvedPlayers = JSON.parse(localStorage.getItem('watchlistPlayers')) || [];
+  let resolvedPlayers = [];
+  try {
+    const saved = localStorage.getItem('watchlistPlayers');
+    if (saved && saved !== "[object Object]") {
+        resolvedPlayers = JSON.parse(saved);
+    }
+  } catch (e) { console.warn('Corrupted watchlistPlayers', e); }
 
   // Fallback: If storage is missing players (e.g., from old data), try to find them in current memory
   if (resolvedPlayers.length < state.watchlist.length) {
@@ -2260,10 +2280,10 @@ document.addEventListener('DOMContentLoaded', async function () {
   // ----------------------------
   const searchInput = document.getElementById('search-input');
   if (searchInput) {
-    let searchTimeout;
+    let navSearchTimeout;
     searchInput.addEventListener('input', (e) => {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => {
+      clearTimeout(navSearchTimeout);
+      navSearchTimeout = setTimeout(() => {
         const query = e.target.value.trim();
         if (query.length >= 2) {
           if (typeof searchPlayers === 'function') {
@@ -3434,7 +3454,13 @@ function updateWatchlistPriceValue() {
 
 function filterWatchlistPlayers(playersSource) {
   // Use passed source or fall back to saved storage
-  let filtered = playersSource || JSON.parse(localStorage.getItem('watchlistPlayers')) || [];
+  let filtered = playersSource;
+  if (!filtered) {
+      try {
+          const saved = localStorage.getItem('watchlistPlayers');
+          filtered = (saved && saved !== "[object Object]") ? JSON.parse(saved) : [];
+      } catch (e) { filtered = []; }
+  }
 
   // Apply position filter
   if (state.watchlistFilters.position) {
