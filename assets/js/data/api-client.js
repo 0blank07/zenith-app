@@ -1,6 +1,7 @@
 // Zenith API Client (updated & perfected)
 // Based on your uploaded api-client.js (keeps same base URL and routes)
-const API_BASE_URL = 'https://103.235.105.250:8000/api';
+// CHANGED: Use relative path '/api' to allow proxying (resolves Mixed Content issues)
+const API_BASE_URL = '/api';
 
 class ZenithAPIClient {
   constructor(baseURL = API_BASE_URL, options = {}) {
