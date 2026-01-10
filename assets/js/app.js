@@ -2,7 +2,7 @@
 // Handles app initialization, routing, and event listeners
 
 // ========== VIEW PLAYER DETAIL ==========
-function viewPlayerDetail(playerId) {
+async function viewPlayerDetail(playerId) {
     // Find the player from available data sources
     const allAvailable = [
         ...(state.allPlayers || []),
@@ -10,7 +10,7 @@ function viewPlayerDetail(playerId) {
         ...(state.searchResults || [])
     ];
     
-    const player = allAvailable.find(p => String(p.player_id) === String(playerId));
+    let player = allAvailable.find(p => String(p.player_id) === String(playerId));
     
     if (!player) {
         console.error('[DETAIL] Player not found:', playerId);
@@ -18,14 +18,127 @@ function viewPlayerDetail(playerId) {
         return;
     }
     
+    // Switch to player detail view first (show loading)
+    switchView('player-detail');
+    
+    // Show loading state
+    const container = document.getElementById('player-detail-view');
+    if (container) {
+        container.innerHTML = `
+            <div class="player-detail-wrapper" style="display: flex; justify-content: center; align-items: center; min-height: 50vh;">
+                <div style="text-align: center;">
+                    <div class="loading-spinner" style="margin: 0 auto 20px;"></div>
+                    <p style="color: #888;">Loading player details...</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Fetch full player details from API if available
+    if (window.apiClient && window.apiClient.getPlayerById) {
+        try {
+            console.log('[DETAIL] Fetching full player details for ID:', playerId);
+            const fullPlayer = await window.apiClient.getPlayerById(playerId);
+            if (fullPlayer) {
+                player = { ...player, ...fullPlayer };
+                console.log('[DETAIL] Got full player details:', fullPlayer);
+            }
+        } catch (error) {
+            console.warn('[DETAIL] Could not fetch full details, using cached data:', error);
+        }
+    }
+    
     // Store selected player in state
     state.selectedPlayer = player;
     
-    // Switch to player detail view
-    switchView('player-detail');
-    
     // Render the player detail page
     renderPlayerDetail(player);
+}
+
+// ========== ANIMATED RANK ICON SYSTEM ==========
+const RANK_CONFIG = {
+    frameCount: 30,  // Number of frames in sprite sheet
+    fps: 36,         // Frames per second for animation
+    frameWidth: 64,  // Width of each frame (adjust based on your sprite)
+    frameHeight: 64, // Height of each frame
+    ranks: {
+        1: 'assets/images/ranks/green_rank.png',
+        2: 'assets/images/ranks/blue_rank.png', 
+        3: 'assets/images/ranks/purple_rank.png',
+        4: 'assets/images/ranks/gold_rank.png',
+        5: 'assets/images/ranks/red_rank.png'
+    }
+};
+
+// Store active animations for cleanup
+const activeRankAnimations = new Map();
+
+function createAnimatedRankIcon(rank, size = 48) {
+    if (!rank || rank < 1 || rank > 5) return '';
+    
+    const spriteUrl = RANK_CONFIG.ranks[rank];
+    if (!spriteUrl) return '';
+    
+    const uniqueId = `rank-icon-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    return `
+        <div class="animated-rank-icon" 
+             id="${uniqueId}"
+             data-rank="${rank}"
+             style="
+                width: ${size}px; 
+                height: ${size}px; 
+                background-image: url('${spriteUrl}');
+                background-size: auto ${size}px;
+                background-position: 0 0;
+                background-repeat: no-repeat;
+                display: inline-block;
+             ">
+        </div>
+    `;
+}
+
+function startRankAnimation(element) {
+    if (!element) return;
+    
+    const rank = element.dataset.rank;
+    if (!rank) return;
+    
+    let currentFrame = 0;
+    const frameWidth = parseInt(element.style.width) || RANK_CONFIG.frameWidth;
+    const interval = 1000 / RANK_CONFIG.fps; // ~27.78ms for 36fps
+    
+    // Clear any existing animation
+    if (activeRankAnimations.has(element.id)) {
+        clearInterval(activeRankAnimations.get(element.id));
+    }
+    
+    const animationId = setInterval(() => {
+        currentFrame = (currentFrame + 1) % RANK_CONFIG.frameCount;
+        element.style.backgroundPosition = `-${currentFrame * frameWidth}px 0`;
+    }, interval);
+    
+    activeRankAnimations.set(element.id, animationId);
+}
+
+function stopRankAnimation(elementId) {
+    if (activeRankAnimations.has(elementId)) {
+        clearInterval(activeRankAnimations.get(elementId));
+        activeRankAnimations.delete(elementId);
+    }
+}
+
+function initAllRankAnimations() {
+    document.querySelectorAll('.animated-rank-icon').forEach(el => {
+        startRankAnimation(el);
+    });
+}
+
+function cleanupRankAnimations() {
+    activeRankAnimations.forEach((intervalId, elementId) => {
+        clearInterval(intervalId);
+    });
+    activeRankAnimations.clear();
 }
 
 function renderPlayerDetail(player) {
@@ -35,9 +148,18 @@ function renderPlayerDetail(player) {
         return;
     }
     
+    // Cleanup old animations
+    cleanupRankAnimations();
+    
     const uniqueId = `${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}`;
     const isWatchlisted = state.watchlist && state.watchlist.includes(uniqueId);
     const flagUrl = typeof getCountryFlagUrl === 'function' ? getCountryFlagUrl(player.nation) : '';
+    
+    // Generate rank icon HTML
+    const rankIconHtml = player.rank ? createAnimatedRankIcon(player.rank, 48) : '';
+    
+    // Build training section HTML
+    const trainingHtml = buildTrainingSection(player);
     
     container.innerHTML = `
         <div class="player-detail-wrapper">
@@ -63,9 +185,11 @@ function renderPlayerDetail(player) {
                         }
                         <div class="player-detail-rating">${player.ovr || 'N/A'}</div>
                         <div class="player-detail-position">${player.position || 'N/A'}</div>
+                        ${rankIconHtml ? `<div class="player-detail-rank">${rankIconHtml}</div>` : ''}
                     </div>
                     
                     <h1 class="player-detail-name">${player.name}</h1>
+                    ${player.rank ? `<div class="player-rank-badge">Rank ${player.rank} ${rankIconHtml}</div>` : ''}
                     
                     <button class="watchlist-detail-btn ${isWatchlisted ? 'active' : ''}" 
                             onclick="toggleWatchlist('${uniqueId}'); renderPlayerDetail(state.selectedPlayer);">
@@ -105,6 +229,12 @@ function renderPlayerDetail(player) {
                             <span class="info-label">Price</span>
                             <span class="info-value price-value">${player.price ? (typeof formatPrice === 'function' ? formatPrice(player.price) : player.price.toLocaleString()) : 'Non-Auctionable'}</span>
                         </div>
+                        ${player.rank ? `
+                        <div class="info-item">
+                            <span class="info-label">Rank</span>
+                            <span class="info-value">${rankIconHtml} Rank ${player.rank}</span>
+                        </div>
+                        ` : ''}
                     </div>
                     
                     <div class="player-stats-section">
@@ -118,6 +248,8 @@ function renderPlayerDetail(player) {
                             <div class="stat-box"><div class="stat-value">${player.physical || 0}</div><div class="stat-label">PHY</div></div>
                         </div>
                     </div>
+                    
+                    ${trainingHtml}
                     
                     <div class="player-detailed-stats">
                         <h3>Detailed Attributes</h3>
@@ -153,6 +285,84 @@ function renderPlayerDetail(player) {
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    `;
+    
+    // Start rank animations after DOM is ready
+    setTimeout(() => {
+        initAllRankAnimations();
+    }, 100);
+}
+
+// ========== TRAINING SECTION ==========
+function buildTrainingSection(player) {
+    // Check if player has training data
+    const hasTraining = player.training || player.trained_stats || player.training_level;
+    
+    if (!hasTraining && !player.rank) {
+        return ''; // No training section if no data
+    }
+    
+    // Training levels and their boosts (example structure)
+    const trainingLevels = [
+        { level: 1, xp: 100, boost: '+1' },
+        { level: 2, xp: 250, boost: '+2' },
+        { level: 3, xp: 500, boost: '+3' },
+        { level: 4, xp: 1000, boost: '+4' },
+        { level: 5, xp: 2000, boost: '+5' },
+    ];
+    
+    const currentLevel = player.training_level || 0;
+    const currentXP = player.training_xp || 0;
+    const maxLevel = 5;
+    
+    // Calculate progress
+    const nextLevel = trainingLevels[currentLevel] || trainingLevels[trainingLevels.length - 1];
+    const progressPercent = currentLevel >= maxLevel ? 100 : Math.min((currentXP / nextLevel.xp) * 100, 100);
+    
+    return `
+        <div class="player-training-section">
+            <h3>🏋️ Training</h3>
+            <div class="training-content">
+                <div class="training-level-display">
+                    <div class="training-level-badge">
+                        <span class="level-number">${currentLevel}</span>
+                        <span class="level-label">Level</span>
+                    </div>
+                    <div class="training-progress-container">
+                        <div class="training-progress-bar">
+                            <div class="training-progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <div class="training-progress-text">
+                            ${currentLevel >= maxLevel ? 
+                                '<span class="max-level">MAX LEVEL</span>' : 
+                                `<span>${currentXP} / ${nextLevel.xp} XP</span>`
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="training-levels-grid">
+                    ${trainingLevels.map((lvl, idx) => `
+                        <div class="training-level-item ${idx < currentLevel ? 'completed' : ''} ${idx === currentLevel ? 'current' : ''}">
+                            <div class="level-circle">${idx + 1}</div>
+                            <div class="level-boost">${lvl.boost}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                ${player.trained_stats ? `
+                <div class="trained-stats-grid">
+                    <h4>Trained Boosts</h4>
+                    ${Object.entries(player.trained_stats).map(([stat, boost]) => `
+                        <div class="trained-stat-item">
+                            <span class="stat-name">${stat.replace(/_/g, ' ')}</span>
+                            <span class="stat-boost ${boost > 0 ? 'positive' : ''}">+${boost}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
             </div>
         </div>
     `;
@@ -1556,10 +1766,17 @@ async function loadDatabase() {
             filters.skill_moves = state.filters.skillMoves;
         }
 
-
         // Add event filter
         if (state.filters.event) {
             filters.event = state.filters.event;
+        }
+
+        // ========== FIXED: Add Price Range filter ==========
+        if (state.filters.priceMin !== null && state.filters.priceMin !== '' && !isNaN(state.filters.priceMin)) {
+            filters.min_price = parseInt(state.filters.priceMin);
+        }
+        if (state.filters.priceMax !== null && state.filters.priceMax !== '' && !isNaN(state.filters.priceMax)) {
+            filters.max_price = parseInt(state.filters.priceMax);
         }
 
 
@@ -1666,6 +1883,12 @@ window.loadMorePlayers = function() {
 };
 
 // ========== INITIALIZE FILTERS ==========
+// Price filter constants (limits)
+const PRICE_FILTER_LIMITS = {
+    min: 0,
+    max: 999999999999  // 999B max
+};
+
 function initFilters() {
     // Position filter
     const positionFilter = document.getElementById('filter-position');
@@ -1682,16 +1905,33 @@ function initFilters() {
         });
     }
 
-    // Rating Min filter
+    // Rating Min filter with proper limits
     const ratingMin = document.getElementById('rating-min');
     if (ratingMin) {
+        ratingMin.setAttribute('min', '40');
+        ratingMin.setAttribute('max', '150');
+        
         ratingMin.addEventListener('input', (e) => {
-            const value = parseInt(e.target.value) || 40;
+            let value = parseInt(e.target.value) || 40;
+            // Enforce limits
+            value = Math.max(40, Math.min(150, value));
+            // Ensure min <= max
+            if (value > state.filters.ratingMax) {
+                value = state.filters.ratingMax;
+            }
+            e.target.value = value;
             state.filters.ratingMin = value;
             updateRatingDisplay();
         });
         
         ratingMin.addEventListener('change', (e) => {
+            let value = parseInt(e.target.value) || 40;
+            value = Math.max(40, Math.min(150, value));
+            if (value > state.filters.ratingMax) {
+                value = state.filters.ratingMax;
+            }
+            e.target.value = value;
+            state.filters.ratingMin = value;
             state.currentOffset = 0;
             if (state.currentView === 'database') {
               loadDatabase();
@@ -1699,20 +1939,36 @@ function initFilters() {
             if (state.currentView === 'watchlist') {
               loadWatchlist();
             }
-
         });
     }
 
-    // Rating Max filter
+    // Rating Max filter with proper limits
     const ratingMax = document.getElementById('rating-max');
     if (ratingMax) {
+        ratingMax.setAttribute('min', '40');
+        ratingMax.setAttribute('max', '150');
+        
         ratingMax.addEventListener('input', (e) => {
-            const value = parseInt(e.target.value) || 150;
+            let value = parseInt(e.target.value) || 150;
+            // Enforce limits
+            value = Math.max(40, Math.min(150, value));
+            // Ensure max >= min
+            if (value < state.filters.ratingMin) {
+                value = state.filters.ratingMin;
+            }
+            e.target.value = value;
             state.filters.ratingMax = value;
             updateRatingDisplay();
         });
         
         ratingMax.addEventListener('change', (e) => {
+            let value = parseInt(e.target.value) || 150;
+            value = Math.max(40, Math.min(150, value));
+            if (value < state.filters.ratingMin) {
+                value = state.filters.ratingMin;
+            }
+            e.target.value = value;
+            state.filters.ratingMax = value;
             state.currentOffset = 0;
             if (state.currentView === 'database') {
               loadDatabase();
@@ -1720,7 +1976,84 @@ function initFilters() {
             if (state.currentView === 'watchlist') {
               loadWatchlist();
             }
+        });
+    }
 
+    // ========== FIXED: Price Min filter with proper handling ==========
+    const priceMin = document.getElementById('price-min');
+    if (priceMin) {
+        priceMin.setAttribute('min', '0');
+        priceMin.setAttribute('max', String(PRICE_FILTER_LIMITS.max));
+        priceMin.setAttribute('placeholder', 'Min (0)');
+        
+        priceMin.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/[^0-9]/g, ''); // Only allow numbers
+            if (value === '') {
+                state.filters.priceMin = null;
+            } else {
+                let numValue = parseInt(value);
+                // Enforce limits
+                numValue = Math.max(PRICE_FILTER_LIMITS.min, Math.min(PRICE_FILTER_LIMITS.max, numValue));
+                state.filters.priceMin = numValue;
+                e.target.value = numValue;
+            }
+            updatePriceDisplay();
+        });
+        
+        priceMin.addEventListener('change', (e) => {
+            // Validate: min should not be greater than max
+            if (state.filters.priceMin !== null && state.filters.priceMax !== null) {
+                if (state.filters.priceMin > state.filters.priceMax) {
+                    state.filters.priceMin = state.filters.priceMax;
+                    e.target.value = state.filters.priceMin;
+                }
+            }
+            state.currentOffset = 0;
+            if (state.currentView === 'database') {
+                loadDatabase();
+            }
+            if (state.currentView === 'watchlist') {
+                loadWatchlist();
+            }
+        });
+    }
+
+    // ========== FIXED: Price Max filter with proper handling ==========
+    const priceMax = document.getElementById('price-max');
+    if (priceMax) {
+        priceMax.setAttribute('min', '0');
+        priceMax.setAttribute('max', String(PRICE_FILTER_LIMITS.max));
+        priceMax.setAttribute('placeholder', 'Max');
+        
+        priceMax.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/[^0-9]/g, ''); // Only allow numbers
+            if (value === '') {
+                state.filters.priceMax = null;
+            } else {
+                let numValue = parseInt(value);
+                // Enforce limits
+                numValue = Math.max(PRICE_FILTER_LIMITS.min, Math.min(PRICE_FILTER_LIMITS.max, numValue));
+                state.filters.priceMax = numValue;
+                e.target.value = numValue;
+            }
+            updatePriceDisplay();
+        });
+        
+        priceMax.addEventListener('change', (e) => {
+            // Validate: max should not be less than min
+            if (state.filters.priceMin !== null && state.filters.priceMax !== null) {
+                if (state.filters.priceMax < state.filters.priceMin) {
+                    state.filters.priceMax = state.filters.priceMin;
+                    e.target.value = state.filters.priceMax;
+                }
+            }
+            state.currentOffset = 0;
+            if (state.currentView === 'database') {
+                loadDatabase();
+            }
+            if (state.currentView === 'watchlist') {
+                loadWatchlist();
+            }
         });
     }
 
@@ -1736,7 +2069,6 @@ function initFilters() {
             if (state.currentView === 'watchlist') {
               loadWatchlist();
             }
-
         });
     }
 
@@ -1752,10 +2084,8 @@ function initFilters() {
             if (state.currentView === 'watchlist') {
               loadWatchlist();
             }
-
         });
     }
-
 
     // Club filter
     const clubFilter = document.getElementById('filter-club');
@@ -1769,10 +2099,8 @@ function initFilters() {
             if (state.currentView === 'watchlist') {
               loadWatchlist();
             }
-
         });
     }
-    
 
     // Skill Moves filter
     const skillFilter = document.getElementById('filter-skill');
@@ -1786,11 +2114,8 @@ function initFilters() {
             if (state.currentView === 'watchlist') {
               loadWatchlist();
             }
-
         });
     }
-
-
 
     // Event filter
     const eventFilter = document.getElementById('filter-event');
@@ -1803,9 +2128,6 @@ function initFilters() {
         });
     }
 
-
-
-
     // Clear All Filters button
     const clearFiltersBtn = document.getElementById('clear-filters');
     if (clearFiltersBtn) {
@@ -1813,6 +2135,25 @@ function initFilters() {
     }
 
     console.log('[FILTERS] Initialized');
+}
+
+// ========== FIXED: Update price display ==========
+function updatePriceDisplay() {
+    const priceValue = document.getElementById('price-value');
+    if (priceValue) {
+        const min = state.filters.priceMin;
+        const max = state.filters.priceMax;
+        
+        if (min === null && max === null) {
+            priceValue.textContent = 'Any';
+        } else if (min !== null && max !== null) {
+            priceValue.textContent = `${formatPrice(min)} - ${formatPrice(max)}`;
+        } else if (min !== null) {
+            priceValue.textContent = `${formatPrice(min)}+`;
+        } else if (max !== null) {
+            priceValue.textContent = `Up to ${formatPrice(max)}`;
+        }
+    }
 }
 
 // Update rating display
@@ -1824,7 +2165,6 @@ function updateRatingDisplay() {
 }
 
 // Clear all filters
-// Clear all filters
 function clearAllFilters() {
     // 1. Reset State Object
     state.filters = {
@@ -1835,7 +2175,7 @@ function clearAllFilters() {
         priceMax: null,
         league: '',
         nation: '',
-        club: '',        // ✅ Added club reset
+        club: '',
         skillMoves: '',
         event: ''
     };
@@ -1850,10 +2190,16 @@ function clearAllFilters() {
     const ratingMax = document.getElementById('rating-max');
     if (ratingMax) ratingMax.value = 150;
 
+    // ✅ FIXED: Reset Price Filters
+    const priceMin = document.getElementById('price-min');
+    if (priceMin) priceMin.value = '';
+
+    const priceMax = document.getElementById('price-max');
+    if (priceMax) priceMax.value = '';
+
     const leagueFilter = document.getElementById('filter-league');
     if (leagueFilter) leagueFilter.value = '';
 
-    // ✅ Reset Club Filter
     const clubFilter = document.getElementById('filter-club');
     if (clubFilter) clubFilter.value = '';
 
@@ -1866,18 +2212,25 @@ function clearAllFilters() {
     const eventFilter = document.getElementById('filter-event');
     if (eventFilter) eventFilter.value = '';
 
+    // Reset nation flag
+    const nationFlag = document.getElementById('filter-nation-flag');
+    if (nationFlag) {
+        nationFlag.style.display = 'none';
+        nationFlag.src = '';
+    }
+
     // 3. Update Visuals
     updateRatingDisplay();
+    updatePriceDisplay();
 
     // 4. Reload Database
     state.currentOffset = 0;
     if (state.currentView === 'database') {
-      loadDatabase();
+        loadDatabase();
     }
     if (state.currentView === 'watchlist') {
-  loadWatchlist();
-}
-
+        loadWatchlist();
+    }
 
     showToast('Filters cleared', 'success');
 }
@@ -2351,7 +2704,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     const row = document.createElement('div');
     row.className = 'dropdown-player-row';
 
-    const isAuctionable = player.is_untradable !== 'True';
+    const isAuctionable = player.is_untradable !== 'True' && player.is_untradable !== true;
+    
+    // ========== FIXED: Show price for auctionable cards in search ==========
+    const priceDisplay = isAuctionable && player.price 
+        ? `<div class="dropdown-player-price" style="color: #fbbf24; font-size: 12px; font-weight: 600;">${formatPrice(player.price)}</div>` 
+        : '';
 
     row.innerHTML = `
       <div class="dropdown-player-card">
@@ -2365,14 +2723,9 @@ document.addEventListener('DOMContentLoaded', async function () {
       <div class="dropdown-player-info">
           <div class="dropdown-player-name">${player.name}</div>
           <span class="dropdown-player-badge ${isAuctionable ? 'auctionable' : 'non-auctionable'}">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                  ${isAuctionable ?
-        '<path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>' :
-        '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>'
-      }
-              </svg>
-              ${isAuctionable ? 'Auctionable' : 'Non-auctionable'}
+              ${isAuctionable ? '✅ Auctionable' : '🔴 Non-auctionable'}
           </span>
+          ${priceDisplay}
       </div>
 
       <div class="dropdown-player-stats">
@@ -2383,9 +2736,14 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     row.addEventListener('click', () => {
       console.log('[SEARCH] Selected player:', player.name);
+      // Store in search results for detail view
+      if (!state.searchResults.some(p => p.player_id === player.player_id)) {
+          state.searchResults.push(player);
+      }
       if (searchDropdown) searchDropdown.classList.remove('active');
       if (homeSearch) homeSearch.value = '';
-      if (typeof showToast === 'function') showToast(`Selected: ${player.name}`, 'success');
+      // Navigate to player detail
+      viewPlayerDetail(player.player_id);
     });
 
     return row;
