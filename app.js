@@ -237,11 +237,53 @@ function renderPlayerDetail(player) {
                         ` : ''}
                     </div>
                     
-                    ${buildPlayerStatsSection(player)}
+                    <div class="player-stats-section">
+                        <h3>Player Stats</h3>
+                        <div class="stats-grid">
+                            <div class="stat-box"><div class="stat-value">${player.pace || 0}</div><div class="stat-label">PAC</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.shooting || 0}</div><div class="stat-label">SHO</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.passing || 0}</div><div class="stat-label">PAS</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.dribbling || 0}</div><div class="stat-label">DRI</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.defending || 0}</div><div class="stat-label">DEF</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.physical || 0}</div><div class="stat-label">PHY</div></div>
+                        </div>
+                    </div>
                     
                     ${trainingHtml}
                     
-                    ${buildDetailedAttributesSection(player)}
+                    <div class="player-detailed-stats">
+                        <h3>Detailed Attributes</h3>
+                        <div class="detailed-stats-grid">
+                            <div class="detailed-stat"><span>Acceleration</span><span>${player.acceleration || 0}</span></div>
+                            <div class="detailed-stat"><span>Sprint Speed</span><span>${player.sprint_speed || 0}</span></div>
+                            <div class="detailed-stat"><span>Positioning</span><span>${player.positioning || 0}</span></div>
+                            <div class="detailed-stat"><span>Finishing</span><span>${player.finishing || 0}</span></div>
+                            <div class="detailed-stat"><span>Shot Power</span><span>${player.shot_power || 0}</span></div>
+                            <div class="detailed-stat"><span>Long Shots</span><span>${player.long_shots || 0}</span></div>
+                            <div class="detailed-stat"><span>Volleys</span><span>${player.volleys || 0}</span></div>
+                            <div class="detailed-stat"><span>Penalties</span><span>${player.penalties || 0}</span></div>
+                            <div class="detailed-stat"><span>Vision</span><span>${player.vision || 0}</span></div>
+                            <div class="detailed-stat"><span>Crossing</span><span>${player.crossing || 0}</span></div>
+                            <div class="detailed-stat"><span>FK Accuracy</span><span>${player.accuracy || 0}</span></div>
+                            <div class="detailed-stat"><span>Short Passing</span><span>${player.short_passing || 0}</span></div>
+                            <div class="detailed-stat"><span>Long Passing</span><span>${player.long_passing || 0}</span></div>
+                            <div class="detailed-stat"><span>Curve</span><span>${player.curve || 0}</span></div>
+                            <div class="detailed-stat"><span>Agility</span><span>${player.agility || 0}</span></div>
+                            <div class="detailed-stat"><span>Balance</span><span>${player.balance || 0}</span></div>
+                            <div class="detailed-stat"><span>Reactions</span><span>${player.reactions || 0}</span></div>
+                            <div class="detailed-stat"><span>Ball Control</span><span>${player.ball_control || 0}</span></div>
+                            <div class="detailed-stat"><span>Composure</span><span>${player.composure || 0}</span></div>
+                            <div class="detailed-stat"><span>Interceptions</span><span>${player.interceptions || 0}</span></div>
+                            <div class="detailed-stat"><span>Heading</span><span>${player.heading || 0}</span></div>
+                            <div class="detailed-stat"><span>Marking</span><span>${player.marking || 0}</span></div>
+                            <div class="detailed-stat"><span>Standing Tackle</span><span>${player.standing_tackle || 0}</span></div>
+                            <div class="detailed-stat"><span>Sliding Tackle</span><span>${player.sliding_tackle || 0}</span></div>
+                            <div class="detailed-stat"><span>Jumping</span><span>${player.jumping || 0}</span></div>
+                            <div class="detailed-stat"><span>Stamina</span><span>${player.stamina_stat || 0}</span></div>
+                            <div class="detailed-stat"><span>Strength</span><span>${player.strength || 0}</span></div>
+                            <div class="detailed-stat"><span>Aggression</span><span>${player.aggression || 0}</span></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -251,108 +293,6 @@ function renderPlayerDetail(player) {
     setTimeout(() => {
         initAllRankAnimations();
     }, 100);
-}
-
-// ========== GK STATS CHECK ==========
-function isGoalkeeper(player) {
-    return player.position === 'GK';
-}
-
-// ========== PLAYER STATS SECTION (GK vs Outfield) ==========
-function buildPlayerStatsSection(player) {
-    if (isGoalkeeper(player)) {
-        // GK-specific main stats
-        return `
-            <div class="player-stats-section">
-                <h3>Goalkeeper Stats</h3>
-                <div class="stats-grid">
-                    <div class="stat-box"><div class="stat-value">${player.gk_diving || player.diving || 0}</div><div class="stat-label">DIV</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.gk_handling || player.handling || 0}</div><div class="stat-label">HAN</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.gk_kicking || player.kicking || 0}</div><div class="stat-label">KIC</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.gk_reflexes || player.reflexes || 0}</div><div class="stat-label">REF</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.gk_positioning || 0}</div><div class="stat-label">POS</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.physical || 0}</div><div class="stat-label">PHY</div></div>
-                </div>
-            </div>
-        `;
-    } else {
-        // Outfield player stats
-        return `
-            <div class="player-stats-section">
-                <h3>Player Stats</h3>
-                <div class="stats-grid">
-                    <div class="stat-box"><div class="stat-value">${player.pace || 0}</div><div class="stat-label">PAC</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.shooting || 0}</div><div class="stat-label">SHO</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.passing || 0}</div><div class="stat-label">PAS</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.dribbling_head || player.dribbling || 0}</div><div class="stat-label">DRI</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.defending || 0}</div><div class="stat-label">DEF</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.physical || 0}</div><div class="stat-label">PHY</div></div>
-                </div>
-            </div>
-        `;
-    }
-}
-
-// ========== DETAILED ATTRIBUTES SECTION (GK vs Outfield) ==========
-function buildDetailedAttributesSection(player) {
-    if (isGoalkeeper(player)) {
-        // GK-specific detailed attributes
-        return `
-            <div class="player-detailed-stats">
-                <h3>Goalkeeper Attributes</h3>
-                <div class="detailed-stats-grid">
-                    <div class="detailed-stat"><span>GK Diving</span><span>${player.gk_diving || player.diving || 0}</span></div>
-                    <div class="detailed-stat"><span>GK Positioning</span><span>${player.gk_positioning || 0}</span></div>
-                    <div class="detailed-stat"><span>GK Handling</span><span>${player.gk_handling || player.handling || 0}</span></div>
-                    <div class="detailed-stat"><span>GK Reflexes</span><span>${player.gk_reflexes || player.reflexes || 0}</span></div>
-                    <div class="detailed-stat"><span>GK Kicking</span><span>${player.gk_kicking || player.kicking || 0}</span></div>
-                    <div class="detailed-stat"><span>Reactions</span><span>${player.reactions || 0}</span></div>
-                    <div class="detailed-stat"><span>Agility</span><span>${player.agility || 0}</span></div>
-                    <div class="detailed-stat"><span>Sprint Speed</span><span>${player.sprint_speed || 0}</span></div>
-                    <div class="detailed-stat"><span>Jumping</span><span>${player.jumping || 0}</span></div>
-                    <div class="detailed-stat"><span>Strength</span><span>${player.strength || 0}</span></div>
-                    <div class="detailed-stat"><span>Long Passing</span><span>${player.long_passing || 0}</span></div>
-                    <div class="detailed-stat"><span>Short Passing</span><span>${player.short_passing || 0}</span></div>
-                </div>
-            </div>
-        `;
-    } else {
-        // Outfield player detailed attributes
-        return `
-            <div class="player-detailed-stats">
-                <h3>Detailed Attributes</h3>
-                <div class="detailed-stats-grid">
-                    <div class="detailed-stat"><span>Acceleration</span><span>${player.acceleration || 0}</span></div>
-                    <div class="detailed-stat"><span>Sprint Speed</span><span>${player.sprint_speed || 0}</span></div>
-                    <div class="detailed-stat"><span>Positioning</span><span>${player.positioning || 0}</span></div>
-                    <div class="detailed-stat"><span>Finishing</span><span>${player.finishing || 0}</span></div>
-                    <div class="detailed-stat"><span>Shot Power</span><span>${player.shot_power || 0}</span></div>
-                    <div class="detailed-stat"><span>Long Shots</span><span>${player.long_shot || 0}</span></div>
-                    <div class="detailed-stat"><span>Volleys</span><span>${player.volley || 0}</span></div>
-                    <div class="detailed-stat"><span>Penalties</span><span>${player.penalties || 0}</span></div>
-                    <div class="detailed-stat"><span>Vision</span><span>${player.vision || 0}</span></div>
-                    <div class="detailed-stat"><span>Crossing</span><span>${player.crossing || 0}</span></div>
-                    <div class="detailed-stat"><span>FK Accuracy</span><span>${player.free_kick || 0}</span></div>
-                    <div class="detailed-stat"><span>Short Passing</span><span>${player.short_passing || 0}</span></div>
-                    <div class="detailed-stat"><span>Long Passing</span><span>${player.long_passing || 0}</span></div>
-                    <div class="detailed-stat"><span>Curve</span><span>${player.curve || 0}</span></div>
-                    <div class="detailed-stat"><span>Agility</span><span>${player.agility || 0}</span></div>
-                    <div class="detailed-stat"><span>Balance</span><span>${player.balance || 0}</span></div>
-                    <div class="detailed-stat"><span>Reactions</span><span>${player.reactions || 0}</span></div>
-                    <div class="detailed-stat"><span>Ball Control</span><span>${player.ball_control || 0}</span></div>
-                    <div class="detailed-stat"><span>Awareness</span><span>${player.awareness || 0}</span></div>
-                    <div class="detailed-stat"><span>Heading</span><span>${player.heading || 0}</span></div>
-                    <div class="detailed-stat"><span>Marking</span><span>${player.marking || 0}</span></div>
-                    <div class="detailed-stat"><span>Standing Tackle</span><span>${player.standing_tackle || 0}</span></div>
-                    <div class="detailed-stat"><span>Sliding Tackle</span><span>${player.sliding_tackle || 0}</span></div>
-                    <div class="detailed-stat"><span>Jumping</span><span>${player.jumping || 0}</span></div>
-                    <div class="detailed-stat"><span>Stamina</span><span>${player.stamina_stat || 0}</span></div>
-                    <div class="detailed-stat"><span>Strength</span><span>${player.strength || 0}</span></div>
-                    <div class="detailed-stat"><span>Aggression</span><span>${player.aggression || 0}</span></div>
-                </div>
-            </div>
-        `;
-    }
 }
 
 // ========== TRAINING SECTION ==========
@@ -1034,23 +974,6 @@ function createDashboardPlayerCard(player) {
         }
     });
     
-    // Build rank display if available
-    const rankHtml = player.rank && player.rank > 0 ? `
-        <div class="card-rank" style="position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.7); color: #ffd700; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-            Rank ${player.rank}
-        </div>
-    ` : '';
-    
-    // Build training level display if available
-    const trainingHtml = player.training_level && player.training_level > 0 ? `
-        <div class="card-training" style="position: absolute; bottom: 8px; right: 8px; background: rgba(99, 102, 241, 0.8); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-            LV ${player.training_level}
-        </div>
-    ` : '';
-    
-    // Build mini attributes display
-    const attributesHtml = buildDashboardCardAttributes(player);
-    
     card.innerHTML = `
         <div class="card-container">
             <img src="${player.card_background || 'https://via.placeholder.com/300x400'}" 
@@ -1084,11 +1007,7 @@ function createDashboardPlayerCard(player) {
                  alt="Club" 
                  class="card-club-flag"
                  onerror="this.style.display='none'">
-            
-            ${rankHtml}
-            ${trainingHtml}
         </div>
-        ${attributesHtml}
     `;
     
     return card;
@@ -1556,56 +1475,6 @@ function getInitials(name) {
     return name.substring(0, 2).toUpperCase();
 }
 
-// ========== BUILD PLAYER ROW STATS (GK vs Outfield) ==========
-function buildPlayerRowStats(player) {
-    if (isGoalkeeper(player)) {
-        // GK stats for row display
-        return `
-            <div class="player-row-stats">
-                <div class="stat-pill"><div class="stat-pill-value">${player.gk_diving || player.diving || 0}</div><div class="stat-pill-label">DIV</div></div>
-                <div class="stat-pill"><div class="stat-pill-value">${player.gk_handling || player.handling || 0}</div><div class="stat-pill-label">HAN</div></div>
-                <div class="stat-pill"><div class="stat-pill-value">${player.gk_kicking || player.kicking || 0}</div><div class="stat-pill-label">KIC</div></div>
-                <div class="stat-pill"><div class="stat-pill-value">${player.gk_reflexes || player.reflexes || 0}</div><div class="stat-pill-label">REF</div></div>
-                <div class="stat-pill"><div class="stat-pill-value">${player.gk_positioning || 0}</div><div class="stat-pill-label">POS</div></div>
-                <div class="stat-pill"><div class="stat-pill-value">${player.physical || 0}</div><div class="stat-pill-label">PHY</div></div>
-            </div>
-        `;
-    } else {
-        // Outfield player stats
-        return `
-            <div class="player-row-stats">
-                <div class="stat-pill"><div class="stat-pill-value">${player.pace || 0}</div><div class="stat-pill-label">PAC</div></div>
-                <div class="stat-pill"><div class="stat-pill-value">${player.shooting || 0}</div><div class="stat-pill-label">SHO</div></div>
-                <div class="stat-pill"><div class="stat-pill-value">${player.passing || 0}</div><div class="stat-pill-label">PAS</div></div>
-                <div class="stat-pill"><div class="stat-pill-value">${player.dribbling_head || player.dribbling || 0}</div><div class="stat-pill-label">DRI</div></div>
-                <div class="stat-pill"><div class="stat-pill-value">${player.defending || 0}</div><div class="stat-pill-label">DEF</div></div>
-                <div class="stat-pill"><div class="stat-pill-value">${player.physical || 0}</div><div class="stat-pill-label">PHY</div></div>
-            </div>
-        `;
-    }
-}
-
-// ========== BUILD DASHBOARD CARD ATTRIBUTES ==========
-function buildDashboardCardAttributes(player) {
-    if (isGoalkeeper(player)) {
-        return `
-            <div class="card-mini-stats" style="display: flex; justify-content: center; gap: 4px; margin-top: 4px; font-size: 10px;">
-                <span style="background: rgba(0,0,0,0.6); padding: 2px 4px; border-radius: 3px; color: #fff;">${player.gk_diving || player.diving || 0} DIV</span>
-                <span style="background: rgba(0,0,0,0.6); padding: 2px 4px; border-radius: 3px; color: #fff;">${player.gk_handling || player.handling || 0} HAN</span>
-                <span style="background: rgba(0,0,0,0.6); padding: 2px 4px; border-radius: 3px; color: #fff;">${player.gk_reflexes || player.reflexes || 0} REF</span>
-            </div>
-        `;
-    } else {
-        return `
-            <div class="card-mini-stats" style="display: flex; justify-content: center; gap: 4px; margin-top: 4px; font-size: 10px;">
-                <span style="background: rgba(0,0,0,0.6); padding: 2px 4px; border-radius: 3px; color: #fff;">${player.pace || 0} PAC</span>
-                <span style="background: rgba(0,0,0,0.6); padding: 2px 4px; border-radius: 3px; color: #fff;">${player.shooting || 0} SHO</span>
-                <span style="background: rgba(0,0,0,0.6); padding: 2px 4px; border-radius: 3px; color: #fff;">${player.defending || 0} DEF</span>
-            </div>
-        `;
-    }
-}
-
 // Locate the createPlayerCard function in your app.js and replace it with this:
 
 /**
@@ -1674,7 +1543,14 @@ function createPlayerCard(player) {
             ${secondaryPosition ? `<div class="player-info-secondary">${secondaryPosition}</div>` : ''}
         </div>
         
-        ${buildPlayerRowStats(player)}
+        <div class="player-row-stats">
+            <div class="stat-pill"><div class="stat-pill-value">${player.pace || 0}</div><div class="stat-pill-label">PAC</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.shooting || 0}</div><div class="stat-pill-label">SHO</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.passing || 0}</div><div class="stat-pill-label">PAS</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.dribbling || 0}</div><div class="stat-pill-label">DRI</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.defending || 0}</div><div class="stat-pill-label">DEF</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.physical || 0}</div><div class="stat-pill-label">PHY</div></div>
+        </div>
         
         <button class="player-row-watchlist ${isWatchlisted ? 'active' : ''}" 
                 data-unique-id="${uniqueId}"
@@ -2056,25 +1932,9 @@ function initFilters() {
         ratingMin.setAttribute('min', '40');
         ratingMin.setAttribute('max', '150');
         
-    // Rating Min filter - allow free typing, validate on blur/change only
-    const ratingMin = document.getElementById('rating-min');
-    if (ratingMin) {
-        ratingMin.setAttribute('min', '40');
-        ratingMin.setAttribute('max', '150');
-        
-        // Allow free typing during input - just update display
         ratingMin.addEventListener('input', (e) => {
-            updateRatingDisplay();
-        });
-        
-        // Validate and apply on blur/change
-        ratingMin.addEventListener('change', (e) => {
-            let value = parseInt(e.target.value);
-            // If empty or invalid, reset to 40
-            if (isNaN(value) || value === '') {
-                value = 40;
-            }
-            // Enforce limits: min 40, max 150
+            let value = parseInt(e.target.value) || 40;
+            // Enforce limits
             value = Math.max(40, Math.min(150, value));
             // Ensure min <= max
             if (value > state.filters.ratingMax) {
@@ -2082,8 +1942,18 @@ function initFilters() {
             }
             e.target.value = value;
             state.filters.ratingMin = value;
-            state.currentOffset = 0;
             updateRatingDisplay();
+        });
+        
+        ratingMin.addEventListener('change', (e) => {
+            let value = parseInt(e.target.value) || 40;
+            value = Math.max(40, Math.min(150, value));
+            if (value > state.filters.ratingMax) {
+                value = state.filters.ratingMax;
+            }
+            e.target.value = value;
+            state.filters.ratingMin = value;
+            state.currentOffset = 0;
             if (state.currentView === 'database') {
               loadDatabase();
             }
@@ -2093,25 +1963,15 @@ function initFilters() {
         });
     }
 
-    // Rating Max filter - allow free typing, validate on blur/change only
+    // Rating Max filter with proper limits
     const ratingMax = document.getElementById('rating-max');
     if (ratingMax) {
         ratingMax.setAttribute('min', '40');
         ratingMax.setAttribute('max', '150');
         
-        // Allow free typing during input - just update display
         ratingMax.addEventListener('input', (e) => {
-            updateRatingDisplay();
-        });
-        
-        // Validate and apply on blur/change
-        ratingMax.addEventListener('change', (e) => {
-            let value = parseInt(e.target.value);
-            // If empty or invalid, reset to 150
-            if (isNaN(value) || value === '') {
-                value = 150;
-            }
-            // Enforce limits: min 40, max 150
+            let value = parseInt(e.target.value) || 150;
+            // Enforce limits
             value = Math.max(40, Math.min(150, value));
             // Ensure max >= min
             if (value < state.filters.ratingMin) {
@@ -2119,8 +1979,18 @@ function initFilters() {
             }
             e.target.value = value;
             state.filters.ratingMax = value;
-            state.currentOffset = 0;
             updateRatingDisplay();
+        });
+        
+        ratingMax.addEventListener('change', (e) => {
+            let value = parseInt(e.target.value) || 150;
+            value = Math.max(40, Math.min(150, value));
+            if (value < state.filters.ratingMin) {
+                value = state.filters.ratingMin;
+            }
+            e.target.value = value;
+            state.filters.ratingMax = value;
+            state.currentOffset = 0;
             if (state.currentView === 'database') {
               loadDatabase();
             }
@@ -2130,17 +2000,83 @@ function initFilters() {
         });
     }
 
-    // Price filters removed per requirements - price filter code commented out
-    /*
+    // ========== FIXED: Price Min filter with proper handling ==========
     const priceMin = document.getElementById('price-min');
     if (priceMin) {
-        // Price filter removed
+        priceMin.setAttribute('min', '0');
+        priceMin.setAttribute('max', String(PRICE_FILTER_LIMITS.max));
+        priceMin.setAttribute('placeholder', 'Min (0)');
+        
+        priceMin.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/[^0-9]/g, ''); // Only allow numbers
+            if (value === '') {
+                state.filters.priceMin = null;
+            } else {
+                let numValue = parseInt(value);
+                // Enforce limits
+                numValue = Math.max(PRICE_FILTER_LIMITS.min, Math.min(PRICE_FILTER_LIMITS.max, numValue));
+                state.filters.priceMin = numValue;
+                e.target.value = numValue;
+            }
+            updatePriceDisplay();
+        });
+        
+        priceMin.addEventListener('change', (e) => {
+            // Validate: min should not be greater than max
+            if (state.filters.priceMin !== null && state.filters.priceMax !== null) {
+                if (state.filters.priceMin > state.filters.priceMax) {
+                    state.filters.priceMin = state.filters.priceMax;
+                    e.target.value = state.filters.priceMin;
+                }
+            }
+            state.currentOffset = 0;
+            if (state.currentView === 'database') {
+                loadDatabase();
+            }
+            if (state.currentView === 'watchlist') {
+                loadWatchlist();
+            }
+        });
     }
+
+    // ========== FIXED: Price Max filter with proper handling ==========
     const priceMax = document.getElementById('price-max');
     if (priceMax) {
-        // Price filter removed  
+        priceMax.setAttribute('min', '0');
+        priceMax.setAttribute('max', String(PRICE_FILTER_LIMITS.max));
+        priceMax.setAttribute('placeholder', 'Max');
+        
+        priceMax.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/[^0-9]/g, ''); // Only allow numbers
+            if (value === '') {
+                state.filters.priceMax = null;
+            } else {
+                let numValue = parseInt(value);
+                // Enforce limits
+                numValue = Math.max(PRICE_FILTER_LIMITS.min, Math.min(PRICE_FILTER_LIMITS.max, numValue));
+                state.filters.priceMax = numValue;
+                e.target.value = numValue;
+            }
+            updatePriceDisplay();
+        });
+        
+        priceMax.addEventListener('change', (e) => {
+            // Validate: max should not be less than min
+            if (state.filters.priceMin !== null && state.filters.priceMax !== null) {
+                if (state.filters.priceMax < state.filters.priceMin) {
+                    state.filters.priceMax = state.filters.priceMin;
+                    e.target.value = state.filters.priceMax;
+                }
+            }
+            state.currentOffset = 0;
+            if (state.currentView === 'database') {
+                loadDatabase();
+            }
+            if (state.currentView === 'watchlist') {
+                loadWatchlist();
+            }
+        });
     }
-    */
 
     // League filter
     const leagueFilter = document.getElementById('filter-league');
@@ -2241,16 +2177,11 @@ function updatePriceDisplay() {
     }
 }
 
-// Update rating display - read from input fields during typing
+// Update rating display
 function updateRatingDisplay() {
     const ratingValue = document.getElementById('rating-value');
-    const ratingMinInput = document.getElementById('rating-min');
-    const ratingMaxInput = document.getElementById('rating-max');
-    
-    if (ratingValue && ratingMinInput && ratingMaxInput) {
-        const minVal = ratingMinInput.value || state.filters.ratingMin || 40;
-        const maxVal = ratingMaxInput.value || state.filters.ratingMax || 150;
-        ratingValue.textContent = `${minVal}-${maxVal}`;
+    if (ratingValue) {
+        ratingValue.textContent = `${state.filters.ratingMin}-${state.filters.ratingMax}`;
     }
 }
 
@@ -2803,25 +2734,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const isAuctionable = player.is_untradable !== 'True' && player.is_untradable !== true;
     
-    // Show price for auctionable cards in search
+    // ========== FIXED: Show price for auctionable cards in search ==========
     const priceDisplay = isAuctionable && player.price 
         ? `<div class="dropdown-player-price" style="color: #fbbf24; font-size: 12px; font-weight: 600;">${formatPrice(player.price)}</div>` 
         : '';
-
-    // Show rank if available
-    const rankDisplay = player.rank && player.rank > 0 
-        ? `<span style="background: rgba(255,215,0,0.2); color: #ffd700; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 4px;">Rank ${player.rank}</span>`
-        : '';
-    
-    // Show training level if available
-    const trainingDisplay = player.training_level && player.training_level > 0 
-        ? `<span style="background: rgba(99,102,241,0.3); color: #a5b4fc; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 4px;">LV ${player.training_level}</span>`
-        : '';
-
-    // Build mini stats based on position (GK vs Outfield)
-    const miniStats = isGoalkeeper(player) 
-        ? `<span style="font-size: 10px; color: #888;">${player.gk_diving || player.diving || 0} DIV | ${player.gk_reflexes || player.reflexes || 0} REF</span>`
-        : `<span style="font-size: 10px; color: #888;">${player.pace || 0} PAC | ${player.shooting || 0} SHO | ${player.defending || 0} DEF</span>`;
 
     row.innerHTML = `
       <div class="dropdown-player-card">
@@ -2833,12 +2749,11 @@ document.addEventListener('DOMContentLoaded', async function () {
       </div>
 
       <div class="dropdown-player-info">
-          <div class="dropdown-player-name">${player.name}${rankDisplay}${trainingDisplay}</div>
+          <div class="dropdown-player-name">${player.name}</div>
           <span class="dropdown-player-badge ${isAuctionable ? 'auctionable' : 'non-auctionable'}">
               ${isAuctionable ? '✅ Auctionable' : '🔴 Non-auctionable'}
           </span>
           ${priceDisplay}
-          <div style="margin-top: 4px;">${miniStats}</div>
       </div>
 
       <div class="dropdown-player-stats">
@@ -2951,32 +2866,26 @@ function toggleMobileFilters() {
 
 function applyMobileFilters() {
   const position = document.getElementById('mobile-filter-position').value;
-  let ratingMin = parseInt(document.getElementById('mobile-rating-min').value);
-  let ratingMax = parseInt(document.getElementById('mobile-rating-max').value);
+  const ratingMin = document.getElementById('mobile-rating-min').value;
+  const ratingMax = document.getElementById('mobile-rating-max').value;
+  const priceMin = document.getElementById('mobile-price-min').value;
+  const priceMax = document.getElementById('mobile-price-max').value;
   const league = document.getElementById('mobile-filter-league').value;
   const nation = document.getElementById('mobile-filter-nation').value;
   const skill = document.getElementById('mobile-filter-skill').value;
   const event = document.getElementById('mobile-filter-event').value;
   const sortBy = document.getElementById('mobile-sort-by').value;
 
-  // Validate OVR limits
-  if (isNaN(ratingMin)) ratingMin = 40;
-  if (isNaN(ratingMax)) ratingMax = 150;
-  ratingMin = Math.max(40, Math.min(150, ratingMin));
-  ratingMax = Math.max(40, Math.min(150, ratingMax));
-  if (ratingMin > ratingMax) ratingMin = ratingMax;
-
-  // Update mobile inputs with validated values
-  document.getElementById('mobile-rating-min').value = ratingMin;
-  document.getElementById('mobile-rating-max').value = ratingMax;
-
-  // Sync to desktop filters
   if (document.getElementById('filter-position'))
     document.getElementById('filter-position').value = position;
   if (document.getElementById('rating-min'))
     document.getElementById('rating-min').value = ratingMin;
   if (document.getElementById('rating-max'))
     document.getElementById('rating-max').value = ratingMax;
+  if (document.getElementById('price-min'))
+    document.getElementById('price-min').value = priceMin;
+  if (document.getElementById('price-max'))
+    document.getElementById('price-max').value = priceMax;
   if (document.getElementById('filter-league'))
     document.getElementById('filter-league').value = league;
   if (document.getElementById('filter-nation'))
@@ -2988,15 +2897,6 @@ function applyMobileFilters() {
   
   if (document.getElementById('sort-by'))
     document.getElementById('sort-by').value = sortBy;
-
-  // Update state
-  state.filters.position = position;
-  state.filters.ratingMin = ratingMin;
-  state.filters.ratingMax = ratingMax;
-  state.filters.league = league;
-  state.filters.nation = nation;
-  state.filters.skillMoves = skill;
-  state.filters.event = event;
 
   updateFilterBadge();
   toggleMobileFilters();
@@ -3015,6 +2915,10 @@ function clearMobileFilters() {
     document.getElementById('mobile-rating-min').value = 40;
   if (document.getElementById('mobile-rating-max'))
     document.getElementById('mobile-rating-max').value = 150;
+  if (document.getElementById('mobile-price-min'))
+    document.getElementById('mobile-price-min').value = '';
+  if (document.getElementById('mobile-price-max'))
+    document.getElementById('mobile-price-max').value = '';
   if (document.getElementById('mobile-filter-league'))
     document.getElementById('mobile-filter-league').value = '';
   if (document.getElementById('mobile-filter-nation'))
@@ -3023,6 +2927,7 @@ function clearMobileFilters() {
     document.getElementById('mobile-filter-skill').value = '';
 
   if (document.getElementById('mobile-filter-event')) document.getElementById('mobile-filter-event').value = '';
+
 
   if (document.getElementById('mobile-sort-by'))
     document.getElementById('mobile-sort-by').value = 'name';
@@ -3033,6 +2938,10 @@ function clearMobileFilters() {
     document.getElementById('rating-min').value = 40;
   if (document.getElementById('rating-max'))
     document.getElementById('rating-max').value = 150;
+  if (document.getElementById('price-min'))
+    document.getElementById('price-min').value = '';
+  if (document.getElementById('price-max'))
+    document.getElementById('price-max').value = '';
   if (document.getElementById('filter-league'))
     document.getElementById('filter-league').value = '';
   if (document.getElementById('filter-nation'))
@@ -3041,15 +2950,6 @@ function clearMobileFilters() {
     document.getElementById('filter-skill').value = '';
   if (document.getElementById('sort-by'))
     document.getElementById('sort-by').value = 'name';
-
-  // Update state
-  state.filters.position = '';
-  state.filters.ratingMin = 40;
-  state.filters.ratingMax = 150;
-  state.filters.league = '';
-  state.filters.nation = '';
-  state.filters.skillMoves = '';
-  state.filters.event = '';
 
   updateFilterBadge();
 
@@ -3067,6 +2967,8 @@ function updateFilterBadge() {
   const position = document.getElementById('mobile-filter-position')?.value || '';
   const ratingMin = document.getElementById('mobile-rating-min')?.value || 40;
   const ratingMax = document.getElementById('mobile-rating-max')?.value || 150;
+  const priceMin = document.getElementById('mobile-price-min')?.value || '';
+  const priceMax = document.getElementById('mobile-price-max')?.value || '';
   const league = document.getElementById('mobile-filter-league')?.value || '';
   const nation = document.getElementById('mobile-filter-nation')?.value || '';
   const skill = document.getElementById('mobile-filter-skill')?.value || '';
@@ -3074,6 +2976,8 @@ function updateFilterBadge() {
   const hasActiveFilters = position ||
     ratingMin != 40 ||
     ratingMax != 150 ||
+    priceMin ||
+    priceMax ||
     league ||
     nation ||
     skill;
@@ -3815,21 +3719,11 @@ function initWatchlistEventListeners() {
     });
   }
 
-  // Rating min - allow free typing, validate on change only
+  // Rating min
   const ratingMin = document.getElementById('watchlist-rating-min');
   if (ratingMin) {
     ratingMin.addEventListener('input', (e) => {
-      updateWatchlistRatingValue();
-    });
-    ratingMin.addEventListener('change', (e) => {
-      let value = parseInt(e.target.value);
-      if (isNaN(value)) value = 40;
-      value = Math.max(40, Math.min(150, value));
-      if (value > state.watchlistFilters.ratingMax) {
-        value = state.watchlistFilters.ratingMax;
-      }
-      e.target.value = value;
-      state.watchlistFilters.ratingMin = value;
+      state.watchlistFilters.ratingMin = parseInt(e.target.value) || 40;
       updateWatchlistRatingValue();
       saveWatchlistFilters();
       filterWatchlistPlayers();
@@ -3838,21 +3732,11 @@ function initWatchlistEventListeners() {
     });
   }
 
-  // Rating max - allow free typing, validate on change only
+  // Rating max
   const ratingMax = document.getElementById('watchlist-rating-max');
   if (ratingMax) {
     ratingMax.addEventListener('input', (e) => {
-      updateWatchlistRatingValue();
-    });
-    ratingMax.addEventListener('change', (e) => {
-      let value = parseInt(e.target.value);
-      if (isNaN(value)) value = 150;
-      value = Math.max(40, Math.min(150, value));
-      if (value < state.watchlistFilters.ratingMin) {
-        value = state.watchlistFilters.ratingMin;
-      }
-      e.target.value = value;
-      state.watchlistFilters.ratingMax = value;
+      state.watchlistFilters.ratingMax = parseInt(e.target.value) || 150;
       updateWatchlistRatingValue();
       saveWatchlistFilters();
       filterWatchlistPlayers();
@@ -3861,7 +3745,31 @@ function initWatchlistEventListeners() {
     });
   }
 
-  // Price filters removed per requirements
+  // Price min
+  const priceMin = document.getElementById('watchlist-price-min');
+  if (priceMin) {
+    priceMin.addEventListener('input', (e) => {
+      state.watchlistFilters.priceMin = e.target.value || null;
+      updateWatchlistPriceValue();
+      saveWatchlistFilters();
+      filterWatchlistPlayers();
+      renderWatchlistPlayers();
+      updateWatchlistFilterChips();
+    });
+  }
+
+  // Price max
+  const priceMax = document.getElementById('watchlist-price-max');
+  if (priceMax) {
+    priceMax.addEventListener('input', (e) => {
+      state.watchlistFilters.priceMax = e.target.value || null;
+      updateWatchlistPriceValue();
+      saveWatchlistFilters();
+      filterWatchlistPlayers();
+      renderWatchlistPlayers();
+      updateWatchlistFilterChips();
+    });
+  }
 
   // League filter
   const leagueSelect = document.getElementById('watchlist-filter-league');
