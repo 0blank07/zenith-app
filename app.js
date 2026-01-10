@@ -264,7 +264,7 @@ function renderPlayerDetail(player) {
                             <div class="detailed-stat"><span>Penalties</span><span>${player.penalties || 0}</span></div>
                             <div class="detailed-stat"><span>Vision</span><span>${player.vision || 0}</span></div>
                             <div class="detailed-stat"><span>Crossing</span><span>${player.crossing || 0}</span></div>
-                            <div class="detailed-stat"><span>FK Accuracy</span><span>${player.fk_accuracy || 0}</span></div>
+                            <div class="detailed-stat"><span>FK Accuracy</span><span>${player.accuracy || 0}</span></div>
                             <div class="detailed-stat"><span>Short Passing</span><span>${player.short_passing || 0}</span></div>
                             <div class="detailed-stat"><span>Long Passing</span><span>${player.long_passing || 0}</span></div>
                             <div class="detailed-stat"><span>Curve</span><span>${player.curve || 0}</span></div>
@@ -955,8 +955,23 @@ function createDashboardPlayerCard(player) {
     const card = document.createElement('div');
     card.className = 'dashboard-player-card';
     
+    // 🔥 ADD: Make the card visually clickable
+    card.style.cursor = 'pointer';
+    
+    // 🔥 FIX: Add click handler to navigate to player detail
     card.addEventListener('click', () => {
-        console.log('Clicked player:', player);
+        console.log('[DASHBOARD CARD] Clicked player:', player.name, 'ID:', player.player_id);
+        
+        if (!player.player_id) {
+            console.error('[DASHBOARD CARD] No player_id found for:', player);
+            return;
+        }
+        
+        if (typeof viewPlayerDetail === 'function') {
+            viewPlayerDetail(player.player_id);
+        } else {
+            console.error('[DASHBOARD CARD] viewPlayerDetail function not found');
+        }
     });
     
     card.innerHTML = `
@@ -998,7 +1013,6 @@ function createDashboardPlayerCard(player) {
     return card;
 }
 
-
 // ========== LATEST PLAYERS ==========
 async function loadLatestPlayers() {
     console.log('[LATEST] Loading latest players...');
@@ -1025,6 +1039,14 @@ async function loadLatestPlayers() {
     // Don't filter by OVR - show all latest players
     const validPlayers = sortedPlayers.filter(p => p.name && p.ovr && p.ovr > 0);
     
+    // 🔥 FIX: Store players in state so viewPlayerDetail can find them
+    state.allPlayers = [
+        ...new Map([
+            ...state.allPlayers,
+            ...validPlayers
+        ].map(p => [`${p.player_id}_${p.rank || 0}_${p.is_untradable ? 1 : 0}`, p])).values()
+    ];
+    
     const container = document.getElementById('latest-players-grid');
     if (!container) {
         console.error('[LATEST] Container #latest-players-grid not found in DOM');
@@ -1041,7 +1063,6 @@ async function loadLatestPlayers() {
     
     console.log(`[LATEST] Successfully displayed ${Math.min(validPlayers.length, 12)} latest players`);
 }
-
 
 // ========== TRENDING PLAYERS ==========
 async function loadTrendingPlayers() {
@@ -2357,51 +2378,58 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   async function searchPlayersInDatabase(query, append = false) {
-    if (!window.apiClient) {
-      console.error('[SEARCH] API client not available');
-      return;
-    }
-
-    try {
-      console.log('[SEARCH] Searching players:', query, 'with filters');
-
-      const params = {
-        q: query,
-        limit: 20,
-        offset: append ? playerSearchOffset : 0,
-        rank: 0
-      };
-
-      // Apply active filters from state
-      if (state.filters.position) params.position = state.filters.position;
-      if (state.filters.ratingMin) params.min_ovr = state.filters.ratingMin;
-      if (state.filters.ratingMax) params.max_ovr = state.filters.ratingMax;
-      if (state.filters.league) params.league = state.filters.league;
-      if (state.filters.nation) params.nation = state.filters.nation;
-      if (state.filters.skillMoves) params.skill_moves = state.filters.skillMoves;
-      if (state.filters.club) params.team = state.filters.club;
-      if (state.filters.priceMin) params.min_price = state.filters.priceMin;
-      if (state.filters.priceMax) params.max_price = state.filters.priceMax;
-
-      const response = await window.apiClient.searchPlayers(params);
-      const players = response.results || [];
-      const total = response.total || 0;
-
-      console.log('[SEARCH] Found', players.length, 'players, total:', total);
-
-      if (!append) {
-        playerSearchOffset = 0;
-        playerSearchTotal = total;
-      }
-      playerSearchOffset += players.length;
-
-      displayPlayerSearchResults(players, query, total, append);
-
-    } catch (error) {
-      console.error('[SEARCH] Error:', error);
-      showPlayerSearchError(query);
-    }
+  if (!window.apiClient) {
+    console.error('[SEARCH] API client not available');
+    return;
   }
+
+  try {
+    console.log('[SEARCH] Searching players:', query, 'with filters');
+
+    const params = {
+      q: query,
+      limit: 20,
+      offset: append ? playerSearchOffset : 0,
+      rank: 0
+    };
+
+    // Apply active filters from state
+    if (state.filters.position) params.position = state.filters.position;
+    if (state.filters.ratingMin) params.min_ovr = state.filters.ratingMin;
+    if (state.filters.ratingMax) params.max_ovr = state.filters.ratingMax;
+    if (state.filters.league) params.league = state.filters.league;
+    if (state.filters.nation) params.nation = state.filters.nation;
+    if (state.filters.skillMoves) params.skill_moves = state.filters.skillMoves;
+    if (state.filters.club) params.team = state.filters.club;
+    if (state.filters.priceMin) params.min_price = state.filters.priceMin;
+    if (state.filters.priceMax) params.max_price = state.filters.priceMax;
+
+    const response = await window.apiClient.searchPlayers(params);
+    let players = response.results || [];
+    const total = response.total || 0;
+
+    console.log('[SEARCH] Found', players.length, 'players, total:', total);
+
+    // 🔥 FIX: Sync prices from Supabase BEFORE displaying
+    if (window.supabaseProvider && players.length > 0) {
+      console.log('[SEARCH] Syncing prices for search results...');
+      players = await window.supabaseProvider.syncPrices(players);
+      console.log('[SEARCH] Prices synced successfully');
+    }
+
+    if (!append) {
+      playerSearchOffset = 0;
+      playerSearchTotal = total;
+    }
+    playerSearchOffset += players.length;
+
+    displayPlayerSearchResults(players, query, total, append);
+
+  } catch (error) {
+    console.error('[SEARCH] Error:', error);
+    showPlayerSearchError(query);
+  }
+}
 
   function displayPlayerSearchResults(players, query, total, append = false) {
     const container = document.getElementById('database-players-container') ||
