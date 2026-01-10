@@ -474,6 +474,84 @@
     font-size: 11px;
     color: #10B981;
   }
+
+  /* ========== CARD RANK & TRAINING BADGES ========== */
+  .card-rank-badge {
+    position: absolute;
+    bottom: 60px;
+    left: 8px;
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    z-index: 5;
+  }
+
+  .card-training-badge {
+    position: absolute;
+    bottom: 60px;
+    right: 8px;
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    z-index: 5;
+  }
+
+  .card-stats-row {
+    position: absolute;
+    bottom: 35px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    z-index: 5;
+  }
+
+  .card-stat {
+    font-size: 9px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+
+  /* ========== SEARCH RESULT BADGES ========== */
+  .search-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .search-rank-badge {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #000;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .search-training-badge {
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .search-stats-mini {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+    display: block;
+  }
   </style>
 
   <!-- Toast Notification Container -->
@@ -829,16 +907,6 @@
               <input type="number" id="rating-max" value="150" min="40" max="150" class="range-input">
             </div>
           </div>
-          <div class="filter-group">
-            <label class="filter-label">Price Range: <span id="price-value">Any</span></label>
-            <div class="range-inputs">
-              <input type="number" id="price-min" placeholder="Min" class="range-input">
-              <span>-</span>
-              <input type="number" id="price-max" placeholder="Max" class="range-input">
-            </div>
-          </div>
-
-
           <!-- Event Filter -->
           <div class="filter-group">
               <label class="filter-label">Event</label>
@@ -2413,19 +2481,6 @@
               </div>
             </div>
 
-            <!-- Price Filter -->
-            <div class="filter-group">
-              <label class="filter-label">Price Range</label>
-              <div class="range-inputs">
-                <input type="number" id="mobile-price-min" placeholder="Min" class="range-input">
-                <span>-</span>
-                <input type="number" id="mobile-price-max" placeholder="Max" class="range-input">
-              </div>
-            </div>
-
-
-
-
             <!-- Event Filter -->
             <div class="filter-group">
                 <label class="filter-label">Event</label>
@@ -2844,15 +2899,6 @@
                 <input type="number" id="watchlist-rating-min" value="40" min="40" max="150" class="range-input">
                 <span>-</span>
                 <input type="number" id="watchlist-rating-max" value="150" min="40" max="150" class="range-input">
-              </div>
-            </div>
-
-            <div class="filter-group">
-              <label class="filter-label">Price Range: <span id="watchlist-price-value">Any</span></label>
-              <div class="range-inputs">
-                <input type="number" id="watchlist-price-min" placeholder="Min" class="range-input">
-                <span>-</span>
-                <input type="number" id="watchlist-price-max" placeholder="Max" class="range-input">
               </div>
             </div>
 
