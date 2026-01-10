@@ -239,6 +239,16 @@ function renderPlayerDetail(player) {
                     
                     <div class="player-stats-section">
                         <h3>Player Stats</h3>
+                        ${player.position === 'GK' ? `
+                        <div class="stats-grid">
+                            <div class="stat-box"><div class="stat-value">${player.gk_diving || player.diving || 0}</div><div class="stat-label">DIV</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.gk_handling || player.handling || 0}</div><div class="stat-label">HAN</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.gk_kicking || player.kicking || 0}</div><div class="stat-label">KIC</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.gk_reflexes || player.reflexes || 0}</div><div class="stat-label">REF</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.gk_speed || player.speed || 0}</div><div class="stat-label">SPD</div></div>
+                            <div class="stat-box"><div class="stat-value">${player.gk_positioning || player.gk_position || 0}</div><div class="stat-label">POS</div></div>
+                        </div>
+                        ` : `
                         <div class="stats-grid">
                             <div class="stat-box"><div class="stat-value">${player.pace || 0}</div><div class="stat-label">PAC</div></div>
                             <div class="stat-box"><div class="stat-value">${player.shooting || 0}</div><div class="stat-label">SHO</div></div>
@@ -247,12 +257,25 @@ function renderPlayerDetail(player) {
                             <div class="stat-box"><div class="stat-value">${player.defending || 0}</div><div class="stat-label">DEF</div></div>
                             <div class="stat-box"><div class="stat-value">${player.physical || 0}</div><div class="stat-label">PHY</div></div>
                         </div>
+                        `}
                     </div>
                     
                     ${trainingHtml}
                     
                     <div class="player-detailed-stats">
                         <h3>Detailed Attributes</h3>
+                        ${player.position === 'GK' ? `
+                        <div class="detailed-stats-grid">
+                            <div class="detailed-stat"><span>GK Diving</span><span>${player.gk_diving || player.diving || 0}</span></div>
+                            <div class="detailed-stat"><span>GK Handling</span><span>${player.gk_handling || player.handling || 0}</span></div>
+                            <div class="detailed-stat"><span>GK Kicking</span><span>${player.gk_kicking || player.kicking || 0}</span></div>
+                            <div class="detailed-stat"><span>GK Reflexes</span><span>${player.gk_reflexes || player.reflexes || 0}</span></div>
+                            <div class="detailed-stat"><span>GK Speed</span><span>${player.gk_speed || player.speed || 0}</span></div>
+                            <div class="detailed-stat"><span>GK Positioning</span><span>${player.gk_positioning || player.gk_position || 0}</span></div>
+                            <div class="detailed-stat"><span>Reactions</span><span>${player.reactions || 0}</span></div>
+                            <div class="detailed-stat"><span>Composure</span><span>${player.composure || 0}</span></div>
+                        </div>
+                        ` : `
                         <div class="detailed-stats-grid">
                             <div class="detailed-stat"><span>Acceleration</span><span>${player.acceleration || 0}</span></div>
                             <div class="detailed-stat"><span>Sprint Speed</span><span>${player.sprint_speed || 0}</span></div>
@@ -264,7 +287,7 @@ function renderPlayerDetail(player) {
                             <div class="detailed-stat"><span>Penalties</span><span>${player.penalties || 0}</span></div>
                             <div class="detailed-stat"><span>Vision</span><span>${player.vision || 0}</span></div>
                             <div class="detailed-stat"><span>Crossing</span><span>${player.crossing || 0}</span></div>
-                            <div class="detailed-stat"><span>FK Accuracy</span><span>${player.accuracy || 0}</span></div>
+                            <div class="detailed-stat"><span>FK Accuracy</span><span>${player.fk_accuracy || player.accuracy || 0}</span></div>
                             <div class="detailed-stat"><span>Short Passing</span><span>${player.short_passing || 0}</span></div>
                             <div class="detailed-stat"><span>Long Passing</span><span>${player.long_passing || 0}</span></div>
                             <div class="detailed-stat"><span>Curve</span><span>${player.curve || 0}</span></div>
@@ -283,6 +306,7 @@ function renderPlayerDetail(player) {
                             <div class="detailed-stat"><span>Strength</span><span>${player.strength || 0}</span></div>
                             <div class="detailed-stat"><span>Aggression</span><span>${player.aggression || 0}</span></div>
                         </div>
+                        `}
                     </div>
                 </div>
             </div>
@@ -974,6 +998,12 @@ function createDashboardPlayerCard(player) {
         }
     });
     
+    // Build rank display if available
+    const rankBadge = player.rank ? `<div class="card-rank-badge" style="position: absolute; bottom: 35px; left: 10px; background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;">⭐ R${player.rank}</div>` : '';
+    
+    // Build training display if available
+    const trainingBadge = player.training_level ? `<div class="card-training-badge" style="position: absolute; bottom: 35px; right: 10px; background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;">📈 L${player.training_level}</div>` : '';
+    
     card.innerHTML = `
         <div class="card-container">
             <img src="${player.card_background || 'https://via.placeholder.com/300x400'}" 
@@ -997,6 +1027,9 @@ function createDashboardPlayerCard(player) {
             <div class="card-player-name" style="color: ${player.color_name || '#FFFFFF'}">
                 ${player.name}
             </div>
+            
+            ${rankBadge}
+            ${trainingBadge}
             
             <img src="${player.nation_flag || ''}" 
                  alt="Nation" 
@@ -1520,7 +1553,38 @@ function createPlayerCard(player) {
         `;
     }
 
-    // 5. Build HTML Structure
+    // 5. Check if player is a Goalkeeper and show appropriate stats
+    const isGK = player.position === 'GK';
+    
+    // Build stats HTML based on position type
+    let statsHTML = '';
+    if (isGK) {
+        // GK-specific stats
+        statsHTML = `
+            <div class="stat-pill"><div class="stat-pill-value">${player.gk_diving || player.diving || 0}</div><div class="stat-pill-label">DIV</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.gk_handling || player.handling || 0}</div><div class="stat-pill-label">HAN</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.gk_kicking || player.kicking || 0}</div><div class="stat-pill-label">KIC</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.gk_reflexes || player.reflexes || 0}</div><div class="stat-pill-label">REF</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.gk_speed || player.speed || 0}</div><div class="stat-pill-label">SPD</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.gk_positioning || player.gk_position || 0}</div><div class="stat-pill-label">POS</div></div>
+        `;
+    } else {
+        // Outfield player stats
+        statsHTML = `
+            <div class="stat-pill"><div class="stat-pill-value">${player.pace || 0}</div><div class="stat-pill-label">PAC</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.shooting || 0}</div><div class="stat-pill-label">SHO</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.passing || 0}</div><div class="stat-pill-label">PAS</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.dribbling || 0}</div><div class="stat-pill-label">DRI</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.defending || 0}</div><div class="stat-pill-label">DEF</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.physical || 0}</div><div class="stat-pill-label">PHY</div></div>
+        `;
+    }
+
+    // 6. Build Rank and Training display
+    const rankDisplay = player.rank ? `<span class="player-rank-indicator">⭐ Rank ${player.rank}</span>` : '';
+    const trainingDisplay = player.training_level ? `<span class="player-training-indicator">📈 Lvl ${player.training_level}</span>` : '';
+
+    // 7. Build HTML Structure
     card.innerHTML = `
         <div class="player-row-card">
             <div class="player-card-image-placeholder">
@@ -1540,16 +1604,12 @@ function createPlayerCard(player) {
                 ${displayPriceHTML}
             </div>
 
+            ${rankDisplay || trainingDisplay ? `<div class="player-info-extras" style="display: flex; gap: 8px; margin-top: 4px; font-size: 0.75rem;">${rankDisplay}${trainingDisplay}</div>` : ''}
             ${secondaryPosition ? `<div class="player-info-secondary">${secondaryPosition}</div>` : ''}
         </div>
         
         <div class="player-row-stats">
-            <div class="stat-pill"><div class="stat-pill-value">${player.pace || 0}</div><div class="stat-pill-label">PAC</div></div>
-            <div class="stat-pill"><div class="stat-pill-value">${player.shooting || 0}</div><div class="stat-pill-label">SHO</div></div>
-            <div class="stat-pill"><div class="stat-pill-value">${player.passing || 0}</div><div class="stat-pill-label">PAS</div></div>
-            <div class="stat-pill"><div class="stat-pill-value">${player.dribbling || 0}</div><div class="stat-pill-label">DRI</div></div>
-            <div class="stat-pill"><div class="stat-pill-value">${player.defending || 0}</div><div class="stat-pill-label">DEF</div></div>
-            <div class="stat-pill"><div class="stat-pill-value">${player.physical || 0}</div><div class="stat-pill-label">PHY</div></div>
+            ${statsHTML}
         </div>
         
         <button class="player-row-watchlist ${isWatchlisted ? 'active' : ''}" 
@@ -1561,7 +1621,7 @@ function createPlayerCard(player) {
         </button>
     `;
 
-    // 6. Event Listeners
+    // 8. Event Listeners
     
     // Main card click (View Details)
     card.addEventListener('click', function(e) {
