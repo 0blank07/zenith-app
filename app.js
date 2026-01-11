@@ -489,10 +489,9 @@ const state = {
     selectedPlayer: null,
     filters: {
         position: '',
-        ratingMin: 0,
-        ratingMax: 999,
-        priceMin: null,
-        priceMax: null,
+        ratingMin: 40,
+        ratingMax: 150,
+        // priceMin and priceMax removed
         league: '',
         club: '',
         nation: '',
@@ -2969,10 +2968,15 @@ function toggleMobileFilters() {
 
 function applyMobileFilters() {
   const position = document.getElementById('mobile-filter-position').value;
-  const ratingMin = document.getElementById('mobile-rating-min').value;
-  const ratingMax = document.getElementById('mobile-rating-max').value;
-  const priceMin = document.getElementById('mobile-price-min').value;
-  const priceMax = document.getElementById('mobile-price-max').value;
+  let ratingMin = parseInt(document.getElementById('mobile-rating-min').value) || 40;
+  let ratingMax = parseInt(document.getElementById('mobile-rating-max').value) || 150;
+  
+  // Validate OVR range (40-150)
+  ratingMin = Math.max(40, Math.min(150, ratingMin));
+  ratingMax = Math.max(40, Math.min(150, ratingMax));
+  if (ratingMin > ratingMax) ratingMin = ratingMax;
+  
+  // Price filters removed
   const league = document.getElementById('mobile-filter-league').value;
   const nation = document.getElementById('mobile-filter-nation').value;
   const skill = document.getElementById('mobile-filter-skill').value;
@@ -2985,10 +2989,7 @@ function applyMobileFilters() {
     document.getElementById('rating-min').value = ratingMin;
   if (document.getElementById('rating-max'))
     document.getElementById('rating-max').value = ratingMax;
-  if (document.getElementById('price-min'))
-    document.getElementById('price-min').value = priceMin;
-  if (document.getElementById('price-max'))
-    document.getElementById('price-max').value = priceMax;
+  // Price sync removed
   if (document.getElementById('filter-league'))
     document.getElementById('filter-league').value = league;
   if (document.getElementById('filter-nation'))
@@ -3018,10 +3019,7 @@ function clearMobileFilters() {
     document.getElementById('mobile-rating-min').value = 40;
   if (document.getElementById('mobile-rating-max'))
     document.getElementById('mobile-rating-max').value = 150;
-  if (document.getElementById('mobile-price-min'))
-    document.getElementById('mobile-price-min').value = '';
-  if (document.getElementById('mobile-price-max'))
-    document.getElementById('mobile-price-max').value = '';
+  // Price filters removed
   if (document.getElementById('mobile-filter-league'))
     document.getElementById('mobile-filter-league').value = '';
   if (document.getElementById('mobile-filter-nation'))
@@ -3041,10 +3039,7 @@ function clearMobileFilters() {
     document.getElementById('rating-min').value = 40;
   if (document.getElementById('rating-max'))
     document.getElementById('rating-max').value = 150;
-  if (document.getElementById('price-min'))
-    document.getElementById('price-min').value = '';
-  if (document.getElementById('price-max'))
-    document.getElementById('price-max').value = '';
+  // Price filters removed
   if (document.getElementById('filter-league'))
     document.getElementById('filter-league').value = '';
   if (document.getElementById('filter-nation'))
@@ -3070,8 +3065,7 @@ function updateFilterBadge() {
   const position = document.getElementById('mobile-filter-position')?.value || '';
   const ratingMin = document.getElementById('mobile-rating-min')?.value || 40;
   const ratingMax = document.getElementById('mobile-rating-max')?.value || 150;
-  const priceMin = document.getElementById('mobile-price-min')?.value || '';
-  const priceMax = document.getElementById('mobile-price-max')?.value || '';
+  // Price filters removed from badge check
   const league = document.getElementById('mobile-filter-league')?.value || '';
   const nation = document.getElementById('mobile-filter-nation')?.value || '';
   const skill = document.getElementById('mobile-filter-skill')?.value || '';
@@ -3079,14 +3073,66 @@ function updateFilterBadge() {
   const hasActiveFilters = position ||
     ratingMin != 40 ||
     ratingMax != 150 ||
-    priceMin ||
-    priceMax ||
     league ||
     nation ||
     skill;
 
   badge.style.display = hasActiveFilters ? 'block' : 'none';
 }
+
+// ========== OVR FILTER VALIDATION ==========
+// Ensures OVR stays within 40-150 range
+function validateOvrInput(inputElement) {
+  let value = parseInt(inputElement.value);
+  if (isNaN(value) || value < 40) {
+    inputElement.value = 40;
+  } else if (value > 150) {
+    inputElement.value = 150;
+  }
+}
+
+// Add event listeners for OVR validation when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  // Desktop filters
+  const ratingMin = document.getElementById('rating-min');
+  const ratingMax = document.getElementById('rating-max');
+  
+  if (ratingMin) {
+    ratingMin.addEventListener('blur', function() { validateOvrInput(this); });
+    ratingMin.addEventListener('change', function() { validateOvrInput(this); });
+  }
+  if (ratingMax) {
+    ratingMax.addEventListener('blur', function() { validateOvrInput(this); });
+    ratingMax.addEventListener('change', function() { validateOvrInput(this); });
+  }
+  
+  // Mobile filters
+  const mobileRatingMin = document.getElementById('mobile-rating-min');
+  const mobileRatingMax = document.getElementById('mobile-rating-max');
+  
+  if (mobileRatingMin) {
+    mobileRatingMin.addEventListener('blur', function() { validateOvrInput(this); });
+    mobileRatingMin.addEventListener('change', function() { validateOvrInput(this); });
+  }
+  if (mobileRatingMax) {
+    mobileRatingMax.addEventListener('blur', function() { validateOvrInput(this); });
+    mobileRatingMax.addEventListener('change', function() { validateOvrInput(this); });
+  }
+  
+  // Watchlist filters
+  const watchlistRatingMin = document.getElementById('watchlist-rating-min');
+  const watchlistRatingMax = document.getElementById('watchlist-rating-max');
+  
+  if (watchlistRatingMin) {
+    watchlistRatingMin.addEventListener('blur', function() { validateOvrInput(this); });
+    watchlistRatingMin.addEventListener('change', function() { validateOvrInput(this); });
+  }
+  if (watchlistRatingMax) {
+    watchlistRatingMax.addEventListener('blur', function() { validateOvrInput(this); });
+    watchlistRatingMax.addEventListener('change', function() { validateOvrInput(this); });
+  }
+});
+
 
 function handleSearch(value) {
   state.searchQuery = value.toLowerCase();
