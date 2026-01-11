@@ -822,11 +822,11 @@
             </select>
           </div>
           <div class="filter-group">
-            <label class="filter-label">Overall Rating: <span id="rating-value">40-150</span></label>
+            <label class="filter-label">Overall Rating: <span id="rating-value">0-999</span></label>
             <div class="range-inputs">
-              <input type="number" id="rating-min" value="40" min="40" max="150" class="range-input">
+              <input type="number" id="rating-min" value="0" placeholder="Min" class="range-input">
               <span>-</span>
-              <input type="number" id="rating-max" value="150" min="40" max="150" class="range-input">
+              <input type="number" id="rating-max" value="999" placeholder="Max" class="range-input">
             </div>
           </div>
           <div class="filter-group">
@@ -2407,9 +2407,9 @@
             <div class="filter-group">
               <label class="filter-label">Overall Rating</label>
               <div class="range-inputs">
-                <input type="number" id="mobile-rating-min" value="40" min="40" max="150" class="range-input">
+                <input type="number" id="mobile-rating-min" value="0" placeholder="Min" class="range-input">
                 <span>-</span>
-                <input type="number" id="mobile-rating-max" value="150" min="40" max="150" class="range-input">
+                <input type="number" id="mobile-rating-max" value="999" placeholder="Max" class="range-input">
               </div>
             </div>
 
@@ -2793,6 +2793,11 @@
       <div class="detail-layout" id="detail-content">
         <!-- Content loaded dynamically -->
       </div>
+    </div>
+
+    <!-- NEW Player Detail View for viewPlayerDetail() function -->
+    <div id="player-detail-view" class="view">
+      <!-- Content populated dynamically by renderPlayerDetail() -->
     </div>
 
     <!-- Watchlist View -->
