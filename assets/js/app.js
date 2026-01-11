@@ -149,36 +149,62 @@ function isGoalkeeper(player) {
 }
 
 // ========== BUILD PLAYER STATS SECTION (GK vs OUTFIELD) ==========
+// Helper to get stat value from multiple possible property names
+function getPlayerStat(player, ...keys) {
+    for (const key of keys) {
+        const val = player[key];
+        if (val !== undefined && val !== null && val !== 0) {
+            return val;
+        }
+    }
+    return '-';
+}
+
 function buildPlayerStatsSection(player) {
     const isGK = isGoalkeeper(player);
     
     if (isGK) {
         // Goalkeeper stats: DIV, HAN, KIC, REF, SPD, POS
+        // Try multiple property name variations
+        const div = getPlayerStat(player, 'diving', 'gk_diving', 'DIV', 'Diving', 'GK_Diving');
+        const han = getPlayerStat(player, 'handling', 'gk_handling', 'HAN', 'Handling', 'GK_Handling');
+        const kic = getPlayerStat(player, 'kicking', 'gk_kicking', 'KIC', 'Kicking', 'GK_Kicking');
+        const ref = getPlayerStat(player, 'reflexes', 'gk_reflexes', 'REF', 'Reflexes', 'GK_Reflexes');
+        const spd = getPlayerStat(player, 'gk_speed', 'speed', 'SPD', 'Speed', 'GK_Speed');
+        const pos = getPlayerStat(player, 'gk_positioning', 'positioning', 'POS', 'Positioning', 'GK_Positioning');
+        
         return `
             <div class="player-stats-section">
                 <h3>Goalkeeper Stats</h3>
                 <div class="stats-grid">
-                    <div class="stat-box"><div class="stat-value">${player.diving || player.gk_diving || 0}</div><div class="stat-label">DIV</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.handling || player.gk_handling || 0}</div><div class="stat-label">HAN</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.kicking || player.gk_kicking || 0}</div><div class="stat-label">KIC</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.reflexes || player.gk_reflexes || 0}</div><div class="stat-label">REF</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.speed || player.gk_speed || 0}</div><div class="stat-label">SPD</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.positioning || player.gk_positioning || 0}</div><div class="stat-label">POS</div></div>
+                    <div class="stat-box"><div class="stat-value">${div}</div><div class="stat-label">DIV</div></div>
+                    <div class="stat-box"><div class="stat-value">${han}</div><div class="stat-label">HAN</div></div>
+                    <div class="stat-box"><div class="stat-value">${kic}</div><div class="stat-label">KIC</div></div>
+                    <div class="stat-box"><div class="stat-value">${ref}</div><div class="stat-label">REF</div></div>
+                    <div class="stat-box"><div class="stat-value">${spd}</div><div class="stat-label">SPD</div></div>
+                    <div class="stat-box"><div class="stat-value">${pos}</div><div class="stat-label">POS</div></div>
                 </div>
             </div>
         `;
     } else {
         // Outfield player stats: PAC, SHO, PAS, DRI, DEF, PHY
+        const pac = getPlayerStat(player, 'pace', 'PAC', 'Pace');
+        const sho = getPlayerStat(player, 'shooting', 'SHO', 'Shooting');
+        const pas = getPlayerStat(player, 'passing', 'PAS', 'Passing');
+        const dri = getPlayerStat(player, 'dribbling', 'DRI', 'Dribbling');
+        const def = getPlayerStat(player, 'defending', 'DEF', 'Defending');
+        const phy = getPlayerStat(player, 'physical', 'PHY', 'Physical');
+        
         return `
             <div class="player-stats-section">
                 <h3>Player Stats</h3>
                 <div class="stats-grid">
-                    <div class="stat-box"><div class="stat-value">${player.pace || 0}</div><div class="stat-label">PAC</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.shooting || 0}</div><div class="stat-label">SHO</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.passing || 0}</div><div class="stat-label">PAS</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.dribbling || 0}</div><div class="stat-label">DRI</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.defending || 0}</div><div class="stat-label">DEF</div></div>
-                    <div class="stat-box"><div class="stat-value">${player.physical || 0}</div><div class="stat-label">PHY</div></div>
+                    <div class="stat-box"><div class="stat-value">${pac}</div><div class="stat-label">PAC</div></div>
+                    <div class="stat-box"><div class="stat-value">${sho}</div><div class="stat-label">SHO</div></div>
+                    <div class="stat-box"><div class="stat-value">${pas}</div><div class="stat-label">PAS</div></div>
+                    <div class="stat-box"><div class="stat-value">${dri}</div><div class="stat-label">DRI</div></div>
+                    <div class="stat-box"><div class="stat-value">${def}</div><div class="stat-label">DEF</div></div>
+                    <div class="stat-box"><div class="stat-value">${phy}</div><div class="stat-label">PHY</div></div>
                 </div>
             </div>
         `;
@@ -189,23 +215,35 @@ function buildPlayerStatsSection(player) {
 function buildDetailedAttributesSection(player) {
     const isGK = isGoalkeeper(player);
     
-    // Helper to safely get stat value
-    const getStat = (val) => (val !== undefined && val !== null) ? val : '-';
+    // Helper to safely get stat value from multiple possible property names
+    const getStat = (...keys) => {
+        for (const key of keys) {
+            const val = player[key];
+            if (val !== undefined && val !== null && val !== 0) {
+                return val;
+            }
+        }
+        return '-';
+    };
+    
+    // Log player object for debugging
+    console.log('[DETAIL] Player object keys:', Object.keys(player));
+    console.log('[DETAIL] Full player object:', player);
     
     if (isGK) {
-        // Goalkeeper detailed attributes
+        // Goalkeeper detailed attributes - try multiple property name variations
         return `
             <div class="player-detailed-stats">
                 <h3>Goalkeeper Attributes</h3>
                 <div class="detailed-stats-grid">
-                    <div class="detailed-stat"><span>GK Diving</span><span>${getStat(player.diving || player.gk_diving)}</span></div>
-                    <div class="detailed-stat"><span>GK Handling</span><span>${getStat(player.handling || player.gk_handling)}</span></div>
-                    <div class="detailed-stat"><span>GK Kicking</span><span>${getStat(player.kicking || player.gk_kicking)}</span></div>
-                    <div class="detailed-stat"><span>GK Reflexes</span><span>${getStat(player.reflexes || player.gk_reflexes)}</span></div>
-                    <div class="detailed-stat"><span>GK Speed</span><span>${getStat(player.speed || player.gk_speed)}</span></div>
-                    <div class="detailed-stat"><span>GK Positioning</span><span>${getStat(player.positioning || player.gk_positioning)}</span></div>
-                    <div class="detailed-stat"><span>Reactions</span><span>${getStat(player.reactions)}</span></div>
-                    <div class="detailed-stat"><span>Composure</span><span>${getStat(player.composure)}</span></div>
+                    <div class="detailed-stat"><span>GK Diving</span><span>${getStat('diving', 'gk_diving', 'DIV', 'Diving', 'GK_Diving')}</span></div>
+                    <div class="detailed-stat"><span>GK Handling</span><span>${getStat('handling', 'gk_handling', 'HAN', 'Handling', 'GK_Handling')}</span></div>
+                    <div class="detailed-stat"><span>GK Kicking</span><span>${getStat('kicking', 'gk_kicking', 'KIC', 'Kicking', 'GK_Kicking')}</span></div>
+                    <div class="detailed-stat"><span>GK Reflexes</span><span>${getStat('reflexes', 'gk_reflexes', 'REF', 'Reflexes', 'GK_Reflexes')}</span></div>
+                    <div class="detailed-stat"><span>GK Speed</span><span>${getStat('gk_speed', 'speed', 'SPD', 'Speed', 'GK_Speed')}</span></div>
+                    <div class="detailed-stat"><span>GK Positioning</span><span>${getStat('gk_positioning', 'positioning', 'POS', 'Positioning', 'GK_Positioning')}</span></div>
+                    <div class="detailed-stat"><span>Reactions</span><span>${getStat('reactions', 'Reactions')}</span></div>
+                    <div class="detailed-stat"><span>Composure</span><span>${getStat('composure', 'Composure')}</span></div>
                 </div>
             </div>
         `;
@@ -215,34 +253,34 @@ function buildDetailedAttributesSection(player) {
             <div class="player-detailed-stats">
                 <h3>Detailed Attributes</h3>
                 <div class="detailed-stats-grid">
-                    <div class="detailed-stat"><span>Acceleration</span><span>${getStat(player.acceleration)}</span></div>
-                    <div class="detailed-stat"><span>Sprint Speed</span><span>${getStat(player.sprint_speed)}</span></div>
-                    <div class="detailed-stat"><span>Positioning</span><span>${getStat(player.positioning)}</span></div>
-                    <div class="detailed-stat"><span>Finishing</span><span>${getStat(player.finishing)}</span></div>
-                    <div class="detailed-stat"><span>Shot Power</span><span>${getStat(player.shot_power)}</span></div>
-                    <div class="detailed-stat"><span>Long Shots</span><span>${getStat(player.long_shots)}</span></div>
-                    <div class="detailed-stat"><span>Volleys</span><span>${getStat(player.volleys)}</span></div>
-                    <div class="detailed-stat"><span>Penalties</span><span>${getStat(player.penalties)}</span></div>
-                    <div class="detailed-stat"><span>Vision</span><span>${getStat(player.vision)}</span></div>
-                    <div class="detailed-stat"><span>Crossing</span><span>${getStat(player.crossing)}</span></div>
-                    <div class="detailed-stat"><span>FK Accuracy</span><span>${getStat(player.accuracy)}</span></div>
-                    <div class="detailed-stat"><span>Short Passing</span><span>${getStat(player.short_passing)}</span></div>
-                    <div class="detailed-stat"><span>Long Passing</span><span>${getStat(player.long_passing)}</span></div>
-                    <div class="detailed-stat"><span>Curve</span><span>${getStat(player.curve)}</span></div>
-                    <div class="detailed-stat"><span>Agility</span><span>${getStat(player.agility)}</span></div>
-                    <div class="detailed-stat"><span>Balance</span><span>${getStat(player.balance)}</span></div>
-                    <div class="detailed-stat"><span>Reactions</span><span>${getStat(player.reactions)}</span></div>
-                    <div class="detailed-stat"><span>Ball Control</span><span>${getStat(player.ball_control)}</span></div>
-                    <div class="detailed-stat"><span>Composure</span><span>${getStat(player.composure)}</span></div>
-                    <div class="detailed-stat"><span>Interceptions</span><span>${getStat(player.interceptions)}</span></div>
-                    <div class="detailed-stat"><span>Heading</span><span>${getStat(player.heading)}</span></div>
-                    <div class="detailed-stat"><span>Marking</span><span>${getStat(player.marking)}</span></div>
-                    <div class="detailed-stat"><span>Standing Tackle</span><span>${getStat(player.standing_tackle)}</span></div>
-                    <div class="detailed-stat"><span>Sliding Tackle</span><span>${getStat(player.sliding_tackle)}</span></div>
-                    <div class="detailed-stat"><span>Jumping</span><span>${getStat(player.jumping)}</span></div>
-                    <div class="detailed-stat"><span>Stamina</span><span>${getStat(player.stamina_stat)}</span></div>
-                    <div class="detailed-stat"><span>Strength</span><span>${getStat(player.strength)}</span></div>
-                    <div class="detailed-stat"><span>Aggression</span><span>${getStat(player.aggression)}</span></div>
+                    <div class="detailed-stat"><span>Acceleration</span><span>${getStat('acceleration', 'Acceleration')}</span></div>
+                    <div class="detailed-stat"><span>Sprint Speed</span><span>${getStat('sprint_speed', 'sprintspeed', 'Sprint_Speed', 'SprintSpeed')}</span></div>
+                    <div class="detailed-stat"><span>Positioning</span><span>${getStat('positioning', 'Positioning')}</span></div>
+                    <div class="detailed-stat"><span>Finishing</span><span>${getStat('finishing', 'Finishing')}</span></div>
+                    <div class="detailed-stat"><span>Shot Power</span><span>${getStat('shot_power', 'shotpower', 'Shot_Power', 'ShotPower')}</span></div>
+                    <div class="detailed-stat"><span>Long Shots</span><span>${getStat('long_shots', 'longshots', 'Long_Shots', 'LongShots')}</span></div>
+                    <div class="detailed-stat"><span>Volleys</span><span>${getStat('volleys', 'Volleys')}</span></div>
+                    <div class="detailed-stat"><span>Penalties</span><span>${getStat('penalties', 'Penalties')}</span></div>
+                    <div class="detailed-stat"><span>Vision</span><span>${getStat('vision', 'Vision')}</span></div>
+                    <div class="detailed-stat"><span>Crossing</span><span>${getStat('crossing', 'Crossing')}</span></div>
+                    <div class="detailed-stat"><span>FK Accuracy</span><span>${getStat('accuracy', 'fk_accuracy', 'freekickaccuracy', 'FKAccuracy')}</span></div>
+                    <div class="detailed-stat"><span>Short Passing</span><span>${getStat('short_passing', 'shortpassing', 'Short_Passing', 'ShortPassing')}</span></div>
+                    <div class="detailed-stat"><span>Long Passing</span><span>${getStat('long_passing', 'longpassing', 'Long_Passing', 'LongPassing')}</span></div>
+                    <div class="detailed-stat"><span>Curve</span><span>${getStat('curve', 'Curve')}</span></div>
+                    <div class="detailed-stat"><span>Agility</span><span>${getStat('agility', 'Agility')}</span></div>
+                    <div class="detailed-stat"><span>Balance</span><span>${getStat('balance', 'Balance')}</span></div>
+                    <div class="detailed-stat"><span>Reactions</span><span>${getStat('reactions', 'Reactions')}</span></div>
+                    <div class="detailed-stat"><span>Ball Control</span><span>${getStat('ball_control', 'ballcontrol', 'Ball_Control', 'BallControl')}</span></div>
+                    <div class="detailed-stat"><span>Composure</span><span>${getStat('composure', 'Composure')}</span></div>
+                    <div class="detailed-stat"><span>Interceptions</span><span>${getStat('interceptions', 'Interceptions')}</span></div>
+                    <div class="detailed-stat"><span>Heading</span><span>${getStat('heading', 'Heading', 'heading_accuracy', 'HeadingAccuracy')}</span></div>
+                    <div class="detailed-stat"><span>Marking</span><span>${getStat('marking', 'Marking', 'def_awareness', 'DefAwareness')}</span></div>
+                    <div class="detailed-stat"><span>Standing Tackle</span><span>${getStat('standing_tackle', 'standingtackle', 'Standing_Tackle', 'StandingTackle')}</span></div>
+                    <div class="detailed-stat"><span>Sliding Tackle</span><span>${getStat('sliding_tackle', 'slidingtackle', 'Sliding_Tackle', 'SlidingTackle')}</span></div>
+                    <div class="detailed-stat"><span>Jumping</span><span>${getStat('jumping', 'Jumping')}</span></div>
+                    <div class="detailed-stat"><span>Stamina</span><span>${getStat('stamina', 'stamina_stat', 'Stamina')}</span></div>
+                    <div class="detailed-stat"><span>Strength</span><span>${getStat('strength', 'Strength')}</span></div>
+                    <div class="detailed-stat"><span>Aggression</span><span>${getStat('aggression', 'Aggression')}</span></div>
                 </div>
             </div>
         `;
@@ -448,8 +486,8 @@ const state = {
     selectedPlayer: null,
     filters: {
         position: '',
-        ratingMin: 40,
-        ratingMax: 150,
+        ratingMin: 0,
+        ratingMax: 999,
         priceMin: null,
         priceMax: null,
         league: '',
@@ -1825,11 +1863,11 @@ async function loadDatabase() {
             filters.position = state.filters.position;
         }
 
-        // Add OVR range filter
-        if (state.filters.ratingMin > 40) {
+        // Add OVR range filter - only send if non-default values
+        if (state.filters.ratingMin > 0) {
             filters.min_ovr = state.filters.ratingMin;
         }
-        if (state.filters.ratingMax < 150) {
+        if (state.filters.ratingMax < 999) {
             filters.max_ovr = state.filters.ratingMax;
         }
 
@@ -1992,33 +2030,31 @@ function initFilters() {
         });
     }
 
-    // Rating Min filter with proper limits
+    // Rating Min filter - now allows any value like price filter
     const ratingMin = document.getElementById('rating-min');
     if (ratingMin) {
-        ratingMin.setAttribute('min', '40');
-        ratingMin.setAttribute('max', '150');
+        ratingMin.removeAttribute('min');
+        ratingMin.removeAttribute('max');
+        ratingMin.setAttribute('placeholder', 'Min');
         
         ratingMin.addEventListener('input', (e) => {
-            let value = parseInt(e.target.value) || 40;
-            // Enforce limits
-            value = Math.max(40, Math.min(150, value));
-            // Ensure min <= max
-            if (value > state.filters.ratingMax) {
-                value = state.filters.ratingMax;
+            let value = e.target.value.replace(/[^0-9]/g, ''); // Only allow numbers
+            if (value === '') {
+                state.filters.ratingMin = 0;
+            } else {
+                let numValue = parseInt(value);
+                state.filters.ratingMin = numValue;
+                e.target.value = numValue;
             }
-            e.target.value = value;
-            state.filters.ratingMin = value;
             updateRatingDisplay();
         });
         
         ratingMin.addEventListener('change', (e) => {
-            let value = parseInt(e.target.value) || 40;
-            value = Math.max(40, Math.min(150, value));
-            if (value > state.filters.ratingMax) {
-                value = state.filters.ratingMax;
+            // Validate: min should not be greater than max if max is set
+            if (state.filters.ratingMin > state.filters.ratingMax && state.filters.ratingMax > 0) {
+                state.filters.ratingMin = state.filters.ratingMax;
+                e.target.value = state.filters.ratingMin;
             }
-            e.target.value = value;
-            state.filters.ratingMin = value;
             state.currentOffset = 0;
             if (state.currentView === 'database') {
               loadDatabase();
@@ -2029,33 +2065,31 @@ function initFilters() {
         });
     }
 
-    // Rating Max filter with proper limits
+    // Rating Max filter - now allows any value like price filter
     const ratingMax = document.getElementById('rating-max');
     if (ratingMax) {
-        ratingMax.setAttribute('min', '40');
-        ratingMax.setAttribute('max', '150');
+        ratingMax.removeAttribute('min');
+        ratingMax.removeAttribute('max');
+        ratingMax.setAttribute('placeholder', 'Max');
         
         ratingMax.addEventListener('input', (e) => {
-            let value = parseInt(e.target.value) || 150;
-            // Enforce limits
-            value = Math.max(40, Math.min(150, value));
-            // Ensure max >= min
-            if (value < state.filters.ratingMin) {
-                value = state.filters.ratingMin;
+            let value = e.target.value.replace(/[^0-9]/g, ''); // Only allow numbers
+            if (value === '') {
+                state.filters.ratingMax = 999; // High default when empty
+            } else {
+                let numValue = parseInt(value);
+                state.filters.ratingMax = numValue;
+                e.target.value = numValue;
             }
-            e.target.value = value;
-            state.filters.ratingMax = value;
             updateRatingDisplay();
         });
         
         ratingMax.addEventListener('change', (e) => {
-            let value = parseInt(e.target.value) || 150;
-            value = Math.max(40, Math.min(150, value));
-            if (value < state.filters.ratingMin) {
-                value = state.filters.ratingMin;
+            // Validate: max should not be less than min if min is set
+            if (state.filters.ratingMax < state.filters.ratingMin && state.filters.ratingMin > 0) {
+                state.filters.ratingMax = state.filters.ratingMin;
+                e.target.value = state.filters.ratingMax;
             }
-            e.target.value = value;
-            state.filters.ratingMax = value;
             state.currentOffset = 0;
             if (state.currentView === 'database') {
               loadDatabase();
@@ -2256,8 +2290,8 @@ function clearAllFilters() {
     // 1. Reset State Object
     state.filters = {
         position: '',
-        ratingMin: 40,
-        ratingMax: 150,
+        ratingMin: 0,
+        ratingMax: 999,
         priceMin: null,
         priceMax: null,
         league: '',
@@ -2272,10 +2306,10 @@ function clearAllFilters() {
     if (positionFilter) positionFilter.value = '';
 
     const ratingMin = document.getElementById('rating-min');
-    if (ratingMin) ratingMin.value = 40;
+    if (ratingMin) ratingMin.value = 0;
 
     const ratingMax = document.getElementById('rating-max');
-    if (ratingMax) ratingMax.value = 150;
+    if (ratingMax) ratingMax.value = 999;
 
     // ✅ FIXED: Reset Price Filters
     const priceMin = document.getElementById('price-min');
@@ -3676,8 +3710,8 @@ if (document.getElementById('tools-sheet')) {
 // Extend state object with watchlist filters
 state.watchlistFilters = {
   position: '',
-  ratingMin: 40,
-  ratingMax: 150,
+  ratingMin: 0,
+  ratingMax: 999,
   priceMin: null,
   priceMax: null,
   league: '',
@@ -4223,8 +4257,8 @@ function removeFromWatchlist(playerId) {
 function clearAllWatchlistFilters() {
   state.watchlistFilters = {
     position: '',
-    ratingMin: 40,
-    ratingMax: 150,
+    ratingMin: 0,
+    ratingMax: 999,
     priceMin: null,
     priceMax: null,
     league: '',
@@ -4277,7 +4311,7 @@ function updateWatchlistFilterChips() {
   if (state.watchlistFilters.position) {
     chips.push({ name: 'Position', value: state.watchlistFilters.position, type: 'position' });
   }
-  if (state.watchlistFilters.ratingMin !== 40 || state.watchlistFilters.ratingMax !== 150) {
+  if (state.watchlistFilters.ratingMin !== 0 || state.watchlistFilters.ratingMax !== 999) {
     chips.push({ name: 'Rating', value: `${state.watchlistFilters.ratingMin}-${state.watchlistFilters.ratingMax}`, type: 'rating' });
   }
   if (state.watchlistFilters.league) {
