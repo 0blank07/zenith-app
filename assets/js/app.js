@@ -153,7 +153,8 @@ function isGoalkeeper(player) {
 function getPlayerStat(player, ...keys) {
     for (const key of keys) {
         const val = player[key];
-        if (val !== undefined && val !== null && val !== 0) {
+        // Treat 0 as a valid stat value (compare view shows 0s)
+        if (val !== undefined && val !== null && val !== '') {
             return val;
         }
     }
@@ -219,7 +220,8 @@ function buildDetailedAttributesSection(player) {
     const getStat = (...keys) => {
         for (const key of keys) {
             const val = player[key];
-            if (val !== undefined && val !== null && val !== 0) {
+            // Treat 0 as a valid stat value (compare view shows 0s)
+            if (val !== undefined && val !== null && val !== '') {
                 return val;
             }
         }
@@ -258,12 +260,12 @@ function buildDetailedAttributesSection(player) {
                     <div class="detailed-stat"><span>Positioning</span><span>${getStat('positioning', 'Positioning')}</span></div>
                     <div class="detailed-stat"><span>Finishing</span><span>${getStat('finishing', 'Finishing')}</span></div>
                     <div class="detailed-stat"><span>Shot Power</span><span>${getStat('shot_power', 'shotpower', 'Shot_Power', 'ShotPower')}</span></div>
-                    <div class="detailed-stat"><span>Long Shots</span><span>${getStat('long_shots', 'longshots', 'Long_Shots', 'LongShots')}</span></div>
-                    <div class="detailed-stat"><span>Volleys</span><span>${getStat('volleys', 'Volleys')}</span></div>
+                    <div class="detailed-stat"><span>Long Shot</span><span>${getStat('long_shot', 'long_shots', 'longshots', 'Long_Shots', 'LongShots')}</span></div>
+                    <div class="detailed-stat"><span>Volley</span><span>${getStat('volley', 'volleys', 'Volleys')}</span></div>
                     <div class="detailed-stat"><span>Penalties</span><span>${getStat('penalties', 'Penalties')}</span></div>
                     <div class="detailed-stat"><span>Vision</span><span>${getStat('vision', 'Vision')}</span></div>
                     <div class="detailed-stat"><span>Crossing</span><span>${getStat('crossing', 'Crossing')}</span></div>
-                    <div class="detailed-stat"><span>FK Accuracy</span><span>${getStat('accuracy', 'fk_accuracy', 'freekickaccuracy', 'FKAccuracy')}</span></div>
+                    <div class="detailed-stat"><span>Free Kick</span><span>${getStat('free_kick', 'fk_accuracy', 'freekickaccuracy', 'FKAccuracy', 'accuracy')}</span></div>
                     <div class="detailed-stat"><span>Short Passing</span><span>${getStat('short_passing', 'shortpassing', 'Short_Passing', 'ShortPassing')}</span></div>
                     <div class="detailed-stat"><span>Long Passing</span><span>${getStat('long_passing', 'longpassing', 'Long_Passing', 'LongPassing')}</span></div>
                     <div class="detailed-stat"><span>Curve</span><span>${getStat('curve', 'Curve')}</span></div>
@@ -273,12 +275,13 @@ function buildDetailedAttributesSection(player) {
                     <div class="detailed-stat"><span>Ball Control</span><span>${getStat('ball_control', 'ballcontrol', 'Ball_Control', 'BallControl')}</span></div>
                     <div class="detailed-stat"><span>Composure</span><span>${getStat('composure', 'Composure')}</span></div>
                     <div class="detailed-stat"><span>Interceptions</span><span>${getStat('interceptions', 'Interceptions')}</span></div>
-                    <div class="detailed-stat"><span>Heading</span><span>${getStat('heading', 'Heading', 'heading_accuracy', 'HeadingAccuracy')}</span></div>
-                    <div class="detailed-stat"><span>Marking</span><span>${getStat('marking', 'Marking', 'def_awareness', 'DefAwareness')}</span></div>
+                    <div class="detailed-stat"><span>Heading</span><span>${getStat('heading', 'heading_accuracy', 'Heading', 'HeadingAccuracy')}</span></div>
+                    <div class="detailed-stat"><span>Awareness</span><span>${getStat('awareness', 'def_awareness', 'DefAwareness')}</span></div>
+                    <div class="detailed-stat"><span>Marking</span><span>${getStat('marking', 'Marking')}</span></div>
                     <div class="detailed-stat"><span>Standing Tackle</span><span>${getStat('standing_tackle', 'standingtackle', 'Standing_Tackle', 'StandingTackle')}</span></div>
                     <div class="detailed-stat"><span>Sliding Tackle</span><span>${getStat('sliding_tackle', 'slidingtackle', 'Sliding_Tackle', 'SlidingTackle')}</span></div>
                     <div class="detailed-stat"><span>Jumping</span><span>${getStat('jumping', 'Jumping')}</span></div>
-                    <div class="detailed-stat"><span>Stamina</span><span>${getStat('stamina', 'stamina_stat', 'Stamina')}</span></div>
+                    <div class="detailed-stat"><span>Stamina</span><span>${getStat('stamina_stat', 'stamina', 'Stamina')}</span></div>
                     <div class="detailed-stat"><span>Strength</span><span>${getStat('strength', 'Strength')}</span></div>
                     <div class="detailed-stat"><span>Aggression</span><span>${getStat('aggression', 'Aggression')}</span></div>
                 </div>
@@ -365,11 +368,11 @@ function renderPlayerDetail(player) {
                         </div>
                         <div class="info-item">
                             <span class="info-label">Skill Moves</span>
-                            <span class="info-value skill-stars">${'★'.repeat(player.skill_moves || 0)}${'☆'.repeat(5 - (player.skill_moves || 0))}</span>
+                            <span class="info-value skill-stars">${'★'.repeat(Math.max(0, Math.min(5, Number(player.skill_moves_stars ?? player.skill_moves ?? 0))))}${'☆'.repeat(5 - Math.max(0, Math.min(5, Number(player.skill_moves_stars ?? player.skill_moves ?? 0))))}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Weak Foot</span>
-                            <span class="info-value skill-stars">${'★'.repeat(player.weak_foot || 0)}${'☆'.repeat(5 - (player.weak_foot || 0))}</span>
+                            <span class="info-value skill-stars">${'★'.repeat(Math.max(0, Math.min(5, Number(player.weak_foot_stars ?? player.weak_foot ?? 0))))}${'☆'.repeat(5 - Math.max(0, Math.min(5, Number(player.weak_foot_stars ?? player.weak_foot ?? 0))))}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Price</span>
