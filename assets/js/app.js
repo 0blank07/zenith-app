@@ -141,6 +141,114 @@ function cleanupRankAnimations() {
     activeRankAnimations.clear();
 }
 
+// ========== CHECK IF PLAYER IS GOALKEEPER ==========
+function isGoalkeeper(player) {
+    if (!player || !player.position) return false;
+    const pos = String(player.position).toUpperCase().trim();
+    return pos === 'GK';
+}
+
+// ========== BUILD PLAYER STATS SECTION (GK vs OUTFIELD) ==========
+function buildPlayerStatsSection(player) {
+    const isGK = isGoalkeeper(player);
+    
+    if (isGK) {
+        // Goalkeeper stats: DIV, HAN, KIC, REF, SPD, POS
+        return `
+            <div class="player-stats-section">
+                <h3>Goalkeeper Stats</h3>
+                <div class="stats-grid">
+                    <div class="stat-box"><div class="stat-value">${player.diving || player.gk_diving || 0}</div><div class="stat-label">DIV</div></div>
+                    <div class="stat-box"><div class="stat-value">${player.handling || player.gk_handling || 0}</div><div class="stat-label">HAN</div></div>
+                    <div class="stat-box"><div class="stat-value">${player.kicking || player.gk_kicking || 0}</div><div class="stat-label">KIC</div></div>
+                    <div class="stat-box"><div class="stat-value">${player.reflexes || player.gk_reflexes || 0}</div><div class="stat-label">REF</div></div>
+                    <div class="stat-box"><div class="stat-value">${player.speed || player.gk_speed || 0}</div><div class="stat-label">SPD</div></div>
+                    <div class="stat-box"><div class="stat-value">${player.positioning || player.gk_positioning || 0}</div><div class="stat-label">POS</div></div>
+                </div>
+            </div>
+        `;
+    } else {
+        // Outfield player stats: PAC, SHO, PAS, DRI, DEF, PHY
+        return `
+            <div class="player-stats-section">
+                <h3>Player Stats</h3>
+                <div class="stats-grid">
+                    <div class="stat-box"><div class="stat-value">${player.pace || 0}</div><div class="stat-label">PAC</div></div>
+                    <div class="stat-box"><div class="stat-value">${player.shooting || 0}</div><div class="stat-label">SHO</div></div>
+                    <div class="stat-box"><div class="stat-value">${player.passing || 0}</div><div class="stat-label">PAS</div></div>
+                    <div class="stat-box"><div class="stat-value">${player.dribbling || 0}</div><div class="stat-label">DRI</div></div>
+                    <div class="stat-box"><div class="stat-value">${player.defending || 0}</div><div class="stat-label">DEF</div></div>
+                    <div class="stat-box"><div class="stat-value">${player.physical || 0}</div><div class="stat-label">PHY</div></div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// ========== BUILD DETAILED ATTRIBUTES SECTION (GK vs OUTFIELD) ==========
+function buildDetailedAttributesSection(player) {
+    const isGK = isGoalkeeper(player);
+    
+    // Helper to safely get stat value
+    const getStat = (val) => (val !== undefined && val !== null) ? val : '-';
+    
+    if (isGK) {
+        // Goalkeeper detailed attributes
+        return `
+            <div class="player-detailed-stats">
+                <h3>Goalkeeper Attributes</h3>
+                <div class="detailed-stats-grid">
+                    <div class="detailed-stat"><span>GK Diving</span><span>${getStat(player.diving || player.gk_diving)}</span></div>
+                    <div class="detailed-stat"><span>GK Handling</span><span>${getStat(player.handling || player.gk_handling)}</span></div>
+                    <div class="detailed-stat"><span>GK Kicking</span><span>${getStat(player.kicking || player.gk_kicking)}</span></div>
+                    <div class="detailed-stat"><span>GK Reflexes</span><span>${getStat(player.reflexes || player.gk_reflexes)}</span></div>
+                    <div class="detailed-stat"><span>GK Speed</span><span>${getStat(player.speed || player.gk_speed)}</span></div>
+                    <div class="detailed-stat"><span>GK Positioning</span><span>${getStat(player.positioning || player.gk_positioning)}</span></div>
+                    <div class="detailed-stat"><span>Reactions</span><span>${getStat(player.reactions)}</span></div>
+                    <div class="detailed-stat"><span>Composure</span><span>${getStat(player.composure)}</span></div>
+                </div>
+            </div>
+        `;
+    } else {
+        // Outfield player detailed attributes
+        return `
+            <div class="player-detailed-stats">
+                <h3>Detailed Attributes</h3>
+                <div class="detailed-stats-grid">
+                    <div class="detailed-stat"><span>Acceleration</span><span>${getStat(player.acceleration)}</span></div>
+                    <div class="detailed-stat"><span>Sprint Speed</span><span>${getStat(player.sprint_speed)}</span></div>
+                    <div class="detailed-stat"><span>Positioning</span><span>${getStat(player.positioning)}</span></div>
+                    <div class="detailed-stat"><span>Finishing</span><span>${getStat(player.finishing)}</span></div>
+                    <div class="detailed-stat"><span>Shot Power</span><span>${getStat(player.shot_power)}</span></div>
+                    <div class="detailed-stat"><span>Long Shots</span><span>${getStat(player.long_shots)}</span></div>
+                    <div class="detailed-stat"><span>Volleys</span><span>${getStat(player.volleys)}</span></div>
+                    <div class="detailed-stat"><span>Penalties</span><span>${getStat(player.penalties)}</span></div>
+                    <div class="detailed-stat"><span>Vision</span><span>${getStat(player.vision)}</span></div>
+                    <div class="detailed-stat"><span>Crossing</span><span>${getStat(player.crossing)}</span></div>
+                    <div class="detailed-stat"><span>FK Accuracy</span><span>${getStat(player.accuracy)}</span></div>
+                    <div class="detailed-stat"><span>Short Passing</span><span>${getStat(player.short_passing)}</span></div>
+                    <div class="detailed-stat"><span>Long Passing</span><span>${getStat(player.long_passing)}</span></div>
+                    <div class="detailed-stat"><span>Curve</span><span>${getStat(player.curve)}</span></div>
+                    <div class="detailed-stat"><span>Agility</span><span>${getStat(player.agility)}</span></div>
+                    <div class="detailed-stat"><span>Balance</span><span>${getStat(player.balance)}</span></div>
+                    <div class="detailed-stat"><span>Reactions</span><span>${getStat(player.reactions)}</span></div>
+                    <div class="detailed-stat"><span>Ball Control</span><span>${getStat(player.ball_control)}</span></div>
+                    <div class="detailed-stat"><span>Composure</span><span>${getStat(player.composure)}</span></div>
+                    <div class="detailed-stat"><span>Interceptions</span><span>${getStat(player.interceptions)}</span></div>
+                    <div class="detailed-stat"><span>Heading</span><span>${getStat(player.heading)}</span></div>
+                    <div class="detailed-stat"><span>Marking</span><span>${getStat(player.marking)}</span></div>
+                    <div class="detailed-stat"><span>Standing Tackle</span><span>${getStat(player.standing_tackle)}</span></div>
+                    <div class="detailed-stat"><span>Sliding Tackle</span><span>${getStat(player.sliding_tackle)}</span></div>
+                    <div class="detailed-stat"><span>Jumping</span><span>${getStat(player.jumping)}</span></div>
+                    <div class="detailed-stat"><span>Stamina</span><span>${getStat(player.stamina_stat)}</span></div>
+                    <div class="detailed-stat"><span>Strength</span><span>${getStat(player.strength)}</span></div>
+                    <div class="detailed-stat"><span>Aggression</span><span>${getStat(player.aggression)}</span></div>
+                </div>
+            </div>
+        `;
+    }
+}
+
 function renderPlayerDetail(player) {
     const container = document.getElementById('player-detail-view');
     if (!container) {
@@ -237,53 +345,11 @@ function renderPlayerDetail(player) {
                         ` : ''}
                     </div>
                     
-                    <div class="player-stats-section">
-                        <h3>Player Stats</h3>
-                        <div class="stats-grid">
-                            <div class="stat-box"><div class="stat-value">${player.pace || 0}</div><div class="stat-label">PAC</div></div>
-                            <div class="stat-box"><div class="stat-value">${player.shooting || 0}</div><div class="stat-label">SHO</div></div>
-                            <div class="stat-box"><div class="stat-value">${player.passing || 0}</div><div class="stat-label">PAS</div></div>
-                            <div class="stat-box"><div class="stat-value">${player.dribbling || 0}</div><div class="stat-label">DRI</div></div>
-                            <div class="stat-box"><div class="stat-value">${player.defending || 0}</div><div class="stat-label">DEF</div></div>
-                            <div class="stat-box"><div class="stat-value">${player.physical || 0}</div><div class="stat-label">PHY</div></div>
-                        </div>
-                    </div>
+                    ${buildPlayerStatsSection(player)}
                     
                     ${trainingHtml}
                     
-                    <div class="player-detailed-stats">
-                        <h3>Detailed Attributes</h3>
-                        <div class="detailed-stats-grid">
-                            <div class="detailed-stat"><span>Acceleration</span><span>${player.acceleration || 0}</span></div>
-                            <div class="detailed-stat"><span>Sprint Speed</span><span>${player.sprint_speed || 0}</span></div>
-                            <div class="detailed-stat"><span>Positioning</span><span>${player.positioning || 0}</span></div>
-                            <div class="detailed-stat"><span>Finishing</span><span>${player.finishing || 0}</span></div>
-                            <div class="detailed-stat"><span>Shot Power</span><span>${player.shot_power || 0}</span></div>
-                            <div class="detailed-stat"><span>Long Shots</span><span>${player.long_shots || 0}</span></div>
-                            <div class="detailed-stat"><span>Volleys</span><span>${player.volleys || 0}</span></div>
-                            <div class="detailed-stat"><span>Penalties</span><span>${player.penalties || 0}</span></div>
-                            <div class="detailed-stat"><span>Vision</span><span>${player.vision || 0}</span></div>
-                            <div class="detailed-stat"><span>Crossing</span><span>${player.crossing || 0}</span></div>
-                            <div class="detailed-stat"><span>FK Accuracy</span><span>${player.accuracy || 0}</span></div>
-                            <div class="detailed-stat"><span>Short Passing</span><span>${player.short_passing || 0}</span></div>
-                            <div class="detailed-stat"><span>Long Passing</span><span>${player.long_passing || 0}</span></div>
-                            <div class="detailed-stat"><span>Curve</span><span>${player.curve || 0}</span></div>
-                            <div class="detailed-stat"><span>Agility</span><span>${player.agility || 0}</span></div>
-                            <div class="detailed-stat"><span>Balance</span><span>${player.balance || 0}</span></div>
-                            <div class="detailed-stat"><span>Reactions</span><span>${player.reactions || 0}</span></div>
-                            <div class="detailed-stat"><span>Ball Control</span><span>${player.ball_control || 0}</span></div>
-                            <div class="detailed-stat"><span>Composure</span><span>${player.composure || 0}</span></div>
-                            <div class="detailed-stat"><span>Interceptions</span><span>${player.interceptions || 0}</span></div>
-                            <div class="detailed-stat"><span>Heading</span><span>${player.heading || 0}</span></div>
-                            <div class="detailed-stat"><span>Marking</span><span>${player.marking || 0}</span></div>
-                            <div class="detailed-stat"><span>Standing Tackle</span><span>${player.standing_tackle || 0}</span></div>
-                            <div class="detailed-stat"><span>Sliding Tackle</span><span>${player.sliding_tackle || 0}</span></div>
-                            <div class="detailed-stat"><span>Jumping</span><span>${player.jumping || 0}</span></div>
-                            <div class="detailed-stat"><span>Stamina</span><span>${player.stamina_stat || 0}</span></div>
-                            <div class="detailed-stat"><span>Strength</span><span>${player.strength || 0}</span></div>
-                            <div class="detailed-stat"><span>Aggression</span><span>${player.aggression || 0}</span></div>
-                        </div>
-                    </div>
+                    ${buildDetailedAttributesSection(player)}
                 </div>
             </div>
         </div>
