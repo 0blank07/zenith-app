@@ -1,0 +1,119 @@
+/* Training Calculator Styles - Add to your existing CSS */
+
+.training-calculator-section {
+    background: rgba(255,255,255,0.03);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    margin: 20px 0;
+}
+
+.training-calculator-section h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.training-calc-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.training-calc-controls label {
+    color: #888;
+    font-size: 14px;
+}
+
+.training-calc-controls select {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 180px;
+    cursor: pointer;
+}
+
+.calc-apply-btn {
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.calc-apply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(99,102,241,0.4);
+}
+
+.training-calc-results {
+    margin-top: 15px;
+}
+
+.boost-summary h4 {
+    color: #10B981;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.boost-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+}
+
+.boost-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 6px;
+}
+
+.boost-item .stat-name {
+    color: #888;
+    font-size: 12px;
+}
+
+.boost-item .stat-boost {
+    color: #10B981;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.stat-diff {
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+.stat-diff.positive {
+    color: #10B981;
+}
+
+.no-training, .no-formula {
+    color: #888;
+    font-style: italic;
+    padding: 10px;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .training-calc-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .boost-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
