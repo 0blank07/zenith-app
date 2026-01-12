@@ -35,10 +35,11 @@ async function viewPlayerDetail(playerId) {
     }
     
     // Fetch full player details from API if available
-    if (window.apiClient && window.apiClient.getPlayerById) {
+    const playerRank = player.rank || 0;
+    if (window.apiClient && window.apiClient.getPlayerDetails) {
         try {
-            console.log('[DETAIL] Fetching full player details for ID:', playerId);
-            const fullPlayer = await window.apiClient.getPlayerById(playerId);
+            console.log('[DETAIL] Fetching full player details for ID:', playerId, 'with rank:', playerRank);
+            const fullPlayer = await window.apiClient.getPlayerDetails(playerId, playerRank);
             if (fullPlayer) {
                 player = { ...player, ...fullPlayer };
                 console.log('[DETAIL] Got full player details:', fullPlayer);
@@ -56,11 +57,18 @@ async function viewPlayerDetail(playerId) {
 }
 
 // ========== ANIMATED RANK ICON SYSTEM ==========
+// Sprite sheets are 6x6 grid = 36 frames, animate at 36fps
+// Standard Renderz rank sprite sheets are 288x288 (48x48 per frame)
 const RANK_CONFIG = {
-    frameCount: 30,  // Number of frames in sprite sheet
-    fps: 36,         // Frames per second for animation
-    frameWidth: 64,  // Width of each frame (adjust based on your sprite)
-    frameHeight: 64, // Height of each frame
+    columns: 6,       // 6 columns in sprite sheet
+    rows: 6,          // 6 rows in sprite sheet  
+    frameCount: 36,   // Total frames (6x6 = 36)
+    fps: 36,          // Frames per second for animation
+    // Renderz sprite sheets: adjust these if frames look wrong
+    spriteWidth: 288,   // Total width of sprite sheet (288 for Renderz)
+    spriteHeight: 288,  // Total height of sprite sheet
+    get frameWidth() { return this.spriteWidth / this.columns; },   // 48px per frame
+    get frameHeight() { return this.spriteHeight / this.rows; },    // 48px per frame
     ranks: {
         1: 'assets/images/ranks/green_rank.png',
         2: 'assets/images/ranks/blue_rank.png', 
@@ -81,15 +89,25 @@ function createAnimatedRankIcon(rank, size = 48) {
     
     const uniqueId = `rank-icon-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
+    // Calculate scale factor to display at desired size
+    // Sprite sheet is 180x180 with 6x6 frames (30x30 each frame)
+    // We scale the entire sprite sheet proportionally
+    const scale = size / RANK_CONFIG.frameWidth;
+    const bgWidth = RANK_CONFIG.spriteWidth * scale;
+    const bgHeight = RANK_CONFIG.spriteHeight * scale;
+    
     return `
         <div class="animated-rank-icon" 
              id="${uniqueId}"
              data-rank="${rank}"
+             data-columns="${RANK_CONFIG.columns}"
+             data-frame-width="${size}"
+             data-frame-height="${size}"
              style="
                 width: ${size}px; 
                 height: ${size}px; 
                 background-image: url('${spriteUrl}');
-                background-size: auto ${size}px;
+                background-size: ${bgWidth}px ${bgHeight}px;
                 background-position: 0 0;
                 background-repeat: no-repeat;
                 display: inline-block;
@@ -105,7 +123,9 @@ function startRankAnimation(element) {
     if (!rank) return;
     
     let currentFrame = 0;
-    const frameWidth = parseInt(element.style.width) || RANK_CONFIG.frameWidth;
+    const columns = parseInt(element.dataset.columns) || RANK_CONFIG.columns;
+    const frameWidth = parseInt(element.dataset.frameWidth) || parseInt(element.style.width) || 48;
+    const frameHeight = parseInt(element.dataset.frameHeight) || parseInt(element.style.height) || 48;
     const interval = 1000 / RANK_CONFIG.fps; // ~27.78ms for 36fps
     
     // Clear any existing animation
@@ -115,7 +135,10 @@ function startRankAnimation(element) {
     
     const animationId = setInterval(() => {
         currentFrame = (currentFrame + 1) % RANK_CONFIG.frameCount;
-        element.style.backgroundPosition = `-${currentFrame * frameWidth}px 0`;
+        // Calculate row and column from frame index (6x6 grid)
+        const col = currentFrame % columns;
+        const row = Math.floor(currentFrame / columns);
+        element.style.backgroundPosition = `-${col * frameWidth}px -${row * frameHeight}px`;
     }, interval);
     
     activeRankAnimations.set(element.id, animationId);
@@ -295,12 +318,17 @@ function renderPlayerDetail(player) {
     // Cleanup old animations
     cleanupRankAnimations();
     
+    // Debug: Log player rank info
+    console.log('[DETAIL] Player rank:', player.rank, 'Full player:', player);
+    
     const uniqueId = `${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}`;
     const isWatchlisted = state.watchlist && state.watchlist.includes(uniqueId);
     const flagUrl = typeof getCountryFlagUrl === 'function' ? getCountryFlagUrl(player.nation) : '';
     
-    // Generate rank icon HTML
-    const rankIconHtml = player.rank ? createAnimatedRankIcon(player.rank, 48) : '';
+    // Generate rank icon HTML - ensure we have a valid rank
+    const playerRank = player.rank || 0;
+    const rankIconHtml = playerRank > 0 && playerRank <= 5 ? createAnimatedRankIcon(playerRank, 48) : '';
+    console.log('[DETAIL] Rank icon HTML generated:', rankIconHtml ? 'yes' : 'no');
     
     // Build training section HTML
     const trainingHtml = buildTrainingSection(player);
