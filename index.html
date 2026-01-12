@@ -824,12 +824,19 @@
           <div class="filter-group">
             <label class="filter-label">Overall Rating: <span id="rating-value">40-150</span></label>
             <div class="range-inputs">
-              <input type="number" id="rating-min" value="40" min="40" max="150" placeholder="Min" class="range-input">
+              <input type="number" id="rating-min" value="40" min="40" max="150" placeholder="40" class="range-input">
               <span>-</span>
-              <input type="number" id="rating-max" value="150" min="40" max="150" placeholder="Max" class="range-input">
+              <input type="number" id="rating-max" value="150" min="40" max="150" placeholder="150" class="range-input">
             </div>
           </div>
-          <!-- Price filter removed -->
+          <div class="filter-group">
+            <label class="filter-label">Price Range: <span id="price-value">Any</span></label>
+            <div class="range-inputs">
+              <input type="number" id="price-min" placeholder="Min" class="range-input">
+              <span>-</span>
+              <input type="number" id="price-max" placeholder="Max" class="range-input">
+            </div>
+          </div>
 
 
           <!-- Event Filter -->
@@ -2398,14 +2405,23 @@
 
             <!-- Rating Filter -->
             <div class="filter-group">
-              <label class="filter-label">Overall Rating: <span id="mobile-rating-value">40-150</span></label>
+              <label class="filter-label">Overall Rating</label>
               <div class="range-inputs">
-                <input type="number" id="mobile-rating-min" value="40" min="40" max="150" placeholder="Min" class="range-input">
+                <input type="number" id="mobile-rating-min" value="40" min="40" max="150" placeholder="40" class="range-input">
                 <span>-</span>
-                <input type="number" id="mobile-rating-max" value="150" min="40" max="150" placeholder="Max" class="range-input">
+                <input type="number" id="mobile-rating-max" value="150" min="40" max="150" placeholder="150" class="range-input">
               </div>
             </div>
-            <!-- Price filter removed -->
+
+            <!-- Price Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Price Range</label>
+              <div class="range-inputs">
+                <input type="number" id="mobile-price-min" placeholder="Min" class="range-input">
+                <span>-</span>
+                <input type="number" id="mobile-price-max" placeholder="Max" class="range-input">
+              </div>
+            </div>
 
 
 
@@ -2836,7 +2852,14 @@
               </div>
             </div>
 
-            <!-- Price filter removed -->
+            <div class="filter-group">
+              <label class="filter-label">Price Range: <span id="watchlist-price-value">Any</span></label>
+              <div class="range-inputs">
+                <input type="number" id="watchlist-price-min" placeholder="Min" class="range-input">
+                <span>-</span>
+                <input type="number" id="watchlist-price-max" placeholder="Max" class="range-input">
+              </div>
+            </div>
 
             <div class="filter-group">
               <label class="filter-label">League</label>
