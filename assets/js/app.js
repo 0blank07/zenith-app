@@ -221,6 +221,9 @@ function renderPlayerDetail(player) {
     const rankIconHtml = player.rank ? createAnimatedRankIcon(player.rank, 56) : '';
     const trainingHtml = buildTrainingSection(player);
 
+    // Check if player is a goalkeeper
+    const isGoalkeeper = player.position === 'GK';
+
     // ---- helpers ----
     const getBaseColor = (value) => {
         // base color (used for substats)
@@ -237,79 +240,141 @@ function renderPlayerDetail(player) {
         return 0;
     };
 
-    // ---- build stat categories from full row ----
-    const statCategories = [
-        {
-            name: 'Pace',
-            key: 'pace',
-            mainValue: getStat(player, 'pace'),
-            substats: [
-                { label: 'Acceleration', value: getStat(player, 'acceleration') },
-                { label: 'Sprint Speed', value: getStat(player, 'sprint_speed') }
-            ]
-        },
-        {
-            name: 'Shooting',
-            key: 'shooting',
-            mainValue: getStat(player, 'shooting'),
-            substats: [
-                { label: 'Finishing', value: getStat(player, 'finishing') },
-                { label: 'Long Shot', value: getStat(player, 'long_shot', 'long_shots') },
-                { label: 'Shot Power', value: getStat(player, 'shot_power') },
-                { label: 'Positioning', value: getStat(player, 'positioning') },
-                { label: 'Volley', value: getStat(player, 'volley', 'volleys') },
-                { label: 'Penalties', value: getStat(player, 'penalties') }
-            ]
-        },
-        {
-            name: 'Passing',
-            key: 'passing',
-            mainValue: getStat(player, 'passing'),
-            substats: [
-                { label: 'Short Passing', value: getStat(player, 'short_passing') },
-                { label: 'Long Passing', value: getStat(player, 'long_passing') },
-                { label: 'Vision', value: getStat(player, 'vision') },
-                { label: 'Crossing', value: getStat(player, 'crossing') },
-                { label: 'Curve', value: getStat(player, 'curve') },
-                { label: 'Free Kick', value: getStat(player, 'free_kick', 'fk_accuracy') }
-            ]
-        },
-        {
-            name: 'Dribbling',
-            key: 'dribbling',
-            mainValue: getStat(player, 'dribbling_head', 'dribbling'),
-            substats: [
-                { label: 'Dribbling', value: getStat(player, 'dribbling_head', 'dribbling') },
-                { label: 'Balance', value: getStat(player, 'balance') },
-                { label: 'Agility', value: getStat(player, 'agility') },
-                { label: 'Reactions', value: getStat(player, 'reactions') },
-                { label: 'Ball Control', value: getStat(player, 'ball_control') }
-            ]
-        },
-        {
-            name: 'Defending',
-            key: 'defending',
-            mainValue: getStat(player, 'defending'),
-            substats: [
-                { label: 'Marking', value: getStat(player, 'marking') },
-                { label: 'Standing Tackle', value: getStat(player, 'standing_tackle') },
-                { label: 'Sliding Tackle', value: getStat(player, 'sliding_tackle') },
-                { label: 'Awareness', value: getStat(player, 'awareness', 'interceptions') },
-                { label: 'Heading', value: getStat(player, 'heading') }
-            ]
-        },
-        {
-            name: 'Physical',
-            key: 'physical',
-            mainValue: getStat(player, 'physical'),
-            substats: [
-                { label: 'Strength', value: getStat(player, 'strength') },
-                { label: 'Aggression', value: getStat(player, 'aggression') },
-                { label: 'Jumping', value: getStat(player, 'jumping') },
-                { label: 'Stamina', value: getStat(player, 'stamina_stat', 'stamina') }
-            ]
-        }
-    ];
+    // ---- build stat categories based on position ----
+    let statCategories;
+    
+    if (isGoalkeeper) {
+        // GK-specific stat categories
+        statCategories = [
+            {
+                name: 'Diving',
+                key: 'diving',
+                mainValue: getStat(player, 'diving'),
+                substats: [
+                    { label: 'GK Diving', value: getStat(player, 'gk_diving', 'diving') }
+                ]
+            },
+            {
+                name: 'Positioning',
+                key: 'gk_positioning',
+                mainValue: getStat(player, 'gk_positioning', 'positioning'),
+                substats: [
+                    { label: 'GK Positioning', value: getStat(player, 'gk_positioning', 'positioning') }
+                ]
+            },
+            {
+                name: 'Handling',
+                key: 'handling',
+                mainValue: getStat(player, 'handling'),
+                substats: [
+                    { label: 'GK Handling', value: getStat(player, 'gk_handling', 'handling') }
+                ]
+            },
+            {
+                name: 'Reflexes',
+                key: 'reflexes',
+                mainValue: getStat(player, 'reflexes'),
+                substats: [
+                    { label: 'GK Reflexes', value: getStat(player, 'gk_reflexes', 'reflexes') },
+                    { label: 'Jumping', value: getStat(player, 'jumping') }
+                ]
+            },
+            {
+                name: 'Kicking',
+                key: 'kicking',
+                mainValue: getStat(player, 'kicking'),
+                substats: [
+                    { label: 'GK Kicking', value: getStat(player, 'gk_kicking', 'kicking') },
+                    { label: 'Long Passing', value: getStat(player, 'long_passing') }
+                ]
+            },
+            {
+                name: 'Physical',
+                key: 'physical',
+                mainValue: getStat(player, 'physical'),
+                substats: [
+                    { label: 'Reactions', value: getStat(player, 'reactions') },
+                    { label: 'Agility', value: getStat(player, 'agility') },
+                    { label: 'Sprint Speed', value: getStat(player, 'sprint_speed') },
+                    { label: 'Strength', value: getStat(player, 'strength') }
+                ]
+            }
+        ];
+    } else {
+        // Outfield player stat categories
+        statCategories = [
+            {
+                name: 'Pace',
+                key: 'pace',
+                mainValue: getStat(player, 'pace'),
+                substats: [
+                    { label: 'Acceleration', value: getStat(player, 'acceleration') },
+                    { label: 'Sprint Speed', value: getStat(player, 'sprint_speed') }
+                ]
+            },
+            {
+                name: 'Shooting',
+                key: 'shooting',
+                mainValue: getStat(player, 'shooting'),
+                substats: [
+                    { label: 'Finishing', value: getStat(player, 'finishing') },
+                    { label: 'Long Shot', value: getStat(player, 'long_shot', 'long_shots') },
+                    { label: 'Shot Power', value: getStat(player, 'shot_power') },
+                    { label: 'Positioning', value: getStat(player, 'positioning') },
+                    { label: 'Volley', value: getStat(player, 'volley', 'volleys') },
+                    { label: 'Penalties', value: getStat(player, 'penalties') }
+                ]
+            },
+            {
+                name: 'Passing',
+                key: 'passing',
+                mainValue: getStat(player, 'passing'),
+                substats: [
+                    { label: 'Short Passing', value: getStat(player, 'short_passing') },
+                    { label: 'Long Passing', value: getStat(player, 'long_passing') },
+                    { label: 'Vision', value: getStat(player, 'vision') },
+                    { label: 'Crossing', value: getStat(player, 'crossing') },
+                    { label: 'Curve', value: getStat(player, 'curve') },
+                    { label: 'Free Kick', value: getStat(player, 'free_kick', 'fk_accuracy') }
+                ]
+            },
+            {
+                name: 'Dribbling',
+                key: 'dribbling',
+                mainValue: getStat(player, 'dribbling_head', 'dribbling'),
+                substats: [
+                    { label: 'Dribbling', value: getStat(player, 'dribbling_head', 'dribbling') },
+                    { label: 'Balance', value: getStat(player, 'balance') },
+                    { label: 'Agility', value: getStat(player, 'agility') },
+                    { label: 'Reactions', value: getStat(player, 'reactions') },
+                    { label: 'Ball Control', value: getStat(player, 'ball_control') }
+                ]
+            },
+            {
+                name: 'Defending',
+                key: 'defending',
+                mainValue: getStat(player, 'defending'),
+                substats: [
+                    { label: 'Marking', value: getStat(player, 'marking') },
+                    { label: 'Standing Tackle', value: getStat(player, 'standing_tackle') },
+                    { label: 'Sliding Tackle', value: getStat(player, 'sliding_tackle') },
+                    { label: 'Awareness', value: getStat(player, 'awareness', 'interceptions') },
+                    { label: 'Heading', value: getStat(player, 'heading') }
+                ]
+            },
+            {
+                name: 'Physical',
+                key: 'physical',
+                mainValue: getStat(player, 'physical'),
+                substats: [
+                    { label: 'Strength', value: getStat(player, 'strength') },
+                    { label: 'Aggression', value: getStat(player, 'aggression') },
+                    { label: 'Jumping', value: getStat(player, 'jumping') },
+                    { label: 'Stamina', value: getStat(player, 'stamina_stat', 'stamina') }
+                ]
+            }
+        ];
+    }
 
     // ---- major stat color ranking (top3 green, next2 orange, last red) ----
     const sorted = [...statCategories]
@@ -633,7 +698,7 @@ function renderPlayerDetail(player) {
                     font-family: var(--font-family-base);
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
-                ">Player Statistics</h2>
+                ">${isGoalkeeper ? 'Goalkeeper Statistics' : 'Player Statistics'}</h2>
 
                 <div class="stats-grid-container">
                     <div style="
@@ -919,14 +984,13 @@ function renderPlayerDetail(player) {
                 }
             }
         </style>
-
-
     `;
 
     setTimeout(() => {
         initAllRankAnimations();
     }, 100);
 }
+
 
 
 
