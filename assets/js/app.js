@@ -153,8 +153,7 @@ function isGoalkeeper(player) {
 function getPlayerStat(player, ...keys) {
     for (const key of keys) {
         const val = player[key];
-        // Treat 0 as a valid stat value (compare view shows 0s)
-        if (val !== undefined && val !== null && val !== '') {
+        if (val !== undefined && val !== null && val !== 0) {
             return val;
         }
     }
@@ -164,37 +163,37 @@ function getPlayerStat(player, ...keys) {
 function buildPlayerStatsSection(player) {
     const isGK = isGoalkeeper(player);
     
+    // Use the same property names as STATS_CONFIG (which works in compare tool)
     if (isGK) {
-        // Goalkeeper stats: DIV, HAN, KIC, REF, SPD, POS
-        // Try multiple property name variations
-        const div = getPlayerStat(player, 'diving', 'gk_diving', 'DIV', 'Diving', 'GK_Diving');
-        const han = getPlayerStat(player, 'handling', 'gk_handling', 'HAN', 'Handling', 'GK_Handling');
-        const kic = getPlayerStat(player, 'kicking', 'gk_kicking', 'KIC', 'Kicking', 'GK_Kicking');
-        const ref = getPlayerStat(player, 'reflexes', 'gk_reflexes', 'REF', 'Reflexes', 'GK_Reflexes');
-        const spd = getPlayerStat(player, 'gk_speed', 'speed', 'SPD', 'Speed', 'GK_Speed');
-        const pos = getPlayerStat(player, 'gk_positioning', 'positioning', 'POS', 'Positioning', 'GK_Positioning');
+        // Goalkeeper stats - use exact field names from STATS_CONFIG.gk.basic
+        const div = getPlayerStat(player, 'gk_diving');
+        const pos = getPlayerStat(player, 'gk_positioning');
+        const han = getPlayerStat(player, 'gk_handling');
+        const ref = getPlayerStat(player, 'gk_reflexes');
+        const kic = getPlayerStat(player, 'gk_kicking');
+        const phy = getPlayerStat(player, 'physical');
         
         return `
             <div class="player-stats-section">
                 <h3>Goalkeeper Stats</h3>
                 <div class="stats-grid">
                     <div class="stat-box"><div class="stat-value">${div}</div><div class="stat-label">DIV</div></div>
-                    <div class="stat-box"><div class="stat-value">${han}</div><div class="stat-label">HAN</div></div>
-                    <div class="stat-box"><div class="stat-value">${kic}</div><div class="stat-label">KIC</div></div>
-                    <div class="stat-box"><div class="stat-value">${ref}</div><div class="stat-label">REF</div></div>
-                    <div class="stat-box"><div class="stat-value">${spd}</div><div class="stat-label">SPD</div></div>
                     <div class="stat-box"><div class="stat-value">${pos}</div><div class="stat-label">POS</div></div>
+                    <div class="stat-box"><div class="stat-value">${han}</div><div class="stat-label">HAN</div></div>
+                    <div class="stat-box"><div class="stat-value">${ref}</div><div class="stat-label">REF</div></div>
+                    <div class="stat-box"><div class="stat-value">${kic}</div><div class="stat-label">KIC</div></div>
+                    <div class="stat-box"><div class="stat-value">${phy}</div><div class="stat-label">PHY</div></div>
                 </div>
             </div>
         `;
     } else {
-        // Outfield player stats: PAC, SHO, PAS, DRI, DEF, PHY
-        const pac = getPlayerStat(player, 'pace', 'PAC', 'Pace');
-        const sho = getPlayerStat(player, 'shooting', 'SHO', 'Shooting');
-        const pas = getPlayerStat(player, 'passing', 'PAS', 'Passing');
-        const dri = getPlayerStat(player, 'dribbling', 'DRI', 'Dribbling');
-        const def = getPlayerStat(player, 'defending', 'DEF', 'Defending');
-        const phy = getPlayerStat(player, 'physical', 'PHY', 'Physical');
+        // Outfield player stats - use exact field names from STATS_CONFIG.outfield.basic
+        const pac = getPlayerStat(player, 'pace');
+        const sho = getPlayerStat(player, 'shooting');
+        const pas = getPlayerStat(player, 'passing');
+        const dri = getPlayerStat(player, 'dribbling');
+        const def = getPlayerStat(player, 'defending');
+        const phy = getPlayerStat(player, 'physical');
         
         return `
             <div class="player-stats-section">
@@ -216,74 +215,70 @@ function buildPlayerStatsSection(player) {
 function buildDetailedAttributesSection(player) {
     const isGK = isGoalkeeper(player);
     
-    // Helper to safely get stat value from multiple possible property names
-    const getStat = (...keys) => {
-        for (const key of keys) {
-            const val = player[key];
-            // Treat 0 as a valid stat value (compare view shows 0s)
-            if (val !== undefined && val !== null && val !== '') {
-                return val;
-            }
+    // Use same property names as STATS_CONFIG (which works in compare tool)
+    const getStat = (key) => {
+        const val = player[key];
+        if (val !== undefined && val !== null) {
+            return val;
         }
         return '-';
     };
     
-    // Log player object for debugging
-    console.log('[DETAIL] Player object keys:', Object.keys(player));
-    console.log('[DETAIL] Full player object:', player);
-    
     if (isGK) {
-        // Goalkeeper detailed attributes - try multiple property name variations
+        // Goalkeeper detailed attributes - use exact field names from STATS_CONFIG.gk
         return `
             <div class="player-detailed-stats">
                 <h3>Goalkeeper Attributes</h3>
                 <div class="detailed-stats-grid">
-                    <div class="detailed-stat"><span>GK Diving</span><span>${getStat('diving', 'gk_diving', 'DIV', 'Diving', 'GK_Diving')}</span></div>
-                    <div class="detailed-stat"><span>GK Handling</span><span>${getStat('handling', 'gk_handling', 'HAN', 'Handling', 'GK_Handling')}</span></div>
-                    <div class="detailed-stat"><span>GK Kicking</span><span>${getStat('kicking', 'gk_kicking', 'KIC', 'Kicking', 'GK_Kicking')}</span></div>
-                    <div class="detailed-stat"><span>GK Reflexes</span><span>${getStat('reflexes', 'gk_reflexes', 'REF', 'Reflexes', 'GK_Reflexes')}</span></div>
-                    <div class="detailed-stat"><span>GK Speed</span><span>${getStat('gk_speed', 'speed', 'SPD', 'Speed', 'GK_Speed')}</span></div>
-                    <div class="detailed-stat"><span>GK Positioning</span><span>${getStat('gk_positioning', 'positioning', 'POS', 'Positioning', 'GK_Positioning')}</span></div>
-                    <div class="detailed-stat"><span>Reactions</span><span>${getStat('reactions', 'Reactions')}</span></div>
-                    <div class="detailed-stat"><span>Composure</span><span>${getStat('composure', 'Composure')}</span></div>
+                    <div class="detailed-stat"><span>GK Diving</span><span>${getStat('gk_diving')}</span></div>
+                    <div class="detailed-stat"><span>GK Positioning</span><span>${getStat('gk_positioning')}</span></div>
+                    <div class="detailed-stat"><span>GK Handling</span><span>${getStat('gk_handling')}</span></div>
+                    <div class="detailed-stat"><span>GK Reflexes</span><span>${getStat('gk_reflexes')}</span></div>
+                    <div class="detailed-stat"><span>GK Kicking</span><span>${getStat('gk_kicking')}</span></div>
+                    <div class="detailed-stat"><span>Jumping</span><span>${getStat('jumping')}</span></div>
+                    <div class="detailed-stat"><span>Long Passing</span><span>${getStat('long_passing')}</span></div>
+                    <div class="detailed-stat"><span>Reactions</span><span>${getStat('reactions')}</span></div>
+                    <div class="detailed-stat"><span>Agility</span><span>${getStat('agility')}</span></div>
+                    <div class="detailed-stat"><span>Sprint Speed</span><span>${getStat('sprint_speed')}</span></div>
+                    <div class="detailed-stat"><span>Strength</span><span>${getStat('strength')}</span></div>
+                    <div class="detailed-stat"><span>Physical</span><span>${getStat('physical')}</span></div>
                 </div>
             </div>
         `;
     } else {
-        // Outfield player detailed attributes
+        // Outfield player detailed attributes - use exact field names from STATS_CONFIG.outfield
         return `
             <div class="player-detailed-stats">
                 <h3>Detailed Attributes</h3>
                 <div class="detailed-stats-grid">
-                    <div class="detailed-stat"><span>Acceleration</span><span>${getStat('acceleration', 'Acceleration')}</span></div>
-                    <div class="detailed-stat"><span>Sprint Speed</span><span>${getStat('sprint_speed', 'sprintspeed', 'Sprint_Speed', 'SprintSpeed')}</span></div>
-                    <div class="detailed-stat"><span>Positioning</span><span>${getStat('positioning', 'Positioning')}</span></div>
-                    <div class="detailed-stat"><span>Finishing</span><span>${getStat('finishing', 'Finishing')}</span></div>
-                    <div class="detailed-stat"><span>Shot Power</span><span>${getStat('shot_power', 'shotpower', 'Shot_Power', 'ShotPower')}</span></div>
-                    <div class="detailed-stat"><span>Long Shot</span><span>${getStat('long_shot', 'long_shots', 'longshots', 'Long_Shots', 'LongShots')}</span></div>
-                    <div class="detailed-stat"><span>Volley</span><span>${getStat('volley', 'volleys', 'Volleys')}</span></div>
-                    <div class="detailed-stat"><span>Penalties</span><span>${getStat('penalties', 'Penalties')}</span></div>
-                    <div class="detailed-stat"><span>Vision</span><span>${getStat('vision', 'Vision')}</span></div>
-                    <div class="detailed-stat"><span>Crossing</span><span>${getStat('crossing', 'Crossing')}</span></div>
-                    <div class="detailed-stat"><span>Free Kick</span><span>${getStat('free_kick', 'fk_accuracy', 'freekickaccuracy', 'FKAccuracy', 'accuracy')}</span></div>
-                    <div class="detailed-stat"><span>Short Passing</span><span>${getStat('short_passing', 'shortpassing', 'Short_Passing', 'ShortPassing')}</span></div>
-                    <div class="detailed-stat"><span>Long Passing</span><span>${getStat('long_passing', 'longpassing', 'Long_Passing', 'LongPassing')}</span></div>
-                    <div class="detailed-stat"><span>Curve</span><span>${getStat('curve', 'Curve')}</span></div>
-                    <div class="detailed-stat"><span>Agility</span><span>${getStat('agility', 'Agility')}</span></div>
-                    <div class="detailed-stat"><span>Balance</span><span>${getStat('balance', 'Balance')}</span></div>
-                    <div class="detailed-stat"><span>Reactions</span><span>${getStat('reactions', 'Reactions')}</span></div>
-                    <div class="detailed-stat"><span>Ball Control</span><span>${getStat('ball_control', 'ballcontrol', 'Ball_Control', 'BallControl')}</span></div>
-                    <div class="detailed-stat"><span>Composure</span><span>${getStat('composure', 'Composure')}</span></div>
-                    <div class="detailed-stat"><span>Interceptions</span><span>${getStat('interceptions', 'Interceptions')}</span></div>
-                    <div class="detailed-stat"><span>Heading</span><span>${getStat('heading', 'heading_accuracy', 'Heading', 'HeadingAccuracy')}</span></div>
-                    <div class="detailed-stat"><span>Awareness</span><span>${getStat('awareness', 'def_awareness', 'DefAwareness')}</span></div>
-                    <div class="detailed-stat"><span>Marking</span><span>${getStat('marking', 'Marking')}</span></div>
-                    <div class="detailed-stat"><span>Standing Tackle</span><span>${getStat('standing_tackle', 'standingtackle', 'Standing_Tackle', 'StandingTackle')}</span></div>
-                    <div class="detailed-stat"><span>Sliding Tackle</span><span>${getStat('sliding_tackle', 'slidingtackle', 'Sliding_Tackle', 'SlidingTackle')}</span></div>
-                    <div class="detailed-stat"><span>Jumping</span><span>${getStat('jumping', 'Jumping')}</span></div>
-                    <div class="detailed-stat"><span>Stamina</span><span>${getStat('stamina_stat', 'stamina', 'Stamina')}</span></div>
-                    <div class="detailed-stat"><span>Strength</span><span>${getStat('strength', 'Strength')}</span></div>
-                    <div class="detailed-stat"><span>Aggression</span><span>${getStat('aggression', 'Aggression')}</span></div>
+                    <div class="detailed-stat"><span>Acceleration</span><span>${getStat('acceleration')}</span></div>
+                    <div class="detailed-stat"><span>Sprint Speed</span><span>${getStat('sprint_speed')}</span></div>
+                    <div class="detailed-stat"><span>Finishing</span><span>${getStat('finishing')}</span></div>
+                    <div class="detailed-stat"><span>Long Shot</span><span>${getStat('long_shot')}</span></div>
+                    <div class="detailed-stat"><span>Shot Power</span><span>${getStat('shot_power')}</span></div>
+                    <div class="detailed-stat"><span>Positioning</span><span>${getStat('positioning')}</span></div>
+                    <div class="detailed-stat"><span>Volley</span><span>${getStat('volley')}</span></div>
+                    <div class="detailed-stat"><span>Penalties</span><span>${getStat('penalties')}</span></div>
+                    <div class="detailed-stat"><span>Short Passing</span><span>${getStat('short_passing')}</span></div>
+                    <div class="detailed-stat"><span>Long Passing</span><span>${getStat('long_passing')}</span></div>
+                    <div class="detailed-stat"><span>Vision</span><span>${getStat('vision')}</span></div>
+                    <div class="detailed-stat"><span>Crossing</span><span>${getStat('crossing')}</span></div>
+                    <div class="detailed-stat"><span>Curve</span><span>${getStat('curve')}</span></div>
+                    <div class="detailed-stat"><span>Free Kick</span><span>${getStat('free_kick')}</span></div>
+                    <div class="detailed-stat"><span>Dribbling</span><span>${getStat('dribbling')}</span></div>
+                    <div class="detailed-stat"><span>Balance</span><span>${getStat('balance')}</span></div>
+                    <div class="detailed-stat"><span>Agility</span><span>${getStat('agility')}</span></div>
+                    <div class="detailed-stat"><span>Reactions</span><span>${getStat('reactions')}</span></div>
+                    <div class="detailed-stat"><span>Ball Control</span><span>${getStat('ball_control')}</span></div>
+                    <div class="detailed-stat"><span>Marking</span><span>${getStat('marking')}</span></div>
+                    <div class="detailed-stat"><span>Standing Tackle</span><span>${getStat('standing_tackle')}</span></div>
+                    <div class="detailed-stat"><span>Sliding Tackle</span><span>${getStat('sliding_tackle')}</span></div>
+                    <div class="detailed-stat"><span>Awareness</span><span>${getStat('awareness')}</span></div>
+                    <div class="detailed-stat"><span>Heading</span><span>${getStat('heading')}</span></div>
+                    <div class="detailed-stat"><span>Strength</span><span>${getStat('strength')}</span></div>
+                    <div class="detailed-stat"><span>Aggression</span><span>${getStat('aggression')}</span></div>
+                    <div class="detailed-stat"><span>Jumping</span><span>${getStat('jumping')}</span></div>
+                    <div class="detailed-stat"><span>Stamina</span><span>${getStat('stamina_stat')}</span></div>
                 </div>
             </div>
         `;
@@ -368,11 +363,11 @@ function renderPlayerDetail(player) {
                         </div>
                         <div class="info-item">
                             <span class="info-label">Skill Moves</span>
-                            <span class="info-value skill-stars">${'★'.repeat(Math.max(0, Math.min(5, Number(player.skill_moves_stars ?? player.skill_moves ?? 0))))}${'☆'.repeat(5 - Math.max(0, Math.min(5, Number(player.skill_moves_stars ?? player.skill_moves ?? 0))))}</span>
+                            <span class="info-value skill-stars">${'★'.repeat(player.skill_moves || 0)}${'☆'.repeat(5 - (player.skill_moves || 0))}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Weak Foot</span>
-                            <span class="info-value skill-stars">${'★'.repeat(Math.max(0, Math.min(5, Number(player.weak_foot_stars ?? player.weak_foot ?? 0))))}${'☆'.repeat(5 - Math.max(0, Math.min(5, Number(player.weak_foot_stars ?? player.weak_foot ?? 0))))}</span>
+                            <span class="info-value skill-stars">${'★'.repeat(player.weak_foot || 0)}${'☆'.repeat(5 - (player.weak_foot || 0))}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Price</span>
@@ -491,7 +486,8 @@ const state = {
         position: '',
         ratingMin: 40,
         ratingMax: 150,
-        // priceMin and priceMax removed
+        priceMin: null,
+        priceMax: null,
         league: '',
         club: '',
         nation: '',
@@ -2968,15 +2964,10 @@ function toggleMobileFilters() {
 
 function applyMobileFilters() {
   const position = document.getElementById('mobile-filter-position').value;
-  let ratingMin = parseInt(document.getElementById('mobile-rating-min').value) || 40;
-  let ratingMax = parseInt(document.getElementById('mobile-rating-max').value) || 150;
-  
-  // Validate OVR range (40-150)
-  ratingMin = Math.max(40, Math.min(150, ratingMin));
-  ratingMax = Math.max(40, Math.min(150, ratingMax));
-  if (ratingMin > ratingMax) ratingMin = ratingMax;
-  
-  // Price filters removed
+  const ratingMin = document.getElementById('mobile-rating-min').value;
+  const ratingMax = document.getElementById('mobile-rating-max').value;
+  const priceMin = document.getElementById('mobile-price-min').value;
+  const priceMax = document.getElementById('mobile-price-max').value;
   const league = document.getElementById('mobile-filter-league').value;
   const nation = document.getElementById('mobile-filter-nation').value;
   const skill = document.getElementById('mobile-filter-skill').value;
@@ -2989,7 +2980,10 @@ function applyMobileFilters() {
     document.getElementById('rating-min').value = ratingMin;
   if (document.getElementById('rating-max'))
     document.getElementById('rating-max').value = ratingMax;
-  // Price sync removed
+  if (document.getElementById('price-min'))
+    document.getElementById('price-min').value = priceMin;
+  if (document.getElementById('price-max'))
+    document.getElementById('price-max').value = priceMax;
   if (document.getElementById('filter-league'))
     document.getElementById('filter-league').value = league;
   if (document.getElementById('filter-nation'))
@@ -3019,7 +3013,10 @@ function clearMobileFilters() {
     document.getElementById('mobile-rating-min').value = 40;
   if (document.getElementById('mobile-rating-max'))
     document.getElementById('mobile-rating-max').value = 150;
-  // Price filters removed
+  if (document.getElementById('mobile-price-min'))
+    document.getElementById('mobile-price-min').value = '';
+  if (document.getElementById('mobile-price-max'))
+    document.getElementById('mobile-price-max').value = '';
   if (document.getElementById('mobile-filter-league'))
     document.getElementById('mobile-filter-league').value = '';
   if (document.getElementById('mobile-filter-nation'))
@@ -3039,7 +3036,10 @@ function clearMobileFilters() {
     document.getElementById('rating-min').value = 40;
   if (document.getElementById('rating-max'))
     document.getElementById('rating-max').value = 150;
-  // Price filters removed
+  if (document.getElementById('price-min'))
+    document.getElementById('price-min').value = '';
+  if (document.getElementById('price-max'))
+    document.getElementById('price-max').value = '';
   if (document.getElementById('filter-league'))
     document.getElementById('filter-league').value = '';
   if (document.getElementById('filter-nation'))
@@ -3065,7 +3065,8 @@ function updateFilterBadge() {
   const position = document.getElementById('mobile-filter-position')?.value || '';
   const ratingMin = document.getElementById('mobile-rating-min')?.value || 40;
   const ratingMax = document.getElementById('mobile-rating-max')?.value || 150;
-  // Price filters removed from badge check
+  const priceMin = document.getElementById('mobile-price-min')?.value || '';
+  const priceMax = document.getElementById('mobile-price-max')?.value || '';
   const league = document.getElementById('mobile-filter-league')?.value || '';
   const nation = document.getElementById('mobile-filter-nation')?.value || '';
   const skill = document.getElementById('mobile-filter-skill')?.value || '';
@@ -3073,66 +3074,14 @@ function updateFilterBadge() {
   const hasActiveFilters = position ||
     ratingMin != 40 ||
     ratingMax != 150 ||
+    priceMin ||
+    priceMax ||
     league ||
     nation ||
     skill;
 
   badge.style.display = hasActiveFilters ? 'block' : 'none';
 }
-
-// ========== OVR FILTER VALIDATION ==========
-// Ensures OVR stays within 40-150 range
-function validateOvrInput(inputElement) {
-  let value = parseInt(inputElement.value);
-  if (isNaN(value) || value < 40) {
-    inputElement.value = 40;
-  } else if (value > 150) {
-    inputElement.value = 150;
-  }
-}
-
-// Add event listeners for OVR validation when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-  // Desktop filters
-  const ratingMin = document.getElementById('rating-min');
-  const ratingMax = document.getElementById('rating-max');
-  
-  if (ratingMin) {
-    ratingMin.addEventListener('blur', function() { validateOvrInput(this); });
-    ratingMin.addEventListener('change', function() { validateOvrInput(this); });
-  }
-  if (ratingMax) {
-    ratingMax.addEventListener('blur', function() { validateOvrInput(this); });
-    ratingMax.addEventListener('change', function() { validateOvrInput(this); });
-  }
-  
-  // Mobile filters
-  const mobileRatingMin = document.getElementById('mobile-rating-min');
-  const mobileRatingMax = document.getElementById('mobile-rating-max');
-  
-  if (mobileRatingMin) {
-    mobileRatingMin.addEventListener('blur', function() { validateOvrInput(this); });
-    mobileRatingMin.addEventListener('change', function() { validateOvrInput(this); });
-  }
-  if (mobileRatingMax) {
-    mobileRatingMax.addEventListener('blur', function() { validateOvrInput(this); });
-    mobileRatingMax.addEventListener('change', function() { validateOvrInput(this); });
-  }
-  
-  // Watchlist filters
-  const watchlistRatingMin = document.getElementById('watchlist-rating-min');
-  const watchlistRatingMax = document.getElementById('watchlist-rating-max');
-  
-  if (watchlistRatingMin) {
-    watchlistRatingMin.addEventListener('blur', function() { validateOvrInput(this); });
-    watchlistRatingMin.addEventListener('change', function() { validateOvrInput(this); });
-  }
-  if (watchlistRatingMax) {
-    watchlistRatingMax.addEventListener('blur', function() { validateOvrInput(this); });
-    watchlistRatingMax.addEventListener('change', function() { validateOvrInput(this); });
-  }
-});
-
 
 function handleSearch(value) {
   state.searchQuery = value.toLowerCase();
@@ -3759,8 +3708,8 @@ if (document.getElementById('tools-sheet')) {
 // Extend state object with watchlist filters
 state.watchlistFilters = {
   position: '',
-  ratingMin: 0,
-  ratingMax: 999,
+  ratingMin: 40,
+  ratingMax: 150,
   priceMin: null,
   priceMax: null,
   league: '',
@@ -4360,7 +4309,7 @@ function updateWatchlistFilterChips() {
   if (state.watchlistFilters.position) {
     chips.push({ name: 'Position', value: state.watchlistFilters.position, type: 'position' });
   }
-  if (state.watchlistFilters.ratingMin !== 0 || state.watchlistFilters.ratingMax !== 999) {
+  if (state.watchlistFilters.ratingMin !== 40 || state.watchlistFilters.ratingMax !== 150) {
     chips.push({ name: 'Rating', value: `${state.watchlistFilters.ratingMin}-${state.watchlistFilters.ratingMax}`, type: 'rating' });
   }
   if (state.watchlistFilters.league) {
