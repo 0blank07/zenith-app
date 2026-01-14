@@ -5223,3 +5223,78 @@ body.stats-open #squad-builder-modal {
     font-size: 16px;
   }
 }
+
+/* ============ MOBILE RESPONSIVE SQUAD BUILDER ============ */
+@media (max-width: 768px) {
+  .squad-pitch {
+    width: 100% !important;
+    max-width: 400px !important;
+    aspect-ratio: 0.7 !important;
+    margin: 0 auto;
+  }
+  
+  .player-slot {
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 11px !important;
+  }
+  
+  .player-slot .player-name {
+    font-size: 9px !important;
+    max-width: 48px !important;
+  }
+  
+  .squad-builder-view {
+    padding: 10px !important;
+  }
+  
+  .player-slot,
+  .bench-player {
+    min-width: 52px;
+    min-height: 52px;
+    touch-action: none;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .squad-pitch {
+    max-width: 500px;
+  }
+}
+/* ============ MOBILE RESPONSIVE SQUAD BUILDER ============ */
+@media (max-width: 768px) {
+  .squad-pitch {
+    width: 100% !important;
+    max-width: 400px !important;
+    aspect-ratio: 0.7 !important;
+    margin: 0 auto;
+  }
+  
+  .player-slot {
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 11px !important;
+  }
+  
+  .player-slot .player-name {
+    font-size: 9px !important;
+    max-width: 48px !important;
+  }
+  
+  .squad-builder-view {
+    padding: 10px !important;
+  }
+  
+  .player-slot,
+  .bench-player {
+    min-width: 52px;
+    min-height: 52px;
+    touch-action: none;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .squad-pitch {
+    max-width: 500px;
+  }
+}

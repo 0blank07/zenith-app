@@ -3,3 +3,6 @@ index.html.temprary
 *.backup
 *.temprary
 app.js.backup.main
+*.backup.1
+app.js.previous
+app.js.backup.halfskills

@@ -3,6 +3,23 @@
 
 // ========== VIEW PLAYER DETAIL ==========
 // ========== VIEW PLAYER DETAIL (FULL DETAILS) ==========
+// ==================== USER SESSION ====================
+// Simple user ID system (use real auth in production)
+function getUserId() {
+  let userId = localStorage.getItem('zenith_user_id');
+  if (!userId) {
+    // Generate numeric user ID from timestamp
+    userId = Date.now().toString();
+    localStorage.setItem('zenith_user_id', userId);
+    console.log('[USER] Generated new user ID:', userId);
+  }
+  return parseInt(userId);  // Return as integer
+}
+
+const CURRENT_USER_ID = getUserId();
+console.log('[USER] User ID:', CURRENT_USER_ID);
+
+
 async function viewPlayerDetail(playerId, fallbackPlayer = null) {
     try {
         // Switch view first
@@ -45,15 +62,14 @@ async function viewPlayerDetail(playerId, fallbackPlayer = null) {
 
         // 🔥 CALL BACKEND DETAIL ENDPOINT
         const resp = await window.apiClient.getPlayerDetails(playerId, lightweight?.rank ?? 0);
-        // api.py returns { player: { ...all columns... }, skills: [...], available_skill_points: n }
-        const fullPlayer = resp.player || resp;
+        const fullPlayer = resp.player;
 
-        console.log('[DETAIL] Full player from API:', fullPlayer);
-
-        // Merge lightweight fields (like price from Supabase) if needed
+        // ✅ Merge skills data from response root level
         const mergedPlayer = {
-            ...(lightweight || {}),
-            ...(fullPlayer || {})
+          ...lightweight,
+          ...fullPlayer,
+          skills: resp.skills,  // ← Add this
+          available_skill_points: resp.available_skill_points  // ← Add this
         };
 
         // Save to state for debugging / re-render
@@ -88,18 +104,35 @@ async function viewPlayerDetail(playerId, fallbackPlayer = null) {
 
 // ========== ANIMATED RANK ICON SYSTEM ==========
 const RANK_CONFIG = {
-    frameCount: 30,  // Number of frames in sprite sheet
-    fps: 36,         // Frames per second for animation
-    frameWidth: 64,  // Width of each frame (adjust based on your sprite)
-    frameHeight: 64, // Height of each frame
+    frameCount: 36,     // ✅ 36 frames total
+    fps: 36,            // 36 FPS
+    frameWidth: 32,     // ✅ 192px ÷ 6 = 32px per frame
+    frameHeight: 32,    // ✅ 192px ÷ 6 = 32px per frame
+    columns: 6,         // ✅ 6 columns per row
+    rows: 6,            // ✅ 6 rows total
     ranks: {
         1: 'assets/images/ranks/green_rank.png',
         2: 'assets/images/ranks/blue_rank.png',
         3: 'assets/images/ranks/purple_rank.png',
         4: 'assets/images/ranks/gold_rank.png',
         5: 'assets/images/ranks/red_rank.png'
+    },
+    skillPoints: {
+        0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5
+    },
+    rankNames: {
+        0: 'Base', 1: 'Green', 2: 'Blue', 3: 'Purple', 4: 'Gold', 5: 'Red'
+    },
+    rankColors: {
+        0: '#98A0A6', 1: '#3BD671', 2: '#6366F1', 3: '#8B5CF6', 4: '#FFB86B', 5: '#FF6B6B'
     }
 };
+
+// Helper to convert hex color to rgba
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? `${parseInt(result[1], 16)},${parseInt(result[2], 16)},${parseInt(result[3], 16)}` : '255,255,255';
+}
 
 // Store active animations for cleanup
 const activeRankAnimations = new Map();
@@ -135,9 +168,30 @@ function startRankAnimation(element) {
     const rank = element.dataset.rank;
     if (!rank) return;
 
+    // ✅ ROBUST: Get ACTUAL rendered size multiple ways
+    const computedStyle = window.getComputedStyle(element);
+    const actualWidth = parseFloat(computedStyle.width);
+    const actualHeight = parseFloat(computedStyle.height);
+    
+    // Use actual rendered size, fallback to dataset, then default
+    const iconSize = Math.round(actualWidth || parseInt(element.dataset.iconSize) || 70);
+    
+    console.log(`[RANK ANIMATION] Element size: ${actualWidth}px, Using: ${iconSize}px`); // Debug log
+    
+    const scaleFactor = iconSize / RANK_CONFIG.frameWidth;
+    
+    const scaledFrameWidth = RANK_CONFIG.frameWidth * scaleFactor;
+    const scaledFrameHeight = RANK_CONFIG.frameHeight * scaleFactor;
+    
+    // ✅ Update background-size to match actual icon size
+    const spriteSheetSize = Math.round(192 * scaleFactor);
+    element.style.backgroundSize = `${spriteSheetSize}px ${spriteSheetSize}px`;
+    
+    console.log(`[RANK ANIMATION] Background size set to: ${spriteSheetSize}px`); // Debug log
+    
     let currentFrame = 0;
-    const frameWidth = parseInt(element.style.width) || RANK_CONFIG.frameWidth;
-    const interval = 1000 / RANK_CONFIG.fps; // ~27.78ms for 36fps
+    const columns = RANK_CONFIG.columns; // 6
+    const interval = 1000 / RANK_CONFIG.fps; // ~27.78ms
 
     // Clear any existing animation
     if (activeRankAnimations.has(element.id)) {
@@ -145,12 +199,25 @@ function startRankAnimation(element) {
     }
 
     const animationId = setInterval(() => {
-        currentFrame = (currentFrame + 1) % RANK_CONFIG.frameCount;
-        element.style.backgroundPosition = `-${currentFrame * frameWidth}px 0`;
+        currentFrame = (currentFrame + 1) % RANK_CONFIG.frameCount; // 0-35
+        
+        // Calculate 6x6 grid position
+        const col = currentFrame % columns;  // 0-5
+        const row = Math.floor(currentFrame / columns); // 0-5
+        
+        // Calculate exact position with scaling
+        const xOffset = -(col * scaledFrameWidth);
+        const yOffset = -(row * scaledFrameHeight);
+        
+        element.style.backgroundPosition = `${xOffset}px ${yOffset}px`;
     }, interval);
 
     activeRankAnimations.set(element.id, animationId);
 }
+
+
+
+
 
 function stopRankAnimation(elementId) {
     if (activeRankAnimations.has(elementId)) {
@@ -163,7 +230,13 @@ function initAllRankAnimations() {
     document.querySelectorAll('.animated-rank-icon').forEach(el => {
         startRankAnimation(el);
     });
+    
+    // Also initialize rank selector animations specifically
+    document.querySelectorAll('.rank-selector-icon').forEach(el => {
+        startRankAnimation(el);
+    });
 }
+
 
 function cleanupRankAnimations() {
     activeRankAnimations.forEach((intervalId, elementId) => {
@@ -218,8 +291,8 @@ function renderPlayerDetail(player) {
     const nationField = player.nation_region || player.nation || '';
     const flagUrl = typeof getCountryFlagUrl === 'function' ? getCountryFlagUrl(nationField) : '';
 
-    const rankIconHtml = player.rank ? createAnimatedRankIcon(player.rank, 56) : '';
-    const trainingHtml = buildTrainingSection(player);
+    const rankIconHtml = '';  // Disable blinking rank icon
+
 
     // Check if player is a goalkeeper
     const isGoalkeeper = player.position === 'GK';
@@ -240,141 +313,288 @@ function renderPlayerDetail(player) {
         return 0;
     };
 
+    // Helper to get stat with training boost applied
+    const getStatWithBoost = (player, boosts, ...names) => {
+        // Get base stat value
+        let baseStat = getStat(player, ...names);
+        
+        // If no boosts, return base
+        if (!boosts) return baseStat;
+        
+        // Try to find matching boost for this stat
+        for (const name of names) {
+            const normalizedName = name.toLowerCase().replace(/_/g, '');
+            
+            // Check if boost exists for this stat
+            for (const boostKey in boosts) {
+                const normalizedBoostKey = boostKey.toLowerCase().replace(/_/g, '');
+                
+                if (normalizedBoostKey === normalizedName) {
+                    const boost = parseInt(boosts[boostKey]) || 0;
+                    console.log(`[TRAINING] Applying boost to ${name}: ${baseStat} + ${boost} = ${baseStat + boost}`);
+                    return baseStat + boost;
+                }
+            }
+        }
+        
+        return baseStat;
+    };
+
+    // ========== WEIGHTED MAIN CATEGORY CALCULATIONS ==========
+    const roundHalfUp = (val) => Math.floor(val + 0.5);
+
+    const calculatePaceWithBoosts = (player, boosts) => {
+        const acceleration = getStatWithBoost(player, boosts, 'acceleration');
+        const sprint_speed = getStatWithBoost(player, boosts, 'sprint_speed');
+        const val = (
+            0.49299585008602 * acceleration +
+            0.50528383239125 * sprint_speed +
+            -0.13701200270336
+        );
+        return roundHalfUp(val);
+    };
+
+    const calculateShootingWithBoosts = (player, boosts) => {
+        const finishing = getStatWithBoost(player, boosts, 'finishing');
+        const long_shot = getStatWithBoost(player, boosts, 'long_shot', 'longshots');
+        const shot_power = getStatWithBoost(player, boosts, 'shot_power');
+        const positioning = getStatWithBoost(player, boosts, 'positioning');
+        const volley = getStatWithBoost(player, boosts, 'volley', 'volleys');
+        const penalties = getStatWithBoost(player, boosts, 'penalties');
+        const val = (
+            0.35066661652365 * finishing +
+            0.20012280256486 * long_shot +
+            0.19946956407192 * shot_power +
+            0.15019769557113 * positioning +
+            0.04977322484935 * volley +
+            0.04962618730771 * penalties +
+            -0.46621901229077
+        );
+        return roundHalfUp(val);
+    };
+
+    const calculatePassingWithBoosts = (player, boosts) => {
+        const short_passing = getStatWithBoost(player, boosts, 'short_passing');
+        const long_passing = getStatWithBoost(player, boosts, 'long_passing');
+        const vision = getStatWithBoost(player, boosts, 'vision');
+        const crossing = getStatWithBoost(player, boosts, 'crossing');
+        const curve = getStatWithBoost(player, boosts, 'curve');
+        const free_kick = getStatWithBoost(player, boosts, 'free_kick', 'fk_accuracy');
+        const val = (
+            0.30073301682698 * short_passing +
+            0.19979430277541 * long_passing +
+            0.24897437527999 * vision +
+            0.15031023108744 * crossing +
+            0.05004649307871 * curve +
+            0.05012756181062 * free_kick +
+            -0.48084074176376
+        );
+        return roundHalfUp(val);
+    };
+
+    const calculateDribblingWithBoosts = (player, boosts) => {
+        const dribbling = getStatWithBoost(player, boosts, 'dribbling');
+        const balance = getStatWithBoost(player, boosts, 'balance');
+        const agility = getStatWithBoost(player, boosts, 'agility');
+        const reactions = getStatWithBoost(player, boosts, 'reactions');
+        const ball_control = getStatWithBoost(player, boosts, 'ball_control');
+        const val = (
+            0.25044329239850 * dribbling +
+            0.10001066600723 * balance +
+            0.25025392646353 * agility +
+            0.15074674532686 * reactions +
+            0.24872793523704 * ball_control +
+            -0.48832284057254
+        );
+        return roundHalfUp(val);
+    };
+
+    const calculateDefendingWithBoosts = (player, boosts) => {
+        const marking = getStatWithBoost(player, boosts, 'marking');
+        const standing_tackle = getStatWithBoost(player, boosts, 'standing_tackle');
+        const sliding_tackle = getStatWithBoost(player, boosts, 'sliding_tackle');
+        const awareness = getStatWithBoost(player, boosts, 'awareness', 'interceptions');
+        const heading = getStatWithBoost(player, boosts, 'heading');
+        const val = (
+            0.25029448767320 * marking +
+            0.20107682619015 * standing_tackle +
+            0.19924427638513 * sliding_tackle +
+            0.19952899013166 * awareness +
+            0.15010172584902 * heading +
+            -0.49709228500345
+        );
+        return roundHalfUp(val);
+    };
+
+    const calculatePhysicalWithBoosts = (player, boosts) => {
+        const strength = getStatWithBoost(player, boosts, 'strength');
+        const aggression = getStatWithBoost(player, boosts, 'aggression');
+        const jumping = getStatWithBoost(player, boosts, 'jumping');
+        const stamina = getStatWithBoost(player, boosts, 'stamina_stat', 'stamina');
+        const val = (
+            0.44955969076149 * strength +
+            0.29976663944687 * aggression +
+            0.25058507302003 * jumping +
+            0.00061181921524 * stamina +
+            -0.50936016832054
+        );
+        return roundHalfUp(val);
+    };
+
+    const calculateGKPhysicalWithBoosts = (player, boosts) => {
+        const reactions = getStatWithBoost(player, boosts, 'reactions');
+        const agility = getStatWithBoost(player, boosts, 'agility');
+        const sprint_speed = getStatWithBoost(player, boosts, 'sprint_speed');
+        const strength = getStatWithBoost(player, boosts, 'strength');
+        const val = (
+            0.64960512284621 * reactions +
+            0.15093757174982 * agility +
+            0.09981357061375 * sprint_speed +
+            0.09995255942967 * strength +
+            -0.48764601442207
+        );
+        return roundHalfUp(val);
+    };
+
+
+
     // ---- build stat categories based on position ----
     let statCategories;
-    
     if (isGoalkeeper) {
         // GK-specific stat categories
         statCategories = [
             {
                 name: 'Diving',
                 key: 'diving',
-                mainValue: getStat(player, 'diving'),
+                mainValue: getStatWithBoost(player, player.training_boosts, 'diving'),  // Direct stat
                 substats: [
-                    { label: 'GK Diving', value: getStat(player, 'gk_diving', 'diving') }
+                    { label: 'GK Diving', value: getStatWithBoost(player, player.training_boosts, 'gk_diving', 'diving') }
                 ]
             },
             {
                 name: 'Positioning',
                 key: 'gk_positioning',
-                mainValue: getStat(player, 'gk_positioning', 'positioning'),
+                mainValue: getStatWithBoost(player, player.training_boosts, 'gk_positioning', 'positioning'),  // Direct stat
                 substats: [
-                    { label: 'GK Positioning', value: getStat(player, 'gk_positioning', 'positioning') }
+                    { label: 'GK Positioning', value: getStatWithBoost(player, player.training_boosts, 'gk_positioning', 'positioning') }
                 ]
             },
             {
                 name: 'Handling',
                 key: 'handling',
-                mainValue: getStat(player, 'handling'),
+                mainValue: getStatWithBoost(player, player.training_boosts, 'handling'),  // Direct stat
                 substats: [
-                    { label: 'GK Handling', value: getStat(player, 'gk_handling', 'handling') }
+                    { label: 'GK Handling', value: getStatWithBoost(player, player.training_boosts, 'gk_handling', 'handling') }
                 ]
             },
             {
                 name: 'Reflexes',
                 key: 'reflexes',
-                mainValue: getStat(player, 'reflexes'),
+                mainValue: getStatWithBoost(player, player.training_boosts, 'reflexes'),  // Direct stat
                 substats: [
-                    { label: 'GK Reflexes', value: getStat(player, 'gk_reflexes', 'reflexes') },
-                    { label: 'Jumping', value: getStat(player, 'jumping') }
+                    { label: 'GK Reflexes', value: getStatWithBoost(player, player.training_boosts, 'gk_reflexes', 'reflexes') },
+                    { label: 'Jumping', value: getStatWithBoost(player, player.training_boosts, 'jumping') }
                 ]
             },
             {
                 name: 'Kicking',
                 key: 'kicking',
-                mainValue: getStat(player, 'kicking'),
+                mainValue: getStatWithBoost(player, player.training_boosts, 'kicking'),  // Direct stat
                 substats: [
-                    { label: 'GK Kicking', value: getStat(player, 'gk_kicking', 'kicking') },
-                    { label: 'Long Passing', value: getStat(player, 'long_passing') }
+                    { label: 'GK Kicking', value: getStatWithBoost(player, player.training_boosts, 'gk_kicking', 'kicking') },
+                    { label: 'Long Passing', value: getStatWithBoost(player, player.training_boosts, 'long_passing') }
                 ]
             },
             {
                 name: 'Physical',
                 key: 'physical',
-                mainValue: getStat(player, 'physical'),
+                mainValue: calculateGKPhysicalWithBoosts(player, player.training_boosts),  // ✅ Weighted formula
                 substats: [
-                    { label: 'Reactions', value: getStat(player, 'reactions') },
-                    { label: 'Agility', value: getStat(player, 'agility') },
-                    { label: 'Sprint Speed', value: getStat(player, 'sprint_speed') },
-                    { label: 'Strength', value: getStat(player, 'strength') }
+                    { label: 'Reactions', value: getStatWithBoost(player, player.training_boosts, 'reactions') },
+                    { label: 'Agility', value: getStatWithBoost(player, player.training_boosts, 'agility') },
+                    { label: 'Sprint Speed', value: getStatWithBoost(player, player.training_boosts, 'sprint_speed') },
+                    { label: 'Strength', value: getStatWithBoost(player, player.training_boosts, 'strength') }
                 ]
             }
         ];
-    } else {
-        // Outfield player stat categories
+    
+   } else {
+        // Outfield player stat categories - WEIGHTED CALCULATIONS
         statCategories = [
             {
                 name: 'Pace',
                 key: 'pace',
-                mainValue: getStat(player, 'pace'),
+                mainValue: calculatePaceWithBoosts(player, player.training_boosts),  // ✅ CORRECT
                 substats: [
-                    { label: 'Acceleration', value: getStat(player, 'acceleration') },
-                    { label: 'Sprint Speed', value: getStat(player, 'sprint_speed') }
+                    { label: 'Acceleration', value: getStatWithBoost(player, player.training_boosts, 'acceleration') },
+                    { label: 'Sprint Speed', value: getStatWithBoost(player, player.training_boosts, 'sprint_speed') }
                 ]
             },
             {
                 name: 'Shooting',
                 key: 'shooting',
-                mainValue: getStat(player, 'shooting'),
+                mainValue: calculateShootingWithBoosts(player, player.training_boosts),  // ✅ CORRECT
                 substats: [
-                    { label: 'Finishing', value: getStat(player, 'finishing') },
-                    { label: 'Long Shot', value: getStat(player, 'long_shot', 'long_shots') },
-                    { label: 'Shot Power', value: getStat(player, 'shot_power') },
-                    { label: 'Positioning', value: getStat(player, 'positioning') },
-                    { label: 'Volley', value: getStat(player, 'volley', 'volleys') },
-                    { label: 'Penalties', value: getStat(player, 'penalties') }
+                    { label: 'Finishing', value: getStatWithBoost(player, player.training_boosts, 'finishing') },
+                    { label: 'Long Shot', value: getStatWithBoost(player, player.training_boosts, 'long_shot', 'long_shots') },
+                    { label: 'Shot Power', value: getStatWithBoost(player, player.training_boosts, 'shot_power') },
+                    { label: 'Positioning', value: getStatWithBoost(player, player.training_boosts, 'positioning') },
+                    { label: 'Volley', value: getStatWithBoost(player, player.training_boosts, 'volley', 'volleys') },
+                    { label: 'Penalties', value: getStatWithBoost(player, player.training_boosts, 'penalties') }
                 ]
             },
             {
                 name: 'Passing',
                 key: 'passing',
-                mainValue: getStat(player, 'passing'),
+                mainValue: calculatePassingWithBoosts(player, player.training_boosts),  // ✅ CORRECT
                 substats: [
-                    { label: 'Short Passing', value: getStat(player, 'short_passing') },
-                    { label: 'Long Passing', value: getStat(player, 'long_passing') },
-                    { label: 'Vision', value: getStat(player, 'vision') },
-                    { label: 'Crossing', value: getStat(player, 'crossing') },
-                    { label: 'Curve', value: getStat(player, 'curve') },
-                    { label: 'Free Kick', value: getStat(player, 'free_kick', 'fk_accuracy') }
+                    { label: 'Short Passing', value: getStatWithBoost(player, player.training_boosts, 'short_passing') },
+                    { label: 'Long Passing', value: getStatWithBoost(player, player.training_boosts, 'long_passing') },
+                    { label: 'Vision', value: getStatWithBoost(player, player.training_boosts, 'vision') },
+                    { label: 'Crossing', value: getStatWithBoost(player, player.training_boosts, 'crossing') },
+                    { label: 'Curve', value: getStatWithBoost(player, player.training_boosts, 'curve') },
+                    { label: 'Free Kick', value: getStatWithBoost(player, player.training_boosts, 'free_kick', 'fk_accuracy') }
                 ]
             },
             {
                 name: 'Dribbling',
                 key: 'dribbling',
-                mainValue: getStat(player, 'dribbling_head', 'dribbling'),
+                mainValue: calculateDribblingWithBoosts(player, player.training_boosts),  // ✅ CORRECT
                 substats: [
-                    { label: 'Dribbling', value: getStat(player, 'dribbling_head', 'dribbling') },
-                    { label: 'Balance', value: getStat(player, 'balance') },
-                    { label: 'Agility', value: getStat(player, 'agility') },
-                    { label: 'Reactions', value: getStat(player, 'reactions') },
-                    { label: 'Ball Control', value: getStat(player, 'ball_control') }
+                    { label: 'Dribbling', value: getStatWithBoost(player, player.training_boosts, 'dribbling') },
+                    { label: 'Balance', value: getStatWithBoost(player, player.training_boosts, 'balance') },
+                    { label: 'Agility', value: getStatWithBoost(player, player.training_boosts, 'agility') },
+                    { label: 'Reactions', value: getStatWithBoost(player, player.training_boosts, 'reactions') },
+                    { label: 'Ball Control', value: getStatWithBoost(player, player.training_boosts, 'ball_control') }
                 ]
             },
             {
                 name: 'Defending',
                 key: 'defending',
-                mainValue: getStat(player, 'defending'),
+                mainValue: calculateDefendingWithBoosts(player, player.training_boosts),  // ✅ CORRECT
                 substats: [
-                    { label: 'Marking', value: getStat(player, 'marking') },
-                    { label: 'Standing Tackle', value: getStat(player, 'standing_tackle') },
-                    { label: 'Sliding Tackle', value: getStat(player, 'sliding_tackle') },
-                    { label: 'Awareness', value: getStat(player, 'awareness', 'interceptions') },
-                    { label: 'Heading', value: getStat(player, 'heading') }
+                    { label: 'Marking', value: getStatWithBoost(player, player.training_boosts, 'marking') },
+                    { label: 'Standing Tackle', value: getStatWithBoost(player, player.training_boosts, 'standing_tackle') },
+                    { label: 'Sliding Tackle', value: getStatWithBoost(player, player.training_boosts, 'sliding_tackle') },
+                    { label: 'Awareness', value: getStatWithBoost(player, player.training_boosts, 'awareness', 'interceptions') },
+                    { label: 'Heading', value: getStatWithBoost(player, player.training_boosts, 'heading') }
                 ]
             },
             {
                 name: 'Physical',
                 key: 'physical',
-                mainValue: getStat(player, 'physical'),
+                mainValue: calculatePhysicalWithBoosts(player, player.training_boosts),  // ✅ CORRECT
                 substats: [
-                    { label: 'Strength', value: getStat(player, 'strength') },
-                    { label: 'Aggression', value: getStat(player, 'aggression') },
-                    { label: 'Jumping', value: getStat(player, 'jumping') },
-                    { label: 'Stamina', value: getStat(player, 'stamina_stat', 'stamina') }
+                    { label: 'Strength', value: getStatWithBoost(player, player.training_boosts, 'strength') },
+                    { label: 'Aggression', value: getStatWithBoost(player, player.training_boosts, 'aggression') },
+                    { label: 'Jumping', value: getStatWithBoost(player, player.training_boosts, 'jumping') },
+                    { label: 'Stamina', value: getStatWithBoost(player, player.training_boosts, 'stamina_stat', 'stamina') }
                 ]
             }
         ];
     }
+
+
 
     // ---- major stat color ranking (top3 green, next2 orange, last red) ----
     const sorted = [...statCategories]
@@ -445,11 +665,7 @@ function renderPlayerDetail(player) {
                             position: relative;
                             overflow: hidden;
                         ">
-                            ${rankIconHtml ? `
-                                <div style="position: absolute; top: 20px; right: 20px; z-index: 10;">
-                                    ${rankIconHtml}
-                                </div>
-                            ` : ''}
+                       
 
                             <div style="
                                 width: 260px;
@@ -484,8 +700,14 @@ function renderPlayerDetail(player) {
                                     box-shadow: 0 4px 16px rgba(0,194,168,0.5);
                                     font-family: var(--font-family-base);
                                 ">
-                                    <div style="font-size: 32px; font-weight: 900; line-height: 1;">${player.ovr || 'N/A'}</div>
-                                    <div style="font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase;">OVR</div>
+                                    <div style="font-size: 32px; font-weight: 900; line-height: 1;">
+                                        ${player.ovr || 'N/A'}
+                                        ${player.training_level > 0 ? `<span style="font-size: 14px; color: #00C2A8; margin-left: 4px;">+${player.training_level}</span>` : ''}
+                                    </div>
+                                    <div style="font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase;">
+                                        OVR${player.training_level > 0 ? ' (Trained)' : ''}
+                                    </div>
+
                                 </div>
                                 <div style="
                                     position: absolute;
@@ -664,25 +886,34 @@ function renderPlayerDetail(player) {
 
                     <!-- RIGHT: Rank / Training area -->
                     <div>
-                        ${trainingHtml}
-                        <div style="
-                            background: var(--color-graphite-800, #14181C);
-                            border: 1px solid rgba(255,255,255,0.08);
-                            border-radius: var(--radius-lg, 12px);
-                            padding: 28px;
-                            margin-top: 20px;
-                            text-align: center;
-                        ">
-                            <p style="
-                                color: var(--color-text-muted, #98A0A6);
-                                font-size: 14px;
-                                font-family: var(--font-family-base);
-                                margin: 0;
-                            ">Rank selection & more features coming here</p>
-                        </div>
+                        ${buildRankSelectionSection(player)}
                     </div>
+
                 </div>
             </div>
+            <!-- ⚡ SKILLS SECTION -->
+            <div class="player-skills-section">
+              <div class="skills-header">
+                <h3>⚡ Skills & Abilities</h3>
+                <button class="reset-skills-btn" onclick="resetPlayerSkills(${player.player_id}, ${player.rank || 0})">
+                  🔄 Reset Skills
+                </button>
+              </div>
+              
+              <!-- Skills Grid -->
+              <div class="skills-grid" id="player-skills-grid">
+                <!-- Skill cards rendered by JavaScript -->
+              </div>
+              
+              <!-- Skill Details Modal (for viewing stat boosts) -->
+              <div class="skill-detail-modal" id="skill-detail-modal" style="display: none;">
+                <div class="skill-modal-content">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+            </div>
+
+
 
             <!-- Bottom Section: Stats Table -->
             <div style="
@@ -983,13 +1214,542 @@ function renderPlayerDetail(player) {
                     font-size: 22px !important;
                 }
             }
+
+            /* Tablet (768px - 1020px) */
+            @media (max-width: 1020px) {
+                .rank-cards-grid {
+                    gap: 16px !important; /* ✅ Keep good spacing */
+                    max-width: 550px !important;
+                }
+                
+                .rank-card {
+                    min-width: 75px !important; /* ✅ Smaller card */
+                    min-height: 100px !important;
+                    padding: 14px 10px !important;
+                    gap: 8px !important;
+                }
+                
+                .rank-selector-icon {
+                    width: 56px !important; /* ✅ Smaller icon */
+                    height: 56px !important;
+                    background-repeat: no-repeat !important;
+                    image-rendering: pixelated !important;
+                }
+                
+                .rank-selector-icon[data-icon-size] {
+                    background-size: 336px 336px !important; /* 56/32 * 192 */
+                }
+                
+                .rank-card div:first-child {
+                    font-size: 14px !important;
+                }
+            }
+
+            /* Mobile (480px - 768px) */
+            @media (max-width: 768px) {
+                .rank-cards-grid {
+                    gap: 14px !important; /* ✅ Maintain good spacing */
+                    max-width: 100% !important;
+                    padding: 0 10px !important;
+                }
+                
+                .rank-card {
+                    min-width: 60px !important; /* ✅ Even smaller card */
+                    min-height: 85px !important;
+                    padding: 12px 8px !important;
+                    gap: 6px !important;
+                }
+                
+                .rank-selector-icon {
+                    width: 48px !important; /* ✅ Smaller icon */
+                    height: 48px !important;
+                    background-repeat: no-repeat !important;
+                    image-rendering: pixelated !important;
+                }
+                
+                .rank-selector-icon[data-icon-size] {
+                    background-size: 288px 288px !important; /* 48/32 * 192 */
+                }
+                
+                .rank-card div:first-child {
+                    font-size: 13px !important;
+                }
+            }
+
+            /* Small Mobile (< 480px) */
+            @media (max-width: 480px) {
+                .rank-cards-grid {
+                    gap: 12px !important; /* ✅ Still good spacing */
+                    padding: 0 8px !important;
+                }
+                
+                .rank-card {
+                    min-width: 50px !important; /* ✅ Compact card */
+                    min-height: 72px !important;
+                    padding: 10px 6px !important;
+                    gap: 4px !important;
+                }
+                
+                .rank-selector-icon {
+                    width: 40px !important; /* ✅ Compact icon */
+                    height: 40px !important;
+                    background-repeat: no-repeat !important;
+                    image-rendering: pixelated !important;
+                }
+                
+                .rank-selector-icon[data-icon-size] {
+                    background-size: 240px 240px !important; /* 40/32 * 192 */
+                }
+                
+                .rank-card div:first-child {
+                    font-size: 12px !important;
+                }
+            }
+
+            /* Extra Small Mobile (< 360px) */
+            @media (max-width: 360px) {
+                .rank-cards-grid {
+                    gap: 12px !important; /* ✅ Minimum breathing room */
+                    padding: 0 6px !important;
+                }
+                
+                .rank-card {
+                    min-width: 42px !important; /* ✅ Very compact */
+                    min-height: 65px !important;
+                    padding: 8px 4px !important;
+                    gap: 5px !important;
+                }
+                
+                .rank-selector-icon {
+                    width: 36px !important; /* ✅ Tiny icon */
+                    height: 36px !important;
+                    background-repeat: no-repeat !important;
+                    image-rendering: pixelated !important;
+                }
+                
+                .rank-selector-icon[data-icon-size] {
+                    background-size: 216px 216px !important; /* 36/32 * 192 */
+                }
+                
+                .rank-card div:first-child {
+                    font-size: 11px !important;
+                }
+            }
+
+            /* Training Dropdown Styles */
+            select#training-level-${player.player_id}:hover {
+                border-color: var(--color-teal-500, #00C2A8) !important;
+            }
+
+            select option {
+                background: var(--color-graphite-900, #0E1114);
+                color: var(--color-text-primary, #E6EEF2);
+                padding: 12px;
+                font-weight: 600;
+            }
+
+            select option:checked {
+                background: var(--color-teal-500, #00C2A8);
+                color: var(--color-graphite-900, #0E1114);
+            }
+
+            /* Responsive Training Dropdown */
+            @media (max-width: 640px) {
+                select[id^="training-level"] {
+                    font-size: 13px !important;
+                    padding: 10px 14px !important;
+                }
+            }
+
         </style>
     `;
 
     setTimeout(() => {
+        renderPlayerSkills(player);
         initAllRankAnimations();
     }, 100);
 }
+
+// Add this function after renderPlayerDetail()
+// ==================== RENDER PLAYER SKILLS ====================
+// ==================== CALCULATE MAX LEVELS ====================
+function calculateMaxLevels(skills) {
+  const maxLevels = {};
+  
+  // Default: all skills have max level 1
+  skills.forEach(skill => {
+    maxLevels[skill.skill_id] = 1;
+  });
+  
+  // Find skills that appear as prerequisites and update their max levels
+  skills.forEach(skill => {
+    if (skill.unlock_requirement_skillname && skill.unlock_requirement_level) {
+      // Find the skill_id of the prerequisite by matching name
+      const prereqSkill = skills.find(s => 
+        s.skill_name && skill.unlock_requirement_skillname &&
+        s.skill_name.toUpperCase() === skill.unlock_requirement_skillname.toUpperCase()
+      );
+      
+      if (prereqSkill) {
+        // Update max level to the highest requirement level seen
+        const currentMax = maxLevels[prereqSkill.skill_id] || 1;
+        const requiredLevel = skill.unlock_requirement_level || 1;
+        maxLevels[prereqSkill.skill_id] = Math.max(currentMax, requiredLevel);
+      }
+    }
+  });
+  
+  console.log('[SKILLS] Calculated max levels:', maxLevels);
+  return maxLevels;
+}
+
+
+// ==================== RENDER PLAYER SKILLS ====================
+async function renderPlayerSkills(player) {
+  console.log('[SKILLS] Rendering skills for player:', player.player_id, 'Rank:', player.rank);
+  
+  const skillsGrid = document.getElementById('player-skills-grid');
+  if (!skillsGrid) {
+    console.error('[SKILLS] Grid element not found');
+    return;
+  }
+
+  const skills = player.skills || [];
+  const availablePoints = player.available_skill_points || player.rank || 0;
+  const currentRank = player.rank || 0;
+
+  if (skills.length === 0) {
+    skillsGrid.innerHTML = '<p style="color: #98A0A6; text-align: center;">No skills available</p>';
+    return;
+  }
+
+  // Calculate max levels for each skill
+  const maxLevels = calculateMaxLevels(skills);
+
+  // Fetch user's current allocations
+  let userAllocations = [];
+  try {
+    const response = await window.apiClient.getUserSkillAllocations(
+      CURRENT_USER_ID, 
+      player.player_id, 
+      currentRank
+    );
+    userAllocations = response.allocations || [];
+    console.log('[SKILLS] User allocations:', userAllocations);
+  } catch (error) {
+    console.error('[SKILLS] Error fetching allocations:', error);
+  }
+
+  // Build a map of skill_id -> current level
+  const allocationMap = {};
+  userAllocations.forEach(a => {
+    allocationMap[a.skill_id] = a.skill_level;
+  });
+
+  // Calculate points spent
+  const pointsSpent = userAllocations.reduce((sum, a) => sum + a.skill_level, 0);
+  const pointsRemaining = availablePoints - pointsSpent;
+
+  console.log('[SKILLS] Points - Available:', availablePoints, 'Spent:', pointsSpent, 'Remaining:', pointsRemaining);
+
+  // Render skill cards
+  skillsGrid.innerHTML = '';
+  
+  skills.forEach(skill => {
+    const currentLevel = allocationMap[skill.skill_id] || 0;
+    const isUnlocked = checkIfSkillUnlocked(skill, allocationMap, skills);
+    
+    const card = createSkillCard(skill, currentLevel, isUnlocked, pointsRemaining, player, maxLevels);
+    skillsGrid.appendChild(card);
+  });
+}
+
+
+// ==================== CHECK IF SKILL UNLOCKED ====================
+function checkIfSkillUnlocked(skill, allocationMap, allSkills) {
+  // Check if skill has unlock requirements
+  const hasUnlockRequirement = skill.unlock_requirement_type && 
+                                skill.unlock_requirement_type === 'skill_level' &&
+                                skill.unlock_requirement_skillname && 
+                                skill.unlock_requirement_level;
+  
+  // If no unlock requirement, skill is unlocked
+  if (!hasUnlockRequirement) {
+    return true;
+  }
+  
+  const requiredSkillName = skill.unlock_requirement_skillname.toUpperCase();
+  const requiredLevel = skill.unlock_requirement_level;
+  
+  // Try using prerequisite_skill_id first (most reliable)
+  if (skill.prerequisite_skill_id && skill.prerequisite_skill_id !== 0) {
+    const prereqLevel = allocationMap[skill.prerequisite_skill_id] || 0;
+    return prereqLevel >= requiredLevel;
+  }
+  
+  // Fallback: Find by skill name
+  const prereqSkill = allSkills.find(s => 
+    s.skill_name && s.skill_name.toUpperCase() === requiredSkillName
+  );
+  
+  if (prereqSkill) {
+    const prereqLevel = allocationMap[prereqSkill.skill_id] || 0;
+    return prereqLevel >= requiredLevel;
+  }
+  
+  // Can't find prerequisite = assume locked
+  return false;
+}
+
+
+// ==================== CREATE SKILL CARD ====================
+// ==================== CREATE SKILL CARD (UPDATED) ====================
+function createSkillCard(skill, currentLevel, isUnlocked, pointsRemaining, player, maxLevels) {
+  const card = document.createElement('div');
+  card.className = `skill-card ${!isUnlocked ? 'locked' : ''}`;
+  
+  // Get max level from calculated map
+  const maxLevel = maxLevels[skill.skill_id] || 1;
+  
+  // ✅ Make entire card clickable to open modal
+  card.style.cursor = 'pointer';
+  card.addEventListener('click', (e) => {
+    // Don't trigger if clicking the upgrade button
+    if (!e.target.closest('.upgrade-btn')) {
+      openSkillDetailModal(skill.skill_id, skill.skill_name);
+    }
+  });
+  
+  card.innerHTML = `
+    <div class="skill-card-inner">
+      <!-- Skill Icon -->
+      <div class="skill-icon">
+        <img src="${skill.skill_image}" alt="${skill.skill_name}" 
+             onerror="this.src='https://via.placeholder.com/80?text=SKILL'">
+        ${!isUnlocked ? '<div class="lock-overlay">🔒</div>' : ''}
+      </div>
+      
+      <!-- Skill Name -->
+      <div class="skill-name">${skill.skill_name}</div>
+      
+      <!-- Current Level -->
+      <div class="skill-level">
+        Level: <span class="level-number">${currentLevel}</span>/${maxLevel}
+      </div>
+      
+      <!-- Unlock Requirement or Upgrade Button -->
+      ${!isUnlocked ? `
+        <div class="unlock-requirement">
+          <small>${skill.unlock_requirement_text || 'Locked'}</small>
+        </div>
+      ` : `
+        <div class="skill-actions">
+          ${currentLevel < maxLevel && pointsRemaining > 0 ? `
+            <button class="upgrade-btn" onclick="event.stopPropagation(); upgradeSkillLevel(${skill.skill_id}, ${currentLevel + 1}, ${player.player_id}, ${player.rank})">
+              ⬆️ Upgrade (+1 point)
+            </button>
+          ` : ''}
+          ${currentLevel >= maxLevel ? `
+            <div class="max-level-badge">MAX LEVEL</div>
+          ` : ''}
+          ${currentLevel < maxLevel && pointsRemaining === 0 ? `
+            <small style="color: #FF6B6B;">No points remaining</small>
+          ` : ''}
+        </div>
+      `}
+    </div>
+  `;
+  
+  return card;
+}
+
+
+
+// ==================== UPGRADE SKILL ====================
+window.upgradeSkillLevel = async function(skillId, newLevel, playerId, rank) {
+  console.log('[SKILLS] Upgrading skill:', skillId, 'to level', newLevel);
+  
+  try {
+    const result = await window.apiClient.upgradeSkill(
+      CURRENT_USER_ID,
+      playerId,
+      rank,
+      skillId,
+      newLevel
+    );
+    
+    console.log('[SKILLS] Upgrade success:', result);
+    
+    // Show success message
+    if (typeof showToast === 'function') {
+      showToast(`✅ Skill upgraded to Level ${newLevel}!`, 'success');
+    }
+    
+    // Re-fetch player data and re-render
+    if (state.selectedPlayer) {
+      const resp = await window.apiClient.getPlayerDetails(playerId, rank);
+      const updatedPlayer = {
+        ...state.selectedPlayer,
+        ...resp.player,
+        skills: resp.skills,
+        available_skill_points: resp.available_skill_points
+      };
+      
+      state.selectedPlayer = updatedPlayer;
+      
+      // Re-render skills section only
+      await renderPlayerSkills(updatedPlayer);
+      
+      // Optionally re-render entire detail view to show updated stats
+         await renderPlayerSkills(updatedPlayer);
+         renderPlayerDetail(updatedPlayer);
+         cleanupRankAnimations();
+    }
+    
+  } catch (error) {
+    console.error('[SKILLS] Upgrade error:', error);
+    if (typeof showToast === 'function') {
+      showToast(`❌ ${error.message}`, 'error');
+    } else {
+      alert(`Error: ${error.message}`);
+    }
+  }
+};
+
+// ==================== RESET SKILLS BUTTON ====================
+window.resetPlayerSkills = async function(playerId, rank) {
+  console.log('[SKILLS] Resetting all skills for player', playerId, 'at rank', rank);
+  
+  try {
+    // Call API to reset skills
+    const result = await window.apiClient.resetSkills(CURRENT_USER_ID, playerId, rank);
+    
+    console.log('[SKILLS] Reset successful:', result);
+    
+    // Show success message
+    if (typeof showToast === 'function') {
+      showToast(`✅ Skills reset! ${rank} points available`, 'success');
+    }
+    
+    // Re-fetch player data and re-render
+    if (state.selectedPlayer) {
+      const resp = await window.apiClient.getPlayerDetails(playerId, rank);
+      const updatedPlayer = {
+        ...state.selectedPlayer,
+        ...resp.player,
+        skills: resp.skills,
+        available_skill_points: resp.available_skill_points
+      };
+      
+      state.selectedPlayer = updatedPlayer;
+      
+      // Re-render skills section
+      await renderPlayerSkills(updatedPlayer);
+    }
+    
+  } catch (error) {
+    console.error('[SKILLS] Reset error:', error);
+    if (typeof showToast === 'function') {
+      showToast(`❌ Reset failed: ${error.message}`, 'error');
+    } else {
+      alert(`Error resetting skills: ${error.message}`);
+    }
+  }
+};
+
+
+
+// ==================== SKILL DETAIL MODAL ====================
+window.openSkillDetailModal = async function(skillId, skillName) {
+  console.log('[SKILLS] Opening modal for skill:', skillId);
+  
+  const modal = document.getElementById('skill-detail-modal');
+  if (!modal) {
+    console.error('[SKILLS] Modal element not found');
+    return;
+  }
+  
+  // Show loading state
+  modal.innerHTML = `
+    <div class="skill-modal-content">
+      <h3>Loading ${skillName}...</h3>
+    </div>
+  `;
+  modal.style.display = 'flex';
+  
+  try {
+    // Fetch skill boosts
+    const boostsData = await window.apiClient.getSkillBoosts(skillId);
+    const boosts = boostsData.boosts || [];
+    
+    // Render modal content
+    renderSkillDetailModal(skillName, boosts);
+    
+  } catch (error) {
+    console.error('[SKILLS] Error loading skill details:', error);
+    modal.innerHTML = `
+      <div class="skill-modal-content">
+        <h3>Error Loading Skill</h3>
+        <p style="color: #FF6B6B;">${error.message}</p>
+        <button onclick="closeSkillDetailModal()" style="margin-top: 15px; padding: 10px 20px; background: #00C2A8; border: none; border-radius: 8px; cursor: pointer;">Close</button>
+      </div>
+    `;
+  }
+};
+
+function renderSkillDetailModal(skillName, boosts) {
+  const modal = document.getElementById('skill-detail-modal');
+  
+  let boostsHTML = '';
+  
+  boosts.forEach(boost => {
+    boostsHTML += `
+      <div class="boost-level-section">
+        <h4>Level ${boost.level_number}</h4>
+        <div class="boost-stats">
+    `;
+    
+    // Show all non-zero boosts
+    for (const [key, value] of Object.entries(boost)) {
+      if (key.startsWith('boost_') && value && value !== 0) {
+        const statName = key.replace('boost_', '').replace(/_/g, ' ').toUpperCase();
+        boostsHTML += `<div class="boost-stat">+${value} ${statName}</div>`;
+      }
+    }
+    
+    boostsHTML += `
+        </div>
+      </div>
+    `;
+  });
+  
+  modal.innerHTML = `
+    <div class="skill-modal-content">
+      <button class="modal-close-btn" onclick="closeSkillDetailModal()">✕</button>
+      <h2>${skillName}</h2>
+      <div class="boosts-container">
+        ${boostsHTML || '<p>No boost data available</p>'}
+      </div>
+      <button class="modal-action-btn" onclick="closeSkillDetailModal()">Close</button>
+    </div>
+  `;
+}
+
+window.closeSkillDetailModal = function() {
+  const modal = document.getElementById('skill-detail-modal');
+  if (modal) modal.style.display = 'none';
+};
+
+// Close modal on backdrop click
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('skill-detail-modal');
+  if (e.target === modal) {
+    closeSkillDetailModal();
+  }
+});
+
+
+// ==================== END OF SKILLS SECTION ====================
 
 
 
@@ -1024,7 +1784,7 @@ function buildTrainingSection(player) {
 
     return `
         <div style="
-            background: var(--color-graphite-800, #14181C);
+            background: var(--color-graphite-800, #ab1111);
             border: 1px solid rgba(0,194,168,0.2);
             border-radius: var(--radius-lg, 12px);
             padding: 24px;
@@ -1170,6 +1930,413 @@ function buildTrainingSection(player) {
         </div>
     `;
 }
+
+// ========== RANK SELECTION SECTION ==========
+function buildRankSelectionSection(player) {
+    const currentRank = player.rank || 0;
+    const skillPoints = RANK_CONFIG.skillPoints[currentRank] || 0;
+    
+    const rankCardsHtml = [1, 2, 3, 4, 5].map(rankNum => {
+        const isSelected = currentRank === rankNum;
+        const spriteUrl = RANK_CONFIG.ranks[rankNum];
+        const rankColor = RANK_CONFIG.rankColors[rankNum];
+        const uniqueId = `rank-selector-${rankNum}-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+        
+        // Perfect scaling: 70px icon size, 32px original frame = 2.1875x scale
+        const iconSize = 56;
+        const spriteSheetSize = 192 * (iconSize / 32); // 420px
+        
+        return `
+            <div class="rank-card ${isSelected ? 'selected' : ''}" 
+                 data-rank="${rankNum}"
+                 onclick="window.selectPlayerRank('${player.player_id}', ${rankNum})"
+                 style="
+                    position: relative;
+                    background: rgba(255,255,255,0.03);
+                    border: 2px solid ${isSelected ? 
+                        (rankNum === 1 ? 'rgba(59,214,113,0.4)' :   /* Green soft */
+                        rankNum === 2 ? 'rgba(99,102,241,0.4)' :   /* Blue soft */
+                        rankNum === 3 ? 'rgba(139,92,246,0.4)' :   /* Purple soft */
+                        rankNum === 4 ? 'rgba(255,184,107,0.4)' :  /* Gold soft */
+                        'rgba(255,107,107,0.4)') :                 /* Red soft */
+                        'rgba(255,255,255,0.08)'};
+                    border-radius: 14px;
+                    padding: 16px 12px;
+                    cursor: pointer;
+                    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                    text-align: center;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    box-shadow: ${isSelected ? `0 0 20px ${rankColor}50` : 'none'};
+                    min-width: 40px;
+                    min-height: 70px;
+                ">
+                <!-- BIGGER Rank Number -->
+                <div style="
+                    font-size: 16px;
+                    font-weight: 800;
+                    color: ${rankColor};
+                    font-family: var(--font-family-base);
+                    line-height: 1;
+                ">${rankNum}</div>
+                
+                <!-- PERFECT 70px Icon -->
+                <div class="rank-selector-icon animated-rank-icon"
+                     id="${uniqueId}"
+                     data-rank="${rankNum}"
+                     data-icon-size="${iconSize}"
+                     style="
+                        width: ${iconSize}px;
+                        height: ${iconSize}px;
+                        background-image: url('${spriteUrl}');
+                        background-size: ${spriteSheetSize}px ${spriteSheetSize}px;
+                        background-position: 0px 0px;
+                        background-repeat: no-repeat;
+                        display: block;
+                        flex-shrink: 0;
+                        image-rendering: pixelated;
+                        filter: ${isSelected ? 'drop-shadow(0 0 8px ' + rankColor + ')' : 'none'};
+                     ">
+                </div>
+                
+                ${isSelected ? `
+                    <div style="
+                        position: absolute;
+                        top: 4px;
+                        right: 4px;
+                        background: ${rankColor};
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 12px;
+                        font-weight: 900;
+                        color: #0E1114;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+                    ">✓</div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+    
+    return `
+        <div style="
+            background: var(--color-graphite-800, #14181C);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-lg, 12px);
+            padding: 6px;
+            margin-top: 20px;
+            max-width: 566px;
+        ">
+            <!-- Title -->
+            <div style="
+                font-size: 16px;
+                font-weight: 800;
+                color: var(--color-text-primary, #E6EEF2);
+                margin: 0 0 18px 0;
+                text-transform: uppercase;
+                font-family: var(--font-family-base);
+                letter-spacing: 0.5px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            ">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Select Rank
+            </div>
+            
+            <!-- Perfect 5-Column Grid -->
+            <div class="rank-cards-grid" style="
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 14px;
+                margin-bottom: 16px;
+                justify-items: center;
+            ">
+                ${rankCardsHtml}
+            </div>
+            
+            <!-- Subtle Skill Points -->
+            <!-- Training Level Selector -->
+            <div style="
+                background: rgba(20, 24, 28);
+                border: 1px solid rgba(0,194,168,0.12);
+                border-radius: 10px;
+                padding: 16px;
+            ">
+                <!-- Header with Points -->
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 12px;
+                ">
+                    <div style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    ">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-teal-500, #00C2A8)" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5"></path>
+                            <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                        <span style="
+                            font-size: 13px;
+                            font-weight: 700;
+                            color: var(--color-text-primary, #E6EEF2);
+                            text-transform: uppercase;
+                            letter-spacing: 0.3px;
+                        ">Training Level</span>
+                    </div>
+                    <div style="
+                        background: rgba(0,194,168,0.15);
+                        padding: 6px 12px;
+                        border-radius: 6px;
+                        font-size: 11px;
+                        font-weight: 700;
+                        color: var(--color-teal-500, #00C2A8);
+                    ">
+                        Points: ${skillPoints}
+                    </div>
+                </div>
+                
+                <!-- Training Level Dropdown -->
+                <div style="position: relative;">
+                    <select 
+                        id="training-level-${player.player_id}"
+                        onchange="window.setPlayerTrainingLevel('${player.player_id}', this.value)"
+                        style="
+                            width: 100%;
+                            background: var(--color-graphite-800, #14181C);
+                            border: 2px solid rgba(0,194,168,0.2);
+                            border-radius: 8px;
+                            padding: 12px 16px;
+                            font-size: 14px;
+                            font-weight: 600;
+                            color: var(--color-text-primary, #E6EEF2);
+                            font-family: var(--font-family-base);
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                            appearance: none;
+                            background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg width=%2712%27 height=%278%27 viewBox=%270 0 12 8%27 fill=%27none%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3cpath d=%27M1 1.5L6 6.5L11 1.5%27 stroke=%27%2300C2A8%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3e%3c/svg%3e');
+                            background-repeat: no-repeat;
+                            background-position: right 16px center;
+                            padding-right: 40px;
+                        "
+                        onfocus="this.style.borderColor='var(--color-teal-500, #00C2A8)'; this.style.boxShadow='0 0 0 3px rgba(0,194,168,0.1)';"
+                        onblur="this.style.borderColor='rgba(0,194,168,0.2)'; this.style.boxShadow='none';"
+                    >
+                        <option value="0" ${(player.training_level || 0) === 0 ? 'selected' : ''}>No Training</option>
+                        ${Array.from({length: 30}, (_, i) => i + 1).map(level => `
+                            <option value="${level}" ${(player.training_level || 0) === level ? 'selected' : ''}>
+                                Level ${level} ${level === 30 ? '(MAX)' : ''}
+                            </option>
+                        `).join('')}
+                    </select>
+                </div>
+                
+                <!-- Training Info -->
+                ${(player.training_level || 0) > 0 ? `
+                    <div style="
+                        margin-top: 12px;
+                        padding: 10px;
+                        background: rgba(59,214,113,0.08);
+                        border: 1px solid rgba(59,214,113,0.15);
+                        border-radius: 6px;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    ">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3BD671" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span style="
+                            font-size: 12px;
+                            color: #3BD671;
+                            font-weight: 600;
+                        ">Training Level ${player.training_level || 0} Active</span>
+                    </div>
+                ` : ''}
+            </div>
+
+        </div>
+    `;
+}
+
+
+
+
+// ========== RANK SELECTION HANDLER ==========
+// ==================== TRACK VISITED RANKS ====================
+const visitedRanks = new Set();
+
+window.selectPlayerRank = async function(playerId, rankNumber) {
+  console.log('[RANK] Selecting rank', rankNumber, 'for player', playerId);
+  
+  if (state.selectedPlayer && String(state.selectedPlayer.player_id) === String(playerId)) {
+    const previousRank = state.selectedPlayer.rank || 0;
+    const rankKey = `${playerId}_${rankNumber}`;
+    
+    // Check if this is a new rank selection
+    const isNewRankSelection = previousRank !== rankNumber;
+    const isFirstVisit = !visitedRanks.has(rankKey);
+    
+    if (!isNewRankSelection) {
+      console.log('[RANK] Same rank selected, no action needed');
+      return;
+    }
+    
+    cleanupRankAnimations();
+    
+    try {
+      // ✅ Only reset if switching to a NEW rank for the first time
+      if (isNewRankSelection && isFirstVisit) {
+        console.log('[RANK] First visit to rank', rankNumber, '- Resetting skills');
+        
+        try {
+          await window.apiClient.resetSkills(CURRENT_USER_ID, playerId, rankNumber);
+          visitedRanks.add(rankKey); // Mark as visited
+          console.log('[RANK] Skills reset for rank', rankNumber);
+        } catch (resetError) {
+          console.warn('[RANK] Reset failed (might be empty):', resetError);
+        }
+      } else {
+        console.log('[RANK] Returning to rank', rankNumber, '- Loading saved allocations');
+      }
+      
+      // Fetch player data for new rank
+      const resp = await window.apiClient.getPlayerDetails(playerId, rankNumber);
+      
+      const updatedPlayer = {
+        ...state.selectedPlayer,
+        ...resp.player,
+        rank: rankNumber,
+        skills: resp.skills,
+        available_skill_points: resp.available_skill_points
+      };
+      
+      state.selectedPlayer = updatedPlayer;
+      renderPlayerDetail(updatedPlayer);
+      
+      console.log('[RANK] Switched from rank', previousRank, 'to rank', rankNumber);
+      
+      // Show notification
+      if (typeof showToast === 'function') {
+        const message = isFirstVisit 
+          ? `📊 Rank ${rankNumber} - Fresh start` 
+          : `📊 Rank ${rankNumber} - Loaded saved skills`;
+        showToast(message, 'info');
+      }
+      
+    } catch (error) {
+      console.error('[RANK] Error switching rank:', error);
+      state.selectedPlayer.rank = rankNumber;
+      renderPlayerDetail(state.selectedPlayer);
+      
+      if (typeof showToast === 'function') {
+        showToast(`❌ Error: ${error.message}`, 'error');
+      }
+    }
+  } else {
+    console.error('[RANK] Player ID mismatch or no selected player');
+  }
+};
+
+
+
+
+
+// ========== FETCH TRAINING BOOSTS FROM VPS DATABASE ==========
+async function getTrainingBoosts(position, trainingLevel) {
+    if (!window.apiClient || trainingLevel === 0) {
+        return null; // No boosts at level 0
+    }
+    
+    try {
+        console.log('[TRAINING] Fetching boosts for', position, 'at level', trainingLevel);
+        
+        // Call backend API which queries VPS PostgreSQL
+        const response = await window.apiClient.getTrainingBoosts(position, trainingLevel);
+        
+        if (!response || response.error) {
+            console.error('[TRAINING] Error from API:', response?.error);
+            return null;
+        }
+        
+        console.log('[TRAINING] Total boosts calculated:', response.boosts);
+        return response.boosts;
+        
+    } catch (err) {
+        console.error('[TRAINING] Exception fetching boosts:', err);
+        return null;
+    }
+}
+
+
+
+
+
+// ========== TRAINING LEVEL HANDLER ==========
+// TRAINING LEVEL HANDLER (Enhanced with stat calculation)
+window.setPlayerTrainingLevel = async function(playerId, level) {
+    const trainingLevel = parseInt(level);
+    console.log('[TRAINING] Setting level', trainingLevel, 'for player', playerId);
+    
+    // Update state
+    if (state.selectedPlayer && String(state.selectedPlayer.player_id) === String(playerId)) {
+        
+        // Fetch training boosts from database
+        const boosts = await getTrainingBoosts(state.selectedPlayer.position, trainingLevel);
+        
+        // Update player's training level
+        state.selectedPlayer.training_level = trainingLevel;
+        
+        // Store the boosts in the player object for rendering
+        if (boosts) {
+            state.selectedPlayer.training_boosts = boosts;
+            console.log('[TRAINING] Applied boosts:', boosts);
+        } else {
+            state.selectedPlayer.training_boosts = null;
+        }
+        
+        // Clean up old animations
+        cleanupRankAnimations();
+        
+        // Re-render player detail with updated stats
+        renderPlayerDetail(state.selectedPlayer);
+        
+        console.log('[TRAINING] Updated to level', trainingLevel);
+        
+        // Show toast notification
+        if (typeof showToast === 'function') {
+            if (trainingLevel === 0) {
+                showToast('Training removed', 'info');
+            } else if (trainingLevel === 30) {
+                showToast('MAX Training Level achieved! 🎉', 'success');
+            } else {
+                showToast(`Training Level ${trainingLevel} selected`, 'success');
+            }
+        }
+        
+        // Optional: Save to backend
+        if (window.apiClient && typeof window.apiClient.updatePlayerTraining === 'function') {
+            window.apiClient.updatePlayerTraining(playerId, trainingLevel);
+        }
+        
+    } else {
+        console.error('[TRAINING] Player ID mismatch or no selected player');
+    }
+};
+
+
 
 
 // Application State
@@ -5077,9 +6244,6 @@ function getRatingColor(rating) {
   if (rating >= 70) return '#CD7F32';
   return '#666';
 }
-
-
-
 
 
 

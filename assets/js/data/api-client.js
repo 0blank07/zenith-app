@@ -143,6 +143,85 @@ class ZenithAPIClient {
     return this.fetchWithCache(`/skill-boosts/${encodeURIComponent(skillId)}`, { cache: opts.cache ?? true, cacheTTL: opts.cacheTTL });
   }
 
+  // ==================== USER SKILL ALLOCATIONS ====================
+
+  /**
+   * Get user's skill allocations for a player at a specific rank
+   */
+  async getUserSkillAllocations(userId, playerId, rank = 0, opts = {}) {
+    if (userId === undefined || userId === null) throw new Error('userId is required');
+    if (playerId === undefined || playerId === null) throw new Error('playerId is required');
+    
+    const endpoint = `skills/allocations/${encodeURIComponent(userId)}/${encodeURIComponent(playerId)}?rank=${encodeURIComponent(rank)}`;
+    
+    // Don't cache allocations - they change frequently
+    return this.fetchWithCache(endpoint, { 
+      cache: false,  // Always fetch fresh
+      ...opts 
+    });
+  }
+
+  /**
+   * Upgrade a skill for a user's player
+   */
+  async upgradeSkill(userId, playerId, rank, skillId, newLevel, opts = {}) {
+    if (!userId || !playerId || rank === undefined || !skillId || !newLevel) {
+      throw new Error('userId, playerId, rank, skillId, and newLevel are required');
+    }
+    
+    const params = new URLSearchParams({
+      user_id: userId,
+      player_id: playerId,
+      rank: rank,
+      skill_id: skillId,
+      new_level: newLevel
+    });
+    
+    const endpoint = `skills/upgrade?${params.toString()}`;
+    
+    // POST request
+    const response = await this.fetchWithCache(endpoint, {
+      method: 'POST',
+      cache: false,  // Don't cache POST requests
+      ...opts
+    });
+    
+    // Clear player detail cache after upgrade (stats changed)
+    this.clearCacheEntry(`players/${playerId}?rank=${rank}`);
+    
+    return response;
+  }
+
+  /**
+   * Reset all skill allocations for a user's player at a rank
+   */
+  async resetSkills(userId, playerId, rank, opts = {}) {
+    if (!userId || !playerId || rank === undefined) {
+      throw new Error('userId, playerId, and rank are required');
+    }
+    
+    const params = new URLSearchParams({
+      user_id: userId,
+      player_id: playerId,
+      rank: rank
+    });
+    
+    const endpoint = `skills/reset?${params.toString()}`;
+    
+    // DELETE request
+    const response = await this.fetchWithCache(endpoint, {
+      method: 'DELETE',
+      cache: false,
+      ...opts
+    });
+    
+    // Clear player detail cache after reset
+    this.clearCacheEntry(`players/${playerId}?rank=${rank}`);
+    
+    return response;
+  }
+
+
   // ---------- Filters ----------
   async getPositions(opts = {}) {
     return this.fetchWithCache('/filters/positions', { cache: opts.cache ?? true, cacheTTL: opts.cacheTTL });
@@ -177,6 +256,17 @@ class ZenithAPIClient {
     return this.fetchWithCache('/stats/summary', { cache: opts.cache ?? true, cacheTTL: opts.cacheTTL });
   }
 
+  // ---------- Training Boosts ----------
+  async getTrainingBoosts(position, level, opts = {}) {
+      if (!position || level === undefined) {
+          throw new Error('position and level are required');
+      }
+      const endpoint = `/training/boosts?position=${encodeURIComponent(position)}&level=${encodeURIComponent(level)}`;
+      return this.fetchWithCache(endpoint, { cache: opts.cache ?? true, cacheTTL: opts.cacheTTL ?? 60000 });
+  }
+
+
+  
   // ---------- Health ----------
   async checkHealth() {
     // Build base (without /api)
