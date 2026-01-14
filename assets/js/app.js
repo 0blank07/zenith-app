@@ -1565,6 +1565,58 @@ function createSkillCard(skill, currentLevel, isUnlocked, pointsRemaining, playe
 
 
 
+// ==================== SKILL BOOST HELPERS ====================
+
+/**
+ * Calculate skill boosts from user's allocated skills
+ * @param {Array} userAllocations - Array of skill allocations with skill_id and skill_level
+ * @returns {Object} Accumulated skill boosts (e.g., { finishing: 3, shot_power: 2 })
+ */
+async function calculateSkillBoosts(userAllocations) {
+  const skillBoosts = {};
+  
+  for (const allocation of userAllocations) {
+    if (allocation.skill_level > 0) {
+      try {
+        const boostData = await window.apiClient.getSkillBoosts(allocation.skill_id);
+        
+        if (boostData && boostData.boosts) {
+          const levelBoost = boostData.boosts.find(b => b.level_number === allocation.skill_level);
+          
+          if (levelBoost) {
+            for (const [key, value] of Object.entries(levelBoost)) {
+              if (key.startsWith('boost_') && value && value !== 0) {
+                const statName = key.replace('boost_', '');
+                skillBoosts[statName] = (skillBoosts[statName] || 0) + value;
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error(`[SKILLS] Error fetching boosts for skill ${allocation.skill_id}:`, error);
+      }
+    }
+  }
+  
+  return skillBoosts;
+}
+
+/**
+ * Merge training boosts and skill boosts
+ * @param {Object} trainingBoosts - Boosts from position training
+ * @param {Object} skillBoosts - Boosts from allocated skills
+ * @returns {Object} Combined boosts
+ */
+function mergeBoosts(trainingBoosts, skillBoosts) {
+  const merged = { ...(trainingBoosts || {}) };
+  
+  for (const [stat, value] of Object.entries(skillBoosts || {})) {
+    merged[stat] = (merged[stat] || 0) + value;
+  }
+  
+  return merged;
+}
+
 // ==================== UPGRADE SKILL ====================
 window.upgradeSkillLevel = async function(skillId, newLevel, playerId, rank) {
   console.log('[SKILLS] Upgrading skill:', skillId, 'to level', newLevel);
@@ -1588,11 +1640,27 @@ window.upgradeSkillLevel = async function(skillId, newLevel, playerId, rank) {
     // Re-fetch player data and re-render
     if (state.selectedPlayer) {
       const resp = await window.apiClient.getPlayerDetails(playerId, rank);
+      
+      // Fetch user's skill allocations
+      const allocationsResp = await window.apiClient.getUserSkillAllocations(
+        CURRENT_USER_ID,
+        playerId,
+        rank
+      );
+      
+      // Calculate skill boosts from allocations
+      const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
+      
+      // Merge training boosts with skill boosts
+      const combinedBoosts = mergeBoosts(resp.player.training_boosts, skillBoosts);
+      
       const updatedPlayer = {
         ...state.selectedPlayer,
         ...resp.player,
         skills: resp.skills,
-        available_skill_points: resp.available_skill_points
+        available_skill_points: resp.available_skill_points,
+        training_boosts: combinedBoosts,  // Use combined boosts
+        skill_boosts: skillBoosts          // Store separately for reference
       };
       
       state.selectedPlayer = updatedPlayer;
@@ -1638,13 +1706,15 @@ window.resetPlayerSkills = async function(playerId, rank) {
         ...state.selectedPlayer,
         ...resp.player,
         skills: resp.skills,
-        available_skill_points: resp.available_skill_points
+        available_skill_points: resp.available_skill_points,
+        skill_boosts: {}  // Clear skill boosts after reset
       };
       
       state.selectedPlayer = updatedPlayer;
       
-      // Re-render skills section
+      // Re-render both skills section and player detail
       await renderPlayerSkills(updatedPlayer);
+      renderPlayerDetail(updatedPlayer);
     }
     
   } catch (error) {
