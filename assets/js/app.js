@@ -1585,7 +1585,7 @@ async function calculateSkillBoosts(userAllocations) {
           
           if (levelBoost) {
             for (const [key, value] of Object.entries(levelBoost)) {
-              if (key.startsWith('boost_') && value && value !== 0) {
+              if (key.startsWith('boost_') && value != null && value !== 0) {
                 const statName = key.replace('boost_', '');
                 skillBoosts[statName] = (skillBoosts[statName] || 0) + value;
               }
