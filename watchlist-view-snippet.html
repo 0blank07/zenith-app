@@ -1,0 +1,94 @@
+<!-- ========================================
+     WATCHLIST VIEW - PROFESSIONAL LAYOUT
+     Copy this into your index.html main section
+     ======================================== -->
+
+<div id="watchlist-view" class="view">
+  
+  <!-- Watchlist Header Section -->
+  <div class="watchlist-header-section">
+    <div class="watchlist-header-content">
+      
+      <!-- Title with Count Badge -->
+      <div class="watchlist-title-section">
+        <h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          Your Watchlist
+        </h2>
+        <span class="watchlist-count-badge">0 Players</span>
+      </div>
+
+      <!-- Controls: Search & Sort -->
+      <div class="watchlist-controls">
+        
+        <!-- Search Bar -->
+        <div class="watchlist-search">
+          <div class="watchlist-search-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </div>
+          <input 
+            type="text" 
+            class="watchlist-search-input" 
+            placeholder="Search watchlist..."
+            autocomplete="off"
+          />
+        </div>
+
+        <!-- Sort Dropdown -->
+        <select class="watchlist-sort-select">
+          <option value="name-asc">Name (A-Z)</option>
+          <option value="name-desc">Name (Z-A)</option>
+          <option value="rating-desc">Rating (High to Low)</option>
+          <option value="rating-asc">Rating (Low to High)</option>
+          <option value="price-desc">Price (High to Low)</option>
+          <option value="price-asc">Price (Low to High)</option>
+        </select>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Watchlist Content -->
+  <div class="watchlist-content">
+    
+    <!-- Player Grid -->
+    <div class="watchlist-grid">
+      <!-- Player cards will be rendered here by JavaScript -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="watchlist-empty" style="display: none;">
+      <div class="watchlist-empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </div>
+      <h3>Your watchlist is empty</h3>
+      <p>Start adding players to track their stats, prices, and updates</p>
+      <button class="browse-players-btn" onclick="switchView('database')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        Browse Players
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========================================
+     REQUIRED CSS & JS FILES
+     Add these to your <head> section:
+     ======================================== -->
+
+<!-- In <head> tag: -->
+<!-- <link rel="stylesheet" href="assets/css/watchlist-styles.css"> -->
+
+<!-- Before </body> tag: -->
+<!-- <script src="assets/js/watchlist-professional.js"></script> -->

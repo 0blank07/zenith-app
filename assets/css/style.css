@@ -4169,6 +4169,15 @@ h1, h3, h4, h5, h6 {
   font-size: 14px;
 }
 
+/* Watchlist Layout Improvements */
+#watchlist-view .watchlist-layout {
+  margin-top: 0; /* Remove extra space since header is hidden */
+}
+
+#watchlist-view .watchlist-toolbar {
+  padding-top: 16px; /* Add space at the top */
+}
+
 /* Empty State Enhancement */
 #empty-watchlist,
 #watchlist-empty {
@@ -8561,7 +8570,7 @@ h1, h3, h4, h5, h6 {
 /* ==================== SKILLS SECTION ==================== */
 .player-skills-section {
   background: rgba(255, 255, 255, 0.03);
-  padding: 20px;
+  padding: 15px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 20px;
@@ -8575,15 +8584,15 @@ h1, h3, h4, h5, h6 {
 
 .skills-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
 }
 
 .skill-card {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  padding: 15px;
+  padding: 12px;
   text-align: center;
   transition: all 0.3s ease;
   cursor: pointer; /* ✅ Show it's clickable */
@@ -8608,6 +8617,7 @@ h1, h3, h4, h5, h6 {
   opacity: 0;
   transition: opacity 0.2s;
   pointer-events: none;
+  display: none; /* Hide to save space */
 }
 
 .skill-card:hover::after {
@@ -8626,8 +8636,8 @@ h1, h3, h4, h5, h6 {
 
 .skill-icon {
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   margin: 0 auto 10px;
 }
 
@@ -8649,7 +8659,7 @@ h1, h3, h4, h5, h6 {
 }
 
 .skill-name {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   color: #E6EEF2;
   margin-bottom: 8px;
@@ -8657,7 +8667,7 @@ h1, h3, h4, h5, h6 {
 }
 
 .skill-level {
-  font-size: 12px;
+  font-size: 11px;
   color: #98A0A6;
   margin-bottom: 10px;
 }
@@ -8771,15 +8781,34 @@ h1, h3, h4, h5, h6 {
 }
 
 .boost-level-section {
+  position: relative;
   background: rgba(255, 255, 255, 0.03);
   padding: 15px;
+  padding-top: 20px;
   border-radius: 10px;
   margin-bottom: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.boost-level-section:hover:not(.disabled) {
+  border-color: rgba(0, 194, 168, 0.3);
+}
+
+.boost-level-section.selected {
+  border-color: rgba(0, 194, 168, 0.8);
+}
+
+.boost-level-section.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .boost-level-section h4 {
   color: #00C2A8;
   margin-bottom: 10px;
+  padding-right: 30px; /* Space for checkbox */
 }
 
 .boost-stats {
@@ -8806,6 +8835,67 @@ h1, h3, h4, h5, h6 {
   cursor: pointer;
   margin-top: 20px;
   width: 100%;
+}
+
+/* Checkbox in top-right */
+.level-checkbox {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.level-checkbox.checked {
+  background: linear-gradient(135deg, #00C2A8, #008C7A);
+  border-color: #00C2A8;
+  color: #0E1114;
+}
+
+.level-checkbox.disabled {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Points info badges */
+.points-info {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.current-level-badge {
+  background: rgba(0, 194, 168, 0.15);
+  color: #00C2A8;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.points-remaining-badge {
+  background: rgba(255, 184, 107, 0.15);
+  color: #FFB86B;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.insufficient-points {
+  font-size: 11px;
+  color: #FF6B6B;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
 }
 
 /* ==================== SKILLS HEADER ==================== */
