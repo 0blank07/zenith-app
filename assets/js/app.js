@@ -884,36 +884,35 @@ function renderPlayerDetail(player) {
                         </button>
                     </div>
 
-                    <!-- RIGHT: Rank / Training area -->
+                    <!-- RIGHT: Rank / Training area + Skills -->
                     <div>
                         ${buildRankSelectionSection(player)}
+                        
+                        <!-- ⚡ SKILLS SECTION - Now below rank box -->
+                        <div class="player-skills-section" style="margin-top: 24px;">
+                          <div class="skills-header">
+                            <h3>⚡ Skills & Abilities</h3>
+                            <button class="reset-skills-btn" onclick="resetPlayerSkills(${player.player_id}, ${player.rank || 0})">
+                              🔄 Reset Skills
+                            </button>
+                          </div>
+                          
+                          <!-- Skills Grid -->
+                          <div class="skills-grid" id="player-skills-grid">
+                            <!-- Skill cards rendered by JavaScript -->
+                          </div>
+                          
+                          <!-- Skill Details Modal (for viewing stat boosts) -->
+                          <div class="skill-detail-modal" id="skill-detail-modal" style="display: none;">
+                            <div class="skill-modal-content">
+                              <!-- Populated dynamically -->
+                            </div>
+                          </div>
+                        </div>
                     </div>
 
                 </div>
             </div>
-            <!-- ⚡ SKILLS SECTION -->
-            <div class="player-skills-section">
-              <div class="skills-header">
-                <h3>⚡ Skills & Abilities</h3>
-                <button class="reset-skills-btn" onclick="resetPlayerSkills(${player.player_id}, ${player.rank || 0})">
-                  🔄 Reset Skills
-                </button>
-              </div>
-              
-              <!-- Skills Grid -->
-              <div class="skills-grid" id="player-skills-grid">
-                <!-- Skill cards rendered by JavaScript -->
-              </div>
-              
-              <!-- Skill Details Modal (for viewing stat boosts) -->
-              <div class="skill-detail-modal" id="skill-detail-modal" style="display: none;">
-                <div class="skill-modal-content">
-                  <!-- Populated dynamically -->
-                </div>
-              </div>
-            </div>
-
-
 
             <!-- Bottom Section: Stats Table -->
             <div style="
@@ -1910,10 +1909,37 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
       // Re-render skills grid
       await renderPlayerSkills(updatedPlayer);
       
-      // Re-open modal with updated data (keep modal open)
+      // Update modal content in-place (no flicker)
       const modal = document.getElementById('skill-detail-modal');
-      if (modal && modal.dataset.skillId && modal.dataset.skillName) {
-        await openSkillDetailModal(parseInt(modal.dataset.skillId), modal.dataset.skillName);
+      if (modal && modal.style.display !== 'none') {
+        // Get updated allocation info
+        const allocations = allocationsResp.allocations || [];
+        const allocationMap = {};
+        allocations.forEach(a => {
+          allocationMap[a.skill_id] = a.skill_level;
+        });
+        
+        // Calculate updated points remaining
+        const totalPoints = updatedPlayer.available_skill_points || updatedPlayer.rank || 0;
+        const usedPoints = allocations.reduce((sum, a) => sum + (a.skill_level || 0), 0);
+        const pointsRemaining = totalPoints - usedPoints;
+        
+        // Get current skill's updated level
+        const updatedCurrentLevel = allocationMap[skillId] || 0;
+        
+        // Fetch boosts data (should be cached)
+        const boostsData = await window.apiClient.getSkillBoosts(skillId);
+        const boosts = boostsData.boosts || [];
+        
+        // Re-render modal content directly (no loading state, no flicker)
+        renderSkillDetailModal(
+          modal.dataset.skillName, 
+          boosts, 
+          updatedCurrentLevel, 
+          pointsRemaining, 
+          skillId, 
+          updatedPlayer
+        );
       }
     }
     
