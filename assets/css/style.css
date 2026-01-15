@@ -8561,7 +8561,7 @@ h1, h3, h4, h5, h6 {
 /* ==================== SKILLS SECTION ==================== */
 .player-skills-section {
   background: rgba(255, 255, 255, 0.03);
-  padding: 20px;
+  padding: 15px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 20px;
@@ -8575,15 +8575,15 @@ h1, h3, h4, h5, h6 {
 
 .skills-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
 }
 
 .skill-card {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  padding: 15px;
+  padding: 12px;
   text-align: center;
   transition: all 0.3s ease;
   cursor: pointer; /* ✅ Show it's clickable */
@@ -8608,6 +8608,7 @@ h1, h3, h4, h5, h6 {
   opacity: 0;
   transition: opacity 0.2s;
   pointer-events: none;
+  display: none; /* Hide to save space */
 }
 
 .skill-card:hover::after {
@@ -8626,8 +8627,8 @@ h1, h3, h4, h5, h6 {
 
 .skill-icon {
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   margin: 0 auto 10px;
 }
 
@@ -8649,7 +8650,7 @@ h1, h3, h4, h5, h6 {
 }
 
 .skill-name {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   color: #E6EEF2;
   margin-bottom: 8px;
@@ -8657,7 +8658,7 @@ h1, h3, h4, h5, h6 {
 }
 
 .skill-level {
-  font-size: 12px;
+  font-size: 11px;
   color: #98A0A6;
   margin-bottom: 10px;
 }
