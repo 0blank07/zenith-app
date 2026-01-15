@@ -8784,13 +8784,11 @@ h1, h3, h4, h5, h6 {
 }
 
 .boost-level-section:hover:not(.disabled) {
-  background: rgba(255, 255, 255, 0.06);
   border-color: rgba(0, 194, 168, 0.3);
 }
 
 .boost-level-section.selected {
-  background: rgba(0, 194, 168, 0.1);
-  border-color: rgba(0, 194, 168, 0.6);
+  border-color: rgba(0, 194, 168, 0.8);
 }
 
 .boost-level-section.disabled {
