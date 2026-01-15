@@ -1795,24 +1795,27 @@ function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining
   
   boosts.forEach(boost => {
     const levelNum = boost.level_number;
+    // FIX: Only mark as selected if this exact level is currently active
     const isSelected = currentLevel === levelNum;
-    const pointsNeeded = levelNum - currentLevel;
-    const canAfford = pointsNeeded <= pointsRemaining;
-    const isDisabled = !isSelected && !canAfford;
+    // FIX: Calculate if this level is achievable from current state
+    const pointsNeeded = levelNum > currentLevel ? levelNum - currentLevel : 0;
+    const canAfford = levelNum <= currentLevel || pointsNeeded <= pointsRemaining;
+    const isDisabled = !canAfford;
     
-    // Build the onclick handler - disabled if can't afford and not already selected
-    const onclickAttr = isDisabled ? '' : `onclick="selectSkillLevel(${skillId}, ${levelNum}, ${currentLevel}, ${player.player_id}, ${player.rank})"`;
-    const cursorStyle = isDisabled ? 'cursor: not-allowed;' : '';
+    // FIX: Allow clicking any affordable level (including lower levels for downgrade)
+    // Add event.stopPropagation() to prevent modal from closing
+    const onclickAttr = isDisabled ? '' : `onclick="event.stopPropagation(); selectSkillLevel(${skillId}, ${levelNum}, ${currentLevel}, ${player.player_id}, ${player.rank})"`;
+    const cursorStyle = isDisabled ? 'cursor: not-allowed;' : 'cursor: pointer;';
     
     boostsHTML += `
-      <div class="boost-level-section ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}" 
+      <div class="boost-level-section ${isSelected ? 'selected' : ''} ${currentLevel >= levelNum && !isSelected ? 'unlocked' : ''} ${isDisabled ? 'disabled' : ''}" 
            ${onclickAttr}
            style="${cursorStyle}">
-        <div class="level-checkbox ${isSelected ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}">
-          ${isSelected ? '✓' : ''}
+        <div class="level-checkbox ${isSelected ? 'checked' : ''} ${currentLevel >= levelNum && !isSelected ? 'partial' : ''} ${isDisabled ? 'disabled' : ''}">
+          ${isSelected ? '✓' : (currentLevel >= levelNum ? '○' : '')}
         </div>
         <h4>Level ${levelNum}</h4>
-        ${isDisabled ? `<div class="insufficient-points">Need ${Math.abs(pointsNeeded)} more point${Math.abs(pointsNeeded) > 1 ? 's' : ''}</div>` : ''}
+        ${isDisabled ? `<div class="insufficient-points">Need ${pointsNeeded} more point${pointsNeeded > 1 ? 's' : ''}</div>` : ''}
         <div class="boost-stats">
     `;
     
@@ -1830,8 +1833,13 @@ function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining
     `;
   });
   
+  // FIX: Add a "No Skill" option to allow full deselection
+  const noSkillSelected = currentLevel === 0;
+  const noSkillOnclick = currentLevel > 0 ? `onclick="event.stopPropagation(); selectSkillLevel(${skillId}, 0, ${currentLevel}, ${player.player_id}, ${player.rank})"` : '';
+  
+  // FIX: Add event.stopPropagation() to modal content to prevent closing
   modal.innerHTML = `
-    <div class="skill-modal-content">
+    <div class="skill-modal-content" onclick="event.stopPropagation()">
       <button class="modal-close-btn" onclick="closeSkillDetailModal()">✕</button>
       <h2>${skillName}</h2>
       <div class="points-info">
@@ -1839,6 +1847,18 @@ function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining
         <div class="points-remaining-badge">${pointsRemaining} point${pointsRemaining !== 1 ? 's' : ''} available</div>
       </div>
       <div class="boosts-container">
+        <!-- Deselect / No Skill Option -->
+        <div class="boost-level-section deselect-option ${noSkillSelected ? 'selected' : ''}" 
+             ${noSkillOnclick}
+             style="cursor: ${currentLevel > 0 ? 'pointer' : 'default'}; opacity: ${noSkillSelected ? '0.6' : '1'}; border-style: dashed;">
+          <div class="level-checkbox ${noSkillSelected ? 'checked' : ''}">
+            ${noSkillSelected ? '✓' : ''}
+          </div>
+          <h4>No Skill</h4>
+          <div class="boost-stats">
+            <div class="boost-stat" style="color: #98A0A6;">Click to remove this skill</div>
+          </div>
+        </div>
         ${boostsHTML || '<p>No boost data available</p>'}
       </div>
       <button class="modal-action-btn" onclick="closeSkillDetailModal()">Close</button>
@@ -1851,11 +1871,18 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
   console.log('[SKILLS] Selecting level:', targetLevel, 'Current:', currentLevel);
   
   try {
-    // If clicking already selected level, deselect (set to 0)
+    // FIX: Simplified logic - just set to the target level directly
+    // If clicking the same level that's already selected, deselect it (set to 0)
     let newLevel = targetLevel;
-    if (currentLevel === targetLevel) {
-      newLevel = 0;
+    if (currentLevel === targetLevel && targetLevel > 0) {
+      newLevel = 0; // Deselect completely
       console.log('[SKILLS] Deselecting level, setting to:', newLevel);
+    }
+    
+    // If same as current, no change needed
+    if (newLevel === currentLevel) {
+      console.log('[SKILLS] No change needed');
+      return;
     }
     
     // Call upgradeSkill API with new level
@@ -1871,10 +1898,12 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
     
     // Show success message
     if (typeof showToast === 'function') {
-      if (newLevel > currentLevel) {
+      if (newLevel === 0) {
+        showToast(`✅ Skill removed!`, 'success');
+      } else if (newLevel > currentLevel) {
         showToast(`✅ Skill upgraded to Level ${newLevel}!`, 'success');
       } else if (newLevel < currentLevel) {
-        showToast(`✅ Skill downgraded to Level ${newLevel}`, 'success');
+        showToast(`✅ Skill changed to Level ${newLevel}`, 'success');
       }
     }
     
@@ -1906,13 +1935,10 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
       
       state.selectedPlayer = updatedPlayer;
       
-      // Re-render the main player detail to update stats display
-      renderPlayerDetail(updatedPlayer);
-      
       // Re-render skills grid
       await renderPlayerSkills(updatedPlayer);
       
-      // Update modal content in-place (no flicker)
+      // FIX: Update modal content in-place (keep modal open, no flicker)
       const modal = document.getElementById('skill-detail-modal');
       if (modal && modal.style.display !== 'none') {
         // Get updated allocation info
@@ -1943,6 +1969,9 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
           skillId, 
           updatedPlayer
         );
+        
+        // FIX: Ensure modal stays visible
+        modal.style.display = 'flex';
       }
     }
     
