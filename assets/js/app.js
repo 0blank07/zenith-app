@@ -1795,7 +1795,7 @@ function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining
   
   boosts.forEach(boost => {
     const levelNum = boost.level_number;
-    const isSelected = currentLevel >= levelNum;
+    const isSelected = currentLevel === levelNum;
     const pointsNeeded = levelNum - currentLevel;
     const canAfford = pointsNeeded <= pointsRemaining;
     const isDisabled = !isSelected && !canAfford;
@@ -1851,11 +1851,11 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
   console.log('[SKILLS] Selecting level:', targetLevel, 'Current:', currentLevel);
   
   try {
-    // If clicking already selected level, deselect (downgrade to previous level)
+    // If clicking already selected level, deselect (set to 0)
     let newLevel = targetLevel;
     if (currentLevel === targetLevel) {
-      newLevel = targetLevel - 1;
-      console.log('[SKILLS] Deselecting level, downgrading to:', newLevel);
+      newLevel = 0;
+      console.log('[SKILLS] Deselecting level, setting to:', newLevel);
     }
     
     // Call upgradeSkill API with new level
@@ -1905,6 +1905,9 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
       };
       
       state.selectedPlayer = updatedPlayer;
+      
+      // Re-render the main player detail to update stats display
+      renderPlayerDetail(updatedPlayer);
       
       // Re-render skills grid
       await renderPlayerSkills(updatedPlayer);
