@@ -159,11 +159,7 @@ function toggleLatestWatchlist(id, btn) {
   // Use the main toggleWatchlist function if available
   if (typeof window.toggleWatchlist === 'function') {
     window.toggleWatchlist(id);
-    // Update button UI
-    const idx = state.watchlist.indexOf(id);
-    const isWatchlisted = idx !== -1;
-    btn.classList.toggle('active', isWatchlisted);
-    btn.innerHTML = isWatchlisted ? '♥' : '♡';
+    // UI update is handled by updateAllWatchlistButtons() in the main function
   } else {
     // Fallback to inline implementation with localStorage save
     const idx = state.watchlist.indexOf(id);
@@ -188,11 +184,7 @@ function toggleTrendingWatchlist(id, btn) {
   // Use the main toggleWatchlist function if available
   if (typeof window.toggleWatchlist === 'function') {
     window.toggleWatchlist(id);
-    // Update button UI
-    const idx = state.watchlist.indexOf(id);
-    const isWatchlisted = idx !== -1;
-    btn.classList.toggle('active', isWatchlisted);
-    btn.innerHTML = isWatchlisted ? '♥' : '♡';
+    // UI update is handled by updateAllWatchlistButtons() in the main function
   } else {
     // Fallback to inline implementation with localStorage save
     const idx = state.watchlist.indexOf(id);
