@@ -4169,6 +4169,15 @@ h1, h3, h4, h5, h6 {
   font-size: 14px;
 }
 
+/* Watchlist Layout Improvements */
+#watchlist-view .watchlist-layout {
+  margin-top: 0; /* Remove extra space since header is hidden */
+}
+
+#watchlist-view .watchlist-toolbar {
+  padding-top: 16px; /* Add space at the top */
+}
+
 /* Empty State Enhancement */
 #empty-watchlist,
 #watchlist-empty {

@@ -156,33 +156,59 @@ document.querySelector(".slider span").textContent = sliderText;
 
 // Watchlist toggle function for latest players section
 function toggleLatestWatchlist(id, btn) {
-  const idx = state.watchlist.indexOf(id);
-  if (idx === -1) {
-    state.watchlist.push(id);
-    btn.classList.add('active');
-    btn.innerHTML = '♥';
-    showToast('Added to Watchlist', 'success');
+  // Use the main toggleWatchlist function if available
+  if (typeof window.toggleWatchlist === 'function') {
+    window.toggleWatchlist(id);
+    // Update button UI
+    const idx = state.watchlist.indexOf(id);
+    const isWatchlisted = idx !== -1;
+    btn.classList.toggle('active', isWatchlisted);
+    btn.innerHTML = isWatchlisted ? '♥' : '♡';
   } else {
-    state.watchlist.splice(idx, 1);
-    btn.classList.remove('active');
-    btn.innerHTML = '♡';
-    showToast('Removed from Watchlist', 'error');
+    // Fallback to inline implementation with localStorage save
+    const idx = state.watchlist.indexOf(id);
+    if (idx === -1) {
+      state.watchlist.push(id);
+      btn.classList.add('active');
+      btn.innerHTML = '♥';
+      showToast('Added to Watchlist', 'success');
+    } else {
+      state.watchlist.splice(idx, 1);
+      btn.classList.remove('active');
+      btn.innerHTML = '♡';
+      showToast('Removed from Watchlist', 'error');
+    }
+    // Save to localStorage
+    localStorage.setItem('watchlist', JSON.stringify(state.watchlist));
   }
 }
 
 // Watchlist toggle for trending section
 function toggleTrendingWatchlist(id, btn) {
-  const idx = state.watchlist.indexOf(id);
-  if (idx === -1) {
-    state.watchlist.push(id);
-    btn.classList.add('active');
-    btn.innerHTML = '♥';
-    showToast('Added to Watchlist', 'success');
+  // Use the main toggleWatchlist function if available
+  if (typeof window.toggleWatchlist === 'function') {
+    window.toggleWatchlist(id);
+    // Update button UI
+    const idx = state.watchlist.indexOf(id);
+    const isWatchlisted = idx !== -1;
+    btn.classList.toggle('active', isWatchlisted);
+    btn.innerHTML = isWatchlisted ? '♥' : '♡';
   } else {
-    state.watchlist.splice(idx, 1);
-    btn.classList.remove('active');
-    btn.innerHTML = '♡';
-    showToast('Removed from Watchlist', 'error');
+    // Fallback to inline implementation with localStorage save
+    const idx = state.watchlist.indexOf(id);
+    if (idx === -1) {
+      state.watchlist.push(id);
+      btn.classList.add('active');
+      btn.innerHTML = '♥';
+      showToast('Added to Watchlist', 'success');
+    } else {
+      state.watchlist.splice(idx, 1);
+      btn.classList.remove('active');
+      btn.innerHTML = '♡';
+      showToast('Removed from Watchlist', 'error');
+    }
+    // Save to localStorage
+    localStorage.setItem('watchlist', JSON.stringify(state.watchlist));
   }
 }
 
