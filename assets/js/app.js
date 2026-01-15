@@ -1816,7 +1816,7 @@ function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining
           ${isSelected ? '✓' : (currentLevel >= levelNum ? '○' : '')}
         </div>
         <h4>Level ${levelNum}</h4>
-        ${isDisabled ? `<div class="insufficient-points">Need ${pointsNeeded} more point${pointsNeeded > 1 ? 's' : ''}</div>` : ''}
+        ${isDisabled && pointsNeeded > 0 ? `<div class="insufficient-points">Need ${pointsNeeded} more point${pointsNeeded > 1 ? 's' : ''}</div>` : ''}
         <div class="boost-stats">
     `;
     
