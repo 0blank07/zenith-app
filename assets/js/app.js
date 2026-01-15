@@ -3535,7 +3535,12 @@ window.toggleWatchlist = function (uniqueId) {
     state.watchlist.push(uniqueId);
 
     // Find the actual player object from currently loaded lists
-    const allAvailable = [...(state.allPlayers || []), ...(state.searchResults || []), ...(state.filteredPlayers || [])];
+    const allAvailable = [
+      ...(state.allPlayers || []), 
+      ...(state.searchResults || []), 
+      ...(state.filteredPlayers || []),
+      ...(state.selectedPlayer ? [state.selectedPlayer] : [])
+    ];
 
     // Helper to generate ID from a player object to match uniqueId
     const getPId = (p) => `${p.player_id}_${p.rank || 0}_${p.is_untradable ? 1 : 0}`;
