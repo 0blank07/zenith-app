@@ -1797,10 +1797,11 @@ function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining
     const levelNum = boost.level_number;
     // FIX: Only mark as selected if this exact level is currently active
     const isSelected = currentLevel === levelNum;
-    // FIX: Calculate if this level is achievable from current state
-    const pointsNeeded = levelNum > currentLevel ? levelNum - currentLevel : 0;
-    const canAfford = levelNum <= currentLevel || pointsNeeded <= pointsRemaining;
-    const isDisabled = !canAfford;
+    // FIX: Calculate points needed for upgrade (negative means downgrade - always allowed)
+    const pointsNeeded = levelNum - currentLevel;
+    const canAfford = pointsNeeded <= pointsRemaining;
+    // Only disable if NOT selected AND requires MORE points than available
+    const isDisabled = !isSelected && !canAfford;
     
     // FIX: Allow clicking any affordable level (including lower levels for downgrade)
     // Add event.stopPropagation() to prevent modal from closing
@@ -1833,10 +1834,6 @@ function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining
     `;
   });
   
-  // FIX: Add a "No Skill" option to allow full deselection
-  const noSkillSelected = currentLevel === 0;
-  const noSkillOnclick = currentLevel > 0 ? `onclick="event.stopPropagation(); selectSkillLevel(${skillId}, 0, ${currentLevel}, ${player.player_id}, ${player.rank})"` : '';
-  
   // FIX: Add event.stopPropagation() to modal content to prevent closing
   modal.innerHTML = `
     <div class="skill-modal-content" onclick="event.stopPropagation()">
@@ -1847,18 +1844,6 @@ function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining
         <div class="points-remaining-badge">${pointsRemaining} point${pointsRemaining !== 1 ? 's' : ''} available</div>
       </div>
       <div class="boosts-container">
-        <!-- Deselect / No Skill Option -->
-        <div class="boost-level-section deselect-option ${noSkillSelected ? 'selected' : ''}" 
-             ${noSkillOnclick}
-             style="cursor: ${currentLevel > 0 ? 'pointer' : 'default'}; opacity: ${noSkillSelected ? '0.6' : '1'}; border-style: dashed;">
-          <div class="level-checkbox ${noSkillSelected ? 'checked' : ''}">
-            ${noSkillSelected ? '✓' : ''}
-          </div>
-          <h4>No Skill</h4>
-          <div class="boost-stats">
-            <div class="boost-stat" style="color: #98A0A6;">Click to remove this skill</div>
-          </div>
-        </div>
         ${boostsHTML || '<p>No boost data available</p>'}
       </div>
       <button class="modal-action-btn" onclick="closeSkillDetailModal()">Close</button>
