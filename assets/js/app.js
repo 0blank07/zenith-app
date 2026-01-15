@@ -1514,10 +1514,7 @@ function createSkillCard(skill, currentLevel, isUnlocked, pointsRemaining, playe
   // ✅ Make entire card clickable to open modal
   card.style.cursor = 'pointer';
   card.addEventListener('click', (e) => {
-    // Don't trigger if clicking the upgrade button
-    if (!e.target.closest('.upgrade-btn')) {
-      openSkillDetailModal(skill.skill_id, skill.skill_name);
-    }
+    openSkillDetailModal(skill.skill_id, skill.skill_name);
   });
   
   card.innerHTML = `
@@ -1537,18 +1534,13 @@ function createSkillCard(skill, currentLevel, isUnlocked, pointsRemaining, playe
         Level: <span class="level-number">${currentLevel}</span>/${maxLevel}
       </div>
       
-      <!-- Unlock Requirement or Upgrade Button -->
+      <!-- Unlock Requirement or Status -->
       ${!isUnlocked ? `
         <div class="unlock-requirement">
           <small>${skill.unlock_requirement_text || 'Locked'}</small>
         </div>
       ` : `
         <div class="skill-actions">
-          ${currentLevel < maxLevel && pointsRemaining > 0 ? `
-            <button class="upgrade-btn" onclick="event.stopPropagation(); upgradeSkillLevel(${skill.skill_id}, ${currentLevel + 1}, ${player.player_id}, ${player.rank})">
-              ⬆️ Upgrade (+1 point)
-            </button>
-          ` : ''}
           ${currentLevel >= maxLevel ? `
             <div class="max-level-badge">MAX LEVEL</div>
           ` : ''}
@@ -1739,6 +1731,10 @@ window.openSkillDetailModal = async function(skillId, skillName) {
     return;
   }
   
+  // Store skill info in modal dataset for re-opening
+  modal.dataset.skillId = skillId;
+  modal.dataset.skillName = skillName;
+  
   // Show loading state
   modal.innerHTML = `
     <div class="skill-modal-content">
@@ -1748,12 +1744,38 @@ window.openSkillDetailModal = async function(skillId, skillName) {
   modal.style.display = 'flex';
   
   try {
+    // Get current player data
+    if (!state.selectedPlayer) {
+      throw new Error('No player selected');
+    }
+    
+    const player = state.selectedPlayer;
+    
     // Fetch skill boosts
     const boostsData = await window.apiClient.getSkillBoosts(skillId);
     const boosts = boostsData.boosts || [];
     
+    // Fetch user's skill allocations to determine current level
+    const allocationsResp = await window.apiClient.getUserSkillAllocations(
+      CURRENT_USER_ID,
+      player.player_id,
+      player.rank
+    );
+    const userAllocations = allocationsResp.allocations || [];
+    
+    // Find current level for this skill
+    const allocation = userAllocations.find(a => a.skill_id === skillId);
+    const currentLevel = allocation ? allocation.skill_level : 0;
+    
+    // Calculate points remaining
+    const availablePoints = player.available_skill_points || player.rank || 0;
+    const pointsSpent = userAllocations.reduce((sum, a) => sum + a.skill_level, 0);
+    const pointsRemaining = availablePoints - pointsSpent;
+    
+    console.log('[SKILLS] Current level:', currentLevel, 'Points remaining:', pointsRemaining);
+    
     // Render modal content
-    renderSkillDetailModal(skillName, boosts);
+    renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining, skillId, player);
     
   } catch (error) {
     console.error('[SKILLS] Error loading skill details:', error);
@@ -1767,15 +1789,31 @@ window.openSkillDetailModal = async function(skillId, skillName) {
   }
 };
 
-function renderSkillDetailModal(skillName, boosts) {
+function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining, skillId, player) {
   const modal = document.getElementById('skill-detail-modal');
   
   let boostsHTML = '';
   
   boosts.forEach(boost => {
+    const levelNum = boost.level_number;
+    const isSelected = currentLevel >= levelNum;
+    const pointsNeeded = levelNum - currentLevel;
+    const canAfford = pointsNeeded <= pointsRemaining;
+    const isDisabled = !isSelected && !canAfford;
+    
+    // Build the onclick handler - disabled if can't afford and not already selected
+    const onclickAttr = isDisabled ? '' : `onclick="selectSkillLevel(${skillId}, ${levelNum}, ${currentLevel}, ${player.player_id}, ${player.rank})"`;
+    const cursorStyle = isDisabled ? 'cursor: not-allowed;' : '';
+    
     boostsHTML += `
-      <div class="boost-level-section">
-        <h4>Level ${boost.level_number}</h4>
+      <div class="boost-level-section ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}" 
+           ${onclickAttr}
+           style="${cursorStyle}">
+        <div class="level-checkbox ${isSelected ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}">
+          ${isSelected ? '✓' : ''}
+        </div>
+        <h4>Level ${levelNum}</h4>
+        ${isDisabled ? `<div class="insufficient-points">Need ${Math.abs(pointsNeeded)} more point${Math.abs(pointsNeeded) > 1 ? 's' : ''}</div>` : ''}
         <div class="boost-stats">
     `;
     
@@ -1797,6 +1835,10 @@ function renderSkillDetailModal(skillName, boosts) {
     <div class="skill-modal-content">
       <button class="modal-close-btn" onclick="closeSkillDetailModal()">✕</button>
       <h2>${skillName}</h2>
+      <div class="points-info">
+        <div class="current-level-badge">Current Level: ${currentLevel}</div>
+        <div class="points-remaining-badge">${pointsRemaining} point${pointsRemaining !== 1 ? 's' : ''} available</div>
+      </div>
       <div class="boosts-container">
         ${boostsHTML || '<p>No boost data available</p>'}
       </div>
@@ -1804,6 +1846,86 @@ function renderSkillDetailModal(skillName, boosts) {
     </div>
   `;
 }
+
+// ==================== SELECT SKILL LEVEL ====================
+window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, playerId, rank) {
+  console.log('[SKILLS] Selecting level:', targetLevel, 'Current:', currentLevel);
+  
+  try {
+    // If clicking already selected level, deselect (downgrade to previous level)
+    let newLevel = targetLevel;
+    if (currentLevel === targetLevel) {
+      newLevel = targetLevel - 1;
+      console.log('[SKILLS] Deselecting level, downgrading to:', newLevel);
+    }
+    
+    // Call upgradeSkill API with new level
+    const result = await window.apiClient.upgradeSkill(
+      CURRENT_USER_ID,
+      playerId,
+      rank,
+      skillId,
+      newLevel
+    );
+    
+    console.log('[SKILLS] Level change success:', result);
+    
+    // Show success message
+    if (typeof showToast === 'function') {
+      if (newLevel > currentLevel) {
+        showToast(`✅ Skill upgraded to Level ${newLevel}!`, 'success');
+      } else if (newLevel < currentLevel) {
+        showToast(`✅ Skill downgraded to Level ${newLevel}`, 'success');
+      }
+    }
+    
+    // Re-fetch player data
+    if (state.selectedPlayer) {
+      const resp = await window.apiClient.getPlayerDetails(playerId, rank);
+      
+      // Fetch user's skill allocations
+      const allocationsResp = await window.apiClient.getUserSkillAllocations(
+        CURRENT_USER_ID,
+        playerId,
+        rank
+      );
+      
+      // Calculate skill boosts from allocations
+      const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
+      
+      // Merge training boosts with skill boosts
+      const combinedBoosts = mergeBoosts(resp.player.training_boosts, skillBoosts);
+      
+      const updatedPlayer = {
+        ...state.selectedPlayer,
+        ...resp.player,
+        skills: resp.skills,
+        available_skill_points: resp.available_skill_points,
+        training_boosts: combinedBoosts,
+        skill_boosts: skillBoosts
+      };
+      
+      state.selectedPlayer = updatedPlayer;
+      
+      // Re-render skills grid
+      await renderPlayerSkills(updatedPlayer);
+      
+      // Re-open modal with updated data (keep modal open)
+      const modal = document.getElementById('skill-detail-modal');
+      if (modal && modal.dataset.skillId && modal.dataset.skillName) {
+        await openSkillDetailModal(parseInt(modal.dataset.skillId), modal.dataset.skillName);
+      }
+    }
+    
+  } catch (error) {
+    console.error('[SKILLS] Level change error:', error);
+    if (typeof showToast === 'function') {
+      showToast(`❌ ${error.message}`, 'error');
+    } else {
+      alert(`Error: ${error.message}`);
+    }
+  }
+};
 
 window.closeSkillDetailModal = function() {
   const modal = document.getElementById('skill-detail-modal');

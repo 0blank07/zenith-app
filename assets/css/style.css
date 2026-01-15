@@ -8771,15 +8771,36 @@ h1, h3, h4, h5, h6 {
 }
 
 .boost-level-section {
+  position: relative;
   background: rgba(255, 255, 255, 0.03);
   padding: 15px;
+  padding-top: 20px;
   border-radius: 10px;
   margin-bottom: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.boost-level-section:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(0, 194, 168, 0.3);
+}
+
+.boost-level-section.selected {
+  background: rgba(0, 194, 168, 0.1);
+  border-color: rgba(0, 194, 168, 0.6);
+}
+
+.boost-level-section.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .boost-level-section h4 {
   color: #00C2A8;
   margin-bottom: 10px;
+  padding-right: 30px; /* Space for checkbox */
 }
 
 .boost-stats {
@@ -8806,6 +8827,67 @@ h1, h3, h4, h5, h6 {
   cursor: pointer;
   margin-top: 20px;
   width: 100%;
+}
+
+/* Checkbox in top-right */
+.level-checkbox {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.level-checkbox.checked {
+  background: linear-gradient(135deg, #00C2A8, #008C7A);
+  border-color: #00C2A8;
+  color: #0E1114;
+}
+
+.level-checkbox.disabled {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Points info badges */
+.points-info {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.current-level-badge {
+  background: rgba(0, 194, 168, 0.15);
+  color: #00C2A8;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.points-remaining-badge {
+  background: rgba(255, 184, 107, 0.15);
+  color: #FFB86B;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.insufficient-points {
+  font-size: 11px;
+  color: #FF6B6B;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
 }
 
 /* ==================== SKILLS HEADER ==================== */
