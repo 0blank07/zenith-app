@@ -3162,7 +3162,11 @@ function createDashboardPlayerCard(player) {
     card.className = 'dashboard-player-card';
 
     card.addEventListener('click', () => {
-        console.log('Clicked player:', player);
+        if (typeof viewPlayerDetail === 'function') {
+            viewPlayerDetail(player.player_id, player);
+        } else {
+            console.log('Clicked player:', player.name, 'ID:', player.player_id);
+        }
     });
 
     card.innerHTML = `
