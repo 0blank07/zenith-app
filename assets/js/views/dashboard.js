@@ -81,7 +81,7 @@ function loadTrendingPlayers() {
     .slice(0, 6);    
 
 
-const sliderText = "FC Points & More to Be Won with Futbin's Festive Rewards!";
+const sliderText = "Trade, Build, Dominate – Massive Rewards Await on Zenith!";
 document.querySelector(".slider span").textContent = sliderText;
 
 

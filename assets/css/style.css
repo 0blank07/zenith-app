@@ -146,6 +146,13 @@
   --container-xl: 1280px;
 }
 
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
 
 @font-face {
     font-family: "CruyffSans";
@@ -1967,7 +1974,7 @@ body {
 
 .detail-header {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 350px 1fr;
   gap: 32px;
   margin-bottom: 32px;
 }
@@ -3064,6 +3071,30 @@ h1, h3, h4, h5, h6 {
    MOBILE RESPONSIVE
    ========================================== */
 
+@media (max-width: 1020px) {
+  /* Show mobile search container */
+  .mobile-search-container {
+    display: block;
+  }
+
+  /* Hide desktop sidebar and toolbar search */
+  .filters-sidebar {
+    display: none !important;
+  }
+
+  .database-toolbar .search-container {
+    display: none !important;
+  }
+
+  .database-layout {
+    display: block;
+  }
+
+  .database-content {
+    width: 89%;
+  }
+}
+
 @media (max-width: 768px) {
   /* Show mobile search container */
   .mobile-search-container {
@@ -3084,9 +3115,34 @@ h1, h3, h4, h5, h6 {
   }
 
   .database-content {
-    width: 100%;
+    width: 89%;
   }
 }
+
+@media (max-width: 480px) {
+  /* Show mobile search container */
+  .mobile-search-container {
+    display: block;
+  }
+
+  /* Hide desktop sidebar and toolbar search */
+  .filters-sidebar {
+    display: none !important;
+  }
+
+  .database-toolbar .search-container {
+    display: none !important;
+  }
+
+  .database-layout {
+    display: block;
+  }
+
+  .database-content {
+    width: 86%;
+  }
+}
+
 
 /* ==========================================
    HORIZONTAL PLAYER CARDS (UNIVERSAL)
@@ -3570,6 +3626,7 @@ h1, h3, h4, h5, h6 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-left: 14px;
 }
 
 .player-info-meta {
@@ -3577,15 +3634,33 @@ h1, h3, h4, h5, h6 {
   font-weight: 500;
   color: var(--renderz-text-secondary);
   line-height: 1.2;
+  margin-left: 9px;
 }
 
 .player-info-secondary {
-  font-size: 12px;
-  font-weight: 400;
-  font-style: italic;
-  color: var(--renderz-text-tertiary);
-  line-height: 1.2;
-  margin-top: -2px;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-top: 4px;
+}
+
+.secondary-position-badge {
+    background: linear-gradient(135deg, #34435E 0%, #1E2533 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 3px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.3);
+    letter-spacing: 0.5px;
+    min-width: 28px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 1px 2px rgba(0,0,0,0.4);
+    margin-left: 6px;
 }
 
 /* Stats Grid (Right Section) - SINGLE ROW */
@@ -3611,11 +3686,6 @@ h1, h3, h4, h5, h6 {
   height: 48px;
   flex-shrink: 0;
   transition: all 0.2s ease;
-}
-
-.stat-pill:hover {
-  background: var(--color-graphite-800);
-  border-color: var(--color-teal-500);
 }
 
 .stat-pill-value {
@@ -3804,6 +3874,8 @@ h1, h3, h4, h5, h6 {
     width: 56px;
     height: 46px;
     padding: 6px 8px;
+    margin-bottom: 15px;
+    margin-top: 10px;
   }
 
   .stat-pill-value {
@@ -3812,6 +3884,12 @@ h1, h3, h4, h5, h6 {
 
   .stat-pill-label {
     font-size: 9px;
+  }
+
+  .player-row-card {
+    width: 100px;
+    height: 100px;
+    margin-right: 12px;
   }
 }
 
@@ -3822,8 +3900,8 @@ h1, h3, h4, h5, h6 {
   }
 
   .player-row-card {
-    width: 70px;
-    height: 94px;
+    width: 100px;
+    height: 100px;
     margin-right: 12px;
   }
 
@@ -3868,6 +3946,8 @@ h1, h3, h4, h5, h6 {
     width: 54px;
     height: 44px;
     padding: 6px 8px;
+    margin-bottom: 15px;
+    margin-top: 10px;
   }
 
   .stat-pill-value {
@@ -3903,6 +3983,8 @@ h1, h3, h4, h5, h6 {
     width: 52px;
     height: 42px;
     padding: 5px 7px;
+    margin-bottom: 15px;
+    margin-top: 10px;
   }
 
   .stat-pill-value {
@@ -3911,6 +3993,11 @@ h1, h3, h4, h5, h6 {
 
   .stat-pill-label {
     font-size: 8px;
+  }
+  .player-row-card {
+    width: 100px;
+    height: 100px;
+    margin-right: 12px;
   }
 }
 
@@ -6379,7 +6466,7 @@ h1, h3, h4, h5, h6 {
     padding-bottom: 20px;
     overflow-x: hidden;
     overflow-y: auto;
-    max-width: 100vw;
+    max-width: 110vw;
   }
 
   #market-view {
@@ -6978,7 +7065,7 @@ h1, h3, h4, h5, h6 {
   .hero-banner-slider {
     height: auto;
     aspect-ratio: 2 / 1;
-    min-height: 185px;   /* ⬅ increase from ~180 → 200 */
+    min-height: 185px;   /* â¬… increase from ~180 â†’ 200 */
     border-radius: 12px;
   }
 
@@ -7086,7 +7173,7 @@ h1, h3, h4, h5, h6 {
 
 .dashboard-player-card {
     position: relative;
-    width: 77%;
+    width: 60%;
     aspect-ratio: 3/4;
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -7125,8 +7212,8 @@ h1, h3, h4, h5, h6 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 130%;
-    height: 130%;
+    width: 125%;
+    height: 125%;
     object-fit: contain;
     z-index: 2;
 }
@@ -7134,34 +7221,38 @@ h1, h3, h4, h5, h6 {
 /* OVR Badge (Top Center) */
 .card-ovr {
     position: absolute;
-    top: 9%;
-    left: 10%;
-    font-size: 1.9rem;  
-    font-weight: 750;
+    top: 11%;
+    left: 11%;
+    font-size: 1.4rem;
+    font-weight: 800;
     z-index: 3;
     font-family: "CruyffSans", sans-serif;
-    letter-spacing: -0.3px;
+
+    letter-spacing: -2.6px;
+    line-height: 1.1;
+    transform: scaleY(1);
 }
 
 /* Position Badge */
 .card-position {
     position: absolute;
-    top: 24%;
-    left: 14.5%;
-    font-size: 1.4rem;
-    font-weight: 750;
+    top: 26%;
+    left: 18%;
+    transform: translateX(-50%);
+    font-size: 1.1rem;
+    font-weight: 799;
     z-index: 3;
-    letter-spacing: 0.1px;
-    font-family: "CruyffSans", sans-serif;
-    letter-spacing: -0.4px;
+    letter-spacing: -0.7px;
+    line-height: 0.8;
+    transform: scaleY(0.9);
 }
 
 /* Player Name */
 .card-player-name {
     position: absolute;
-    bottom: 24%;
-    font-size: 1.3rem;
-    font-weight: 900;
+    bottom: 27%;
+    font-size: 0.9rem;
+    font-weight: 800;
     text-transform: uppercase;
     z-index: 3;
     text-align: center;
@@ -7169,18 +7260,19 @@ h1, h3, h4, h5, h6 {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    letter-spacing: 0.1px;
     font-family: "CruyffSans", sans-serif;
     letter-spacing: -0.6px;
+    line-height: 0.9;
+    transform: scaleY(1);
 }
 
 /* Nation Flag (Bottom Left) */
 .card-nation-flag {
     position: absolute;
-    bottom: 18%;
-    left: 27%;
-    width: 20px;
-    height: 16px;
+    bottom: 17%;
+    left: 28%;
+    width: 15px;
+    height: 15px;
     object-fit: cover;
     border-radius: 3px;
     z-index: 3;
@@ -7189,10 +7281,10 @@ h1, h3, h4, h5, h6 {
 /* Club Flag (Bottom Right) */
 .card-club-flag {
     position: absolute;
-    bottom: 16%;
+    bottom: 17%;
     right: 28%;
-    width: 20px;
-    height: 20px;
+    width: 15px;
+    height: 15px;
     object-fit: contain;
     z-index: 3;
 }
@@ -8595,7 +8687,7 @@ h1, h3, h4, h5, h6 {
   padding: 12px;
   text-align: center;
   transition: all 0.3s ease;
-  cursor: pointer; /* ✅ Show it's clickable */
+  cursor: pointer; /* âœ… Show it's clickable */
   position: relative;
 }
 
@@ -8605,7 +8697,7 @@ h1, h3, h4, h5, h6 {
   box-shadow: 0 5px 20px rgba(0, 194, 168, 0.2);
 }
 
-/* ✅ Add a subtle hint that card is clickable */
+/* âœ… Add a subtle hint that card is clickable */
 .skill-card::after {
   content: 'Click for details';
   position: absolute;
@@ -8627,11 +8719,11 @@ h1, h3, h4, h5, h6 {
 .skill-card.locked {
   opacity: 0.5;
   filter: grayscale(50%);
-  cursor: not-allowed; /* ✅ Different cursor for locked skills */
+  cursor: not-allowed; /* âœ… Different cursor for locked skills */
 }
 
 .skill-card.locked::after {
-  display: none; /* ✅ Don't show hint for locked skills */
+  display: none; /* âœ… Don't show hint for locked skills */
 }
 
 .skill-icon {
@@ -8936,3 +9028,754 @@ h1, h3, h4, h5, h6 {
 }
 
 
+/* ==================== RESPONSIVE BREAKPOINTS ==================== */
+
+/* Tablet: 768px - 1020px - Perfect as is */
+@media (max-width: 1020px) {
+  .skills-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+  }
+
+  .skill-card {
+    padding: 10px;
+  }
+
+  .skill-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .skill-name {
+    font-size: 11px;
+  }
+
+  .level-number {
+    font-size: 14px;
+  }
+
+  .player-skills-section {
+    padding: 12px;
+  }
+
+  .skills-header h3 {
+    font-size: 16px;
+  }
+
+  .reset-skills-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
+
+/* Mobile: 480px - 768px - 2 rows: 3 + 3 */
+@media (max-width: 768px) {
+  .skills-grid {
+    grid-template-columns: repeat(3, 1fr); /* âœ… 3 skills per row */
+    gap: 10px;
+    max-width: 100%;
+  }
+
+  .skill-card {
+    padding: 10px;
+  }
+
+  .skill-icon {
+    width: 48px; /* âœ… Fixed size - not too big */
+    height: 48px;
+    margin-bottom: 8px;
+  }
+
+  .skill-name {
+    font-size: 10px;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .skill-level {
+    font-size: 10px;
+  }
+
+  .level-number {
+    font-size: 13px;
+  }
+
+  .player-skills-section {
+    padding: 12px;
+  }
+
+  .skills-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .skills-header h3 {
+    font-size: 15px;
+    text-align: center;
+  }
+
+  .reset-skills-btn {
+    width: 100%;
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  .lock-overlay {
+    font-size: 28px;
+  }
+
+  .unlock-requirement {
+    font-size: 9px;
+    padding: 6px;
+    margin-top: 6px;
+  }
+
+  .skill-actions {
+    margin-top: 8px;
+  }
+
+  .upgrade-btn,
+  .max-level-badge {
+    font-size: 10px;
+    padding: 6px 10px;
+  }
+
+  /* Modal adjustments */
+  .skill-modal-content {
+    max-width: 95%;
+    padding: 20px;
+  }
+
+  .boost-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Small Mobile: max-width 480px - 2 rows: 3 + 3 */
+@media (max-width: 480px) {
+  .skills-grid {
+    grid-template-columns: repeat(3, 1fr); /* âœ… 3 skills per row */
+    gap: 8px;
+  }
+
+  .skill-card {
+    padding: 8px;
+    border-radius: 10px;
+  }
+
+  .skill-icon {
+    width: 42px; /* âœ… Fixed - smaller for small screens */
+    height: 42px;
+    margin-bottom: 6px;
+  }
+
+  .skill-name {
+    font-size: 9px;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .skill-level {
+    font-size: 9px;
+    margin-bottom: 6px;
+  }
+
+  .level-number {
+    font-size: 12px;
+  }
+
+  .player-skills-section {
+    padding: 10px;
+    margin-bottom: 16px;
+  }
+
+  .skills-header h3 {
+    font-size: 14px;
+  }
+
+  .reset-skills-btn {
+    font-size: 10px;
+    padding: 6px;
+  }
+
+  .lock-overlay {
+    font-size: 24px;
+  }
+
+  .unlock-requirement {
+    font-size: 8px;
+    padding: 4px;
+    margin-top: 4px;
+  }
+
+  .skill-actions {
+    margin-top: 6px;
+  }
+
+  .upgrade-btn {
+    padding: 5px 10px;
+    font-size: 9px;
+  }
+
+  .max-level-badge {
+    padding: 4px 8px;
+    font-size: 9px;
+  }
+
+  /* Modal adjustments */
+  .skill-modal-content {
+    padding: 15px;
+  }
+
+  .modal-close-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    top: 10px;
+    right: 10px;
+  }
+
+  .boost-level-section {
+    padding: 12px;
+  }
+
+  .boost-level-section h4 {
+    font-size: 13px;
+  }
+
+  .boost-stat {
+    font-size: 11px;
+    padding: 6px;
+  }
+
+  .modal-action-btn {
+    padding: 10px 20px;
+    font-size: 12px;
+  }
+
+  .points-info {
+    gap: 8px;
+  }
+
+  .current-level-badge,
+  .points-remaining-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}
+
+/* Extra Small: max-width 360px - 2 rows: 3 + 3 */
+@media (max-width: 360px) {
+  .skills-grid {
+    grid-template-columns: repeat(3, 1fr); /* âœ… 3 skills per row */
+    gap: 6px;
+  }
+
+  .skill-card {
+    padding: 6px;
+  }
+
+  .skill-icon {
+    width: 36px; /* âœ… Even smaller for tiny screens */
+    height: 36px;
+    margin-bottom: 4px;
+  }
+
+  .skill-name {
+    font-size: 8px;
+    margin-bottom: 3px;
+  }
+
+  .skill-level {
+    font-size: 8px;
+  }
+
+  .level-number {
+    font-size: 11px;
+  }
+
+  .lock-overlay {
+    font-size: 20px;
+  }
+
+  .unlock-requirement {
+    font-size: 7px;
+    padding: 3px;
+  }
+}
+
+
+
+/* Inside player detail card*/
+
+.card-background-img-inside {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+.player-image-img-inside {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 2;
+}
+
+.card-ovr-inside {
+    position: absolute;
+    top: 11%;
+    left: 21%;
+    font-size: 1.8rem;
+    font-weight: 900;
+    z-index: 3;
+    font-family: "CruyffSans", sans-serif;
+
+    letter-spacing: -2.6px;
+    line-height: 1.1;
+    transform: scaleY(1.4);
+}
+
+.card-position-inside {
+    position: absolute;
+    top: 26%;
+    left: 26%;
+    transform: translateX(-50%);
+    font-size: 1.4rem;
+    font-weight: 799;
+    z-index: 3;
+    letter-spacing: -0.7px;
+    line-height: 0.7;
+    transform: scaleY(1.2);
+}
+
+
+.card-player-name-inside {
+    position: absolute;
+    bottom: 27%;
+    font-size: 1.3rem;
+    font-weight: 799;
+    text-transform: uppercase;
+    z-index: 3;
+    text-align: center;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: "CruyffSans", sans-serif;
+    letter-spacing: -0.3px;
+    line-height: 1.1;
+    transform: scaleY(1.2);
+}
+
+.card-nation-flag-inside {
+    position: absolute;
+    bottom: 16%;
+    left: 32%;
+    width: 28px;
+    height: 28px;
+    object-fit: cover;
+    border-radius: 3px;
+    z-index: 3;
+}
+
+.card-club-flag-inside {
+    position: absolute;
+    bottom: 16%;
+    right: 32%;
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    z-index: 3;
+}
+
+
+.players-grid .player-row,
+.players-grid .player-card {
+  background: rgba(20,24,28,0.7) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+}
+
+
+
+.players-grid .player-row,
+.players-grid .player-card {
+  background: rgba(20,24,28,0.45) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+/* SHARP BACKGROUND - NO BLUR ANYWHERE */
+#database-view *,
+.filters-sidebar,
+.database-toolbar,
+.player-row,
+.player-card {
+  backdrop-filter: none !important;
+}
+
+/* SEMI-TRANSPARENT COLORS ONLY (NO BLUR) */
+.filters-sidebar,
+.database-toolbar {
+  background: rgba(20,24,28,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.players-grid .player-row,
+.players-grid .player-card {
+  background: rgba(20,24,28,0.55);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.players-grid {
+  background: transparent !important;
+}
+
+
+/* FULL VIEWPORT BACKGROUND + SMOOTH */
+#database-view {
+  min-height: 100vh !important;
+}
+
+.players-grid {
+  min-height: 60vh;
+  background: transparent !important;
+}
+
+/* BACKGROUND ONLY FULLSCREEN */
+#database-view {
+  box-sizing: border-box;
+}
+
+#database-view::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: inherit;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  z-index: -1;
+}
+
+
+.view-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 6px 14px;
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+
+  color: #cfd8dc;
+  background: rgba(255, 255, 255, 0.04);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+
+  cursor: pointer;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease;
+}
+
+.view-all-btn:hover {
+  color: #ffffff;
+  background: rgba(0, 255, 200, 0.12);
+  border-color: rgba(0, 255, 200, 0.45);
+  transform: translateY(-1px);
+}
+
+.view-all-btn:active {
+  transform: translateY(0);
+}
+
+.view-all-btn::after {
+  content: "â†’";
+  font-size: 13px;
+  transition: transform 0.25s ease;
+}
+
+.view-all-btn:hover::after {
+  transform: translateX(3px);
+}
+
+/* NEW: Alternate positions styling */
+.alternate-positions {
+  font-size: 0.8em;
+  color: #a0aec0;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+/* Make sure it fits on mobile */
+@media (max-width: 768px) {
+  .alternate-positions {
+    font-size: 0.75em;
+  }
+}
+
+
+/* Toggle Switch Styles */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-graphite-700);
+    border: 1px solid var(--color-border);
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--color-text-muted);
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--color-teal-500);
+    border-color: var(--color-teal-600);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+    background-color: var(--color-white);
+}
+
+.toggle-switch input:focus + .toggle-slider {
+    box-shadow: 0 0 0 2px rgba(var(--color-teal-rgb), 0.2);
+}
+
+.price-icon {
+    height: 18px;
+    width: auto;
+    vertical-align: middle;
+    margin-right: 4px;
+    margin-left: 5px;
+}
+
+.price-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fbbf24;
+    vertical-align: middle;
+    letter-spacing: 1.5px;
+    margin-left: 1px; 
+}
+
+
+
+/* ===== BACKGROUND IMAGE FOR HOME, MARKET, WATCHLIST, PLAYER DETAIL VIEWS ===== */
+
+/* Home View (Dashboard) */
+#dashboard-view {
+  position: relative !important;
+  min-height: 100vh !important;
+  background-image: url('assets/images/background/database_img_main.webp') !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  padding-left: calc(50vw - 50%) !important;
+  padding-right: calc(50vw - 50%) !important;
+}
+
+
+/* Market View */
+#market-view {
+  position: relative !important;
+  min-height: 100vh !important;
+  background-image: url('assets/images/background/database_img_main.webp') !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  padding-left: calc(50vw - 50%) !important;
+  padding-right: calc(50vw - 50%) !important;
+}
+
+#market-view > * {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Watchlist View */
+#watchlist-view {
+  position: relative !important;
+  min-height: 100vh !important;
+  background-image: url('assets/images/background/database_img_main.webp') !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  padding-left: calc(50vw - 50%) !important;
+  padding-right: calc(50vw - 50%) !important;
+}
+
+#watchlist-view > * {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+#player-detail-view > * {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Make cards semi-transparent to show background through */
+#dashboard-view .stat-card,
+#dashboard-view .player-card,
+#dashboard-view .update-item,
+#market-view .market-card,
+#market-view .market-section,
+#watchlist-view .player-card,
+#watchlist-view .player-row,
+#player-detail-view .detail-card,
+#player-detail-view .detail-info,
+#player-detail-view .detail-price-section {
+  background: rgba(20,24,28,0.75) !important;
+  backdrop-filter: blur(5px) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+}
+
+
+/* Database View Background */
+#database-view {
+  position: relative !important;
+  min-height: 100vh !important;
+  background-image: url('assets/images/background/database_img_main.webp') !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
+/* Ensure content is above overlay */
+#database-view > * {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+
+/* ====================================
+   CUSTOM STATS - HORIZONTAL SCROLL
+   ==================================== */
+
+
+.player-row-stats {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto; /* Enable horizontal scroll */
+    overflow-y: hidden;
+    padding: 4px 0;
+    scroll-behavior: smooth;
+    
+    /* Hide scrollbar but keep functionality */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+.player-row-stats::-webkit-scrollbar {
+    height: 4px;
+}
+
+.player-row-stats::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.player-row-stats::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.player-row-stats::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Prevent stat pills from wrapping */
+.stat-pill {
+    flex-shrink: 0; /* Don't shrink */
+    min-width: fit-content;
+}
+
+/* Optional: Highlight custom stats with subtle styling */
+.stat-pill-custom {
+    background: rgba(59, 130, 246, 0.1); /* Subtle blue tint */
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.stat-pill-custom .stat-pill-label {
+    color: #60a5fa; /* Light blue for custom stat labels */
+}
+
+/* Optional: Add fade effect at edges when scrolling */
+.player-row-stats::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(to right, transparent, var(--bg-secondary));
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.player-row-stats:hover::after {
+    opacity: 1;
+}
+
+
+.player-card-scale {
+    transform: scale(1.1); /* 10% bigger */
+    transform-origin: top left;
+}

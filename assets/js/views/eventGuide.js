@@ -1,7 +1,35 @@
 // FC Market Pro - Event Guide (Redesigned)
 // Professional multi-section guide with proper styling and navigation
 
-// Event data array with comprehensive details
+// ========================================
+// INITIALIZATION FUNCTION
+// ========================================
+window.initEventGuide = function() {
+    console.log('[EVENT GUIDE] Initializing...');
+    
+    const container = document.getElementById('event-guide-view');
+    if (!container) {
+        console.error('[EVENT GUIDE] Container #event-guide-view not found');
+        return;
+    }
+    
+    // Create the main container for event guide
+    container.innerHTML = `
+        <div id="event-guide-container" style="padding: 24px; max-width: 1400px; margin: 0 auto;">
+            <!-- Events will be loaded here -->
+        </div>
+    `;
+    
+    // Load the event grid
+    loadEventGuide();
+    
+    console.log('[EVENT GUIDE] Loaded successfully');
+};
+
+
+// ========================================
+// EVENT DATA
+// ========================================
 const fcEvents = [
   {
     id: 1,
@@ -190,7 +218,10 @@ const fcEvents = [
   }
 ];
 
-// Load Event Guide view (Main Grid)
+
+// ========================================
+// LOAD EVENT GUIDE VIEW (MAIN GRID)
+// ========================================
 function loadEventGuide() {
   const container = document.getElementById('event-guide-container');
   if (!container) return;
@@ -210,7 +241,10 @@ function loadEventGuide() {
   container.appendChild(gridContainer);
 }
 
-// Create premium event card
+
+// ========================================
+// CREATE PREMIUM EVENT CARD
+// ========================================
 function createPremiumEventCard(event) {
   const card = document.createElement('div');
   card.className = 'event-card-premium';
@@ -233,7 +267,10 @@ function createPremiumEventCard(event) {
   return card;
 }
 
-// Display detailed event view
+
+// ========================================
+// DISPLAY DETAILED EVENT VIEW
+// ========================================
 function displayEventDetail(eventId) {
   const event = fcEvents.find(e => e.id === eventId);
   if (!event) return;
@@ -299,7 +336,10 @@ function displayEventDetail(eventId) {
   });
 }
 
-// Render individual event section based on type
+
+// ========================================
+// RENDER INDIVIDUAL EVENT SECTION
+// ========================================
 function renderEventSection(section, index) {
   let html = `<section class="event-detail-section" id="section-${index}">
     <h2 class="section-title">${section.title}</h2>`;
@@ -422,7 +462,10 @@ function renderEventSection(section, index) {
   return html;
 }
 
-// Tab switching function
+
+// ========================================
+// TAB SWITCHING FUNCTION
+// ========================================
 function switchTab(button) {
   const container = button.parentElement.parentElement;
   
@@ -436,7 +479,10 @@ function switchTab(button) {
   container.querySelectorAll('.tab-content')[tabIndex].classList.add('active');
 }
 
-// Scroll to section function
+
+// ========================================
+// SCROLL TO SECTION FUNCTION
+// ========================================
 function scrollToSection(sectionId, event) {
   event.preventDefault();
   const element = document.getElementById(sectionId);
@@ -444,3 +490,5 @@ function scrollToSection(sectionId, event) {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
+
+console.log('[EVENT GUIDE] Script loaded successfully');

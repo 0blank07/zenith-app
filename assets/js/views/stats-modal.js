@@ -363,25 +363,67 @@ function renderAllStats() {
 
 // ========== ACTION BUTTONS ==========
 
-window.resetStatsFilters = function () {
-  customStatsState.selectedTemplates = [];
-  customStatsState.selectedPrices = [];
-  customStatsState.selectedAllStats = [];
-  customStatsState.searchAllStats = '';
-
-  document.getElementById('all-stats-search').value = '';
-
-  updateTemplateButtons();
-  updatePriceButtons();
-  updateAllStatButtons();
-  updateSelectionCounters();
-  renderAllStats();
+window.resetStatsFilters = function() {
+    customStatsState.selectedTemplates = [];
+    customStatsState.selectedPrices = [];
+    customStatsState.selectedAllStats = [];
+    customStatsState.searchAllStats = '';
+    
+    document.getElementById('all-stats-search').value = '';
+    
+    // Clear global and localStorage
+    window.customSelectedStats = [];
+    localStorage.removeItem('customSelectedStats');
+    
+    updateTemplateButtons();
+    updatePriceButtons();
+    updateAllStatButtons();
+    updateSelectionCounters();
+    renderAllStats();
+    
+    console.log('🧹 Reset custom stats filters');
+    
+    // Reload current view
+    if (window.state && window.state.currentView === 'database') {
+        window.loadDatabase();
+    } else if (window.state && window.state.currentView === 'watchlist') {
+        window.loadWatchlist();
+    }
 };
 
-window.applyStatsFilters = function () {
-  // Integrate with player filtering logic
-  console.log('Applied custom stats filters:', customStatsState);
-  renderPriceTiers();
-  renderAllStats();
-  updateSelectionCounters();
-}
+
+window.applyStatsFilters = function() {
+    // Save selected stats globally for app.js to access
+    window.customSelectedStats = [...customStatsState.selectedAllStats];
+    
+    // Also save to localStorage for persistence
+    localStorage.setItem('customSelectedStats', JSON.stringify(customStatsState.selectedAllStats));
+    
+    console.log('✅ Applied custom stats filters:', customStatsState.selectedAllStats);
+    
+    // Reload the current view to apply changes
+    if (window.state && window.state.currentView === 'database') {
+        window.loadDatabase();
+    } else if (window.state && window.state.currentView === 'watchlist') {
+        window.loadWatchlist();
+    }
+    
+    // Close the modal
+    window.closeStatsModal();
+};
+
+
+// Initialize from localStorage on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const saved = localStorage.getItem('customSelectedStats');
+    if (saved) {
+        try {
+            window.customSelectedStats = JSON.parse(saved);
+            console.log('📦 Loaded custom stats from localStorage:', window.customSelectedStats);
+        } catch (e) {
+            window.customSelectedStats = [];
+        }
+    } else {
+        window.customSelectedStats = [];
+    }
+});

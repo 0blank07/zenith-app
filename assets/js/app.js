@@ -101,11 +101,68 @@ async function viewPlayerDetail(playerId, fallbackPlayer = null) {
     }
 }
 
+// ====================================
+// STAT MAPPING FOR CUSTOM STATS DISPLAY
+// ====================================
+// ====================================
+// STAT MAPPING - CORRECT COLUMN NAMES FROM API
+// ====================================
+const STAT_MAPPING = {
+    // Pace
+    'acceleration': { key: 'acceleration', label: 'ACC' },
+    'sprint_speed': { key: 'sprintspeed', label: 'SPD' },
+    
+    // Shooting
+    'finishing': { key: 'finishing', label: 'FIN' },
+    'long_shot': { key: 'longshot', label: 'LSH' },
+    'shot_power': { key: 'shotpower', label: 'POW' },
+    'positioning': { key: 'positioning', label: 'POS' },
+    'volley': { key: 'volley', label: 'VOL' },
+    'penalties': { key: 'penalties', label: 'PEN' },
+    
+    // Passing
+    'short_passing': { key: 'shortpassing', label: 'SPA' },
+    'long_passing': { key: 'longpassing', label: 'LPA' },
+    'crossing': { key: 'crossing', label: 'CRO' },
+    'vision': { key: 'vision', label: 'VIS' },
+    'curve': { key: 'curve', label: 'CUR' },
+    'free_kick': { key: 'freekick', label: 'FK' },
+    
+    // Dribbling
+    'dribbling': { key: 'dribbling', label: 'DRI' },
+    'ball_control': { key: 'ball_control', label: 'B.CON' },
+    'agility': { key: 'agility', label: 'AGI' },
+    'balance': { key: 'balance', label: 'BAL' },
+    'reactions': { key: 'reactions', label: 'REA' },
+    
+    // Defending
+    'marking': { key: 'marking', label: 'MAR' },
+    'standing_tackle': { key: 'standingtackle', label: 'STA' },
+    'sliding_tackle': { key: 'slidingtackle', label: 'SLD' },
+    'interceptions': { key: 'interceptions', label: 'INT' },
+    'heading': { key: 'heading', label: 'HEA' },
+    
+    // Physical
+    'strength': { key: 'strength', label: 'STR' },
+    'jumping': { key: 'jumping', label: 'JUM' },
+    'stamina': { key: 'stamina_stat', label: 'STA' },
+    'aggression': { key: 'aggression', label: 'AGG' },
+    'awareness': { key: 'awareness', label: 'AWR' },
+    
+    // Goalkeeper
+    'gk_diving': { key: 'gkdiving', label: 'DIV' },
+    'gk_handling': { key: 'gkhandling', label: 'HAN' },
+    'gk_kicking': { key: 'gkkicking', label: 'KIC' },
+    'gk_positioning': { key: 'gkpositioning', label: 'GPO' },
+    'gk_reflexes': { key: 'gkreflexes', label: 'REF' }
+};
+
+
 
 // ========== ANIMATED RANK ICON SYSTEM ==========
 const RANK_CONFIG = {
     frameCount: 36,     // ✅ 36 frames total
-    fps: 36,            // 36 FPS
+    fps: 18,            // 36 FPS
     frameWidth: 32,     // ✅ 192px ÷ 6 = 32px per frame
     frameHeight: 32,    // ✅ 192px ÷ 6 = 32px per frame
     columns: 6,         // ✅ 6 columns per row
@@ -114,17 +171,17 @@ const RANK_CONFIG = {
         1: 'assets/images/ranks/green_rank.png',
         2: 'assets/images/ranks/blue_rank.png',
         3: 'assets/images/ranks/purple_rank.png',
-        4: 'assets/images/ranks/gold_rank.png',
-        5: 'assets/images/ranks/red_rank.png'
+        4: 'assets/images/ranks/red_rank.png',
+        5: 'assets/images/ranks/gold_rank.png',
     },
     skillPoints: {
         0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5
     },
     rankNames: {
-        0: 'Base', 1: 'Green', 2: 'Blue', 3: 'Purple', 4: 'Gold', 5: 'Red'
+        0: 'Base', 1: 'Green', 2: 'Blue', 3: 'Purple', 4: 'Red', 5: 'Gold'
     },
     rankColors: {
-        0: '#98A0A6', 1: '#3BD671', 2: '#6366F1', 3: '#8B5CF6', 4: '#FFB86B', 5: '#FF6B6B'
+        0: '#98A0A6', 1: '#3BD671', 2: '#6366F1', 3: '#8B5CF6', 4: '#FF6B6B', 5: '#FFB86B'
     }
 };
 
@@ -266,16 +323,67 @@ window.switchStatTab = function(statId) {
 };
 
 window.togglePlayerWatchlist = function(uniqueId) {
-    if (typeof toggleWatchlist === 'function') {
-        toggleWatchlist(uniqueId);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔵 [TOGGLE PLAYER] Called with uniqueId:', uniqueId);
+    console.log('🔵 [TOGGLE PLAYER] Current view:', state.currentView);
+    
+    if (typeof window.toggleWatchlist === 'function') {
+        console.log('✅ [TOGGLE PLAYER] window.toggleWatchlist EXISTS');
+        
+        // Check before state
+        const wasInWatchlist = state.watchlist.includes(uniqueId);
+        console.log('📋 [TOGGLE PLAYER] Was in watchlist BEFORE:', wasInWatchlist);
+        console.log('📋 [TOGGLE PLAYER] Watchlist count BEFORE:', state.watchlist.length);
+        
+        // Call the toggle function
+        window.toggleWatchlist(uniqueId);
+        
+        // Check after state
+        const isInWatchlist = state.watchlist.includes(uniqueId);
+        console.log('📋 [TOGGLE PLAYER] Is in watchlist AFTER:', isInWatchlist);
+        console.log('📋 [TOGGLE PLAYER] Watchlist count AFTER:', state.watchlist.length);
+        
+        // Re-render player detail if viewing a player
         if (state && state.selectedPlayer) {
+            console.log('🔄 [TOGGLE PLAYER] Re-rendering player detail...');
             renderPlayerDetail(state.selectedPlayer);
         }
+        
+        // ✅ NEW: If we're in watchlist view, reload it
+        if (state.currentView === 'watchlist') {
+            console.log('🔄 [TOGGLE PLAYER] Currently in watchlist view - reloading...');
+            
+            if (typeof window.loadWatchlistData === 'function') {
+                setTimeout(() => {
+                    window.loadWatchlistData();
+                    console.log('✅ [TOGGLE PLAYER] Watchlist view reloaded');
+                }, 100);
+            } else if (typeof window.initProfessionalWatchlist === 'function') {
+                setTimeout(() => {
+                    window.initProfessionalWatchlist();
+                    console.log('✅ [TOGGLE PLAYER] Watchlist view re-initialized');
+                }, 100);
+            } else {
+                console.warn('⚠️ [TOGGLE PLAYER] No watchlist reload function found');
+            }
+        }
+        
+        console.log('✅ [TOGGLE PLAYER] Complete');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+    } else {
+        console.error('❌ [TOGGLE PLAYER] window.toggleWatchlist NOT FOUND!');
+        console.log('   Available toggle functions:', Object.keys(window).filter(k => k.includes('toggle')));
     }
 };
 
 
-function renderPlayerDetail(player) {
+
+
+
+
+
+async function renderPlayerDetail(player) {
     const container = document.getElementById('player-detail-view');
     if (!container) {
         console.error('[DETAIL] player-detail-view container not found in HTML');
@@ -671,60 +779,48 @@ function renderPlayerDetail(player) {
                                 width: 260px;
                                 height: 260px;
                                 margin: 0 auto 24px;
-                                background: var(--color-graphite-700, #1B2126);
-                                border-radius: var(--radius-md, 10px);
                                 display: flex;
                                 align-items: center;
                                 justify-content: center;
                                 position: relative;
                                 overflow: hidden;
-                                border: 2px solid rgba(0,194,168,0.2);
                             ">
-                                ${player.player_image ?
-                                    `<img src="${player.player_image}" alt="${player.name}" style="width: 100%; height: 100%; object-fit: cover;">` :
-                                    `<span style="font-size: 80px; font-weight: 800; color: var(--color-text-muted, #98A0A6); font-family: var(--font-family-base);">${typeof getInitials === 'function' ? getInitials(player.name) : player.name.substring(0,2)}</span>`
-                                }
-                                <div style="
-                                    position: absolute;
-                                    top: 14px;
-                                    left: 14px;
-                                    background: var(--color-teal-500, #00C2A8);
-                                    color: var(--color-graphite-900, #0E1114);
-                                    width: 64px;
-                                    height: 64px;
-                                    border-radius: var(--radius-base, 8px);
-                                    display: flex;
-                                    flex-direction: column;
-                                    align-items: center;
-                                    justify-content: center;
-                                    box-shadow: 0 4px 16px rgba(0,194,168,0.5);
-                                    font-family: var(--font-family-base);
-                                ">
-                                    <div style="font-size: 32px; font-weight: 900; line-height: 1;">
-                                        ${player.ovr || 'N/A'}
-                                        ${player.training_level > 0 ? `<span style="font-size: 14px; color: #00C2A8; margin-left: 4px;">+${player.training_level}</span>` : ''}
-                                    </div>
-                                    <div style="font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase;">
-                                        OVR${player.training_level > 0 ? ' (Trained)' : ''}
-                                    </div>
+                                
+                                <img src="${player.card_background || 'https://via.placeholder.com/300x400'}"
+                                                alt="Card Background"
+                                                class="card-background-img-inside"
+                                                onerror="this.src='https://via.placeholder.com/300x400'">
 
-                                </div>
-                                <div style="
-                                    position: absolute;
-                                    top: 14px;
-                                    right: 14px;
-                                    background: rgba(0,0,0,0.75);
-                                    backdrop-filter: blur(10px);
-                                    color: white;
-                                    padding: 10px 16px;
-                                    border-radius: var(--radius-base, 8px);
-                                    font-size: 15px;
-                                    font-weight: 800;
-                                    font-family: var(--font-family-base);
-                                    border: 1px solid rgba(255,255,255,0.15);
-                                ">${player.position || 'N/A'}</div>
+                                            <img src="${player.player_image || 'https://via.placeholder.com/200x300'}"
+                                                alt="${player.name}"
+                                                class="player-image-img-inside"
+                                                onerror="this.src='https://via.placeholder.com/200x300'">
+
+                                            <div class="card-ovr-inside" style="color: ${player.color_rating || '#FFFFFF'}">
+                                                ${player.ovr && player.ovr > 0 ? player.ovr : 'N/A'}
+                                            </div>
+
+                                            <div class="card-position-inside" style="color: ${player.color_position || '#FFFFFF'}">
+                                                ${player.position || 'N/A'}
+                                            </div>
+
+                                            <div class="card-player-name-inside" style="color: ${player.color_name || '#FFFFFF'}">
+                                                ${player.name}
+                                            </div>
+
+                                            <img src="${player.nation_flag || ''}"
+                                                alt="Nation"
+                                                class="card-nation-flag-inside"
+                                                onerror="this.style.display='none'">
+
+                                            <img src="${player.club_flag || ''}"
+                                                alt="Club"
+                                                class="card-club-flag-inside"
+                                                onerror="this.style.display='none'">
+                                
+                                
+
                             </div>
-
                             <h1 style="
                                 font-size: 28px;
                                 font-weight: 800;
@@ -886,7 +982,7 @@ function renderPlayerDetail(player) {
 
                     <!-- RIGHT: Rank / Training area + Skills -->
                     <div>
-                        ${buildRankSelectionSection(player)}
+                        ${await buildRankSelectionSection(player)}
                         
                         <!-- ⚡ SKILLS SECTION - Now below rank box -->
                         <div class="player-skills-section" style="margin-top: 24px;">
@@ -1164,8 +1260,8 @@ function renderPlayerDetail(player) {
                 
                 /* Reduce player image size */
                 .player-top-section img[alt]:first-of-type {
-                    width: 220px !important;
-                    height: 220px !important;
+                    width: 42px !important;
+                    height: 42px !important;
                 }
                 
                 /* Reduce OVR badge */
@@ -1827,6 +1923,17 @@ function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining
         boostsHTML += `<div class="boost-stat">+${value} ${statName}</div>`;
       }
     }
+    // ✅ ADD: Show alternate positions for Level 2 only
+    if (levelNum === 2 && player.alternate_position) {
+        const altPositions = player.alternate_position
+            .split(',')
+            .map(pos => pos.trim())
+            .filter(pos => pos.length > 0 && pos !== '0');
+        
+        if (altPositions.length > 0) {
+            boostsHTML += `<div class="boost-stat" style="color: #00C2A8; font-weight: 700;">Alt Positions: ${altPositions.join(', ')}</div>`;
+        }
+    }
     
     boostsHTML += `
         </div>
@@ -2167,7 +2274,8 @@ function buildTrainingSection(player) {
 }
 
 // ========== RANK SELECTION SECTION ==========
-function buildRankSelectionSection(player) {
+// ==================== RANK SELECTION SECTION ====================
+async function buildRankSelectionSection(player) {
     const currentRank = player.rank || 0;
     const skillPoints = RANK_CONFIG.skillPoints[currentRank] || 0;
     
@@ -2177,63 +2285,56 @@ function buildRankSelectionSection(player) {
         const rankColor = RANK_CONFIG.rankColors[rankNum];
         const uniqueId = `rank-selector-${rankNum}-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
         
-        // Perfect scaling: 70px icon size, 32px original frame = 2.1875x scale
         const iconSize = 56;
         const spriteSheetSize = 192 * (iconSize / 32); // 420px
         
         return `
             <div class="rank-card ${isSelected ? 'selected' : ''}" 
-                 data-rank="${rankNum}"
-                 onclick="window.selectPlayerRank('${player.player_id}', ${rankNum})"
+                 data-rank="${rankNum}" 
+                 onclick="window.selectPlayerRank(${player.player_id}, ${rankNum})"
                  style="
-                    position: relative;
-                    background: rgba(255,255,255,0.03);
-                    border: 2px solid ${isSelected ? 
-                        (rankNum === 1 ? 'rgba(59,214,113,0.4)' :   /* Green soft */
-                        rankNum === 2 ? 'rgba(99,102,241,0.4)' :   /* Blue soft */
-                        rankNum === 3 ? 'rgba(139,92,246,0.4)' :   /* Purple soft */
-                        rankNum === 4 ? 'rgba(255,184,107,0.4)' :  /* Gold soft */
-                        'rgba(255,107,107,0.4)') :                 /* Red soft */
-                        'rgba(255,255,255,0.08)'};
-                    border-radius: 14px;
-                    padding: 16px 12px;
-                    cursor: pointer;
-                    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-                    text-align: center;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                    box-shadow: ${isSelected ? `0 0 20px ${rankColor}50` : 'none'};
-                    min-width: 40px;
-                    min-height: 70px;
-                ">
-                <!-- BIGGER Rank Number -->
-                <div style="
-                    font-size: 16px;
-                    font-weight: 800;
-                    color: ${rankColor};
-                    font-family: var(--font-family-base);
-                    line-height: 1;
-                ">${rankNum}</div>
+                     position: relative;
+                     background: rgba(255,255,255,0.03);
+                     border: 2px solid ${isSelected ? 
+                         (rankNum === 1 ? 'rgba(59,214,113,0.4)' :
+                          rankNum === 2 ? 'rgba(99,102,241,0.4)' :
+                          rankNum === 3 ? 'rgba(139,92,246,0.4)' :
+                          rankNum === 4 ? 'rgba(255,184,107,0.4)' :
+                          'rgba(255,107,107,0.4)') : 
+                         'rgba(255,255,255,0.08)'};
+                     border-radius: 14px;
+                     padding: 16px 12px;
+                     cursor: pointer;
+                     transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                     text-align: center;
+                     display: flex;
+                     flex-direction: column;
+                     align-items: center;
+                     justify-content: center;
+                     gap: 8px;
+                     box-shadow: ${isSelected ? `0 0 20px ${rankColor}50` : 'none'};
+                     min-width: 40px;
+                     min-height: 70px;
+                 ">
+                <div style="font-size: 16px; font-weight: 800; color: ${rankColor}; font-family: var(--font-family-base); line-height: 1;">
+                    ${rankNum}
+                </div>
                 
-                <!-- PERFECT 70px Icon -->
-                <div class="rank-selector-icon animated-rank-icon"
-                     id="${uniqueId}"
+                <div class="rank-selector-icon animated-rank-icon" 
+                     id="${uniqueId}" 
                      data-rank="${rankNum}"
                      data-icon-size="${iconSize}"
                      style="
-                        width: ${iconSize}px;
-                        height: ${iconSize}px;
-                        background-image: url('${spriteUrl}');
-                        background-size: ${spriteSheetSize}px ${spriteSheetSize}px;
-                        background-position: 0px 0px;
-                        background-repeat: no-repeat;
-                        display: block;
-                        flex-shrink: 0;
-                        image-rendering: pixelated;
-                        filter: ${isSelected ? 'drop-shadow(0 0 8px ' + rankColor + ')' : 'none'};
+                         width: ${iconSize}px;
+                         height: ${iconSize}px;
+                         background-image: url('${spriteUrl}');
+                         background-size: ${spriteSheetSize}px ${spriteSheetSize}px;
+                         background-position: 0px 0px;
+                         background-repeat: no-repeat;
+                         display: block;
+                         flex-shrink: 0;
+                         image-rendering: pixelated;
+                         filter: ${isSelected ? `drop-shadow(0 0 8px ${rankColor})` : 'none'};
                      ">
                 </div>
                 
@@ -2259,152 +2360,146 @@ function buildRankSelectionSection(player) {
         `;
     }).join('');
     
+    // Build refresh time container
+    const refreshTimeHtml = await window.buildRefreshTimeContainer(player);
+    
     return `
-        <div style="
-            background: var(--color-graphite-800, #14181C);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: var(--radius-lg, 12px);
-            padding: 6px;
-            margin-top: 20px;
-            max-width: 566px;
-        ">
-            <!-- Title -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- LEFT: Rank Selection -->
             <div style="
-                font-size: 16px;
-                font-weight: 800;
-                color: var(--color-text-primary, #E6EEF2);
-                margin: 0 0 18px 0;
-                text-transform: uppercase;
-                font-family: var(--font-family-base);
-                letter-spacing: 0.5px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
+                background: var(--color-graphite-800);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: var(--radius-lg);
+                padding: 6px;
             ">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-                Select Rank
-            </div>
-            
-            <!-- Perfect 5-Column Grid -->
-            <div class="rank-cards-grid" style="
-                display: grid;
-                grid-template-columns: repeat(5, 1fr);
-                gap: 14px;
-                margin-bottom: 16px;
-                justify-items: center;
-            ">
-                ${rankCardsHtml}
-            </div>
-            
-            <!-- Subtle Skill Points -->
-            <!-- Training Level Selector -->
-            <div style="
-                background: rgba(20, 24, 28);
-                border: 1px solid rgba(0,194,168,0.12);
-                border-radius: 10px;
-                padding: 16px;
-            ">
-                <!-- Header with Points -->
                 <div style="
+                    font-size: 16px;
+                    font-weight: 800;
+                    color: var(--color-text-primary);
+                    margin: 0 0 18px 0;
+                    text-transform: uppercase;
+                    font-family: var(--font-family-base);
+                    letter-spacing: 0.5px;
                     display: flex;
-                    justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 12px;
+                    gap: 10px;
+                ">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    Select Rank
+                </div>
+                
+                <div class="rank-cards-grid" style="
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 14px;
+                    margin-bottom: 16px;
+                    justify-items: center;
+                ">
+                    ${rankCardsHtml}
+                </div>
+                
+                <!-- Training Level Selector -->
+                <div style="
+                    background: rgba(20,24,28);
+                    border: 1px solid rgba(0,194,168,0.12);
+                    border-radius: 10px;
+                    padding: 16px;
                 ">
                     <div style="
                         display: flex;
+                        justify-content: space-between;
                         align-items: center;
-                        gap: 8px;
+                        margin-bottom: 12px;
                     ">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-teal-500, #00C2A8)" stroke-width="2">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                            <path d="M2 17l10 5 10-5"></path>
-                            <path d="M2 12l10 5 10-5"></path>
-                        </svg>
-                        <span style="
-                            font-size: 13px;
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-teal-500)" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5"></path>
+                                <path d="M2 12l10 5 10-5"></path>
+                            </svg>
+                            <span style="
+                                font-size: 13px;
+                                font-weight: 700;
+                                color: var(--color-text-primary);
+                                text-transform: uppercase;
+                                letter-spacing: 0.3px;
+                            ">Training Level</span>
+                        </div>
+                        
+                        <div style="
+                            background: rgba(0,194,168,0.15);
+                            padding: 6px 12px;
+                            border-radius: 6px;
+                            font-size: 11px;
                             font-weight: 700;
-                            color: var(--color-text-primary, #E6EEF2);
-                            text-transform: uppercase;
-                            letter-spacing: 0.3px;
-                        ">Training Level</span>
+                            color: var(--color-teal-500);
+                        ">
+                            ${skillPoints} Points
+                        </div>
                     </div>
-                    <div style="
-                        background: rgba(0,194,168,0.15);
-                        padding: 6px 12px;
-                        border-radius: 6px;
-                        font-size: 11px;
-                        font-weight: 700;
-                        color: var(--color-teal-500, #00C2A8);
-                    ">
-                        Points: ${skillPoints}
+                    
+                    <div style="position: relative;">
+                        <select id="training-level-${player.player_id}" 
+                                onchange="window.setPlayerTrainingLevel(${player.player_id}, this.value)"
+                                style="
+                                    width: 100%;
+                                    background: var(--color-graphite-800);
+                                    border: 2px solid rgba(0,194,168,0.2);
+                                    border-radius: 8px;
+                                    padding: 12px 16px;
+                                    font-size: 14px;
+                                    font-weight: 600;
+                                    color: var(--color-text-primary);
+                                    font-family: var(--font-family-base);
+                                    cursor: pointer;
+                                    transition: all 0.2s ease;
+                                    appearance: none;
+                                    background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg width=%2712%27 height=%278%27 viewBox=%270 0 12 8%27 fill=%27none%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3cpath d=%27M1 1.5L6 6.5L11 1.5%27 stroke=%27%2300C2A8%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3c/svg%3e');
+                                    background-repeat: no-repeat;
+                                    background-position: right 16px center;
+                                    padding-right: 40px;
+                                "
+                                onfocus="this.style.borderColor='var(--color-teal-500)'; this.style.boxShadow='0 0 0 3px rgba(0,194,168,0.1)';"
+                                onblur="this.style.borderColor='rgba(0,194,168,0.2)'; this.style.boxShadow='none';">
+                            <option value="0" ${(player.training_level || 0) === 0 ? 'selected' : ''}>No Training</option>
+                            ${Array.from({length: 30}, (_, i) => i + 1).map(level => `
+                                <option value="${level}" ${(player.training_level || 0) === level ? 'selected' : ''}>
+                                    Level ${level}${level === 30 ? ' (MAX)' : ''}
+                                </option>
+                            `).join('')}
+                        </select>
                     </div>
+                    
+                    ${(player.training_level || 0) > 0 ? `
+                        <div style="
+                            margin-top: 12px;
+                            padding: 10px;
+                            background: rgba(59,214,113,0.08);
+                            border: 1px solid rgba(59,214,113,0.15);
+                            border-radius: 6px;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        ">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3BD671" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span style="font-size: 12px; color: #3BD671; font-weight: 600;">
+                                Training Level ${player.training_level || 0} Active
+                            </span>
+                        </div>
+                    ` : ''}
                 </div>
-                
-                <!-- Training Level Dropdown -->
-                <div style="position: relative;">
-                    <select 
-                        id="training-level-${player.player_id}"
-                        onchange="window.setPlayerTrainingLevel('${player.player_id}', this.value)"
-                        style="
-                            width: 100%;
-                            background: var(--color-graphite-800, #14181C);
-                            border: 2px solid rgba(0,194,168,0.2);
-                            border-radius: 8px;
-                            padding: 12px 16px;
-                            font-size: 14px;
-                            font-weight: 600;
-                            color: var(--color-text-primary, #E6EEF2);
-                            font-family: var(--font-family-base);
-                            cursor: pointer;
-                            transition: all 0.2s ease;
-                            appearance: none;
-                            background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg width=%2712%27 height=%278%27 viewBox=%270 0 12 8%27 fill=%27none%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3cpath d=%27M1 1.5L6 6.5L11 1.5%27 stroke=%27%2300C2A8%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3e%3c/svg%3e');
-                            background-repeat: no-repeat;
-                            background-position: right 16px center;
-                            padding-right: 40px;
-                        "
-                        onfocus="this.style.borderColor='var(--color-teal-500, #00C2A8)'; this.style.boxShadow='0 0 0 3px rgba(0,194,168,0.1)';"
-                        onblur="this.style.borderColor='rgba(0,194,168,0.2)'; this.style.boxShadow='none';"
-                    >
-                        <option value="0" ${(player.training_level || 0) === 0 ? 'selected' : ''}>No Training</option>
-                        ${Array.from({length: 30}, (_, i) => i + 1).map(level => `
-                            <option value="${level}" ${(player.training_level || 0) === level ? 'selected' : ''}>
-                                Level ${level} ${level === 30 ? '(MAX)' : ''}
-                            </option>
-                        `).join('')}
-                    </select>
-                </div>
-                
-                <!-- Training Info -->
-                ${(player.training_level || 0) > 0 ? `
-                    <div style="
-                        margin-top: 12px;
-                        padding: 10px;
-                        background: rgba(59,214,113,0.08);
-                        border: 1px solid rgba(59,214,113,0.15);
-                        border-radius: 6px;
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                    ">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3BD671" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span style="
-                            font-size: 12px;
-                            color: #3BD671;
-                            font-weight: 600;
-                        ">Training Level ${player.training_level || 0} Active</span>
-                    </div>
-                ` : ''}
             </div>
-
+            
+            <!-- RIGHT: Refresh Time -->
+            ${refreshTimeHtml}
         </div>
     `;
 }
+
 
 
 
@@ -2576,7 +2671,7 @@ window.setPlayerTrainingLevel = async function(playerId, level) {
 
 // Application State
 // Application State
-const state = {
+window.state = {
     currentView: localStorage.getItem('currentView') || 'dashboard',
     watchlist: (function() {
         try {
@@ -2781,8 +2876,22 @@ function switchView(viewName) {
   } else if (viewName === 'market') {
     // loadMarket(); // Uncomment when ready
   } else if (viewName === 'watchlist') {
-    loadWatchlist(); // Uncomment when ready
-  }
+    // Use new professional watchlist
+        if (typeof initProfessionalWatchlist === 'function') {
+            setTimeout(() => {
+                initProfessionalWatchlist();
+            }, 100);
+        } else {
+            console.error('❌ initProfessionalWatchlist not found - make sure watchlist-professional.js is loaded');
+        }
+  } else if (viewName === 'event-guide') {
+        if (typeof initEventGuide === 'function') {
+            setTimeout(initEventGuide, 100);
+        } else {
+            console.error('initEventGuide not found - make sure eventGuide.js is loaded');
+        }
+    }
+
 
   // Scroll to top
   window.scrollTo(0, 0);
@@ -3443,11 +3552,16 @@ function showSearchResults(players, query, total, append = false) {
 
     // Add player cards
     players.forEach(player => {
-        const row = createSearchResultRow(player);
-        resultsContainer.appendChild(row);
+        const card = createPlayerCard(player);
+        container.appendChild(card);
     });
 
+    // ✅ ADD THIS LINE - Sync heart icons with watchlist state
     updateAllWatchlistButtons();
+
+    console.log(`[DATABASE] Rendered ${players.length} players`);
+
+
 
 
     // Remove old load more button if exists
@@ -3528,63 +3642,81 @@ function updateAllWatchlistButtons() {
 // In assets/js/app.js
 
 window.toggleWatchlist = function (uniqueId) {
-  if (!uniqueId) return;
+  console.log('🟢 [MAIN TOGGLE] START - uniqueId:', uniqueId);
+  
+  if (!uniqueId) {
+    console.error('❌ [MAIN TOGGLE] uniqueId is empty/null');
+    return;
+  }
 
-  // 1. Manage the ID list (for the Heart Icon state)
+  console.log('   state.watchlist before:', state.watchlist);
+
   const index = state.watchlist.indexOf(uniqueId);
+  console.log('   Current index in watchlist:', index);
+  
   let savedPlayers = JSON.parse(localStorage.getItem('watchlistPlayers')) || [];
+  console.log('   savedPlayers count:', savedPlayers.length);
 
   if (index === -1) {
-    // === ADDING ===
+    console.log('🟢 [MAIN TOGGLE] ADDING to watchlist...');
     state.watchlist.push(uniqueId);
 
-    // Find the actual player object from currently loaded lists
     const allAvailable = [
       ...(state.allPlayers || []), 
       ...(state.searchResults || []), 
       ...(state.filteredPlayers || []),
-      ...(state.selectedPlayer ? [state.selectedPlayer] : [])  // Include currently viewed player
+      ...(state.selectedPlayer ? [state.selectedPlayer] : [])
     ];
 
-    // Helper to generate ID from a player object to match uniqueId
-    const getPId = (p) => `${p.player_id}_${p.rank || 0}_${p.is_untradable ? 1 : 0}`;
+    console.log('   Available players to search:', allAvailable.length);
 
+    const getPId = (p) => `${p.player_id}_${p.rank || 0}_${p.is_untradable ? 1 : 0}`;
     const playerObj = allAvailable.find(p => getPId(p) === uniqueId);
 
     if (playerObj) {
-      // Check if already in savedPlayers to avoid duplicates
+      console.log('✅ [MAIN TOGGLE] Player object FOUND:', playerObj.name);
       if (!savedPlayers.some(p => getPId(p) === uniqueId)) {
         savedPlayers.push(playerObj);
+        console.log('✅ [MAIN TOGGLE] Player added to savedPlayers');
+      } else {
+        console.log('⚠️ [MAIN TOGGLE] Player already in savedPlayers');
       }
       if (typeof showToast === 'function') showToast('Added to watchlist');
     } else {
-      console.warn('Could not find player data for', uniqueId);
+      console.error('❌ [MAIN TOGGLE] Could not find player object for', uniqueId);
+      console.log('   First 5 player IDs:', allAvailable.slice(0, 5).map(p => getPId(p)));
     }
 
   } else {
-    // === REMOVING ===
+    console.log('🔴 [MAIN TOGGLE] REMOVING from watchlist...');
     state.watchlist.splice(index, 1);
 
-    // Remove from saved players
     savedPlayers = savedPlayers.filter(p => {
       const pId = `${p.player_id}_${p.rank || 0}_${p.is_untradable ? 1 : 0}`;
       return pId !== uniqueId;
     });
 
+    console.log('✅ [MAIN TOGGLE] Player removed');
     if (typeof showToast === 'function') showToast('Removed from watchlist');
   }
 
-  // 2. Save both lists
-  localStorage.setItem('watchlist', JSON.stringify(state.watchlist));        // IDs
-  localStorage.setItem('watchlistPlayers', JSON.stringify(savedPlayers));   // Objects
+  localStorage.setItem('watchlist', JSON.stringify(state.watchlist));
+  localStorage.setItem('watchlistPlayers', JSON.stringify(savedPlayers));
+  
+  console.log('💾 [MAIN TOGGLE] Saved to localStorage');
+  console.log('   state.watchlist after:', state.watchlist);
 
-  // 3. Update UI
+  console.log('🔄 [MAIN TOGGLE] Calling updateAllWatchlistButtons...');
   updateAllWatchlistButtons();
 
   if (state.currentView === 'watchlist') {
+    console.log('🔄 [MAIN TOGGLE] Reloading watchlist view...');
     loadWatchlist();
   }
+  
+  console.log('✅ [MAIN TOGGLE] COMPLETE');
 };
+
 
 // Helper: Format Price
 function formatPrice(price) {
@@ -3669,6 +3801,65 @@ function getInitials(name) {
     return name.substring(0, 2).toUpperCase();
 }
 
+/**
+ * Render additional custom stats selected by user
+ * @param {Object} player - Player data object
+ * @returns {String} HTML string of additional stat pills
+ */
+function renderCustomStats(player) {
+    // Get selected stats from global variable or localStorage
+    let selectedStats = window.customSelectedStats || [];
+    
+    if (!selectedStats || selectedStats.length === 0) {
+        // Fallback to localStorage
+        const saved = localStorage.getItem('customSelectedStats');
+        if (saved) {
+            try {
+                selectedStats = JSON.parse(saved);
+            } catch (e) {
+                console.error('Failed to parse custom stats from localStorage:', e);
+            }
+        }
+    }
+    
+    if (!selectedStats || selectedStats.length === 0) {
+        return ''; // No custom stats selected
+    }
+    
+    console.log('🎯 Rendering custom stats for player:', player.name, 'Selected stats:', selectedStats);
+    
+    // Build HTML for each selected stat
+    const customStatsHTML = selectedStats.map(statId => {
+        const statConfig = STAT_MAPPING[statId];
+        
+        if (!statConfig) {
+            console.warn(`⚠️ Unknown stat ID: ${statId}`);
+            return '';
+        }
+        
+        // Get the stat value from player object (fallback to 0)
+        let statValue = player[statConfig.key];
+        if (!statValue || statValue === 0) {
+            statValue = '-';
+        }
+
+        
+        console.log(`📊 ${statConfig.label}: ${statValue} (${statConfig.key})`);
+        
+        return `
+            <div class="stat-pill stat-pill-custom">
+                <div class="stat-pill-value">${statValue}</div>
+                <div class="stat-pill-label">${statConfig.label}</div>
+            </div>
+        `;
+
+    }).filter(html => html !== '').join('');
+    
+    console.log('🎨 Generated custom stats HTML:', customStatsHTML);
+    
+    return customStatsHTML;
+}
+
 // Locate the createPlayerCard function in your app.js and replace it with this:
 
 /**
@@ -3678,6 +3869,11 @@ function getInitials(name) {
  * @returns {HTMLElement} - The rendered player row
  */
 function createPlayerCard(player) {
+
+    console.log('🎯 createPlayerCard called with player:', player.name);
+    console.log('🎯 Player keys:', Object.keys(player));
+    console.log('🎯 Player acceleration:', player.acceleration);
+    console.log('🎯 Custom stats:', window.customSelectedStats);
     const card = document.createElement('div');
     card.className = 'player-row';
 
@@ -3691,38 +3887,87 @@ function createPlayerCard(player) {
     const isWatchlisted = state.watchlist && state.watchlist.includes(uniqueId);
 
     // 3. Handle Secondary Positions mapping
-    const secondaryPositions = {
-        'RW': 'RM', 'LW': 'LM', 'ST': 'CF', 'CM': 'CAM',
-        'CB': 'CDM', 'LB': 'LWB', 'RB': 'RWB'
-    };
-    const secondaryPosition = secondaryPositions[player.position] || '';
+    // ✅ NEW: Parse alternate_position from API (supports multiple positions)
+    let altPositionsArray = [];
+    if (player.alternate_position) {
+        // Parse comma-separated string or handle single position
+        altPositionsArray = player.alternate_position
+            .split(',')
+            .map(pos => pos.trim())
+            .filter(pos => pos.length > 0);
+    }
+    
+    // Log for debugging
+    console.log('[ALT POS]', player.name, '| Primary:', player.position, '| Alternates:', altPositionsArray);
+
+
 
     // 4. ROBUST PRICE & IMAGE LOGIC
     let displayPriceHTML = '';
 
     if (player.price !== undefined && player.price !== null) {
-        // If price exists, use formatPrice (which should now be set to .toFixed(2))
-        const formattedPrice = typeof formatPrice === 'function' ? formatPrice(player.price) : player.price.toLocaleString();
-        displayPriceHTML = `<span class="price-text">${formattedPrice}</span>`;
+        const formattedPrice = typeof formatPrice === 'function'
+            ? formatPrice(player.price)
+            : player.price.toLocaleString();
+
+      displayPriceHTML = `
+          <span class="price-inline">
+              <img src="assets/images/background/fc coin img.webp" alt="coin" class="price-icon">
+              <span class="price-text">${formattedPrice}</span>
+          </span>
+      `;
+
     } else {
-        // If price is missing (N/A), show the non-auctionable image
         displayPriceHTML = `
             <img src="https://images-bucket.renderz.app/common_23_noauction"
-                 alt="Non-auctionable"
-                 style="height: 18px; width: auto; vertical-align: middle; opacity: 0.9;"
-                 title="Non-auctionable">
+                alt="Non-auctionable"
+                style="height: 18px; width: auto; vertical-align: middle; opacity: 0.9; margin-left: 6px;"
+                title="Non-auctionable">
         `;
     }
 
-    // 5. Build HTML Structure
+
+    
+    // 5. Build HTML Structure 
     card.innerHTML = `
-        <div class="player-row-card">
-            <div class="player-card-image-placeholder">
-                ${player.player_image ?
-                    `<img src="${player.player_image}" alt="${player.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <span class="player-initials" style="display: none;">${getInitials(player.name)}</span>` :
-                    `<span class="player-initials">${getInitials(player.name)}</span>`
-                }
+        <div class="player-card-scale">
+            <div class="player-row-card">
+                <div class="player-card-image-placeholder" style="position: relative; height: 124px; width: 98px; margin-right: 30px; margin-bottom: 10px; margin-top: 15px; border-radius: 8px; bottom: 17px; right: 5px;">
+                    
+                    ${player.card_background ? `
+                        <img src="${player.card_background}" 
+                        alt="Card Background" 
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
+                        onerror="this.style.display='none'">
+                    ` : ''}
+
+                    ${player.player_image ? `
+                        <img src="${player.player_image}" 
+                            alt="${player.name}"
+                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 130%; height: 130%; object-fit: contain;"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <span class="player-initials" style="display:none">${getInitials(player.name)}</span>
+                    ` : `
+                        <span class="player-initials">${getInitials(player.name)}</span>
+                    `}
+
+                    <div style="position:absolute;top:83px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:800;font-family:'CruyffSans',sans-serif;color:${player.color_name||'#FFFFFF'};text-transform:uppercase;z-index:10;letter-spacing:-0.8px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${player.name}</div>
+
+                    <div style="position:absolute;top:13px;left:12px;font-size:16px;font-weight:700;font-family:'CruyffSans',sans-serif;color:${player.color_rating||'#FFB86B'};z-index:10;letter-spacing:-1px;line-height:1.1;">${player.ovr && player.ovr>0 ? player.ovr : '?'}</div>
+
+                    <div style="position:absolute;top:28px;left:15px;font-size:10px;font-weight:800;font-family:'CruyffSans',sans-serif;color:${player.color_position||'#FFFFFF'};z-index:10;letter-spacing:-0.8px;line-height:1.1;">${player.position||'?'}</div>
+
+                    ${player.nation_flag ? `
+                        <img src="${player.nation_flag}" alt="Nation"
+                            style="position:absolute;bottom:20px;left:27px;width:12px;height:9px;border-radius:1px;z-index:10;object-fit:cover;">
+                    ` : ''}
+
+                    ${player.club_flag ? `
+                        <img src="${player.club_flag}" alt="Club"
+                            style="position:absolute;top:93px;left:60px;width:14px;height:14px;border-radius:2px;z-index:10;object-fit:contain;">
+                    ` : ''}
+
+                </div>
             </div>
         </div>
 
@@ -3730,21 +3975,27 @@ function createPlayerCard(player) {
             <div class="player-info-name">${player.name}</div>
             <div class="player-info-meta">${player.ovr || 'N/A'} • ${player.position || 'N/A'}</div>
 
-            <div class="player-price" style="color: #fbbf24; font-weight: 500; font-size: 0.9rem; margin-top: 4px; min-height: 20px; display: flex; align-items: center;">
+            <div class="player-price" style="color:#fbbf24; font-weight:500; font-size:0.9rem; margin-top:4px; min-height:20px; display:flex; align-items:center;">
                 ${displayPriceHTML}
             </div>
 
-            ${secondaryPosition ? `<div class="player-info-secondary">${secondaryPosition}</div>` : ''}
+            ${altPositionsArray.filter(pos => pos && pos !== '0' && pos !== 0).length > 0 ? `
+                <div class="player-info-secondary">
+                    ${altPositionsArray.filter(pos => pos && pos !== '0' && pos !== 0).map(pos => `<span class="secondary-position-badge">${pos}</span>`).join('')}
+                </div>
+            ` : ''}
         </div>
 
         <div class="player-row-stats">
-            <div class="stat-pill"><div class="stat-pill-value">${player.pace || 0}</div><div class="stat-pill-label">PAC</div></div>
-            <div class="stat-pill"><div class="stat-pill-value">${player.shooting || 0}</div><div class="stat-pill-label">SHO</div></div>
-            <div class="stat-pill"><div class="stat-pill-value">${player.passing || 0}</div><div class="stat-pill-label">PAS</div></div>
-            <div class="stat-pill"><div class="stat-pill-value">${player.dribbling || 0}</div><div class="stat-pill-label">DRI</div></div>
-            <div class="stat-pill"><div class="stat-pill-value">${player.defending || 0}</div><div class="stat-pill-label">DEF</div></div>
-            <div class="stat-pill"><div class="stat-pill-value">${player.physical || 0}</div><div class="stat-pill-label">PHY</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.pace && player.pace > 0 ? player.pace : '-'}</div><div class="stat-pill-label">PAC</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.shooting && player.shooting > 0 ? player.shooting : '-'}</div><div class="stat-pill-label">SHO</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.passing && player.passing > 0 ? player.passing : '-'}</div><div class="stat-pill-label">PAS</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.dribbling && player.dribbling > 0 ? player.dribbling : '-'}</div><div class="stat-pill-label">DRI</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.defending && player.defending > 0 ? player.defending : '-'}</div><div class="stat-pill-label">DEF</div></div>
+            <div class="stat-pill"><div class="stat-pill-value">${player.physical && player.physical > 0 ? player.physical : '-'}</div><div class="stat-pill-label">PHY</div></div>
+            ${renderCustomStats(player)}
         </div>
+
 
         <button class="player-row-watchlist ${isWatchlisted ? 'active' : ''}"
                 data-unique-id="${uniqueId}"
@@ -3769,16 +4020,30 @@ function createPlayerCard(player) {
     });
 
     // Watchlist button click
+    // Watchlist button click
     const watchBtn = card.querySelector('.player-row-watchlist');
     if (watchBtn) {
-        watchBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            const id = this.dataset.uniqueId || uniqueId;
-            if (typeof window.toggleWatchlist === 'function') {
-                window.toggleWatchlist(id);
-            }
-        });
+      watchBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        
+        // Get ID from data attribute OR closure variable
+        const id = this.dataset.uniqueId || uniqueId;
+        console.log('❤️ Watchlist clicked! ID:', id);
+        
+        if (typeof window.toggleWatchlist === 'function') {
+          window.toggleWatchlist(id);
+          
+          // ✅ ADD THIS - Force update UI after toggle
+          setTimeout(() => {
+            updateAllWatchlistButtons();
+          }, 100);
+        } else {
+          console.error('window.toggleWatchlist not found!');
+        }
+      });
     }
+
 
     return card;
 }
@@ -3787,7 +4052,7 @@ function createPlayerCard(player) {
 // ========== LOAD DATABASE FROM API ==========
 // ========== LOAD DATABASE WITH FILTERS & PAGINATION ==========
 // ========== LOAD WATCHLIST ==========
-function applyWatchlistFilters(players) {
+/*function applyWatchlistFilters(players) {
   return players.filter(player => {
     // Position
     if (state.filters.position && player.position !== state.filters.position) {
@@ -3826,7 +4091,7 @@ function applyWatchlistFilters(players) {
     return true;
   });
 }
-
+*/
 
 function loadWatchlist() {
   const container = document.getElementById('watchlist-players-grid');
@@ -3994,8 +4259,26 @@ async function loadDatabase() {
             filters.max_price = parseInt(state.filters.priceMax);
         }
 
+        // ========== ✅ NEW: Add Auctionable filter ==========
+        const auctionableToggle = document.getElementById('auctionable-toggle');
+        console.log('[DEBUG] Auctionable toggle element:', auctionableToggle);
+        console.log('[DEBUG] Toggle checked state:', auctionableToggle?.checked);
+        const auctionableOnly = auctionableToggle?.checked ?? false;
+        if (auctionableOnly) {
+            // Only show tradable players (is_untradable = 0)
+            filters.is_untradable = 0;
+            console.log('[DEBUG] Toggle is ON - Added filter: is_untradable = 0');
+
+        } else {
+            console.log('[DEBUG] Toggle is OFF - No is_untradable filter added');
+        }
+        // When toggle is OFF, don't send filter = show all players
+
 
         console.log('[DATABASE] Fetching with filters:', filters);
+        console.log('[DEBUG] Full filter object:', JSON.stringify(filters, null, 2));
+        console.log('[DEBUG] is_untradable in filters?', 'is_untradable' in filters, '- Value:', filters.is_untradable);
+
 
         // 1. Fetch from Metadata API
         const response = await apiClient.getPlayers(filters);
@@ -4005,6 +4288,17 @@ async function loadDatabase() {
         }
 
         let players = response.players;
+
+        // ========== DEBUG: Check what we received ==========
+        console.log('[DEBUG] API returned total players:', players.length);
+        console.log('[DEBUG] First 3 players sample:', players.slice(0, 3).map(p => ({
+            name: p.name,
+            is_untradable: p.is_untradable,
+            price: p.price
+        })));
+        console.log('[DEBUG] Players with is_untradable=0:', players.filter(p => p.is_untradable === 0 || p.is_untradable === '0').length);
+        console.log('[DEBUG] Players with is_untradable=1:', players.filter(p => p.is_untradable === 1 || p.is_untradable === '1').length);
+      
 
         // 🔥 2. Sync Metadata with Supabase Prices (matches p.id to asset_id)
         if (typeof supabaseProvider !== 'undefined') {
@@ -4042,7 +4336,36 @@ async function loadDatabase() {
             `;
             if (loadMoreBtn) loadMoreBtn.style.display = 'none';
         } else {
-            players.forEach(player => {
+
+        // ✅ SORT PLAYERS BEFORE RENDERING
+            let sortedPlayers = [...players]; // Create copy
+            
+            if (state.sortBy === 'name') {
+                // Sort A-Z alphabetically
+                sortedPlayers.sort((a, b) => {
+                    const nameA = (a.name || '').toLowerCase();
+                    const nameB = (b.name || '').toLowerCase();
+                    return nameA.localeCompare(nameB);
+                });
+                console.log('[SORT] Sorted by name (A-Z)');
+            } 
+            else if (state.sortBy === 'rating') {
+                // Sort by OVR highest to lowest
+                sortedPlayers.sort((a, b) => {
+                    return (b.ovr || 0) - (a.ovr || 0);
+                });
+                console.log('[SORT] Sorted by rating (high to low)');
+            } 
+            else if (state.sortBy === 'price') {
+                // Sort by price highest to lowest
+                sortedPlayers.sort((a, b) => {
+                    return (b.price || 0) - (a.price || 0);
+                });
+                console.log('[SORT] Sorted by price (high to low)');
+            }
+            
+            // Render sorted players
+            sortedPlayers.forEach(player => {
                 const card = createPlayerCard(player);
                 container.appendChild(card);
             });
@@ -4085,6 +4408,7 @@ async function loadDatabase() {
     }
 }
 
+
 // ========== LOAD MORE PLAYERS ==========
 window.loadMorePlayers = function() {
     const loadMoreBtn = document.getElementById('load-more-btn');
@@ -4121,78 +4445,130 @@ function initFilters() {
     }
 
     // Rating Min filter with proper limits
+    // Around line 3800-3900 in your initFilters function
+    // Replace the Rating Min filter section with:
+
+    // Replace the Rating Min filter section in initFilters():
+    // Rating Min filter - FIXED VERSION
     const ratingMin = document.getElementById('rating-min');
     if (ratingMin) {
         ratingMin.setAttribute('min', '40');
         ratingMin.setAttribute('max', '150');
-
+        
+        let ratingMinTimeout;
+        
+        // Input event - just update display, don't modify the input
         ratingMin.addEventListener('input', (e) => {
-            let value = parseInt(e.target.value) || 40;
-            // Enforce limits
+            console.log('🔵 MIN INPUT - Raw value:', e.target.value);
+            
+            let value = parseInt(e.target.value);
+            
+            // Allow incomplete input while typing
+            if (isNaN(value) || e.target.value === '') {
+                console.log('  Incomplete input, skipping');
+                return;
+            }
+            
+            // DON'T modify e.target.value here - let user finish typing
+            // Just update state and display
+            state.filters.ratingMin = value;
+            updateRatingDisplay();
+            
+            console.log('  Updated state to:', value);
+        });
+        
+        // Blur event - validate and clamp when user leaves the field
+        ratingMin.addEventListener('blur', (e) => {
+            console.log('🔵 MIN BLUR - Validating');
+            
+            let value = parseInt(e.target.value);
+            
+            if (isNaN(value) || e.target.value === '') {
+                value = 40; // Default to min
+            }
+            
+            // NOW enforce limits
             value = Math.max(40, Math.min(150, value));
+            
             // Ensure min <= max
             if (value > state.filters.ratingMax) {
                 value = state.filters.ratingMax;
             }
+            
+            // Update both input and state
             e.target.value = value;
             state.filters.ratingMin = value;
             updateRatingDisplay();
-        });
-
-        ratingMin.addEventListener('change', (e) => {
-            let value = parseInt(e.target.value) || 40;
-            value = Math.max(40, Math.min(150, value));
-            if (value > state.filters.ratingMax) {
-                value = state.filters.ratingMax;
-            }
-            e.target.value = value;
-            state.filters.ratingMin = value;
+            
+            console.log('  Final validated value:', value);
+            
+            // Reload data
             state.currentOffset = 0;
-            if (state.currentView === 'database') {
-              loadDatabase();
-            }
-            if (state.currentView === 'watchlist') {
-              loadWatchlist();
-            }
+            if (state.currentView === 'database') loadDatabase();
+            if (state.currentView === 'watchlist') loadWatchlist();
         });
     }
 
-    // Rating Max filter with proper limits
+    // Rating Max filter - FIXED VERSION
     const ratingMax = document.getElementById('rating-max');
     if (ratingMax) {
         ratingMax.setAttribute('min', '40');
         ratingMax.setAttribute('max', '150');
-
+        
+        let ratingMaxTimeout;
+        
+        // Input event - just update display, don't modify the input
         ratingMax.addEventListener('input', (e) => {
-            let value = parseInt(e.target.value) || 150;
-            // Enforce limits
+            console.log('🟢 MAX INPUT - Raw value:', e.target.value);
+            
+            let value = parseInt(e.target.value);
+            
+            // Allow incomplete input while typing
+            if (isNaN(value) || e.target.value === '') {
+                console.log('  Incomplete input, skipping');
+                return;
+            }
+            
+            // DON'T modify e.target.value here
+            state.filters.ratingMax = value;
+            updateRatingDisplay();
+            
+            console.log('  Updated state to:', value);
+        });
+        
+        // Blur event - validate and clamp when user leaves the field
+        ratingMax.addEventListener('blur', (e) => {
+            console.log('🟢 MAX BLUR - Validating');
+            
+            let value = parseInt(e.target.value);
+            
+            if (isNaN(value) || e.target.value === '') {
+                value = 150; // Default to max
+            }
+            
+            // NOW enforce limits
             value = Math.max(40, Math.min(150, value));
+            
             // Ensure max >= min
             if (value < state.filters.ratingMin) {
                 value = state.filters.ratingMin;
             }
+            
+            // Update both input and state
             e.target.value = value;
             state.filters.ratingMax = value;
             updateRatingDisplay();
-        });
-
-        ratingMax.addEventListener('change', (e) => {
-            let value = parseInt(e.target.value) || 150;
-            value = Math.max(40, Math.min(150, value));
-            if (value < state.filters.ratingMin) {
-                value = state.filters.ratingMin;
-            }
-            e.target.value = value;
-            state.filters.ratingMax = value;
+            
+            console.log('  Final validated value:', value);
+            
+            // Reload data
             state.currentOffset = 0;
-            if (state.currentView === 'database') {
-              loadDatabase();
-            }
-            if (state.currentView === 'watchlist') {
-              loadWatchlist();
-            }
+            if (state.currentView === 'database') loadDatabase();
+            if (state.currentView === 'watchlist') loadWatchlist();
         });
     }
+
+
 
     // ========== FIXED: Price Min filter with proper handling ==========
     const priceMin = document.getElementById('price-min');
@@ -4349,6 +4725,34 @@ function initFilters() {
         clearFiltersBtn.addEventListener('click', clearAllFilters);
     }
 
+        // Auctionable Toggle Handler
+        const auctionableToggle = document.getElementById('auctionable-toggle');
+        const auctionStatusText = document.getElementById('auction-status-text');
+
+        console.log('[DEBUG INIT] Auctionable toggle found:', !!auctionableToggle);
+        console.log('[DEBUG INIT] Status text element found:', !!auctionStatusText);
+
+        if (auctionableToggle && auctionStatusText) {
+            auctionableToggle.addEventListener('change', (e) => {
+                console.log('[DEBUG EVENT] Toggle changed! New state:', e.target.checked);
+                // Update text
+                if (e.target.checked) {
+                    auctionStatusText.textContent = 'Only With Prices';
+                    console.log('[DEBUG EVENT] Text updated to: Only With Prices');
+                } else {
+                    auctionStatusText.textContent = 'All Players';
+                    console.log('[DEBUG EVENT] Text updated to: All Players');
+                }
+                
+                // Re-apply filters
+                state.currentOffset = 0;
+                console.log('[DEBUG EVENT] Reloading database...');
+                if (state.currentView === 'database') loadDatabase();
+                if (state.currentView === 'watchlist') loadWatchlist();
+            });
+        }
+
+
     console.log('[FILTERS] Initialized');
 }
 
@@ -4385,7 +4789,7 @@ function clearAllFilters() {
     state.filters = {
         position: '',
         ratingMin: 40,
-        ratingMax: 150,
+        ratingMax: 120,
         priceMin: null,
         priceMax: null,
         league: '',
@@ -4485,6 +4889,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   if (typeof initFilters === 'function') {
     initFilters();
   }
+
 
   // Initialize tools menu (modal / sheet)
   if (typeof initializeToolsMenu === 'function') {
@@ -4967,10 +5372,20 @@ document.addEventListener('DOMContentLoaded', async function () {
   // Sort dropdown
   const sortBy = document.getElementById('sort-by');
   if (sortBy) {
-    sortBy.addEventListener('change', (e) => {
-      state.sortBy = e.target.value;
-      if (typeof renderPlayers === 'function') renderPlayers();
-    });
+      sortBy.addEventListener('change', (e) => {
+          state.sortBy = e.target.value;
+          console.log('[SORT] Changed to:', state.sortBy);
+          
+          // Reset offset and reload database with new sort
+          state.currentOffset = 0;
+          
+          if (state.currentView === 'database') {
+              loadDatabase();
+          }
+          if (state.currentView === 'watchlist') {
+              loadWatchlist();
+          }
+      });
   }
 
   // Time filters (market)
@@ -5352,22 +5767,66 @@ function createFilledPlayerCard(player, index) {
   const card = document.createElement('div');
   card.className = 'compare-player-card filled-state new-card';
   card.dataset.playerId = player.player_id;
-
+  
   card.innerHTML = `
-    <button class="player-remove-btn" onclick="removeComparePlayer(${index})">✕</button>
-    <div class="player-image-wrapper">
-      <img src="${player.player_image || 'https://via.placeholder.com/80x80'}" alt="${player.name}">
-    </div>
-    <div class="player-info">
-      <h3 class="player-name">${player.name}</h3>
-      <p class="player-position">${player.position}</p>
-      <p class="player-team">${player.team || 'N/A'}</p>
-      <div class="player-overall">
-        <span class="overall-label">OVR</span>
-        <span class="overall-value">${player.ovr || 'NA'}</span>
+    <!-- Remove Button (X) -->
+    <button class="player-remove-btn" onclick="removeComparePlayer(${index})">×</button>
+    
+    <!-- FIFA Card Container -->
+    ${player.card_background ? `
+    <img src="${player.card_background}" 
+        alt="Card Background" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
+        onerror="this.style.display='none'">
+` : ''}
+      
+      <!-- Player Image -->
+      <!-- Player Image (Smaller, centered) -->
+      ${player.player_image ? `
+          <img src="${player.player_image}" 
+              alt="${player.name}"
+              style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 130%; height: 130%; object-fit: contain;"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <span class="player-initials" style="display:none">${getInitials(player.name)}</span>
+      ` : `
+          <span class="player-initials">${getInitials(player.name)}</span>
+      `}
+      
+      <!-- OVR (top-left) -->
+      <div class="compare-card-ovr" style="color: ${player.color_rating || '#FFB86B'}">
+        ${player.ovr && player.ovr > 0 ? player.ovr : 'NA'}
       </div>
-    </div>
+      
+      <!-- Position (below OVR) -->
+      <div class="compare-card-pos" style="color: ${player.color_position || '#FFFFFF'}">
+        ${player.position || 'NA'}
+      </div>
+      
+      <!-- Player Name (bottom center) -->
+      <div class="compare-card-name" style="color: ${player.color_name || '#FFFFFF'}">
+        ${player.name}
+      </div>
+      
+      <!-- Nation (Tiny flag, bottom-left) -->
+      ${player.nation_flag ? `
+          <img src="${player.nation_flag}" 
+              alt="Nation" 
+              style="position: absolute; bottom: 20px; left: 27px; width: 12px; height: 9px; object-fit: cover; border-radius: 1px; z-index: 10;"
+              onerror="this.style.display='none'">
+      ` : ''}
+      
+      <!-- Club (Tiny badge, bottom-right) -->
+      ${player.club_flag ? `
+          <img src="${player.club_flag}" 
+              alt="Club" 
+              style="position: absolute; top: 93px; left: 60px; width: 14px; height: 14px; object-fit: contain; border-radius: 2px; z-index: 10;"
+              onerror="this.style.display='none'">
+      ` : ''}
+    
+    <!-- Team Name Below -->
+    <p class="compare-team-text">${player.team || 'N/A'}</p>
   `;
+  
   return card;
 }
 

@@ -514,9 +514,10 @@
   </header>
 
   <!-- PASTE YOUR SLIDER HERE -->
-  <div class="slider">
-      <span>FC Points & More to Be Won with Futbin's Festive Rewards!</span>
+  <div class="slider" style="max-width: 100vw; overflow: hidden;">
+    <span>Trade, Build, Dominate – Massive Rewards Await on Zenith!</span>
   </div>
+
 
   <div class="search-container">
 
@@ -525,7 +526,11 @@
   <!-- Main Content -->
   <main class="main-content">
     <!-- Dashboard View -->
+    <!-- FIXED - NO SCROLL -->
     <div id="dashboard-view" class="view">
+
+
+
       <!-- Search Section -->
       <section class="search-section">
         <div class="search-container">
@@ -769,7 +774,12 @@
     </div>
 
     <!-- Player Database View -->
+    <!-- FIXED - NO SCROLL -->
     <div id="database-view" class="view">
+
+
+
+
 
       <!-- Mobile Integrated Search Bar (Google Lens Style) -->
       <div class="mobile-search-container">
@@ -795,12 +805,43 @@
       </div>
 
       <!-- Desktop Layout -->
-      <div class="database-layout">
-        <aside class="filters-sidebar">
+      <div class="database-layout" style="
+        position: relative;
+        z-index: 2;
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 355 1fr;
+        gap: 2rem;
+        padding: 2rem 0;
+        background: transparent !important;
+      ">
+
+        <aside class="filters-sidebar" style="
+          background: rgba(20,24,28,0.5) !important;
+          backdrop-filter: blur(25px);
+          border: 1px solid rgba(255,255,255,0.15);
+          z-index: 3;
+        ">
+
           <div class="filters-header">
             <h3>Filters</h3>
             <button class="btn btn-text btn-sm" id="clear-filters">Clear All</button>
           </div>
+
+          <!-- Auction Status Toggle -->
+          <div class="filter-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <label class="filter-label">Auction Status</label>
+                  <label class="toggle-switch">
+                      <input type="checkbox" id="auctionable-toggle">
+                      <span class="toggle-slider"></span>
+                  </label>
+              </div>
+              <p style="font-size: 12px; color: var(--color-text-muted); margin-top: -4px; margin-bottom: 0;">
+                  <span id="auction-status-text">All Players</span>
+              </p>
+          </div>
+
           <div class="filter-group">
             <label class="filter-label">Position</label>
             <select id="filter-position" class="filter-select">
@@ -822,6 +863,7 @@
               <option value="GK">Goalkeeper (GK)</option>
             </select>
           </div>
+
           <div class="filter-group">
             <label class="filter-label">Overall Rating: <span id="rating-value">40-150</span></label>
             <div class="range-inputs">
@@ -830,6 +872,8 @@
               <input type="number" id="rating-max" value="150" min="40" max="150" class="range-input">
             </div>
           </div>
+          
+
           <!-- Price Filter removed per requirements -->
 
 
@@ -2310,12 +2354,18 @@
               </select>
             </div>
           </div>
-
-
         </aside>
 
-        <div class="database-content">
-          <div class="database-toolbar">
+        <div class="database-content" style="
+          background: transparent !important;
+          z-index: 3;
+        ">
+          <div class="database-toolbar" style="
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+          ">
+
             <div class="search-container">
               <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2">
@@ -2337,7 +2387,6 @@
                 <option value="name">Sort by Name</option>
                 <option value="rating">Sort by Rating</option>
                 <option value="price">Sort by Price</option>
-                <option value="change">Sort by Change</option>
               </select>
             </div>
 
@@ -2345,11 +2394,10 @@
           </div>
           <div class="active-filters" id="active-filters"></div>
 
-          <div class="results-info" style="margin-bottom: 1rem; color: #6b7280; font-size: 0.9rem;"></div>
-
+          <div class="results-info" style="margin-bottom: 1rem; color: #d4d4d4; font-size: 0.9rem;"></div>
           <!-- Player grid container (NO button inside) -->
-          <div class="players-grid" id="players-grid">
-              <!-- Player cards will be rendered here by database.js -->
+          <div class="players-grid" id="players-grid" style="background: transparent !important; min-height: 60vh;">
+            <!-- Player cards will be rendered here by database.js -->
           </div>
 
           <!-- Load More button OUTSIDE the grid -->
@@ -2565,7 +2613,6 @@
                 <option value="name">Sort by Name</option>
                 <option value="rating">Sort by Rating</option>
                 <option value="price">Sort by Price</option>
-                <option value="change">Sort by Change</option>
               </select>
             </div>
           </div>
@@ -2579,7 +2626,11 @@
     </div>
 
     <!-- Market Tracker View -->
+    <!-- FIXED - NO SCROLL -->
     <div id="market-view" class="view">
+
+
+
 
       <div class="market-overview">
         <div class="market-card">
@@ -2785,83 +2836,110 @@
     <!-- Watchlist View -->
     <!-- ================= WATCHLIST SECTION ================= -->
     <!-- ======== WATCHLIST VIEW ======== -->
+    <!-- WATCHLIST VIEW -->
     <div id="watchlist-view" class="view">
-      
-      <!-- Watchlist Header Section -->
-      <div class="watchlist-header-section">
-        <div class="watchlist-header-content">
-          
-          <!-- Title with Count Badge -->
-          <div class="watchlist-title-section">
-            <h2>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-              </svg>
-              Your Watchlist
-            </h2>
-            <span class="watchlist-count-badge">0 Players</span>
-          </div>
-    
-          <!-- Controls: Search & Sort -->
-          <div class="watchlist-controls">
+
+
+        <!-- Copy the entire database layout structure -->
+        <div class="database-layout">
             
-            <!-- Search Bar -->
-            <div class="watchlist-search">
-              <div class="watchlist-search-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <path d="m21 21-4.35-4.35"></path>
-                </svg>
-              </div>
-              <input 
-                type="text" 
-                class="watchlist-search-input" 
-                placeholder="Search watchlist..."
-                autocomplete="off"
-              />
+            <!-- LEFT: Filters Sidebar -->
+            <aside class="filters-sidebar">
+                <div class="filters-header">
+                    <h3>Filters</h3>
+                    <button class="btn btn-text btn-sm" id="clear-watchlist-filters">Clear All</button>
+                </div>
+                
+                <!-- Position Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Position</label>
+                    <select id="watchlist-filter-position" class="filter-select">
+                        <option value="">All Positions</option>
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                </div>
+
+                <!-- OVR Range Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Overall Rating <span id="watchlist-rating-value">40-150</span></label>
+                    <div class="range-inputs">
+                        <input type="number" id="watchlist-rating-min" value="40" min="40" max="150" class="range-input">
+                        <span>-</span>
+                        <input type="number" id="watchlist-rating-max" value="150" min="40" max="150" class="range-input">
+                    </div>
+                </div>
+                
+                <!-- League Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">League</label>
+                    <select id="watchlist-filter-league" class="filter-select">
+                        <option value="">All Leagues</option>
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                </div>
+                
+                <!-- Team Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Team</label>
+                    <select id="watchlist-filter-team" class="filter-select">
+                        <option value="">All Teams</option>
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                </div>
+                
+                <!-- Nation Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Nation</label>
+                    <select id="watchlist-filter-nation" class="filter-select">
+                        <option value="">All Nations</option>
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                </div>
+                
+                <!-- Event Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Event</label>
+                    <select id="watchlist-filter-event" class="filter-select">
+                        <option value="">All Events</option>
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                </div>
+                
+                
+            </aside>
+            
+            <!-- RIGHT: Player Cards -->
+            <div class="database-content">
+                <!-- Search bar -->
+                <div class="database-toolbar">
+                    <div class="search-container">
+                        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input type="text" id="watchlist-search-input" class="search-input" placeholder="Search watchlist...">
+                    </div>
+                    
+                    <select id="watchlist-sort-select" class="sort-select">
+                        <option value="Name">Sort by Name</option>
+                        <option value="Rating">Sort by OVR</option>
+                        <option value="Price">Sort by Price</option>
+                    </select>
+                </div>
+                
+                <!-- Active filters chips -->
+                <div class="active-filters" id="watchlist-active-filters"></div>
+                
+                <!-- Player cards grid -->
+                <div class="watchlist-grid" id="watchlist-players-grid">
+                    <!-- Cards rendered here -->
+                </div>
             </div>
-    
-            <!-- Sort Dropdown -->
-            <select class="watchlist-sort-select">
-              <option value="name-asc">Name (A-Z)</option>
-              <option value="name-desc">Name (Z-A)</option>
-              <option value="rating-desc">Rating (High to Low)</option>
-              <option value="rating-asc">Rating (Low to High)</option>
-              <option value="price-desc">Price (High to Low)</option>
-              <option value="price-asc">Price (Low to High)</option>
-            </select>
-    
-          </div>
+            
         </div>
-      </div>
-    
-      <!-- Main Watchlist Content -->
-      <div class="watchlist-content">
-        
-        <!-- Player Grid -->
-        <div class="watchlist-grid">
-          <!-- Player cards will be rendered here by JavaScript -->
-        </div>
-    
-        <!-- Empty State -->
-        <div class="watchlist-empty" style="display: none;">
-          <div class="watchlist-empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-          </div>
-          <h3>Your watchlist is empty</h3>
-          <p>Start adding players to track their stats, prices, and updates</p>
-          <button class="browse-players-btn" onclick="switchView('database')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-            </svg>
-            Browse Players
-          </button>
-        </div>
-    
-      </div>
+    </div>
+
+
     </div>
 
     <!-- Player Detail View -->
@@ -3471,6 +3549,14 @@
           </button>
         </div>
         <div class="squad-header-center">
+
+          <button class="badges-btn" onclick="openBadgesModal()" title="Manage Team Badges">
+                  <path d="M10 2L11.5 6.5L16 6.5L12.5 9.5L14 14L10 11.5L6 14L7.5 9.5L4 6.5L8.5 6.5L10 2Z" 
+                        fill="currentColor"/>
+              </svg>
+              Badges
+          </button>
+
           <div class="squad-stat">
             <span class="squad-stat-label">OVR</span>
             <span id="squad-ovr" class="squad-stat-value">0</span>
@@ -3528,6 +3614,74 @@
         </div>
       </div>
 
+
+
+      <!-- Badges Modal -->
+      <div id="badges-modal" class="modal" style="display: none;">
+          <div class="modal-backdrop" onclick="closeBadgesModal()"></div>
+          <div class="badges-modal-content">
+              <div class="badges-modal-header">
+                  <h2>Select Team Badges</h2>
+                  <button class="modal-close-btn" onclick="closeBadgesModal()">×</button>
+              </div>
+              
+              <div class="badges-grid">
+                  <!-- Badge 1 -->
+                  <div class="badge-card" id="badge-card-1" onclick="toggleBadge(1)">
+                      <div class="badge-icon">
+                          <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                              <path d="M30 5L35 20L50 20L38 30L43 45L30 37L17 45L22 30L10 20L25 20L30 5Z" 
+                                    fill="currentColor" stroke="currentColor" stroke-width="2"/>
+                          </svg>
+                      </div>
+                      <h3>Badge 1</h3>
+                      <div class="badge-boost">+1 OVR</div>
+                      <div class="badge-checkbox">
+                          <span class="checkmark">✓</span>
+                      </div>
+                  </div>
+                  
+                  <!-- Badge 2 -->
+                  <div class="badge-card" id="badge-card-2" onclick="toggleBadge(2)">
+                      <div class="badge-icon">
+                          <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                              <path d="M30 5L35 20L50 20L38 30L43 45L30 37L17 45L22 30L10 20L25 20L30 5Z" 
+                                    fill="currentColor" stroke="currentColor" stroke-width="2"/>
+                          </svg>
+                      </div>
+                      <h3>Badge 2</h3>
+                      <div class="badge-boost">+1 OVR</div>
+                      <div class="badge-checkbox">
+                          <span class="checkmark">✓</span>
+                      </div>
+                  </div>
+                  
+                  <!-- Badge 3 -->
+                  <div class="badge-card" id="badge-card-3" onclick="toggleBadge(3)">
+                      <div class="badge-icon">
+                          <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                              <path d="M30 5L35 20L50 20L38 30L43 45L30 37L17 45L22 30L10 20L25 20L30 5Z" 
+                                    fill="currentColor" stroke="currentColor" stroke-width="2"/>
+                          </svg>
+                      </div>
+                      <h3>Badge 3</h3>
+                      <div class="badge-boost">+1 OVR</div>
+                      <div class="badge-checkbox">
+                          <span class="checkmark">✓</span>
+                      </div>
+                  </div>
+              </div>
+              
+              <div class="badges-modal-footer">
+                  <button class="btn-primary" onclick="closeBadgesModal()">Done</button>
+              </div>
+          </div>
+      </div>
+
+
+
+
+
       <div class="squad-body">
         <div class="squad-field-container">
           <div id="squad-field" class="squad-field"></div>
@@ -3537,8 +3691,7 @@
           <!-- NEW: Filter & Stats Toolbar -->
           <div class="squad-picker-toolbar">
             <!-- Filters Button -->
-            <button class="btn btn--outline btn--sm squad-filter-btn" onclick="openFilterSidebar()"
-              title="Filter players">
+            <button class="btn btn--outline btn--sm squad-filter-btn" onclick="toggleSquadFilterPanel()" title="Filter players" id="squad-filter-trigger">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
               </svg>
@@ -3571,8 +3724,153 @@
 
           </div>
 
-          <!-- Hint Message -->
-          <div id="squad-player-hint" class="squad-hint">Select a slot then pick a player.</div>
+
+          <!-- Squad Builder Filter Panel (Anchored) -->
+          <div id="squad-filter-panel" class="squad-filter-panel" style="display: none;">
+            <div class="squad-filter-panel-content">
+              
+              <!-- Panel Header -->
+              <div class="squad-filter-panel-header">
+                <h4>Filter Players</h4>
+              </div>
+
+              <!-- Filter Options (Copy from Database View) -->
+              <div class="squad-filter-panel-body">
+                
+                <!-- Auction Status Toggle -->
+                <div class="filter-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label class="filter-label">Auction Status</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="squad-auctionable-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <p style="font-size: 12px; color: var(--color-text-muted); margin-top: -4px; margin-bottom: 0;">
+                        <span id="squad-auction-status-text">All Players</span>
+                    </p>
+                </div>
+
+                <!-- Position Filter -->
+                <div class="filter-group">
+                  <label class="filter-label">Position</label>
+                  <select id="squad-filter-position" class="filter-select">
+                    <option value="">All Positions</option>
+                    <option value="ST">Striker (ST)</option>
+                    <option value="CF">Center Forward (CF)</option>
+                    <option value="LW">Left Wing (LW)</option>
+                    <option value="RW">Right Wing (RW)</option>
+                    <option value="CAM">Central AM (CAM)</option>
+                    <option value="LM">Left Midfielder (LM)</option>
+                    <option value="RM">Right Midfielder (RM)</option>
+                    <option value="CM">Central Midfielder (CM)</option>
+                    <option value="CDM">Defensive Midfielder (CDM)</option>
+                    <option value="LB">Left Back (LB)</option>
+                    <option value="CB">Center Back (CB)</option>
+                    <option value="RB">Right Back (RB)</option>
+                    <option value="LWB">Left Wing Back (LWB)</option>
+                    <option value="RWB">Right Wing Back (RWB)</option>
+                    <option value="GK">Goalkeeper (GK)</option>
+                  </select>
+                </div>
+
+                <!-- Overall Rating Filter -->
+                <div class="filter-group">
+                  <label class="filter-label">Overall Rating <span id="squad-rating-value">40-150</span></label>
+                  <div class="range-inputs">
+                    <input type="number" id="squad-rating-min" value="40" min="40" max="150" class="range-input">
+                    <span>-</span>
+                    <input type="number" id="squad-rating-max" value="150" min="40" max="150" class="range-input">
+                  </div>
+                </div>
+
+                <!-- Event Filter -->
+                <div class="filter-group">
+                  <label class="filter-label">Event</label>
+                  <select id="squad-filter-event" class="filter-select">
+                    <option value="">All Events</option>
+                    <option value="Footyverse 26">Footyverse 26</option>
+                    <option value="A Nation's Story 26">A Nation's Story 26</option>
+                    <option value="Anniversary Retro">Anniversary Retro</option>
+                    <option value="UEFA EURO 2024">UEFA EURO 2024</option>
+                    <option value="POTM 26">POTM 26</option>
+                    <option value="Ragnarok 25">Ragnarok 25</option>
+                    <option value="Thunderstruck">Thunderstruck</option>
+                    <option value="Festive Fixtures">Festive Fixtures</option>
+                    <option value="Shapeshifters">Shapeshifters</option>
+                    <option value="UCL TOP 11">UCL TOP 11</option>
+                    <option value="Aqua 25">Aqua 25</option>
+                    <option value="FC Base Gold">FC Base Gold</option>
+                    <option value="Glorious Eras">Glorious Eras</option>
+                    <option value="Winter Wildcards">Winter Wildcards</option>
+                    <option value="UEFA Heroes">UEFA Heroes</option>
+                    <option value="Universal Rank">Universal Rank</option>
+                    <option value="Team of The Year">Team of The Year</option>
+                    <option value="Rulebreakers">Rulebreakers</option>
+                    <option value="Base Icons">Base Icons</option>
+                    <option value="Songkran 25">Songkran 25</option>
+                    <!-- Add more as needed -->
+                  </select>
+                </div>
+
+                <!-- League Filter -->
+                <div class="filter-group">
+                  <label class="filter-label">League</label>
+                  <select id="squad-filter-league" class="filter-select">
+                    <option value="">All Leagues</option>
+                    <option value="Premier League">Premier League</option>
+                    <option value="LALIGA EA SPORTS">LALIGA EA SPORTS</option>
+                    <option value="Bundesliga">Bundesliga</option>
+                    <option value="Serie A TIM">Serie A TIM</option>
+                    <option value="Ligue 1 Uber Eats">Ligue 1 Uber Eats</option>
+                  </select>
+                </div>
+
+                <!-- Club Filter -->
+                <div class="filter-group">
+                  <label class="filter-label">Club</label>
+                  <select id="squad-filter-club" class="filter-select">
+                    <option value="">All Clubs</option>
+                    <option value="Real Madrid">Real Madrid</option>
+                    <option value="FC Barcelona">FC Barcelona</option>
+                    <option value="Manchester United">Manchester United</option>
+                    <option value="Liverpool">Liverpool</option>
+                  </select>
+                </div>
+
+                <!-- Nation Filter -->
+                <div class="filter-group">
+                  <label class="filter-label">Nation</label>
+                  <input id="squad-filter-nation" class="filter-input" placeholder="Search country..." autocomplete="off">
+                  <div class="autocomplete-list" id="squad-filter-nation-list"></div>
+                </div>
+
+                <!-- Skill Moves Filter -->
+                <div class="filter-group">
+                  <label class="filter-label">Skill Moves</label>
+                  <select id="squad-filter-skill" class="filter-select">
+                    <option value="">Any</option>
+                    <option value="5">⭐⭐⭐⭐⭐</option>
+                    <option value="4">⭐⭐⭐⭐</option>
+                    <option value="3">⭐⭐⭐</option>
+                    <option value="2">⭐⭐</option>
+                    <option value="1">⭐</option>
+                  </select>
+                </div>
+
+              </div>
+
+              <!-- Panel Footer with Cancel/Apply Buttons -->
+              <div class="squad-filter-panel-footer">
+                <button class="btn-secondary" onclick="cancelSquadFilters()">Cancel</button>
+                <button class="btn-primary" onclick="console.log('🟢 Apply button clicked!'); applySquadFilters()">Apply</button>
+              </div>
+
+            </div>
+          </div>
+
+
+
 
           <!-- Player List Container (unchanged) -->
           <div id="squad-player-list" class="squad-player-list"></div>
@@ -3615,6 +3913,143 @@
       </div>
     </div>
   </div>
+
+
+  <!-- ========================================
+      PLAYER CUSTOMIZATION MODAL (Squad Builder)
+  ======================================== -->
+  <!-- SQUAD PLAYER CUSTOMIZATION MODAL -->
+  <div id="squad-player-customization-modal" class="modal" style="display: none;">
+      <div class="modal-overlay" onclick="closePlayerCustomizationModal()"></div>
+      
+      <div class="modal-content squad-customization-content" style="max-width: 500px;">
+          <!-- HEADER WITH RESET BUTTON -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; position: relative;">
+              <button class="modal-close-btn" onclick="closePlayerCustomizationModal()">✕</button>
+              <button id="squad-reset-rank-btn" class="btn-reset-rank" onclick="resetSquadPlayerRank()" 
+                      style="background-color: #FF6B6B; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                  Reset Rank
+              </button>
+          </div>
+
+          <!-- PLAYER IMAGE (TOP CENTER) -->
+          <div id="squad-custom-player-card" style="text-align: center; margin-bottom: 28px;">
+              <img src="" alt="Player" style="width: 180px; height: 240px; object-fit: contain;">
+          </div>
+
+          <!-- RANK SELECTION SECTION -->
+          <div style="margin-bottom: 32px;">
+              <h3 style="font-size: 14px; font-weight: 700; color: #E6EEF2; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.5px;">
+                  Select Rank
+              </h3>
+              <div id="squad-rank-boxes" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">
+                  <!-- Rank boxes will be generated by JS -->
+                  <div class="squad-rank-box" data-rank="1" onclick="selectSquadRank(1)" 
+                      style="padding: 12px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-align: center; background-color: rgba(255,255,255,0.02); transition: all 0.2s;">
+                      <div style="font-size: 24px; margin-bottom: 8px;">🟢</div>
+                      <div style="font-size: 12px; font-weight: 600; color: #3BD671;">Green</div>
+                  </div>
+                  <div class="squad-rank-box" data-rank="2" onclick="selectSquadRank(2)"
+                      style="padding: 12px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-align: center; background-color: rgba(255,255,255,0.02); transition: all 0.2s;">
+                      <div style="font-size: 24px; margin-bottom: 8px;">🔵</div>
+                      <div style="font-size: 12px; font-weight: 600; color: #6366F1;">Blue</div>
+                  </div>
+                  <div class="squad-rank-box" data-rank="3" onclick="selectSquadRank(3)"
+                      style="padding: 12px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-align: center; background-color: rgba(255,255,255,0.02); transition: all 0.2s;">
+                      <div style="font-size: 24px; margin-bottom: 8px;">🟣</div>
+                      <div style="font-size: 12px; font-weight: 600; color: #8B5CF6;">Purple</div>
+                  </div>
+                  <div class="squad-rank-box" data-rank="4" onclick="selectSquadRank(4)"
+                      style="padding: 12px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-align: center; background-color: rgba(255,255,255,0.02); transition: all 0.2s;">
+                      <div style="font-size: 24px; margin-bottom: 8px;">🔴</div>
+                      <div style="font-size: 12px; font-weight: 600; color: #FF6B6B;">Red</div>
+                  </div>
+                  <div class="squad-rank-box" data-rank="5" onclick="selectSquadRank(5)"
+                      style="padding: 12px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-align: center; background-color: rgba(255,255,255,0.02); transition: all 0.2s;">
+                      <div style="font-size: 24px; margin-bottom: 8px;">🟠</div>
+                      <div style="font-size: 12px; font-weight: 600; color: #FFB86B;">Orange</div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- TRAINING LEVEL DROPDOWN -->
+          <div style="margin-bottom: 28px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <label style="font-size: 13px; font-weight: 700; color: #E6EEF2; text-transform: uppercase; letter-spacing: 0.3px;">
+                      Training Level
+                  </label>
+                  <div style="background-color: rgba(0,194,168,0.15); padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #00C2A8;">
+                      <span id="squad-skill-points-display">0 Points</span>
+                  </div>
+              </div>
+              <select id="squad-training-level" onchange="updateSquadTraining(this.value)"
+                      style="width: 100%; background-color: #14181C; border: 2px solid rgba(0,194,168,0.2); border-radius: 8px; padding: 12px 16px; font-size: 14px; font-weight: 600; color: #E6EEF2; font-family: inherit; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg width=\'12\' height=\'8\' viewBox=\'0 0 12 8\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3e%3cpath d=\'M1 1.5L6 6.5L11 1.5\' stroke=\'%2300C2A8\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px;">
+                  <option value="0" selected>Training Level 0</option>
+                  <option value="2">Training Level 2</option>
+                  <option value="3">Training Level 3</option>
+                  <option value="4">Training Level 4</option>
+                  <option value="5">Training Level 5</option>
+                  <option value="6">Training Level 6</option>
+                  <option value="7">Training Level 7</option>
+                  <option value="8">Training Level 8</option>
+                  <option value="9">Training Level 9</option>
+                  <option value="10">Training Level 10</option>
+                  <option value="11">Training Level 11</option>
+                  <option value="12">Training Level 12</option>
+                  <option value="13">Training Level 13</option>
+                  <option value="14">Training Level 14</option>
+                  <option value="15">Training Level 15</option>
+                  <option value="16">Training Level 16</option>
+                  <option value="17">Training Level 17</option>
+                  <option value="18">Training Level 18</option>
+                  <option value="19">Training Level 19</option>
+                  <option value="20">Training Level 20</option>
+                  <option value="21">Training Level 21</option>
+                  <option value="22">Training Level 22</option>
+                  <option value="23">Training Level 23</option>
+                  <option value="24">Training Level 24</option>
+                  <option value="25">Training Level 25</option>
+                  <option value="26">Training Level 26</option>
+                  <option value="27">Training Level 27</option>
+                  <option value="28">Training Level 28</option>
+                  <option value="29">Training Level 29</option>
+                  <option value="30">Training Level 30 (MAX)</option>
+              </select>
+          </div>
+
+          <!-- SKILL POINTS SECTION -->
+          <div style="margin-bottom: 28px;">
+              <h3 style="font-size: 13px; font-weight: 700; color: #E6EEF2; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.3px;">
+                  Skill Points
+              </h3>
+              <div id="squad-custom-skills" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">
+                  <!-- Skill slots will be generated by JS -->
+              </div>
+          </div>
+
+          <!-- BUTTONS AT BOTTOM -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 28px;">
+              <button id="squad-remove-btn" onclick="removeSquadPlayer()"
+                      style="background-color: #FF6B6B; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;"
+                      onmouseover="this.style.backgroundColor='#FF5252'" 
+                      onmouseout="this.style.backgroundColor='#FF6B6B'">
+                  <span>🗑️</span>
+                  <span>Remove</span>
+              </button>
+              <button id="squad-apply-btn" onclick="applySquadPlayerCustomization()"
+                      style="background-color: #3BD671; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;"
+                      onmouseover="this.style.backgroundColor='#2AB659'" 
+                      onmouseout="this.style.backgroundColor='#3BD671'">
+                  <span>✓</span>
+                  <span>Apply</span>
+              </button>
+          </div>
+      </div>
+  </div>
+
+
+
+
 
 
 
@@ -3835,7 +4270,7 @@
   <script src="assets/js/views/shardCalculator.js"></script>
   <script src="assets/js/watchlist-professional.js"></script>
 
-
+  <script src="assets/js/refresh-time.js"></script>
   <script src="assets/js/app.js"></script>
 
 
@@ -3982,6 +4417,9 @@
   select.addEventListener("change", syncSkillStars);
   window.addEventListener("DOMContentLoaded", syncSkillStars);
 </script>
+
+
+
 
 <!-- Add this right before </body> -->
 

@@ -92,24 +92,26 @@ class ZenithAPIClient {
 
   // ---------- Players / list ----------
   async getPlayers(filters = {}, opts = {}) {
-    const params = new URLSearchParams();
+      const params = new URLSearchParams();
 
-    if (filters.limit !== undefined) params.append('limit', filters.limit);
-    if (filters.offset !== undefined) params.append('offset', filters.offset);
-    if (filters.position) params.append('position', filters.position);
-    if (filters.min_ovr !== undefined) params.append('min_ovr', filters.min_ovr);
-    if (filters.max_ovr !== undefined) params.append('max_ovr', filters.max_ovr);
-    if (filters.team) params.append('team', filters.team);
-    if (filters.league) params.append('league', filters.league);
-    if (filters.nation) params.append('nation', filters.nation);
-    if (filters.event) params.append('event', filters.event);
-    if (filters.rank !== undefined) params.append('rank', filters.rank);
-    if (filters.name_starts_with) params.append('name_starts_with', filters.name_starts_with);
-    if (filters.skill_moves !== undefined) params.append('skill_moves', filters.skill_moves);
+      if (filters.limit !== undefined) params.append('limit', filters.limit);
+      if (filters.offset !== undefined) params.append('offset', filters.offset);
+      if (filters.position) params.append('position', filters.position);
+      if (filters.min_ovr !== undefined) params.append('min_ovr', filters.min_ovr);
+      if (filters.max_ovr !== undefined) params.append('max_ovr', filters.max_ovr);
+      if (filters.team) params.append('team', filters.team);
+      if (filters.league) params.append('league', filters.league);
+      if (filters.nation) params.append('nation', filters.nation);
+      if (filters.event) params.append('event', filters.event);
+      if (filters.rank !== undefined) params.append('rank', filters.rank);
+      if (filters.name_starts_with) params.append('name_starts_with', filters.name_starts_with);
+      if (filters.skill_moves !== undefined) params.append('skill_moves', filters.skill_moves);
+      if (filters.is_untradable !== undefined) params.append('is_untradable', filters.is_untradable); // ✅ NEW
 
-    const endpoint = `/players?${params.toString()}`;
-    return this.fetchWithCache(endpoint, { cache: opts.cache ?? true, cacheTTL: opts.cacheTTL });
-  }
+      const endpoint = `/players?${params.toString()}`;
+      return this.fetchWithCache(endpoint, { cache: opts.cache ?? true, cacheTTL: opts.cacheTTL });
+    }
+
 
   // ---------- Search (lightweight) ----------
   // IMPORTANT: this returns a light object suitable for autocomplete/search UI
