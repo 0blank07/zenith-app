@@ -675,13 +675,21 @@ select.form-control {
   box-sizing: border-box;
 }
 
+/* GLOBAL FUTBIN-STYLE BACKGROUND */
 body {
   font-family: var(--font-family-base);
-  background-color: var(--color-background);
   color: var(--color-text);
   line-height: 1.6;
   overflow-x: hidden;
+  background-color: var(--color-graphite-900) !important; /* fallback */
+  background-image: url("../images/background/database_img_main.webp") !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  background-position: center top !important;
 }
+
+
 
 /* ----------------- Graphite Teal Pro Part 2 ----------------- */
 
@@ -1416,6 +1424,8 @@ body {
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .filters-sidebar {
@@ -3091,8 +3101,11 @@ h1, h3, h4, h5, h6 {
   }
 
   .database-content {
-    width: 89%;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
   }
+
 }
 
 @media (max-width: 768px) {
@@ -3114,8 +3127,10 @@ h1, h3, h4, h5, h6 {
     display: block;
   }
 
-  .database-content {
-    width: 89%;
+ .database-content {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
   }
 }
 
@@ -3139,7 +3154,9 @@ h1, h3, h4, h5, h6 {
   }
 
   .database-content {
-    width: 86%;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
   }
 }
 
@@ -4086,12 +4103,12 @@ h1, h3, h4, h5, h6 {
 
 /* Database View Container */
 #database-view {
-  overflow-x: auto;
+  overflow-x: visible;
   overflow-y: visible;
 }
 
 #database-view .view-content {
-  min-width: 900px;
+  min-width: 0;
 }
 
 /* ============================================
@@ -4099,17 +4116,19 @@ h1, h3, h4, h5, h6 {
    ============================================ */
 
 /* Watchlist Container */
-#watchlist-view {
-  background: var(--renderz-bg);
+/* WATCHLIST VIEW - ENHANCED VISUAL DESIGN */
+watchlist-view {
+  background: transparent;  /* let body background show through */
   min-height: 100vh;
 }
 
-#watchlist-view .view-content {
-  background: var(--renderz-bg);
+watchlist-view .view-content {
+  background: transparent;  /* no solid panel behind everything */
   padding: 32px;
   max-width: 1400px;
   margin: 0 auto;
 }
+
 
 /* Watchlist Grid - Vertical List with Cards */
 #watchlist-grid {
@@ -9414,27 +9433,16 @@ h1, h3, h4, h5, h6 {
   border: 1px solid rgba(255,255,255,0.2) !important;
 }
 
-/* SHARP BACKGROUND - NO BLUR ANYWHERE */
-#database-view *,
+/* SHARP BACKGROUND - NO BLUR ANYWHERE (database-view removed) */
 .filters-sidebar,
 .database-toolbar,
-.player-row,
-.player-card {
-  backdrop-filter: none !important;
-}
-
-/* SEMI-TRANSPARENT COLORS ONLY (NO BLUR) */
-.filters-sidebar,
-.database-toolbar {
-  background: rgba(20,24,28,0.6);
-  border: 1px solid rgba(255,255,255,0.15);
-}
-
 .players-grid .player-row,
 .players-grid .player-card {
-  background: rgba(20,24,28,0.55);
-  border: 1px solid rgba(255,255,255,0.2);
+  backdrop-filter: none !important;
+  background: rgba(20,24,28,0.75) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
 }
+
 
 .players-grid {
   background: transparent !important;
@@ -9457,19 +9465,19 @@ h1, h3, h4, h5, h6 {
 }
 
 #database-view::before {
-  content: '';
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: inherit;
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  background-image: url("../images/background/database_img_main.webp") !important;
+  background-size: cover !important;
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
   z-index: -1;
 }
-
 
 .view-all-btn {
   display: inline-flex;
@@ -9612,7 +9620,7 @@ h1, h3, h4, h5, h6 {
 #dashboard-view {
   position: relative !important;
   min-height: 100vh !important;
-  background-image: url('assets/images/background/database_img_main.webp') !important;
+  background-image: url("../images/background/database_img_main.webp") !important;
   background-size: cover !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;
@@ -9628,7 +9636,7 @@ h1, h3, h4, h5, h6 {
 #market-view {
   position: relative !important;
   min-height: 100vh !important;
-  background-image: url('assets/images/background/database_img_main.webp') !important;
+  background-image: url("../images/background/database_img_main.webp") !important;
   background-size: cover !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;
@@ -9648,7 +9656,7 @@ h1, h3, h4, h5, h6 {
 #watchlist-view {
   position: relative !important;
   min-height: 100vh !important;
-  background-image: url('assets/images/background/database_img_main.webp') !important;
+  background-image: url("../images/background/database_img_main.webp") !important;
   background-size: cover !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;
@@ -9690,7 +9698,7 @@ h1, h3, h4, h5, h6 {
 #database-view {
   position: relative !important;
   min-height: 100vh !important;
-  background-image: url('assets/images/background/database_img_main.webp') !important;
+  background-image: url("../images/background/database_img_main.webp") !important;
   background-size: cover !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;
