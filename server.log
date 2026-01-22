@@ -1,0 +1,32 @@
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/css/tool-style.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/css/watchlist-styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/images/banner2.webp HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/data/config.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/images/banner1.webp HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/images/squad-build-bg.jpeg HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /themeSelector.js HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /squadBuilder.js HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/data/api-client.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/data/supabase-provider.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/utils/helpers.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/views/dashboard.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/views/database.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/views/market.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/views/history.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/views/stats-modal.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/views/roiCalculator.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/views/themeSelector.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/views/squadBuilder.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/views/eventGuide.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/views/shardCalculator.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/watchlist-professional.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/refresh-time.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:47] "GET /assets/js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 17:58:49] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 17:58:49] "GET /assets/css/assets/images/background/database_img_main.webp HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 17:58:50] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 17:58:50] "GET /assets/css/assets/images/background/database_img_main.webp HTTP/1.1" 404 -
