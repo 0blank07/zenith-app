@@ -2411,218 +2411,7 @@
         </div>
       </div>
 
-      <!-- Mobile Filter Modal -->
-      <div class="mobile-filter-modal" id="mobile-filter-modal">
-        <div class="mobile-filter-backdrop" onclick="toggleMobileFilters()"></div>
-        <div class="mobile-filter-drawer">
-          <div class="mobile-filter-header">
-            <h3>Filters</h3>
-            <button class="mobile-filter-close" onclick="toggleMobileFilters()">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
 
-          <div class="mobile-filter-content">
-            <!-- Position Filter -->
-            <div class="filter-group">
-              <label class="filter-label">Position</label>
-              <select id="mobile-filter-position" class="filter-select">
-                <option value="">All Positions</option>
-                <option value="ST">Striker (ST)</option>
-                <option value="CF">Center Forward (CF)</option>
-                <option value="LW">Left Wing (LW)</option>
-                <option value="RW">Right Wing (RW)</option>
-                <option value="CAM">Central AM (CAM)</option>
-                <option value="CM">Central Midfielder (CM)</option>
-                <option value="CDM">Defensive Midfielder (CDM)</option>
-                <option value="LB">Left Back (LB)</option>
-                <option value="RB">Right Back (RB)</option>
-                <option value="CB">Center Back (CB)</option>
-                <option value="GK">Goalkeeper (GK)</option>
-              </select>
-            </div>
-
-            <!-- Rating Filter -->
-            <div class="filter-group">
-              <label class="filter-label">Overall Rating</label>
-              <div class="range-inputs">
-                <input type="number" id="mobile-rating-min" value="40" min="40" max="150" class="range-input">
-                <span>-</span>
-                <input type="number" id="mobile-rating-max" value="150" min="40" max="150" class="range-input">
-              </div>
-            </div>
-
-            <!-- Price Filter removed per requirements -->
-
-
-
-
-            <!-- Event Filter -->
-            <div class="filter-group">
-                <label class="filter-label">Event</label>
-                <select id="mobile-filter-event" class="filter-select">
-                    <option value="">All Events</option>
-                    <option value="Footyverse 26">Footyverse 26</option>
-                    <option value="A Nation's Story 26">A Nation's Story 26</option>
-                    <option value="Anniversary Retro">Anniversary Retro</option>
-                    <option value="UEFA EURO 2024">UEFA EURO 2024</option>
-                    <option value="POTM 26">POTM 26</option>
-                    <option value="Ragnarok 25">Ragnarok 25</option>
-                    <option value="Thunderstruck">Thunderstruck</option>
-                    <option value="Festive Fixtures">Festive Fixtures</option>
-                    <option value="Shapeshifters">Shapeshifters</option>
-                    <option value="UCL TOP 11">UCL TOP 11</option>
-                    <option value="Aqua 25">Aqua 25</option>
-                    <option value="FC Base Gold">FC Base Gold</option>
-                    <option value="Glorious Eras">Glorious Eras</option>
-                    <option value="Winter Wildcards">Winter Wildcards</option>
-                    <option value="UEFA Heroes">UEFA Heroes</option>
-                    <option value="Universal Rank">Universal Rank</option>
-                    <option value="Team of The Year">Team of The Year</option>
-                    <option value="Rulebreakers">Rulebreakers</option>
-                    <option value="Base Icons">Base Icons</option>
-                    <option value="Songkran 25">Songkran 25</option>
-                    <option value="Prime Hero">Prime Hero</option>
-                    <option value="End of An Era">End of An Era</option>
-                    <option value="Ballon d'Or">Ballon d'Or</option>
-                    <option value="Captains 25">Captains 25</option>
-                    <option value="UCL 26 Primetime">UCL 26 Primetime</option>
-                    <option value="Ramadan">Ramadan</option>
-                    <option value="Día de Muertos">Día de Muertos</option>
-                    <option value="Record Breakers">Record Breakers</option>
-                    <option value="Best of UECL 25">Best of UECL 25</option>
-                    <option value="Captains Live">Captains Live</option>
-                    <option value="Dynasties">Dynasties</option>
-                    <option value="Icons Match 25">Icons Match 25</option>
-                    <option value="Copa América">Copa América</option>
-                    <option value="Retro Stars">Retro Stars</option>
-                    <option value="Holiday">Holiday</option>
-                    <option value="Showdown">Showdown</option>
-                    <option value="Defining Legacies 25">Defining Legacies 25</option>
-                    <option value="FC Base Elite">FC Base Elite</option>
-                    <option value="Grassroot Greats 25">Grassroot Greats 25</option>
-                    <option value="UCL Group Stage">UCL Group Stage</option>
-                    <option value="PEPSI x FC MOBILE">PEPSI x FC MOBILE</option>
-                    <option value="Carnival 25">Carnival 25</option>
-                    <option value="TOTY 25">TOTY 25</option>
-                    <option value="Inferno 25">Inferno 25</option>
-                    <option value="UCL Road to the Final">UCL Road to the Final</option>
-                    <option value="Icon Chronicles">Icon Chronicles</option>
-                    <option value="MLS 25">MLS 25</option>
-                    <option value="Icon Player">Icon Player</option>
-                    <option value="Kick Off">Kick Off</option>
-                    <option value="Base Heroes">Base Heroes</option>
-                    <option value="Moments">Moments</option>
-                    <option value="Welcome to FC Mobile">Welcome to FC Mobile</option>
-                    <option value="Anniversary Prodigies">Anniversary Prodigies</option>
-                    <option value="Trophy Titans">Trophy Titans</option>
-                    <option value="TOTW 25">TOTW 25</option>
-                    <option value="Hall of Legends">Hall of Legends</option>
-                    <option value="Lunar New Year">Lunar New Year</option>
-                    <option value="FC Base Silver">FC Base Silver</option>
-                    <option value="Ultimate TOTS 25">Ultimate TOTS 25</option>
-                    <option value="POTM 25">POTM 25</option>
-                    <option value="Bundesliga POTM">Bundesliga POTM</option>
-                    <option value="Winter Wonders 25">Winter Wonders 25</option>
-                    <option value="Team of the Season">Team of the Season</option>
-                    <option value="Pitch Beats 25">Pitch Beats 25</option>
-                    <option value="Holi">Holi</option>
-                    <option value="Mystery Player">Mystery Player</option>
-                    <option value="CODE: NEON">CODE: NEON</option>
-                    <option value="Star Pass">Star Pass</option>
-                    <option value="CONMEBOL Libertadores">CONMEBOL Libertadores</option>
-                    <option value="Centurions">Centurions</option>
-                    <option value="UCL 25">UCL 25</option>
-                    <option value="LALIGA 25">LALIGA 25</option>
-                    <option value="Best of UEL 25">Best of UEL 25</option>
-                    <option value="Icon Evolutions">Icon Evolutions</option>
-                    <option value="National Valour">National Valour</option>
-                    <option value="Founders">Founders</option>
-                    <option value="Ultimate Team of the Season">Ultimate Team of the Season</option>
-                    <option value="Ultimate Team of The Year">Ultimate Team of The Year</option>
-                    <option value="Sunshine Ballers">Sunshine Ballers</option>
-                    <option value="FC Base Bronze">FC Base Bronze</option>
-                    <option value="CONMEBOL Sudamericana">CONMEBOL Sudamericana</option>
-                    <option value="2nd Anniversary">2nd Anniversary</option>
-                    <option value="Serie A POTM">Serie A POTM</option>
-                    <option value="Soccer Aid 25">Soccer Aid 25</option>
-                    <option value="Rivals Live">Rivals Live</option>
-                    <option value="Ligue 1 POTM">Ligue 1 POTM</option>
-                    <option value="TOTW 24">TOTW 24</option>
-                    <option value="TOTW 26">TOTW 26</option>
-                    <option value="National Stars 25">National Stars 25</option>
-                    <option value="Premier League POTM">Premier League POTM</option>
-                    <option value="Hero Chronicles">Hero Chronicles</option>
-                    <option value="League Champions">League Champions</option>
-                </select>
-            </div>
-
-
-
-
-            <!-- League Filter -->
-            <div class="filter-group">
-              <label class="filter-label">League</label>
-              <select id="mobile-filter-league" class="filter-select">
-                <option value="">All Leagues</option>
-                <option value="Premier League">Premier League</option>
-                <option value="La Liga">La Liga</option>
-                <option value="Serie A">Serie A</option>
-                <option value="Bundesliga">Bundesliga</option>
-                <option value="Ligue 1">Ligue 1</option>
-                <option value="MLS">MLS</option>
-                <option value="Saudi Pro League">Saudi Pro League</option>
-              </select>
-            </div>
-
-            <!-- Nation Filter -->
-            <div class="filter-group">
-              <label class="filter-label">Nation</label>
-              <div class="autocomplete">
-                <input
-                  id="mobile-filter-nation"
-                  class="filter-input"
-                  placeholder="Search country..."
-                  autocomplete="off"
-                >
-                <div class="autocomplete-list" id="mobile-filter-nation-list"></div>
-              </div>
-            </div>
-
-
-            <!-- Skill Moves Filter -->
-            <div class="filter-group">
-              <label class="filter-label">Skill Moves</label>
-              <select id="mobile-filter-skill" class="filter-select">
-                <option value="">Any</option>
-                <option value="5">5 Stars</option>
-                <option value="4">4 Stars</option>
-                <option value="3">3 Stars</option>
-                <option value="2">2 Stars</option>
-                <option value="1">1 Star</option>
-              </select>
-            </div>
-
-            <!-- Sort By -->
-            <div class="filter-group">
-              <label class="filter-label">Sort By</label>
-              <select id="mobile-sort-by" class="sort-select">
-                <option value="name">Sort by Name</option>
-                <option value="rating">Sort by Rating</option>
-                <option value="price">Sort by Price</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="mobile-filter-footer">
-            <button class="btn-secondary" onclick="clearMobileFilters()">Clear All</button>
-            <button class="btn-primary" onclick="applyMobileFilters()">Apply Filters</button>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Market Tracker View -->
@@ -4492,5 +4281,218 @@
   </div>
 </div>
 
+
+<!-- Mobile Filter Modal -->
+      <div class="mobile-filter-modal" id="mobile-filter-modal">
+        <div class="mobile-filter-backdrop" onclick="toggleMobileFilters()"></div>
+        <div class="mobile-filter-drawer">
+          <div class="mobile-filter-header">
+            <h3>Filters</h3>
+            <button class="mobile-filter-close" onclick="toggleMobileFilters()">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="mobile-filter-content">
+            <!-- Position Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Position</label>
+              <select id="mobile-filter-position" class="filter-select">
+                <option value="">All Positions</option>
+                <option value="ST">Striker (ST)</option>
+                <option value="CF">Center Forward (CF)</option>
+                <option value="LW">Left Wing (LW)</option>
+                <option value="RW">Right Wing (RW)</option>
+                <option value="CAM">Central AM (CAM)</option>
+                <option value="CM">Central Midfielder (CM)</option>
+                <option value="CDM">Defensive Midfielder (CDM)</option>
+                <option value="LB">Left Back (LB)</option>
+                <option value="RB">Right Back (RB)</option>
+                <option value="CB">Center Back (CB)</option>
+                <option value="GK">Goalkeeper (GK)</option>
+              </select>
+            </div>
+
+            <!-- Rating Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Overall Rating</label>
+              <div class="range-inputs">
+                <input type="number" id="mobile-rating-min" value="40" min="40" max="150" class="range-input">
+                <span>-</span>
+                <input type="number" id="mobile-rating-max" value="150" min="40" max="150" class="range-input">
+              </div>
+            </div>
+
+            <!-- Price Filter removed per requirements -->
+
+
+
+
+            <!-- Event Filter -->
+            <div class="filter-group">
+                <label class="filter-label">Event</label>
+                <select id="mobile-filter-event" class="filter-select">
+                    <option value="">All Events</option>
+                    <option value="Footyverse 26">Footyverse 26</option>
+                    <option value="A Nation's Story 26">A Nation's Story 26</option>
+                    <option value="Anniversary Retro">Anniversary Retro</option>
+                    <option value="UEFA EURO 2024">UEFA EURO 2024</option>
+                    <option value="POTM 26">POTM 26</option>
+                    <option value="Ragnarok 25">Ragnarok 25</option>
+                    <option value="Thunderstruck">Thunderstruck</option>
+                    <option value="Festive Fixtures">Festive Fixtures</option>
+                    <option value="Shapeshifters">Shapeshifters</option>
+                    <option value="UCL TOP 11">UCL TOP 11</option>
+                    <option value="Aqua 25">Aqua 25</option>
+                    <option value="FC Base Gold">FC Base Gold</option>
+                    <option value="Glorious Eras">Glorious Eras</option>
+                    <option value="Winter Wildcards">Winter Wildcards</option>
+                    <option value="UEFA Heroes">UEFA Heroes</option>
+                    <option value="Universal Rank">Universal Rank</option>
+                    <option value="Team of The Year">Team of The Year</option>
+                    <option value="Rulebreakers">Rulebreakers</option>
+                    <option value="Base Icons">Base Icons</option>
+                    <option value="Songkran 25">Songkran 25</option>
+                    <option value="Prime Hero">Prime Hero</option>
+                    <option value="End of An Era">End of An Era</option>
+                    <option value="Ballon d'Or">Ballon d'Or</option>
+                    <option value="Captains 25">Captains 25</option>
+                    <option value="UCL 26 Primetime">UCL 26 Primetime</option>
+                    <option value="Ramadan">Ramadan</option>
+                    <option value="Día de Muertos">Día de Muertos</option>
+                    <option value="Record Breakers">Record Breakers</option>
+                    <option value="Best of UECL 25">Best of UECL 25</option>
+                    <option value="Captains Live">Captains Live</option>
+                    <option value="Dynasties">Dynasties</option>
+                    <option value="Icons Match 25">Icons Match 25</option>
+                    <option value="Copa América">Copa América</option>
+                    <option value="Retro Stars">Retro Stars</option>
+                    <option value="Holiday">Holiday</option>
+                    <option value="Showdown">Showdown</option>
+                    <option value="Defining Legacies 25">Defining Legacies 25</option>
+                    <option value="FC Base Elite">FC Base Elite</option>
+                    <option value="Grassroot Greats 25">Grassroot Greats 25</option>
+                    <option value="UCL Group Stage">UCL Group Stage</option>
+                    <option value="PEPSI x FC MOBILE">PEPSI x FC MOBILE</option>
+                    <option value="Carnival 25">Carnival 25</option>
+                    <option value="TOTY 25">TOTY 25</option>
+                    <option value="Inferno 25">Inferno 25</option>
+                    <option value="UCL Road to the Final">UCL Road to the Final</option>
+                    <option value="Icon Chronicles">Icon Chronicles</option>
+                    <option value="MLS 25">MLS 25</option>
+                    <option value="Icon Player">Icon Player</option>
+                    <option value="Kick Off">Kick Off</option>
+                    <option value="Base Heroes">Base Heroes</option>
+                    <option value="Moments">Moments</option>
+                    <option value="Welcome to FC Mobile">Welcome to FC Mobile</option>
+                    <option value="Anniversary Prodigies">Anniversary Prodigies</option>
+                    <option value="Trophy Titans">Trophy Titans</option>
+                    <option value="TOTW 25">TOTW 25</option>
+                    <option value="Hall of Legends">Hall of Legends</option>
+                    <option value="Lunar New Year">Lunar New Year</option>
+                    <option value="FC Base Silver">FC Base Silver</option>
+                    <option value="Ultimate TOTS 25">Ultimate TOTS 25</option>
+                    <option value="POTM 25">POTM 25</option>
+                    <option value="Bundesliga POTM">Bundesliga POTM</option>
+                    <option value="Winter Wonders 25">Winter Wonders 25</option>
+                    <option value="Team of the Season">Team of the Season</option>
+                    <option value="Pitch Beats 25">Pitch Beats 25</option>
+                    <option value="Holi">Holi</option>
+                    <option value="Mystery Player">Mystery Player</option>
+                    <option value="CODE: NEON">CODE: NEON</option>
+                    <option value="Star Pass">Star Pass</option>
+                    <option value="CONMEBOL Libertadores">CONMEBOL Libertadores</option>
+                    <option value="Centurions">Centurions</option>
+                    <option value="UCL 25">UCL 25</option>
+                    <option value="LALIGA 25">LALIGA 25</option>
+                    <option value="Best of UEL 25">Best of UEL 25</option>
+                    <option value="Icon Evolutions">Icon Evolutions</option>
+                    <option value="National Valour">National Valour</option>
+                    <option value="Founders">Founders</option>
+                    <option value="Ultimate Team of the Season">Ultimate Team of the Season</option>
+                    <option value="Ultimate Team of The Year">Ultimate Team of The Year</option>
+                    <option value="Sunshine Ballers">Sunshine Ballers</option>
+                    <option value="FC Base Bronze">FC Base Bronze</option>
+                    <option value="CONMEBOL Sudamericana">CONMEBOL Sudamericana</option>
+                    <option value="2nd Anniversary">2nd Anniversary</option>
+                    <option value="Serie A POTM">Serie A POTM</option>
+                    <option value="Soccer Aid 25">Soccer Aid 25</option>
+                    <option value="Rivals Live">Rivals Live</option>
+                    <option value="Ligue 1 POTM">Ligue 1 POTM</option>
+                    <option value="TOTW 24">TOTW 24</option>
+                    <option value="TOTW 26">TOTW 26</option>
+                    <option value="National Stars 25">National Stars 25</option>
+                    <option value="Premier League POTM">Premier League POTM</option>
+                    <option value="Hero Chronicles">Hero Chronicles</option>
+                    <option value="League Champions">League Champions</option>
+                </select>
+            </div>
+
+
+
+
+            <!-- League Filter -->
+            <div class="filter-group">
+              <label class="filter-label">League</label>
+              <select id="mobile-filter-league" class="filter-select">
+                <option value="">All Leagues</option>
+                <option value="Premier League">Premier League</option>
+                <option value="La Liga">La Liga</option>
+                <option value="Serie A">Serie A</option>
+                <option value="Bundesliga">Bundesliga</option>
+                <option value="Ligue 1">Ligue 1</option>
+                <option value="MLS">MLS</option>
+                <option value="Saudi Pro League">Saudi Pro League</option>
+              </select>
+            </div>
+
+            <!-- Nation Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Nation</label>
+              <div class="autocomplete">
+                <input
+                  id="mobile-filter-nation"
+                  class="filter-input"
+                  placeholder="Search country..."
+                  autocomplete="off"
+                >
+                <div class="autocomplete-list" id="mobile-filter-nation-list"></div>
+              </div>
+            </div>
+
+
+            <!-- Skill Moves Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Skill Moves</label>
+              <select id="mobile-filter-skill" class="filter-select">
+                <option value="">Any</option>
+                <option value="5">5 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="2">2 Stars</option>
+                <option value="1">1 Star</option>
+              </select>
+            </div>
+
+            <!-- Sort By -->
+            <div class="filter-group">
+              <label class="filter-label">Sort By</label>
+              <select id="mobile-sort-by" class="sort-select">
+                <option value="name">Sort by Name</option>
+                <option value="rating">Sort by Rating</option>
+                <option value="price">Sort by Price</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mobile-filter-footer">
+            <button class="btn-secondary" onclick="clearMobileFilters()">Clear All</button>
+            <button class="btn-primary" onclick="applyMobileFilters()">Apply Filters</button>
+          </div>
+        </div>
+      </div>
 </body>
 </html>
