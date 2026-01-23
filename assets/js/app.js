@@ -3930,9 +3930,8 @@ function createPlayerCard(player) {
     
     // 5. Build HTML Structure 
     card.innerHTML = `
-        <div class="player-card-scale">
             <div class="player-row-card">
-                <div class="player-card-image-placeholder" style="position: relative; height: 124px; width: 98px; margin-right: 30px; margin-bottom: 10px; margin-top: 15px; border-radius: 8px; bottom: 17px; right: 5px;">
+                <div class="player-card-image-placeholder" style="position: relative; height: 100%; width: 100%; border-radius: 8px;">
                     
                     ${player.card_background ? `
                         <img src="${player.card_background}" 
@@ -3951,25 +3950,24 @@ function createPlayerCard(player) {
                         <span class="player-initials">${getInitials(player.name)}</span>
                     `}
 
-                    <div style="position:absolute;top:83px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:800;font-family:'CruyffSans',sans-serif;color:${player.color_name||'#FFFFFF'};text-transform:uppercase;z-index:10;letter-spacing:-0.8px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${player.name}</div>
+                    <div style="position:absolute;top:67%;left:50%;transform:translateX(-50%);font-size:11px;font-weight:800;font-family:'CruyffSans',sans-serif;color:${player.color_name||'#FFFFFF'};text-transform:uppercase;z-index:10;letter-spacing:-0.8px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${player.name}</div>
 
-                    <div style="position:absolute;top:13px;left:12px;font-size:16px;font-weight:700;font-family:'CruyffSans',sans-serif;color:${player.color_rating||'#FFB86B'};z-index:10;letter-spacing:-1px;line-height:1.1;">${player.ovr && player.ovr>0 ? player.ovr : '?'}</div>
+                    <div style="position:absolute;top:10%;left:12%;font-size:16px;font-weight:700;font-family:'CruyffSans',sans-serif;color:${player.color_rating||'#FFB86B'};z-index:10;letter-spacing:-1px;line-height:1.1;">${player.ovr && player.ovr>0 ? player.ovr : '?'}</div>
 
-                    <div style="position:absolute;top:28px;left:15px;font-size:10px;font-weight:800;font-family:'CruyffSans',sans-serif;color:${player.color_position||'#FFFFFF'};z-index:10;letter-spacing:-0.8px;line-height:1.1;">${player.position||'?'}</div>
+                    <div style="position:absolute;top:22%;left:15%;font-size:10px;font-weight:800;font-family:'CruyffSans',sans-serif;color:${player.color_position||'#FFFFFF'};z-index:10;letter-spacing:-0.8px;line-height:1.1;">${player.position||'?'}</div>
 
                     ${player.nation_flag ? `
                         <img src="${player.nation_flag}" alt="Nation"
-                            style="position:absolute;bottom:20px;left:27px;width:12px;height:9px;border-radius:1px;z-index:10;object-fit:cover;">
+                            style="position:absolute;bottom:16%;left:25%;width:12px;height:9px;border-radius:1px;z-index:10;object-fit:cover;">
                     ` : ''}
 
                     ${player.club_flag ? `
                         <img src="${player.club_flag}" alt="Club"
-                            style="position:absolute;top:93px;left:60px;width:14px;height:14px;border-radius:2px;z-index:10;object-fit:contain;">
+                            style="position:absolute;top:75%;left:60%;width:14px;height:14px;border-radius:2px;z-index:10;object-fit:contain;">
                     ` : ''}
 
                 </div>
             </div>
-        </div>
 
         <div class="player-row-info">
             <div class="player-info-name">${player.name}</div>
