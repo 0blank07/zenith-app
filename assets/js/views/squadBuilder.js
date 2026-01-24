@@ -2807,41 +2807,34 @@ function applySquadPlayerCustomization() {
     renderSquadBuilder();
 }
 
-
-
-
 function openPlayerCustomizationModal(playerId, slotId) {
-    console.log('🚀 DEBUG: openPlayerCustomizationModal CALLED');
-    console.log('🚀 DEBUG: playerId:', playerId);
-    console.log('🚀 DEBUG: slotId:', slotId);
-    console.log('SQUAD CUSTOM: Opening modal for player:', playerId, 'slot:', slotId);
-    
-    squadCustomizationState.playerId = playerId;
-    squadCustomizationState.slotId = slotId;
-    squadCustomizationState.selectedRank = 0;
-    squadCustomizationState.trainingLevel = 0;
-    squadCustomizationState.selectedSkills = [];
-    
-    const player = getPlayers().find(p => p.id === playerId || p.playerid === playerId);
-    
-    const modal = document.getElementById('squad-player-customization-modal');
-    if (!modal) {
-        console.error('Modal not found!');
-        return;
-    }
-    
-    const playerCardImg = modal.querySelector('#squad-custom-player-card img');
-    if (playerCardImg && player) {
-        playerCardImg.src = player.cardbackground || player.cardBackground || 'https://via.placeholder.com/180x240';
-    }
-    
-    renderSquadSkillSlots(0);
-    console.log('🚀 DEBUG: About to show modal...');
-    modal.style.display = 'flex';
-    console.log('✅ DEBUG: Modal display set to flex!');
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+  console.log('DEBUG: openPlayerCustomizationModal CALLED');
+  console.log('DEBUG: playerId:', playerId);
+  console.log('DEBUG: slotId:', slotId);
+
+  squadCustomizationState.playerId = playerId;
+  squadCustomizationState.slotId = slotId;
+  squadCustomizationState.selectedRank = 0;
+  squadCustomizationState.trainingLevel = 0;
+  squadCustomizationState.selectedSkills = [];
+
+  const player = getPlayers().find(p => p.id === playerId || p.player_id === playerId);
+  const modal = document.getElementById('squad-player-customization-modal');
+
+  if (!modal) {
+    console.error('Modal not found!');
+    return;
+  }
+
+  // Render mini card preview
+  renderCustomizationMiniCard(player);
+
+  renderSquadSkillSlots(0);
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 }
+
 
 function closePlayerCustomizationModal() {
     const modal = document.getElementById('squad-player-customization-modal');
@@ -3007,6 +3000,49 @@ if (document.readyState === 'loading') {
     initSquadAuctionableToggle();
 }
 
+
+// ============================================
+// RENDER MINI CARD IN CUSTOMIZATION MODAL
+// ============================================
+function renderCustomizationMiniCard(player) {
+  const container = document.getElementById('squad-custom-player-card');
+  if (!container) return;
+
+  if (!player) {
+    container.innerHTML = '<p style="color: #888;">Player not found</p>';
+    return;
+  }
+
+  // Normalize player data
+  const cardBg = player.card_background || player.cardBackground || player.cardbackground || 'https://via.placeholder.com/180x240';
+  const playerImg = player.player_image || player.playerImage || player.playerimage || player.playerimg || 'https://via.placeholder.com/120x120';
+  const playerName = player.name || 'Unknown Player';
+  const overall = player.ovr || player.overall || 0;
+  const position = player.position || 'N/A';
+  const nationFlag = player.nation_flag || player.nationFlag || player.nationflag || '';
+  const clubFlag = player.club_flag || player.clubFlag || player.clubflag || '';
+
+  // OVR color based on rating
+  let ovrColor = '#FFFFFF';
+  if (overall >= 90) ovrColor = '#FFD700'; // Gold
+  else if (overall >= 80) ovrColor = '#00C2A8'; // Teal
+  else if (overall >= 70) ovrColor = '#FFB86B'; // Orange
+
+  // Build the mini card HTML
+  container.innerHTML = `
+    <div class="squad-custom-mini-card">
+      <img src="${cardBg}" alt="Card Background" class="squad-custom-card-bg" onerror="this.src='https://via.placeholder.com/180x240'">
+      <img src="${playerImg}" alt="${playerName}" class="squad-custom-card-player-img" onerror="this.style.display='none'">
+      <div class="squad-custom-card-ovr" style="color: ${ovrColor}">${overall > 0 ? overall : 'N/A'}</div>
+      <div class="squad-custom-card-position">${position}</div>
+      <div class="squad-custom-card-flags">
+        ${nationFlag ? `<img src="${nationFlag}" alt="Nation" class="squad-custom-card-flag" onerror="this.style.display='none'">` : ''}
+        ${clubFlag ? `<img src="${clubFlag}" alt="Club" class="squad-custom-card-flag" onerror="this.style.display='none'">` : ''}
+      </div>
+      <div class="squad-custom-card-name">${playerName}</div>
+    </div>
+  `;
+}
 
 
 function calculateValue() { return 0; }

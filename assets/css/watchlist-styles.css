@@ -330,3 +330,279 @@
     flex-wrap: wrap;
 }
 
+
+
+/* ==========================================
+   PLAYER ROW CARD - COMPLETE STYLING
+   ========================================== */
+
+
+
+
+
+/* ==========================================
+   DESKTOP FROM HERE FOR WATCHLIST ROWS
+   ========================================== */
+
+/* Card Background Image */
+.player-row-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    z-index: 1;
+}
+
+/* Main Player Image */
+.player-row-main-img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 130%;
+    height: 130%;
+    object-fit: contain;
+    z-index: 2;
+}
+
+/* Player Initials Fallback */
+.player-initials {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    background: var(--color-graphite-700);
+    border-radius: inherit;
+    z-index: 2;
+}
+
+.player-initials-hidden {
+    display: none;
+}
+
+/* Player Name Overlay */
+.player-row-name {
+    position: absolute;
+    top: 82px;
+    left: 50%;
+    transform: translateX(-50%) scaleY(1);
+    text-align: center;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    font-family: "CruyffSans", sans-serif;
+    color: var(--player-name-color, #FFFFFF);
+    z-index: 10;
+    letter-spacing: -0.8px;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* OVR Rating Badge */
+.player-row-ovr {
+    position: absolute;
+    top: 10px;
+    left: 8px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: "CruyffSans", sans-serif;
+    color: var(--player-ovr-color, #FFB86B);
+    z-index: 10;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    transform: scaleY(1);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Position Badge */
+.player-row-position {
+    position: absolute;
+    top: 28px;
+    left: 15px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 800;
+    font-family: "CruyffSans", sans-serif;
+    color: var(--player-position-color, #FFFFFF);
+    z-index: 10;
+    letter-spacing: -0.8px;
+    line-height: 1.1;
+    transform: scaleY(1);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Nation Flag */
+.player-row-nation {
+    position: absolute;
+    bottom: 19px;
+    left: 24px;
+    width: 12px;
+    height: 9px;
+    object-fit: cover;
+    border-radius: 1px;
+    z-index: 10;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Club Badge */
+.player-row-club {
+    position: absolute;
+    bottom: 19px;
+    right: 24px;
+    width: 15px;
+    height: 12px;
+    object-fit: contain;
+    border-radius: 2px;
+    z-index: 10;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+/* ==========================================
+   OTHER DEVICES FROM HERE
+   ========================================== */
+/* ==========================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================== */
+@media (max-width: 1024px) {
+    .player-row-name {
+        font-size: 10px;
+        top: 72px;
+    }
+    
+    .player-row-ovr {
+        font-size: 14px;
+        top: 8px;
+        left: 6px;
+    }
+    
+    .player-row-position {
+        font-size: 9px;
+        top: 25px;
+        left: 13px;
+    }
+    
+    .player-row-nation {
+        width: 10px;
+        height: 8px;
+        bottom: 17px;
+        left: 22px;
+    }
+    
+    .player-row-club {
+        width: 13px;
+        height: 10px;
+        bottom: 14px;
+        left: 48px;
+    }
+}
+
+@media (max-width: 768px) {
+    .player-row-name {
+        font-size: 10px;
+        top: 72px;
+    }
+    
+    .player-row-ovr {
+        font-size: 14px;
+        top: 8px;
+        left: 6px;
+    }
+    
+    .player-row-position {
+        font-size: 9px;
+        top: 25px;
+        left: 13px;
+    }
+    
+    .player-row-nation {
+        width: 10px;
+        height: 8px;
+        bottom: 17px;
+        left: 22px;
+    }
+    
+    .player-row-club {
+        width: 13px;
+        height: 10px;
+        bottom: 14px;
+        left: 48px;
+    }
+}
+
+@media (max-width: 480px) {
+    .player-row-name {
+        font-size: 9px;
+        top: 70px;
+        max-width: 95%;
+    }
+    
+    .player-row-ovr {
+        font-size: 13px;
+        top: 7px;
+        left: 5px;
+    }
+    
+    .player-row-position {
+        font-size: 8px;
+        top: 23px;
+        left: 12px;
+    }
+    
+    .player-row-nation {
+        width: 9px;
+        height: 7px;
+        bottom: 16px;
+        left: 20px;
+    }
+    
+    .player-row-club {
+        width: 12px;
+        height: 9px;
+        bottom: 13px;
+        left: 45px;
+    }
+}
+
+/* ==========================================
+   SECONDARY POSITION BADGES
+   ========================================== */
+
+.secondary-position-badge {
+    display: inline-block;
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    color: #818CF8;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-right: 4px;
+    transition: all 0.2s ease;
+}
+
+.secondary-position-badge:hover {
+    background: rgba(99, 102, 241, 0.25);
+    border-color: rgba(99, 102, 241, 0.5);
+    transform: translateY(-1px);
+}

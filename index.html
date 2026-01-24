@@ -27,8 +27,140 @@
       100% { transform: rotate(360deg); }
   }
 
+
+  /* ===== MOBILE FILTER MODAL - COMPLETE FIX ===== */
+
+  /* Base modal - hidden by default */
+  .mobile-filter-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    display: none !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+  }
+
+  /* Show modal when active */
+  .mobile-filter-modal.active {
+    display: flex !important;
+  }
+
+  /* Backdrop overlay */
+  .mobile-filter-backdrop {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(4px) !important;
+    z-index: 9998 !important;
+  }
+
+  /* Filter drawer container */
+  .mobile-filter-drawer {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    max-height: 85vh !important;
+    background: var(--color-graphite-900, #0E1114) !important;
+    border-radius: 20px 20px 0 0 !important;
+    overflow-y: auto !important;
+    z-index: 10000 !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5) !important;
+    animation: slideUp 0.3s ease !important;
+  }
+
+  /* Slide up animation */
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  /* Header styling */
+  .mobile-filter-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 20px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    position: sticky !important;
+    top: 0 !important;
+    background: var(--color-graphite-900, #0E1114) !important;
+    z-index: 10 !important;
+  }
+
+  .mobile-filter-header h3 {
+    margin: 0 !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+  }
+
+  .mobile-filter-close {
+    background: transparent !important;
+    border: none !important;
+    color: #fff !important;
+    cursor: pointer !important;
+    padding: 8px !important;
+  }
+
+  /* Filter content */
+  .mobile-filter-content {
+    padding: 20px !important;
+    max-height: calc(85vh - 140px) !important;
+    overflow-y: auto !important;
+  }
+
+  /* Footer buttons */
+  .mobile-filter-footer {
+    display: flex !important;
+    gap: 12px !important;
+    padding: 16px 20px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    background: var(--color-graphite-900, #0E1114) !important;
+  }
+
+  .mobile-filter-footer button {
+    flex: 1 !important;
+    padding: 14px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+  }
+
+  /* Ensure mobile view is active at correct breakpoint */
+  @media (max-width: 1026px) {
+    /* Hide desktop sidebar */
+    .filters-sidebar {
+      display: none !important;
+    }
+    
+    /* Show mobile search bar */
+    .mobile-search-container {
+      display: flex !important;
+    }
+    
+    /* Full width content */
+    .database-layout {
+      grid-template-columns: 1fr !important;
+      padding: 1rem 0 !important;
+    }
+  }
+
+
   /* ========== PLAYER DETAIL VIEW STYLES ========== */
-  #player-detail-view {
+  #player--view {
     padding: 0;
     background: var(--bg-primary, #0a0a0f);
     min-height: 100vh;
@@ -634,140 +766,11 @@
           <div id="trending-players-grid"></div>
       </section>
 
-      <section class="stats-grid">
         <div class="stat-card">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-          </div>
-          <div class="stat-content">
-            <p class="stat-label">Total Players</p>
-            <p class="stat-value" id="total-players">31,847</p>
-          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-              <line x1="12" y1="1" x2="12" y2="23"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-          </div>
-          <div class="stat-content">
-            <p class="stat-label">Market Volume</p>
-            <p class="stat-value" id="market-volume">1.2B</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-              <polyline points="17 6 23 6 23 12"></polyline>
-            </svg>
-          </div>
-          <div class="stat-content">
-            <p class="stat-label">Top Gainer</p>
-            <p class="stat-value" id="top-gainer">Vinícius Jr</p>
-            <p class="stat-change positive" id="top-gainer-change">+15.3%</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-              <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
-              <polyline points="17 18 23 18 23 12"></polyline>
-            </svg>
-          </div>
-          <div class="stat-content">
-            <p class="stat-label">Top Loser</p>
-            <p class="stat-value" id="top-loser">Virgil van Dijk</p>
-            <p class="stat-change negative" id="top-loser-change">-4.2%</p>
-          </div>
         </div>
       </section>
-
-      <section class="section">
-        <div class="section-header">
-          <h2>Recent Price Updates</h2>
-        </div>
-        <div class="updates-list" id="recent-updates">
-          <div class="update-item">
-            <div class="update-player">
-              <div class="update-avatar">KM</div>
-              <div class="update-info">
-                <h4>Kylian Mbappé</h4>
-                <p>ST • Real Madrid</p>
-              </div>
-            </div>
-            <div class="update-price">
-              <div class="price-value">4.25M</div>
-              <div class="price-change up">
-                ↑ 12.6%
-              </div>
-            </div>
-          </div>
-          <div class="update-item">
-            <div class="update-player">
-              <div class="update-avatar">MS</div>
-              <div class="update-info">
-                <h4>Mohamed Salah</h4>
-                <p>RW • Liverpool</p>
-              </div>
-            </div>
-            <div class="update-price">
-              <div class="price-value">1.95M</div>
-              <div class="price-change up">
-                ↑ 3.8%
-              </div>
-            </div>
-          </div>
-          <div class="update-item">
-            <div class="update-player">
-              <div class="update-avatar">VJ</div>
-              <div class="update-info">
-                <h4>Vinícius Jr</h4>
-                <p>LW • Real Madrid</p>
-              </div>
-            </div>
-            <div class="update-price">
-              <div class="price-value">3.20M</div>
-              <div class="price-change up">
-                ↑ 15.3%
-              </div>
-            </div>
-          </div>
-          <div class="update-item">
-            <div class="update-player">
-              <div class="update-avatar">EH</div>
-              <div class="update-info">
-                <h4>Erling Haaland</h4>
-                <p>ST • Manchester City</p>
-              </div>
-            </div>
-            <div class="update-price">
-              <div class="price-value">3.85M</div>
-              <div class="price-change up">
-                ↑ 8.7%
-              </div>
-            </div>
-          </div>
-          <div class="update-item">
-            <div class="update-player">
-              <div class="update-avatar">CR</div>
-              <div class="update-info">
-                <h4>Cristiano Ronaldo</h4>
-                <p>ST • Al Nassr</p>
-              </div>
-            </div>
-            <div class="update-price">
-              <div class="price-value">1.89M</div>
-              <div class="price-change down">
-                ↓ 3.1%
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -2360,11 +2363,7 @@
           background: transparent !important;
           z-index: 3;
         ">
-          <div class="database-toolbar" style="
-            backdrop-filter: blur(10px);
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-          ">
+          <div class="database-toolbar">
 
             <div class="search-container">
               <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -2412,217 +2411,6 @@
       </div>
 
       <!-- Mobile Filter Modal -->
-      <div class="mobile-filter-modal" id="mobile-filter-modal">
-        <div class="mobile-filter-backdrop" onclick="toggleMobileFilters()"></div>
-        <div class="mobile-filter-drawer">
-          <div class="mobile-filter-header">
-            <h3>Filters</h3>
-            <button class="mobile-filter-close" onclick="toggleMobileFilters()">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
-
-          <div class="mobile-filter-content">
-            <!-- Position Filter -->
-            <div class="filter-group">
-              <label class="filter-label">Position</label>
-              <select id="mobile-filter-position" class="filter-select">
-                <option value="">All Positions</option>
-                <option value="ST">Striker (ST)</option>
-                <option value="CF">Center Forward (CF)</option>
-                <option value="LW">Left Wing (LW)</option>
-                <option value="RW">Right Wing (RW)</option>
-                <option value="CAM">Central AM (CAM)</option>
-                <option value="CM">Central Midfielder (CM)</option>
-                <option value="CDM">Defensive Midfielder (CDM)</option>
-                <option value="LB">Left Back (LB)</option>
-                <option value="RB">Right Back (RB)</option>
-                <option value="CB">Center Back (CB)</option>
-                <option value="GK">Goalkeeper (GK)</option>
-              </select>
-            </div>
-
-            <!-- Rating Filter -->
-            <div class="filter-group">
-              <label class="filter-label">Overall Rating</label>
-              <div class="range-inputs">
-                <input type="number" id="mobile-rating-min" value="40" min="40" max="150" class="range-input">
-                <span>-</span>
-                <input type="number" id="mobile-rating-max" value="150" min="40" max="150" class="range-input">
-              </div>
-            </div>
-
-            <!-- Price Filter removed per requirements -->
-
-
-
-
-            <!-- Event Filter -->
-            <div class="filter-group">
-                <label class="filter-label">Event</label>
-                <select id="mobile-filter-event" class="filter-select">
-                    <option value="">All Events</option>
-                    <option value="Footyverse 26">Footyverse 26</option>
-                    <option value="A Nation's Story 26">A Nation's Story 26</option>
-                    <option value="Anniversary Retro">Anniversary Retro</option>
-                    <option value="UEFA EURO 2024">UEFA EURO 2024</option>
-                    <option value="POTM 26">POTM 26</option>
-                    <option value="Ragnarok 25">Ragnarok 25</option>
-                    <option value="Thunderstruck">Thunderstruck</option>
-                    <option value="Festive Fixtures">Festive Fixtures</option>
-                    <option value="Shapeshifters">Shapeshifters</option>
-                    <option value="UCL TOP 11">UCL TOP 11</option>
-                    <option value="Aqua 25">Aqua 25</option>
-                    <option value="FC Base Gold">FC Base Gold</option>
-                    <option value="Glorious Eras">Glorious Eras</option>
-                    <option value="Winter Wildcards">Winter Wildcards</option>
-                    <option value="UEFA Heroes">UEFA Heroes</option>
-                    <option value="Universal Rank">Universal Rank</option>
-                    <option value="Team of The Year">Team of The Year</option>
-                    <option value="Rulebreakers">Rulebreakers</option>
-                    <option value="Base Icons">Base Icons</option>
-                    <option value="Songkran 25">Songkran 25</option>
-                    <option value="Prime Hero">Prime Hero</option>
-                    <option value="End of An Era">End of An Era</option>
-                    <option value="Ballon d'Or">Ballon d'Or</option>
-                    <option value="Captains 25">Captains 25</option>
-                    <option value="UCL 26 Primetime">UCL 26 Primetime</option>
-                    <option value="Ramadan">Ramadan</option>
-                    <option value="Día de Muertos">Día de Muertos</option>
-                    <option value="Record Breakers">Record Breakers</option>
-                    <option value="Best of UECL 25">Best of UECL 25</option>
-                    <option value="Captains Live">Captains Live</option>
-                    <option value="Dynasties">Dynasties</option>
-                    <option value="Icons Match 25">Icons Match 25</option>
-                    <option value="Copa América">Copa América</option>
-                    <option value="Retro Stars">Retro Stars</option>
-                    <option value="Holiday">Holiday</option>
-                    <option value="Showdown">Showdown</option>
-                    <option value="Defining Legacies 25">Defining Legacies 25</option>
-                    <option value="FC Base Elite">FC Base Elite</option>
-                    <option value="Grassroot Greats 25">Grassroot Greats 25</option>
-                    <option value="UCL Group Stage">UCL Group Stage</option>
-                    <option value="PEPSI x FC MOBILE">PEPSI x FC MOBILE</option>
-                    <option value="Carnival 25">Carnival 25</option>
-                    <option value="TOTY 25">TOTY 25</option>
-                    <option value="Inferno 25">Inferno 25</option>
-                    <option value="UCL Road to the Final">UCL Road to the Final</option>
-                    <option value="Icon Chronicles">Icon Chronicles</option>
-                    <option value="MLS 25">MLS 25</option>
-                    <option value="Icon Player">Icon Player</option>
-                    <option value="Kick Off">Kick Off</option>
-                    <option value="Base Heroes">Base Heroes</option>
-                    <option value="Moments">Moments</option>
-                    <option value="Welcome to FC Mobile">Welcome to FC Mobile</option>
-                    <option value="Anniversary Prodigies">Anniversary Prodigies</option>
-                    <option value="Trophy Titans">Trophy Titans</option>
-                    <option value="TOTW 25">TOTW 25</option>
-                    <option value="Hall of Legends">Hall of Legends</option>
-                    <option value="Lunar New Year">Lunar New Year</option>
-                    <option value="FC Base Silver">FC Base Silver</option>
-                    <option value="Ultimate TOTS 25">Ultimate TOTS 25</option>
-                    <option value="POTM 25">POTM 25</option>
-                    <option value="Bundesliga POTM">Bundesliga POTM</option>
-                    <option value="Winter Wonders 25">Winter Wonders 25</option>
-                    <option value="Team of the Season">Team of the Season</option>
-                    <option value="Pitch Beats 25">Pitch Beats 25</option>
-                    <option value="Holi">Holi</option>
-                    <option value="Mystery Player">Mystery Player</option>
-                    <option value="CODE: NEON">CODE: NEON</option>
-                    <option value="Star Pass">Star Pass</option>
-                    <option value="CONMEBOL Libertadores">CONMEBOL Libertadores</option>
-                    <option value="Centurions">Centurions</option>
-                    <option value="UCL 25">UCL 25</option>
-                    <option value="LALIGA 25">LALIGA 25</option>
-                    <option value="Best of UEL 25">Best of UEL 25</option>
-                    <option value="Icon Evolutions">Icon Evolutions</option>
-                    <option value="National Valour">National Valour</option>
-                    <option value="Founders">Founders</option>
-                    <option value="Ultimate Team of the Season">Ultimate Team of the Season</option>
-                    <option value="Ultimate Team of The Year">Ultimate Team of The Year</option>
-                    <option value="Sunshine Ballers">Sunshine Ballers</option>
-                    <option value="FC Base Bronze">FC Base Bronze</option>
-                    <option value="CONMEBOL Sudamericana">CONMEBOL Sudamericana</option>
-                    <option value="2nd Anniversary">2nd Anniversary</option>
-                    <option value="Serie A POTM">Serie A POTM</option>
-                    <option value="Soccer Aid 25">Soccer Aid 25</option>
-                    <option value="Rivals Live">Rivals Live</option>
-                    <option value="Ligue 1 POTM">Ligue 1 POTM</option>
-                    <option value="TOTW 24">TOTW 24</option>
-                    <option value="TOTW 26">TOTW 26</option>
-                    <option value="National Stars 25">National Stars 25</option>
-                    <option value="Premier League POTM">Premier League POTM</option>
-                    <option value="Hero Chronicles">Hero Chronicles</option>
-                    <option value="League Champions">League Champions</option>
-                </select>
-            </div>
-
-
-
-
-            <!-- League Filter -->
-            <div class="filter-group">
-              <label class="filter-label">League</label>
-              <select id="mobile-filter-league" class="filter-select">
-                <option value="">All Leagues</option>
-                <option value="Premier League">Premier League</option>
-                <option value="La Liga">La Liga</option>
-                <option value="Serie A">Serie A</option>
-                <option value="Bundesliga">Bundesliga</option>
-                <option value="Ligue 1">Ligue 1</option>
-                <option value="MLS">MLS</option>
-                <option value="Saudi Pro League">Saudi Pro League</option>
-              </select>
-            </div>
-
-            <!-- Nation Filter -->
-            <div class="filter-group">
-              <label class="filter-label">Nation</label>
-              <div class="autocomplete">
-                <input
-                  id="mobile-filter-nation"
-                  class="filter-input"
-                  placeholder="Search country..."
-                  autocomplete="off"
-                >
-                <div class="autocomplete-list" id="mobile-filter-nation-list"></div>
-              </div>
-            </div>
-
-
-            <!-- Skill Moves Filter -->
-            <div class="filter-group">
-              <label class="filter-label">Skill Moves</label>
-              <select id="mobile-filter-skill" class="filter-select">
-                <option value="">Any</option>
-                <option value="5">5 Stars</option>
-                <option value="4">4 Stars</option>
-                <option value="3">3 Stars</option>
-                <option value="2">2 Stars</option>
-                <option value="1">1 Star</option>
-              </select>
-            </div>
-
-            <!-- Sort By -->
-            <div class="filter-group">
-              <label class="filter-label">Sort By</label>
-              <select id="mobile-sort-by" class="sort-select">
-                <option value="name">Sort by Name</option>
-                <option value="rating">Sort by Rating</option>
-                <option value="price">Sort by Price</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="mobile-filter-footer">
-            <button class="btn-secondary" onclick="clearMobileFilters()">Clear All</button>
-            <button class="btn-primary" onclick="applyMobileFilters()">Apply Filters</button>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Market Tracker View -->
@@ -2839,6 +2627,32 @@
     <!-- WATCHLIST VIEW -->
     <div id="watchlist-view" class="view">
 
+      <div class="mobile-search-container">
+          <button class="mobile-filter-icon" onclick="toggleMobileFilters()" aria-label="Open Filters">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="4" y1="6" x2="20" y2="6"/>
+              <line x1="4" y1="12" x2="20" y2="12"/>
+              <line x1="4" y1="18" x2="20" y2="18"/>
+              <circle cx="8" cy="6" r="2" fill="currentColor"/>
+              <circle cx="16" cy="12" r="2" fill="currentColor"/>
+              <circle cx="12" cy="18" r="2" fill="currentColor"/>
+            </svg>
+            <span class="filter-badge" id="watchlist-filter-badge" style="display:none"></span>
+          </button>
+          
+          <input type="text" 
+                class="mobile-search-input" 
+                id="watchlist-mobile-search"
+                placeholder="Search watchlist..." 
+                oninput="if(typeof handleWatchlistSearch === 'function') handleWatchlistSearch(event)">
+          
+          <button class="mobile-search-icon" aria-label="Search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+          </button>
+        </div>
 
         <!-- Copy the entire database layout structure -->
         <div class="database-layout">
@@ -2880,9 +2694,9 @@
                 
                 <!-- Team Filter -->
                 <div class="filter-group">
-                    <label class="filter-label">Team</label>
+                    <label class="filter-label">Club</label>
                     <select id="watchlist-filter-team" class="filter-select">
-                        <option value="">All Teams</option>
+                        <option value="">All Clubs</option>
                         <!-- Will be populated by JavaScript -->
                     </select>
                 </div>
@@ -3933,42 +3747,42 @@
           </div>
 
           <!-- PLAYER IMAGE (TOP CENTER) -->
-          <div id="squad-custom-player-card" style="text-align: center; margin-bottom: 28px;">
-              <img src="" alt="Player" style="width: 180px; height: 240px; object-fit: contain;">
+          <div id="squad-custom-player-card" class="squad-custom-player-card">
+            <!-- Card will be rendered by JavaScript -->
           </div>
+
 
           <!-- RANK SELECTION SECTION -->
           <div style="margin-bottom: 32px;">
               <h3 style="font-size: 14px; font-weight: 700; color: #E6EEF2; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.5px;">
                   Select Rank
               </h3>
-              <div id="squad-rank-boxes" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">
-                  <!-- Rank boxes will be generated by JS -->
-                  <div class="squad-rank-box" data-rank="1" onclick="selectSquadRank(1)" 
-                      style="padding: 12px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-align: center; background-color: rgba(255,255,255,0.02); transition: all 0.2s;">
-                      <div style="font-size: 24px; margin-bottom: 8px;">🟢</div>
-                      <div style="font-size: 12px; font-weight: 600; color: #3BD671;">Green</div>
-                  </div>
-                  <div class="squad-rank-box" data-rank="2" onclick="selectSquadRank(2)"
-                      style="padding: 12px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-align: center; background-color: rgba(255,255,255,0.02); transition: all 0.2s;">
-                      <div style="font-size: 24px; margin-bottom: 8px;">🔵</div>
-                      <div style="font-size: 12px; font-weight: 600; color: #6366F1;">Blue</div>
-                  </div>
-                  <div class="squad-rank-box" data-rank="3" onclick="selectSquadRank(3)"
-                      style="padding: 12px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-align: center; background-color: rgba(255,255,255,0.02); transition: all 0.2s;">
-                      <div style="font-size: 24px; margin-bottom: 8px;">🟣</div>
-                      <div style="font-size: 12px; font-weight: 600; color: #8B5CF6;">Purple</div>
-                  </div>
-                  <div class="squad-rank-box" data-rank="4" onclick="selectSquadRank(4)"
-                      style="padding: 12px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-align: center; background-color: rgba(255,255,255,0.02); transition: all 0.2s;">
-                      <div style="font-size: 24px; margin-bottom: 8px;">🔴</div>
-                      <div style="font-size: 12px; font-weight: 600; color: #FF6B6B;">Red</div>
-                  </div>
-                  <div class="squad-rank-box" data-rank="5" onclick="selectSquadRank(5)"
-                      style="padding: 12px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-align: center; background-color: rgba(255,255,255,0.02); transition: all 0.2s;">
-                      <div style="font-size: 24px; margin-bottom: 8px;">🟠</div>
-                      <div style="font-size: 12px; font-weight: 600; color: #FFB86B;">Orange</div>
-                  </div>
+              <div id="squad-rank-boxes" class="squad-rank-boxes-grid">
+                <!-- Rank boxes will be generated by JS -->
+                <div class="squad-rank-box" data-rank="1" onclick="selectSquadRank(1)">
+                  <img src="assets/images/rank_simple/green_rank_simple.png" alt="Green Rank" class="rank-icon">
+                  <div class="rank-label">Green</div>
+                </div>
+                
+                <div class="squad-rank-box" data-rank="2" onclick="selectSquadRank(2)">
+                  <img src="assets/images/rank_simple/blue_rank_simple.png" alt="Blue Rank" class="rank-icon">
+                  <div class="rank-label">Blue</div>
+                </div>
+                
+                <div class="squad-rank-box" data-rank="3" onclick="selectSquadRank(3)">
+                  <img src="assets/images/rank_simple/purple_rank_simple.png" alt="Purple Rank" class="rank-icon">
+                  <div class="rank-label">Purple</div>
+                </div>
+                
+                <div class="squad-rank-box" data-rank="4" onclick="selectSquadRank(4)">
+                  <img src="assets/images/rank_simple/red_rank_simple.png" alt="Red Rank" class="rank-icon">
+                  <div class="rank-label">Red</div>
+                </div>
+                
+                <div class="squad-rank-box" data-rank="5" onclick="selectSquadRank(5)">
+                  <img src="assets/images/rank_simple/orange_gold_simple.png" alt="Orange Rank" class="rank-icon">
+                  <div class="rank-label">Gold</div>
+                </div>
               </div>
           </div>
 
@@ -4372,6 +4186,12 @@
             </div>
           </div>
 
+
+
+
+
+
+
           <div class="stats-section-content">
             <div class="search-container">
               <input type="text" id="all-stats-search" class="stats-search-input" placeholder="🔍 Search stats..."
@@ -4417,6 +4237,9 @@
   select.addEventListener("change", syncSkillStars);
   window.addEventListener("DOMContentLoaded", syncSkillStars);
 </script>
+
+
+
 
 
 
@@ -4491,6 +4314,289 @@
     </div>
   </div>
 </div>
+
+
+<!-- Mobile Filter Modal -->
+      <div class="mobile-filter-modal" id="mobile-filter-modal">
+        <div class="mobile-filter-backdrop" onclick="toggleMobileFilters()"></div>
+        <div class="mobile-filter-drawer">
+          <div class="mobile-filter-header">
+            <h3>Filters</h3>
+            <button class="mobile-filter-close" onclick="toggleMobileFilters()">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="mobile-filter-content">
+            <!-- Position Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Position</label>
+              <select id="mobile-filter-position" class="filter-select">
+                <option value="">All Positions</option>
+                <option value="ST">Striker (ST)</option>
+                <option value="CF">Center Forward (CF)</option>
+                <option value="LW">Left Wing (LW)</option>
+                <option value="RW">Right Wing (RW)</option>
+                <option value="CAM">Central AM (CAM)</option>
+                <option value="CM">Central Midfielder (CM)</option>
+                <option value="CDM">Defensive Midfielder (CDM)</option>
+                <option value="LB">Left Back (LB)</option>
+                <option value="RB">Right Back (RB)</option>
+                <option value="CB">Center Back (CB)</option>
+                <option value="GK">Goalkeeper (GK)</option>
+              </select>
+            </div>
+
+            <!-- Rating Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Overall Rating</label>
+              <div class="range-inputs">
+                <input type="number" id="mobile-rating-min" value="40" min="40" max="150" class="range-input">
+                <span>-</span>
+                <input type="number" id="mobile-rating-max" value="150" min="40" max="150" class="range-input">
+              </div>
+            </div>
+
+            <!-- Price Filter removed per requirements -->
+
+
+
+
+            <!-- Event Filter -->
+            <div class="filter-group">
+                <label class="filter-label">Event</label>
+                <select id="mobile-filter-event" class="filter-select">
+                    <option value="">All Events</option>
+                    <option value="Footyverse 26">Footyverse 26</option>
+                    <option value="A Nation's Story 26">A Nation's Story 26</option>
+                    <option value="Anniversary Retro">Anniversary Retro</option>
+                    <option value="UEFA EURO 2024">UEFA EURO 2024</option>
+                    <option value="POTM 26">POTM 26</option>
+                    <option value="Ragnarok 25">Ragnarok 25</option>
+                    <option value="Thunderstruck">Thunderstruck</option>
+                    <option value="Festive Fixtures">Festive Fixtures</option>
+                    <option value="Shapeshifters">Shapeshifters</option>
+                    <option value="UCL TOP 11">UCL TOP 11</option>
+                    <option value="Aqua 25">Aqua 25</option>
+                    <option value="FC Base Gold">FC Base Gold</option>
+                    <option value="Glorious Eras">Glorious Eras</option>
+                    <option value="Winter Wildcards">Winter Wildcards</option>
+                    <option value="UEFA Heroes">UEFA Heroes</option>
+                    <option value="Universal Rank">Universal Rank</option>
+                    <option value="Team of The Year">Team of The Year</option>
+                    <option value="Rulebreakers">Rulebreakers</option>
+                    <option value="Base Icons">Base Icons</option>
+                    <option value="Songkran 25">Songkran 25</option>
+                    <option value="Prime Hero">Prime Hero</option>
+                    <option value="End of An Era">End of An Era</option>
+                    <option value="Ballon d'Or">Ballon d'Or</option>
+                    <option value="Captains 25">Captains 25</option>
+                    <option value="UCL 26 Primetime">UCL 26 Primetime</option>
+                    <option value="Ramadan">Ramadan</option>
+                    <option value="Día de Muertos">Día de Muertos</option>
+                    <option value="Record Breakers">Record Breakers</option>
+                    <option value="Best of UECL 25">Best of UECL 25</option>
+                    <option value="Captains Live">Captains Live</option>
+                    <option value="Dynasties">Dynasties</option>
+                    <option value="Icons Match 25">Icons Match 25</option>
+                    <option value="Copa América">Copa América</option>
+                    <option value="Retro Stars">Retro Stars</option>
+                    <option value="Holiday">Holiday</option>
+                    <option value="Showdown">Showdown</option>
+                    <option value="Defining Legacies 25">Defining Legacies 25</option>
+                    <option value="FC Base Elite">FC Base Elite</option>
+                    <option value="Grassroot Greats 25">Grassroot Greats 25</option>
+                    <option value="UCL Group Stage">UCL Group Stage</option>
+                    <option value="PEPSI x FC MOBILE">PEPSI x FC MOBILE</option>
+                    <option value="Carnival 25">Carnival 25</option>
+                    <option value="TOTY 25">TOTY 25</option>
+                    <option value="Inferno 25">Inferno 25</option>
+                    <option value="UCL Road to the Final">UCL Road to the Final</option>
+                    <option value="Icon Chronicles">Icon Chronicles</option>
+                    <option value="MLS 25">MLS 25</option>
+                    <option value="Icon Player">Icon Player</option>
+                    <option value="Kick Off">Kick Off</option>
+                    <option value="Base Heroes">Base Heroes</option>
+                    <option value="Moments">Moments</option>
+                    <option value="Welcome to FC Mobile">Welcome to FC Mobile</option>
+                    <option value="Anniversary Prodigies">Anniversary Prodigies</option>
+                    <option value="Trophy Titans">Trophy Titans</option>
+                    <option value="TOTW 25">TOTW 25</option>
+                    <option value="Hall of Legends">Hall of Legends</option>
+                    <option value="Lunar New Year">Lunar New Year</option>
+                    <option value="FC Base Silver">FC Base Silver</option>
+                    <option value="Ultimate TOTS 25">Ultimate TOTS 25</option>
+                    <option value="POTM 25">POTM 25</option>
+                    <option value="Bundesliga POTM">Bundesliga POTM</option>
+                    <option value="Winter Wonders 25">Winter Wonders 25</option>
+                    <option value="Team of the Season">Team of the Season</option>
+                    <option value="Pitch Beats 25">Pitch Beats 25</option>
+                    <option value="Holi">Holi</option>
+                    <option value="Mystery Player">Mystery Player</option>
+                    <option value="CODE: NEON">CODE: NEON</option>
+                    <option value="Star Pass">Star Pass</option>
+                    <option value="CONMEBOL Libertadores">CONMEBOL Libertadores</option>
+                    <option value="Centurions">Centurions</option>
+                    <option value="UCL 25">UCL 25</option>
+                    <option value="LALIGA 25">LALIGA 25</option>
+                    <option value="Best of UEL 25">Best of UEL 25</option>
+                    <option value="Icon Evolutions">Icon Evolutions</option>
+                    <option value="National Valour">National Valour</option>
+                    <option value="Founders">Founders</option>
+                    <option value="Ultimate Team of the Season">Ultimate Team of the Season</option>
+                    <option value="Ultimate Team of The Year">Ultimate Team of The Year</option>
+                    <option value="Sunshine Ballers">Sunshine Ballers</option>
+                    <option value="FC Base Bronze">FC Base Bronze</option>
+                    <option value="CONMEBOL Sudamericana">CONMEBOL Sudamericana</option>
+                    <option value="2nd Anniversary">2nd Anniversary</option>
+                    <option value="Serie A POTM">Serie A POTM</option>
+                    <option value="Soccer Aid 25">Soccer Aid 25</option>
+                    <option value="Rivals Live">Rivals Live</option>
+                    <option value="Ligue 1 POTM">Ligue 1 POTM</option>
+                    <option value="TOTW 24">TOTW 24</option>
+                    <option value="TOTW 26">TOTW 26</option>
+                    <option value="National Stars 25">National Stars 25</option>
+                    <option value="Premier League POTM">Premier League POTM</option>
+                    <option value="Hero Chronicles">Hero Chronicles</option>
+                    <option value="League Champions">League Champions</option>
+                </select>
+            </div>
+
+
+
+
+            <!-- League Filter -->
+            <div class="filter-group">
+              <label class="filter-label">League</label>
+              <select id="mobile-filter-league" class="filter-select">
+                <option value="">All Leagues</option>
+                <option value="Premier League">Premier League</option>
+                <option value="La Liga">La Liga</option>
+                <option value="Serie A">Serie A</option>
+                <option value="Bundesliga">Bundesliga</option>
+                <option value="Ligue 1">Ligue 1</option>
+                <option value="MLS">MLS</option>
+                <option value="Saudi Pro League">Saudi Pro League</option>
+              </select>
+            </div>
+
+            <!-- Nation Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Nation</label>
+              <div class="autocomplete">
+                <input
+                  id="mobile-filter-nation"
+                  class="filter-input"
+                  placeholder="Search country..."
+                  autocomplete="off"
+                >
+                <div class="autocomplete-list" id="mobile-filter-nation-list"></div>
+              </div>
+            </div>
+
+
+            <!-- Skill Moves Filter -->
+            <div class="filter-group">
+              <label class="filter-label">Skill Moves</label>
+              <select id="mobile-filter-skill" class="filter-select">
+                <option value="">Any</option>
+                <option value="5">5 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="2">2 Stars</option>
+                <option value="1">1 Star</option>
+              </select>
+            </div>
+
+            <!-- Sort By -->
+            <div class="filter-group">
+              <label class="filter-label">Sort By</label>
+              <select id="mobile-sort-by" class="sort-select">
+                <option value="name">Sort by Name</option>
+                <option value="rating">Sort by Rating</option>
+                <option value="price">Sort by Price</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mobile-filter-footer">
+            <button class="btn-secondary" onclick="clearMobileFilters()">Clear All</button>
+            <button class="btn-primary" onclick="applyMobileFilters()">Apply Filters</button>
+          </div>
+        </div>
+      </div>
+
+
+
+<!-- ============ MARKET UNDER CONSTRUCTION OVERLAY ============ -->
+<div id="market-under-construction" class="market-under-construction" style="display: none;">
+  <div class="market-under-construction-content">
+    <!-- ✅ NEW: Close Button (X) -->
+    <button id="market-close-btn" class="market-close-btn" onclick="closeMarketOverlay()" title="Go to Dashboard">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    
+    <div class="market-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M21 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-7h1a2 2 0 0 0 2-2zM7 10.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v4.5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1V10h-8v.5z"/>
+      </svg>
+    </div>
+    <h1 class="market-title">Market</h1>
+    <p class="market-subtitle">
+      Buy &amp; sell players with other collectors.
+    </p>
+    <div class="market-status">🛠️ Under Construction</div>
+    <p style="font-size: 14px; color: #98A0A6; line-height: 1.6;">
+      Marketplace will be available soon! 🚀<br>
+      <strong>Coming in next update</strong>
+    </p>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+<!-- ================================
+     ZENITH SYSTEM FOOTER
+================================ -->
+<footer class="zenith-footer">
+  <div class="zenith-footer-inner">
+
+    <!-- Left: Identity -->
+    <div class="zenith-footer-left">
+      <span class="zenith-footer-logo">Zenith</span>
+      <span class="zenith-footer-tag">FC Mobile Trading Engine</span>
+    </div>
+
+    <!-- Center: Navigation -->
+    <div class="zenith-footer-center">
+      <a href="#" onclick="switchView('dashboard')">Home</a>
+      <a href="#" onclick="switchView('database')">Database</a>
+      <a href="#" onclick="switchView('market')">Market</a>
+      <a href="#" onclick="switchView('watchlist')">Watchlist</a>
+    </div>
+
+    <!-- Right: System Info -->
+    <div class="zenith-footer-right">
+      <span>v1.0</span>
+      <span class="zenith-footer-dot">•</span>
+      <span>Zenith Engine</span>
+    </div>
+
+  </div>
+</footer>
+
+
 
 </body>
 </html>

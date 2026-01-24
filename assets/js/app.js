@@ -33,7 +33,6 @@ async function viewPlayerDetail(playerId, fallbackPlayer = null) {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    color: #98A0A6;
                     font-family: var(--font-family-base);
                 ">
                     Loading player details...
@@ -380,18 +379,16 @@ window.togglePlayerWatchlist = function(uniqueId) {
 
 
 
-
-
-
 async function renderPlayerDetail(player) {
     const container = document.getElementById('player-detail-view');
-    if (!container) {
-        console.error('[DETAIL] player-detail-view container not found in HTML');
-        return;
-    }
+    if (!container) return;
 
-    // Cleanup old animations
     cleanupRankAnimations();
+
+    // 🔁 Refresh market price based on current rank
+    if (window.supabaseProvider && typeof window.supabaseProvider.syncPrices === 'function') {
+      await window.supabaseProvider.syncPrices([player]);
+    }
 
     const uniqueId = `${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}`;
     const isWatchlisted = state.watchlist && state.watchlist.includes(uniqueId);
@@ -726,7 +723,7 @@ async function renderPlayerDetail(player) {
     };
 
     container.innerHTML = `
-        <div style="background: var(--color-graphite-900, #0E1114); min-height: 100vh; padding: 0;">
+        <div style="background: rgba(20, 24, 28, 0.5); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); min-height: 100vh; padding: 0; border-radius: 16px;">
             <!-- Top Section: Player Card + Rank/Training -->
             <div style="
                 max-width: 1400px;
@@ -3641,81 +3638,103 @@ function updateAllWatchlistButtons() {
 // ========== WATCHLIST TOGGLE (REACTIVE) ==========
 // In assets/js/app.js
 
-window.toggleWatchlist = function (uniqueId) {
-  console.log('🟢 [MAIN TOGGLE] START - uniqueId:', uniqueId);
+window.toggleWatchlist = function(uniqueId) {
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('[TOGGLE] START');
+  console.log('[TOGGLE] Unique ID:', uniqueId);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   
   if (!uniqueId) {
-    console.error('❌ [MAIN TOGGLE] uniqueId is empty/null');
+    console.error('[TOGGLE] uniqueId is empty/null');
     return;
   }
 
-  console.log('   state.watchlist before:', state.watchlist);
-
   const index = state.watchlist.indexOf(uniqueId);
-  console.log('   Current index in watchlist:', index);
+  let savedPlayers = JSON.parse(localStorage.getItem('watchlistPlayers') || '[]');
   
-  let savedPlayers = JSON.parse(localStorage.getItem('watchlistPlayers')) || [];
-  console.log('   savedPlayers count:', savedPlayers.length);
-
   if (index === -1) {
-    console.log('🟢 [MAIN TOGGLE] ADDING to watchlist...');
+    // ADDING
+    console.log('[TOGGLE] ADDING to watchlist...');
     state.watchlist.push(uniqueId);
-
-    const allAvailable = [
-      ...(state.allPlayers || []), 
-      ...(state.searchResults || []), 
-      ...(state.filteredPlayers || []),
+    
+    // Find player object
+    let allAvailable = [
+      ...state.allPlayers,
+      ...state.searchResults,
+      ...state.filteredPlayers,
       ...(state.selectedPlayer ? [state.selectedPlayer] : [])
     ];
-
-    console.log('   Available players to search:', allAvailable.length);
-
-    const getPId = (p) => `${p.player_id}_${p.rank || 0}_${p.is_untradable ? 1 : 0}`;
-    const playerObj = allAvailable.find(p => getPId(p) === uniqueId);
-
-    if (playerObj) {
-      console.log('✅ [MAIN TOGGLE] Player object FOUND:', playerObj.name);
-      if (!savedPlayers.some(p => getPId(p) === uniqueId)) {
-        savedPlayers.push(playerObj);
-        console.log('✅ [MAIN TOGGLE] Player added to savedPlayers');
-      } else {
-        console.log('⚠️ [MAIN TOGGLE] Player already in savedPlayers');
+    
+    // Remove duplicates
+    const uniquePlayers = [];
+    const seenIds = new Set();
+    allAvailable.forEach(p => {
+      const pId = getPlayerUniqueId(p);
+      if (!seenIds.has(pId)) {
+        seenIds.add(pId);
+        uniquePlayers.push(p);
       }
-      if (typeof showToast === 'function') showToast('Added to watchlist');
-    } else {
-      console.error('❌ [MAIN TOGGLE] Could not find player object for', uniqueId);
-      console.log('   First 5 player IDs:', allAvailable.slice(0, 5).map(p => getPId(p)));
-    }
-
-  } else {
-    console.log('🔴 [MAIN TOGGLE] REMOVING from watchlist...');
-    state.watchlist.splice(index, 1);
-
-    savedPlayers = savedPlayers.filter(p => {
-      const pId = `${p.player_id}_${p.rank || 0}_${p.is_untradable ? 1 : 0}`;
-      return pId !== uniqueId;
     });
-
-    console.log('✅ [MAIN TOGGLE] Player removed');
-    if (typeof showToast === 'function') showToast('Removed from watchlist');
+    
+    const playerObj = uniquePlayers.find(p => getPlayerUniqueId(p) === uniqueId);
+    
+    if (playerObj) {
+      console.log('[TOGGLE] Player found:', playerObj.name);
+      
+      // ✅ FIX: Ensure nation_region is saved
+      const playerToSave = {
+        ...playerObj,
+        // Make sure nation_region is included
+        nation_region: playerObj.nation_region || playerObj.nationregion || playerObj.nation || playerObj.nationality || 'NA',
+        nationregion: playerObj.nation_region || playerObj.nationregion || playerObj.nation || playerObj.nationality || 'NA',
+        nation: playerObj.nation_region || playerObj.nationregion || playerObj.nation || playerObj.nationality || 'NA'
+      };
+      
+      console.log('[TOGGLE] Saving with nation:', playerToSave.nation_region);
+      
+      const alreadyExists = savedPlayers.some(p => getPlayerUniqueId(p) === uniqueId);
+      if (!alreadyExists) {
+        savedPlayers.push(playerToSave);
+        console.log('[TOGGLE] Player added to savedPlayers');
+      }
+      
+      if (typeof showToast === 'function') {
+        showToast('Added to watchlist');
+      }
+    } else {
+      console.error('[TOGGLE] Could not find player object for:', uniqueId);
+    }
+    
+  } else {
+    // REMOVING
+    console.log('[TOGGLE] REMOVING from watchlist...');
+    state.watchlist.splice(index, 1);
+    savedPlayers = savedPlayers.filter(p => getPlayerUniqueId(p) !== uniqueId);
+    
+    if (typeof showToast === 'function') {
+      showToast('Removed from watchlist');
+    }
   }
 
+  // Save to localStorage
   localStorage.setItem('watchlist', JSON.stringify(state.watchlist));
   localStorage.setItem('watchlistPlayers', JSON.stringify(savedPlayers));
   
-  console.log('💾 [MAIN TOGGLE] Saved to localStorage');
-  console.log('   state.watchlist after:', state.watchlist);
-
-  console.log('🔄 [MAIN TOGGLE] Calling updateAllWatchlistButtons...');
+  // Update UI
   updateAllWatchlistButtons();
-
+  
+  // Reload watchlist view if active
   if (state.currentView === 'watchlist') {
-    console.log('🔄 [MAIN TOGGLE] Reloading watchlist view...');
-    loadWatchlist();
+    if (typeof window.loadWatchlistData === 'function') {
+      setTimeout(() => window.loadWatchlistData(), 100);
+    }
   }
   
-  console.log('✅ [MAIN TOGGLE] COMPLETE');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('[TOGGLE] COMPLETE');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 };
+
 
 
 // Helper: Format Price
@@ -3932,39 +3951,47 @@ function createPlayerCard(player) {
     card.innerHTML = `
         <div class="player-card-scale">
             <div class="player-row-card">
-                <div class="player-card-image-placeholder" style="position: relative; height: 124px; width: 98px; margin-right: 30px; margin-bottom: 10px; margin-top: 15px; border-radius: 8px; bottom: 17px; right: 5px;">
+                <div class="player-card-image-container">
                     
                     ${player.card_background ? `
                         <img src="${player.card_background}" 
                         alt="Card Background" 
-                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
+                        class="player-card-bg-image"
                         onerror="this.style.display='none'">
                     ` : ''}
 
                     ${player.player_image ? `
                         <img src="${player.player_image}" 
                             alt="${player.name}"
-                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 130%; height: 130%; object-fit: contain;"
+                            class="player-card-main-image"
                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                         <span class="player-initials" style="display:none">${getInitials(player.name)}</span>
                     ` : `
                         <span class="player-initials">${getInitials(player.name)}</span>
                     `}
 
-                    <div style="position:absolute;top:83px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:800;font-family:'CruyffSans',sans-serif;color:${player.color_name||'#FFFFFF'};text-transform:uppercase;z-index:10;letter-spacing:-0.8px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${player.name}</div>
+                    <div class="player-card-name" style="color:${player.color_name || '#FFFFFF'};">
+                        ${player.name}
+                    </div>
 
-                    <div style="position:absolute;top:13px;left:12px;font-size:16px;font-weight:700;font-family:'CruyffSans',sans-serif;color:${player.color_rating||'#FFB86B'};z-index:10;letter-spacing:-1px;line-height:1.1;">${player.ovr && player.ovr>0 ? player.ovr : '?'}</div>
+                    <div class="player-card-ovr" style="color:${player.color_rating || '#FFB86B'};">
+                        ${player.ovr && player.ovr > 0 ? player.ovr : '?'}
+                    </div>
 
-                    <div style="position:absolute;top:28px;left:15px;font-size:10px;font-weight:800;font-family:'CruyffSans',sans-serif;color:${player.color_position||'#FFFFFF'};z-index:10;letter-spacing:-0.8px;line-height:1.1;">${player.position||'?'}</div>
+                    <div class="player-card-position" style="color:${player.color_position || '#FFFFFF'};">
+                        ${player.position || '?'}
+                    </div>
 
                     ${player.nation_flag ? `
-                        <img src="${player.nation_flag}" alt="Nation"
-                            style="position:absolute;bottom:20px;left:27px;width:12px;height:9px;border-radius:1px;z-index:10;object-fit:cover;">
+                        <img src="${player.nation_flag}" 
+                            alt="Nation"
+                            class="player-card-nation-flag">
                     ` : ''}
 
                     ${player.club_flag ? `
-                        <img src="${player.club_flag}" alt="Club"
-                            style="position:absolute;top:93px;left:60px;width:14px;height:14px;border-radius:2px;z-index:10;object-fit:contain;">
+                        <img src="${player.club_flag}" 
+                            alt="Club"
+                            class="player-card-club-flag">
                     ` : ''}
 
                 </div>

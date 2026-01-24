@@ -23,7 +23,7 @@ window.supabaseProvider = {
     try {
       const { data, error } = await window.supabaseClient
         .from('price_snapshots')
-        .select('asset_id, price0')
+        .select('asset_id, price0, price1, price2, price3, price4, price5')
         .in('asset_id', playerIds)
         .order('captured_at', { ascending: false });
 
@@ -32,11 +32,15 @@ window.supabaseProvider = {
       console.log(`[DEBUG] Supabase returned ${data?.length || 0} matches.`);
 
       players.forEach(zenithPlayer => {
-        // 🔥 FIX: Match Supabase 'asset_id' against Zenith 'player_id'
-        const snapshot = data.find(s => String(s.asset_id) === String(zenithPlayer.player_id));
-        
+        const snapshot = data.find(
+          s => String(s.asset_id) === String(zenithPlayer.player_id)
+        );
+
         if (snapshot) {
-          zenithPlayer.price = snapshot.price0;
+          const rank = parseInt(zenithPlayer.rank || 0);
+          const priceKey = `price${rank}`;
+
+          zenithPlayer.price = snapshot[priceKey] ?? null;
         } else {
           zenithPlayer.price = null;
         }

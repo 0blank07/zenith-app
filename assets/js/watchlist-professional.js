@@ -4,13 +4,14 @@
 
 // Add after the existing variables
 let watchlistFilters = {
-    position: '',
-    league: '',
-    team: '',
-    nation: '',
-    event: '',
-    minOvr: 40,
-    maxOvr: 150
+  position: '',
+  league: '',
+  team: '',
+  nation: '',
+  event: '',
+  skill_moves: '',
+  minOvr: 40,
+  maxOvr: 150
 };
 
 
@@ -47,7 +48,7 @@ function populateWatchlistFilters() {
     // Populate Team dropdown
     const teamSelect = document.getElementById('watchlist-filter-team');
     if (teamSelect) {
-        teamSelect.innerHTML = '<option value="">All Teams</option>' + 
+        teamSelect.innerHTML = '<option value="">All Clubs</option>' + 
             teams.map(team => `<option value="${team}">${team}</option>`).join('');
     }
     
@@ -73,6 +74,161 @@ function populateWatchlistFilters() {
         events: events.length
     });
 }
+// ==================== SETUP CLEAR ALL BUTTON (WITH DEBUG) ====================
+function setupClearAllButton() {
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🔍 [DEBUG] setupClearAllButton() called');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  
+  // ✅ FIX: Correct ID selector
+  const clearBtn = document.querySelector('#clear-watchlist-filters'); // Changed from #watchlist-clear-filters
+  
+  if (!clearBtn) {
+    console.error('❌ [DEBUG] Clear button NOT FOUND (#clear-watchlist-filters)');
+    
+    // Debug: show all available buttons
+    const allButtons = document.querySelectorAll('#watchlist-view button');
+    console.log(`🔍 [DEBUG] Available buttons: ${allButtons.length}`);
+    allButtons.forEach((btn, i) => {
+      console.log(`   Button ${i + 1}:`, {
+        id: btn.id,
+        className: btn.className,
+        text: btn.textContent?.trim().substring(0, 50)
+      });
+    });
+    return;
+  }
+  
+  console.log('✅ [DEBUG] Clear button found!', clearBtn);
+  
+  // Remove any existing listeners by cloning
+  const newBtn = clearBtn.cloneNode(true);
+  clearBtn.parentNode.replaceChild(newBtn, clearBtn);
+  console.log('🔄 [DEBUG] Cloned button to remove old listeners');
+  
+  // Add new listener
+  newBtn.addEventListener('click', function(e) {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎯 [DEBUG] CLEAR BUTTON CLICKED!');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('📞 [DEBUG] Calling clearWatchlistFilters()...');
+    clearWatchlistFilters();
+    
+    console.log('🎉 [DEBUG] Showing success toast...');
+    showToast('All filters cleared', 'success');
+  });
+  
+  console.log('✅ [DEBUG] Event listener attached successfully');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+}
+
+
+// ==================== CLEAR FILTERS (WITH DEBUG) ====================
+function clearWatchlistFilters() {
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🧹 [DEBUG] clearWatchlistFilters() STARTED');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  
+  console.log('📊 [DEBUG] BEFORE clearing:');
+  console.log('   watchlistFilters:', JSON.stringify(watchlistFilters, null, 2));
+  console.log('   filteredWatchlist.length:', filteredWatchlist.length);
+  console.log('   watchlistData.length:', watchlistData.length);
+  
+  // Reset filter state
+  watchlistFilters = {
+    position: '',
+    league: '',
+    team: '',
+    nation: '',
+    event: '',
+    skill_moves: '',
+    minOvr: 40,
+    maxOvr: 150
+  };
+  
+  console.log('✅ [DEBUG] Filter state reset');
+  console.log('📊 [DEBUG] AFTER reset:');
+  console.log('   watchlistFilters:', JSON.stringify(watchlistFilters, null, 2));
+  
+  // Reset Desktop UI
+  console.log('🖥️ [DEBUG] Resetting desktop UI...');
+  const desktopElements = {
+    'watchlist-filter-position': '',
+    'watchlist-filter-league': '',
+    'watchlist-filter-team': '',
+    'watchlist-filter-nation': '',
+    'watchlist-filter-event': '',
+    'watchlist-filter-skill': '',
+    'watchlist-rating-min': 40,
+    'watchlist-rating-max': 150
+  };
+
+  let resetCount = 0;
+  Object.keys(desktopElements).forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      const oldValue = element.value;
+      element.value = desktopElements[id];
+      console.log(`   ✅ ${id}: "${oldValue}" → "${desktopElements[id]}"`);
+      resetCount++;
+    } else {
+      console.warn(`   ❌ ${id}: NOT FOUND`);
+    }
+  });
+  console.log(`🖥️ [DEBUG] Reset ${resetCount}/${Object.keys(desktopElements).length} desktop elements`);
+
+  // Reset Mobile UI
+  console.log('📱 [DEBUG] Resetting mobile UI...');
+  const mobileElements = {
+    'mobile-filter-position': '',
+    'mobile-filter-league': '',
+    'mobile-filter-team': '',
+    'mobile-filter-nation': '',
+    'mobile-filter-event': '',
+    'mobile-filter-skill': '',
+    'mobile-rating-min': 40,
+    'mobile-rating-max': 150
+  };
+
+  let mobileResetCount = 0;
+  Object.keys(mobileElements).forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.value = mobileElements[id];
+      console.log(`   ✅ ${id}: reset`);
+      mobileResetCount++;
+    }
+  });
+  console.log(`📱 [DEBUG] Reset ${mobileResetCount}/${Object.keys(mobileElements).length} mobile elements`);
+
+  // Apply filters
+  console.log('🔄 [DEBUG] Calling applyWatchlistFilters()...');
+  applyWatchlistFilters();
+  console.log('✅ [DEBUG] applyWatchlistFilters() completed');
+  
+  // Update filter chips
+  console.log('🏷️ [DEBUG] Calling updateActiveFilterChips()...');
+  updateActiveFilterChips();
+  console.log('✅ [DEBUG] updateActiveFilterChips() completed');
+  
+  // Sync filters
+  console.log('🔄 [DEBUG] Calling syncDesktopFilters()...');
+  syncDesktopFilters();
+  console.log('✅ [DEBUG] syncDesktopFilters() completed');
+  
+  console.log('📊 [DEBUG] FINAL STATE:');
+  console.log('   filteredWatchlist.length:', filteredWatchlist.length);
+  console.log('   Active filter chips:', document.querySelectorAll('.filter-chip').length);
+  
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('✅ [DEBUG] clearWatchlistFilters() COMPLETED');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+}
+
+
 function applyWatchlistFilters() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🎯 [APPLY FILTERS] Starting filter application');
@@ -106,7 +262,14 @@ function applyWatchlistFilters() {
         if (watchlistFilters.event && player.event !== watchlistFilters.event) {
             return false;
         }
+
         
+        // Skill Moves
+        if (watchlistFilters.skill_moves && 
+            String(player.skill_moves) !== String(watchlistFilters.skill_moves)) {
+          return false;
+        }
+
         // OVR range filter
         const ovr = player.overallrating || 0;
         if (ovr < watchlistFilters.minOvr || ovr > watchlistFilters.maxOvr) {
@@ -125,200 +288,284 @@ function applyWatchlistFilters() {
     
     // Update active filter chips
     updateActiveFilterChips();
+
+    syncDesktopFilters();
 }
+
+
 function setupWatchlistFilterListeners() {
-    // Position filter
-    // Position filter
-    const positionSelect = document.getElementById('watchlist-filter-position');
-    console.log('🔧 [DEBUG] Position select element:', positionSelect);
-    if (positionSelect) {
-        console.log('✅ [DEBUG] Position select found! Adding listener...');
-        positionSelect.addEventListener('change', (e) => {
-            console.log('🎯 [DEBUG] Position changed to:', e.target.value);
-            watchlistFilters.position = e.target.value;
-            console.log('🔧 [DEBUG] Current filters:', watchlistFilters);
-            applyWatchlistFilters();
-        });
-    } else {
-        console.error('❌ [DEBUG] Position select NOT FOUND in DOM!');
+
+    const bind = (elementId, callback) => {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.addEventListener('change', callback);
+        }
+    };
+
+    // POSITION
+    bind('watchlist-filter-position', e => {
+        watchlistFilters.position = e.target.value;
+        applyWatchlistFilters();
+    });
+
+    bind('mobile-filter-position', e => {
+        watchlistFilters.position = e.target.value;
+        applyWatchlistFilters();
+    });
+
+    // LEAGUE
+    bind('watchlist-filter-league', e => {
+        watchlistFilters.league = e.target.value;
+        applyWatchlistFilters();
+    });
+
+    bind('mobile-filter-league', e => {
+        watchlistFilters.league = e.target.value;
+        applyWatchlistFilters();
+    });
+
+    // TEAM
+    bind('watchlist-filter-team', e => {
+        watchlistFilters.team = e.target.value;
+        applyWatchlistFilters();
+    });
+
+    bind('mobile-filter-team', e => {
+        watchlistFilters.team = e.target.value;
+        applyWatchlistFilters();
+    });
+
+    // NATION
+    bind('watchlist-filter-nation', e => {
+        watchlistFilters.nation = e.target.value;
+        applyWatchlistFilters();
+    });
+
+    bind('mobile-filter-nation', e => {
+        watchlistFilters.nation = e.target.value;
+        applyWatchlistFilters();
+    });
+
+    // EVENT
+    bind('watchlist-filter-event', e => {
+        watchlistFilters.event = e.target.value;
+        applyWatchlistFilters();
+    });
+
+    bind('mobile-filter-event', e => {
+        watchlistFilters.event = e.target.value;
+        applyWatchlistFilters();
+    });
+
+    // Skill Moves
+    const skillSelect = document.getElementById('watchlist-filter-skill');
+    if (skillSelect) {
+      skillSelect.addEventListener('change', e => {
+        watchlistFilters.skill_moves = e.target.value;
+        applyWatchlistFilters();
+      });
     }
 
-    
-    // League filter
-    const leagueSelect = document.getElementById('watchlist-filter-league');
-    if (leagueSelect) {
-        leagueSelect.addEventListener('change', (e) => {
-            watchlistFilters.league = e.target.value;
-            applyWatchlistFilters();
-        });
-    }
-    
-    // Team filter
-    const teamSelect = document.getElementById('watchlist-filter-team');
-    if (teamSelect) {
-        teamSelect.addEventListener('change', (e) => {
-            watchlistFilters.team = e.target.value;
-            applyWatchlistFilters();
-        });
-    }
-    
-    // Nation filter
-    const nationSelect = document.getElementById('watchlist-filter-nation');
-    if (nationSelect) {
-        nationSelect.addEventListener('change', (e) => {
-            watchlistFilters.nation = e.target.value;
-            applyWatchlistFilters();
-        });
-    }
-    
-    // Event filter
-    const eventSelect = document.getElementById('watchlist-filter-event');
-    if (eventSelect) {
-        eventSelect.addEventListener('change', (e) => {
-            watchlistFilters.event = e.target.value;
-            applyWatchlistFilters();
-        });
-    }
-    
-    // OVR Min
-    const minInput = document.getElementById('watchlist-rating-min');
-    if (minInput) {
-        minInput.addEventListener('change', (e) => {
-            watchlistFilters.minOvr = parseInt(e.target.value) || 40;
-            applyWatchlistFilters();
-        });
-    }
-    
-    // OVR Max
-    const maxInput = document.getElementById('watchlist-rating-max');
-    if (maxInput) {
-        maxInput.addEventListener('change', (e) => {
-            watchlistFilters.maxOvr = parseInt(e.target.value) || 150;
-            applyWatchlistFilters();
-        });
-    }
-    
-    // Clear All button
-    const clearBtn = document.getElementById('clear-watchlist-filters');
-    if (clearBtn) {
-        clearBtn.addEventListener('click', clearWatchlistFilters);
-    }
-    
-    // Search input
-    const searchInput = document.getElementById('watchlist-search-input');
-    if (searchInput) {
-        searchInput.addEventListener('input', handleWatchlistSearch);
-    }
-    
-    // Sort select
-    const sortSelect = document.getElementById('watchlist-sort-select');
-    if (sortSelect) {
-        sortSelect.addEventListener('change', handleWatchlistSort);
-    }
+    // OVR MIN
+    bind('watchlist-rating-min', e => {
+        watchlistFilters.minOvr = parseInt(e.target.value) || 40;
+        applyWatchlistFilters();
+    });
+
+    bind('mobile-rating-min', e => {
+        watchlistFilters.minOvr = parseInt(e.target.value) || 40;
+        applyWatchlistFilters();
+    });
+
+    // OVR MAX
+    bind('watchlist-rating-max', e => {
+        watchlistFilters.maxOvr = parseInt(e.target.value) || 150;
+        applyWatchlistFilters();
+    });
+
+    bind('mobile-rating-max', e => {
+        watchlistFilters.maxOvr = parseInt(e.target.value) || 150;
+        applyWatchlistFilters();
+    });
 }
+
+
 function clearWatchlistFilters() {
-    console.log('[WATCHLIST] Clearing all filters');
-    
-    // Reset filter state
-    watchlistFilters = {
-        position: '',
-        league: '',
-        team: '',
-        nation: '',
-        event: '',
-        minOvr: 40,
-        maxOvr: 150
-    };
-    
-    // Reset UI
-    document.getElementById('watchlist-filter-position').value = '';
-    document.getElementById('watchlist-filter-league').value = '';
-    document.getElementById('watchlist-filter-team').value = '';
-    document.getElementById('watchlist-filter-nation').value = '';
-    document.getElementById('watchlist-filter-event').value = '';
-    document.getElementById('watchlist-rating-min').value = 40;
-    document.getElementById('watchlist-rating-max').value = 150;
-    
-    // Apply (shows all)
-    applyWatchlistFilters();
+  console.log('[WATCHLIST] Clearing all filters');
+  
+  // ✅ FIX: Reset filter state (including skill_moves)
+  watchlistFilters = {
+    position: '',
+    league: '',
+    team: '',
+    nation: '',
+    event: '',
+    skill_moves: '', // ✅ FIXED: Was missing
+    minOvr: 40,
+    maxOvr: 150
+  };
+
+  // ✅ FIX: Reset Desktop UI with null checks
+  const desktopElements = {
+    'watchlist-filter-position': '',
+    'watchlist-filter-league': '',
+    'watchlist-filter-team': '',
+    'watchlist-filter-nation': '',
+    'watchlist-filter-event': '',
+    'watchlist-filter-skill': '', // ✅ FIXED: Was missing
+    'watchlist-rating-min': 40,
+    'watchlist-rating-max': 150
+  };
+
+  Object.keys(desktopElements).forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.value = desktopElements[id];
+      console.log(`[WATCHLIST] Reset ${id} to "${desktopElements[id]}"`);
+    } else {
+      console.warn(`[WATCHLIST] Element ${id} not found`);
+    }
+  });
+
+  // ✅ FIX: Reset Mobile UI with null checks
+  const mobileElements = {
+    'mobile-filter-position': '',
+    'mobile-filter-league': '',
+    'mobile-filter-team': '',
+    'mobile-filter-nation': '',
+    'mobile-filter-event': '',
+    'mobile-filter-skill': '', // If you have mobile skill filter
+    'mobile-rating-min': 40,
+    'mobile-rating-max': 150
+  };
+
+  Object.keys(mobileElements).forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.value = mobileElements[id];
+      console.log(`[WATCHLIST] Reset mobile ${id} to "${mobileElements[id]}"`);
+    }
+  });
+
+  // ✅ FIX: Apply filters to show all players
+  applyWatchlistFilters();
+  
+  // ✅ CRITICAL: Update filter chips (was missing!)
+  updateActiveFilterChips();
+  
+  // ✅ FIX: Sync both desktop and mobile filters
+  syncDesktopFilters();
+  
+  console.log('[WATCHLIST] All filters cleared successfully');
 }
+
 function updateActiveFilterChips() {
-    const container = document.getElementById('watchlist-active-filters');
-    if (!container) return;
-    
-    const chips = [];
-    
-    if (watchlistFilters.position) {
-        chips.push(`<div class="filter-chip">Position: ${watchlistFilters.position} <button onclick="removeFilter('position')">×</button></div>`);
-    }
-    if (watchlistFilters.league) {
-        chips.push(`<div class="filter-chip">League: ${watchlistFilters.league} <button onclick="removeFilter('league')">×</button></div>`);
-    }
-    if (watchlistFilters.team) {
-        chips.push(`<div class="filter-chip">Team: ${watchlistFilters.team} <button onclick="removeFilter('team')">×</button></div>`);
-    }
-    if (watchlistFilters.nation) {
-        chips.push(`<div class="filter-chip">Nation: ${watchlistFilters.nation} <button onclick="removeFilter('nation')">×</button></div>`);
-    }
-    if (watchlistFilters.event) {
-        chips.push(`<div class="filter-chip">Event: ${watchlistFilters.event} <button onclick="removeFilter('event')">×</button></div>`);
-    }
-    if (watchlistFilters.minOvr > 40 || watchlistFilters.maxOvr < 150) {
-        chips.push(`<div class="filter-chip">OVR: ${watchlistFilters.minOvr}-${watchlistFilters.maxOvr} <button onclick="removeFilter('ovr')">×</button></div>`);
-    }
-    
-    container.innerHTML = chips.join('');
+  const container = document.getElementById('watchlist-active-filters');
+  if (!container) {
+    console.warn('[WATCHLIST] Active filters container not found');
+    return;
+  }
+
+  const chips = [];
+
+  if (watchlistFilters.position) {
+    chips.push(`<div class="filter-chip">Position: ${watchlistFilters.position} <button onclick="removeFilter('position')">×</button></div>`);
+  }
+
+  if (watchlistFilters.league) {
+    chips.push(`<div class="filter-chip">League: ${watchlistFilters.league} <button onclick="removeFilter('league')">×</button></div>`);
+  }
+
+  if (watchlistFilters.team) {
+    chips.push(`<div class="filter-chip">Team: ${watchlistFilters.team} <button onclick="removeFilter('team')">×</button></div>`);
+  }
+
+  if (watchlistFilters.nation) {
+    chips.push(`<div class="filter-chip">Nation: ${watchlistFilters.nation} <button onclick="removeFilter('nation')">×</button></div>`);
+  }
+
+  if (watchlistFilters.event) {
+    chips.push(`<div class="filter-chip">Event: ${watchlistFilters.event} <button onclick="removeFilter('event')">×</button></div>`);
+  }
+
+  // ✅ FIX: Include skill_moves filter chip
+  if (watchlistFilters.skill_moves) {
+    chips.push(`<div class="filter-chip">Skill Moves: ${watchlistFilters.skill_moves}★ <button onclick="removeFilter('skill_moves')">×</button></div>`);
+  }
+
+  if (watchlistFilters.minOvr !== 40 || watchlistFilters.maxOvr !== 150) {
+    chips.push(`<div class="filter-chip">OVR: ${watchlistFilters.minOvr}-${watchlistFilters.maxOvr} <button onclick="removeFilter('ovr')">×</button></div>`);
+  }
+
+  // ✅ FIX: Clear container properly
+  container.innerHTML = chips.length > 0 ? chips.join('') : '';
+  
+  console.log(`[WATCHLIST] Updated filter chips: ${chips.length} active filters`);
 }
 
 function removeFilter(filterName) {
-    if (filterName === 'position') {
-        watchlistFilters.position = '';
-        document.getElementById('watchlist-filter-position').value = '';
-    } else if (filterName === 'league') {
-        watchlistFilters.league = '';
-        document.getElementById('watchlist-filter-league').value = '';
-    } else if (filterName === 'team') {
-        watchlistFilters.team = '';
-        document.getElementById('watchlist-filter-team').value = '';
-    } else if (filterName === 'nation') {
-        watchlistFilters.nation = '';
-        document.getElementById('watchlist-filter-nation').value = '';
-    } else if (filterName === 'event') {
-        watchlistFilters.event = '';
-        document.getElementById('watchlist-filter-event').value = '';
-    } else if (filterName === 'ovr') {
-        watchlistFilters.minOvr = 40;
-        watchlistFilters.maxOvr = 150;
-        document.getElementById('watchlist-rating-min').value = 40;
-        document.getElementById('watchlist-rating-max').value = 150;
-    }
-    
-    applyWatchlistFilters();
+  console.log(`[WATCHLIST] Removing filter: ${filterName}`);
+  
+  if (filterName === 'position') {
+    watchlistFilters.position = '';
+    const el = document.getElementById('watchlist-filter-position');
+    if (el) el.value = '';
+  } else if (filterName === 'league') {
+    watchlistFilters.league = '';
+    const el = document.getElementById('watchlist-filter-league');
+    if (el) el.value = '';
+  } else if (filterName === 'team') {
+    watchlistFilters.team = '';
+    const el = document.getElementById('watchlist-filter-team');
+    if (el) el.value = '';
+  } else if (filterName === 'nation') {
+    watchlistFilters.nation = '';
+    const el = document.getElementById('watchlist-filter-nation');
+    if (el) el.value = '';
+  } else if (filterName === 'event') {
+    watchlistFilters.event = '';
+    const el = document.getElementById('watchlist-filter-event');
+    if (el) el.value = '';
+  } else if (filterName === 'skill_moves') { // ✅ NEW
+    watchlistFilters.skill_moves = '';
+    const el = document.getElementById('watchlist-filter-skill');
+    if (el) el.value = '';
+  } else if (filterName === 'ovr') {
+    watchlistFilters.minOvr = 40;
+    watchlistFilters.maxOvr = 150;
+    const minEl = document.getElementById('watchlist-rating-min');
+    const maxEl = document.getElementById('watchlist-rating-max');
+    if (minEl) minEl.value = 40;
+    if (maxEl) maxEl.value = 150;
+  }
+
+  applyWatchlistFilters();
 }
+
 
 // Initialize watchlist when view is shown
 function initProfessionalWatchlist() {
-  console.log('🚀 [WATCHLIST] Initializing Professional Watchlist');
+  console.log('[WATCHLIST] Initializing Professional Watchlist');
   
   const watchlistView = document.getElementById('watchlist-view');
   if (!watchlistView) {
-    console.error('❌ [WATCHLIST] Watchlist view not found');
+    console.error('[WATCHLIST] Watchlist view not found');
     return;
   }
-  
+
   // Load watchlist data
   loadWatchlistData();
   
-  // ✅ NEW: Populate filter dropdowns
-  console.log('🔧 [DEBUG] About to populate filters...');
+  // Populate filter dropdowns
+  console.log('[DEBUG] About to populate filters...');
   populateWatchlistFilters();
   
-  // ✅ NEW: Setup filter listeners
-  console.log('🔧 [DEBUG] About to setup filter listeners...');
+  // Setup filter listeners
+  console.log('[DEBUG] About to setup filter listeners...');
   setupWatchlistFilterListeners();
   
-  
-  // Setup event listeners (existing)
+  // ✅ CRITICAL: Setup event listeners (including clear button)
+  console.log('[DEBUG] About to setup watchlist events...');
   setupWatchlistEvents();
   
   console.log('✅ [DEBUG] initProfessionalWatchlist() completed');
@@ -326,79 +573,116 @@ function initProfessionalWatchlist() {
 
 
 
+
 // Load watchlist data from localStorage
 function loadWatchlistData() {
-  console.log('🔍 [WATCHLIST] Loading data from localStorage');
-
+  console.log('[WATCHLIST] Loading data from localStorage');
+  
   try {
     const raw = localStorage.getItem('watchlistPlayers');
-    console.log('📦 [WATCHLIST] Raw localStorage data:', raw);
-
+    console.log('[WATCHLIST] Raw localStorage data:', raw);
+    
     if (raw) {
       const parsed = JSON.parse(raw);
-      console.log('📊 [WATCHLIST] Parsed player count:', parsed.length);
-
+      console.log('[WATCHLIST] Parsed player count:', parsed.length);
+      
       if (parsed.length > 0) {
-        console.log('🎯 [WATCHLIST] First player sample:', parsed[0]);
-        console.log('🔑 [WATCHLIST] First player keys:', Object.keys(parsed[0]));
+        console.log('[WATCHLIST] First player sample:', parsed[0]);
+        console.log('[WATCHLIST] First player keys:', Object.keys(parsed[0]));
       }
 
-      // Map the data to match expected field names
-      watchlistData = parsed.map(player => ({
-        // Use multiple possible field names
-        id: player.playerid || player.player_id || player.id,
-        name: player.name || 'Unknown',
-        position: player.position || 'NA',
-        team: player.team || player.club || 'NA',
-        league: player.league || 'NA',
-        nation: player.nation || player.nationality || 'NA',
-        overallrating: player.ovr || player.overallrating || player.rating || 0,
-
-        // Stats
-        pace: player.pace || 0,
-        shooting: player.shooting || 0,
-        passing: player.passing || 0,
-        dribbling: player.dribbling || 0,
-        defending: player.defending || 0,
-        physical: player.physical || 0,
-
-        // Images
-        imageurl: player.player_image || player.imageurl || player.image_url || '',
-        nationflagurl: player.nation_flag || player.nationflagurl || '',
-        clublogourl: player.club_flag || player.clublogourl || '',
-
-        // Price
-        price: player.price || 0,
-
-        // Keep original data
-        ...player
-      }));
+      // ✅ FIX: Map the data with correct player_id AND nation_region priority
+      watchlistData = parsed.map(player => {
+        // Use correct priority: player_id > playerid > id
+        const actualPlayerId = player.player_id || player.playerid || player.id;
+        
+        // ✅ CRITICAL FIX: Get nation from correct field
+        const nation = player.nation_region || player.nationregion || player.nation || player.nationality || 'NA';
+        
+        console.log(`[WATCHLIST] Player ${player.name} nation:`, nation, '(from:', 
+                    player.nation_region ? 'nation_region' : 
+                    player.nationregion ? 'nationregion' : 
+                    player.nation ? 'nation' : 
+                    player.nationality ? 'nationality' : 'default NA', ')');
+        
+        return {
+          // CRITICAL: Store as player_id for API compatibility
+          player_id: actualPlayerId,
+          id: actualPlayerId,
+          playerid: actualPlayerId,
+          
+          name: player.name || 'Unknown',
+          position: player.position || 'NA',
+          team: player.team || player.club || 'NA',
+          league: player.league || 'NA',
+          
+          // ✅ FIX: Use correct nation field with proper fallbacks
+          nation: nation,
+          nation_region: nation, // Also store with API field name
+          nationregion: nation,   // Also store with snake_case
+          
+          overallrating: player.ovr || player.overallrating || player.rating || 0,
+          ovr: player.ovr || player.overallrating || player.rating || 0,
+          rank: player.rank || 0,
+          skillmoves: player.skillmoves || player.skills || player.sm || 0,
+          
+          // Stats
+          pace: player.pace || 0,
+          shooting: player.shooting || 0,
+          passing: player.passing || 0,
+          dribbling: player.dribbling || 0,
+          defending: player.defending || 0,
+          physical: player.physical || 0,
+          
+          // Images - support both naming conventions
+          playerimage: player.playerimage || player.player_image || player.imageurl || '',
+          cardbackground: player.cardbackground || player.card_background || '',
+          nationflag: player.nationflag || player.nation_flag || player.nationflagurl || '',
+          clubflag: player.clubflag || player.club_flag || player.clublogourl || '',
+          
+          // Colors
+          colorname: player.colorname || player.color_name || '#FFFFFF',
+          colorrating: player.colorrating || player.color_rating || '#FFB86B',
+          colorposition: player.colorposition || player.color_position || '#FFFFFF',
+          
+          // Price
+          price: player.price || 0,
+          
+          // Keep original data
+          ...player
+        };
+      });
 
       filteredWatchlist = [...watchlistData];
-      console.log('✅ [WATCHLIST] Loaded', watchlistData.length, 'players');
+      console.log('[WATCHLIST] Loaded', watchlistData.length, 'players');
+      console.log('[WATCHLIST] Sample nations:', watchlistData.slice(0, 3).map(p => p.nation));
+      
     } else {
       watchlistData = [];
       filteredWatchlist = [];
-      console.log('📭 [WATCHLIST] No saved players found in localStorage');
+      console.log('[WATCHLIST] No saved players found in localStorage');
     }
 
-    console.log('🔧 [DEBUG] Data loaded, populating filters...');
+    console.log('[DEBUG] Data loaded, populating filters...');
     populateWatchlistFilters();
-
-    // ✅ NEW: Setup listeners
-    console.log('🔧 [DEBUG] Setting up filter listeners...');
+    
+    console.log('[DEBUG] Setting up filter listeners...');
     setupWatchlistFilterListeners();
-    console.log('✅ [DEBUG] loadWatchlistData() completed');
-
+    
+    console.log('[DEBUG] loadWatchlistData completed');
+    
     // Render after loading
     renderWatchlist();
+
   } catch (error) {
-    console.error('❌ [WATCHLIST] Error loading data:', error);
+    console.error('[WATCHLIST] Error loading data:', error);
     watchlistData = [];
     filteredWatchlist = [];
     renderWatchlist();
   }
 }
+
+
 
 // Render the complete watchlist
 function renderWatchlist() {
@@ -468,261 +752,241 @@ function createPlayerCardHTML(player) {
   const altPositionsArray = alternatePosition ? alternatePosition.split(',').map(p => p.trim()) : [];
   const hasAltPositions = altPositionsArray.filter(pos => pos && pos !== '0' && pos !== 0).length > 0;
 
-  return `
-      <div class="player-row" data-player-id="${player.id}">
-        <!-- Player Card Left Section -->
-        <div class="player-row-card">
-          <div class="player-card-badge">
-          </div>
-          <div class="player-card-image-placeholder">
+  // Create a container div to set CSS custom properties
+  const playerRow = document.createElement('div');
+  playerRow.className = 'player-row';
+  
+  // ✅ FIX: Use player_id (the actual database ID) instead of just id
+  const actualPlayerId = player.player_id || player.playerid || player.id;
+  playerRow.dataset.playerId = actualPlayerId;
+  
+  // ✅ FIX: Also store the full player object as JSON for fallback
+  playerRow.dataset.playerData = JSON.stringify({
+    player_id: actualPlayerId,
+    name: player.name,
+    position: player.position,
+    rank: player.rank || 0
+  });
+  
+  // Set CSS custom properties for dynamic colors
+  playerRow.style.setProperty('--player-name-color', player.colorname || player.color_name || '#FFFFFF');
+  playerRow.style.setProperty('--player-ovr-color', player.colorrating || player.color_rating || '#FFB86B');
+  playerRow.style.setProperty('--player-position-color', player.colorposition || player.color_position || '#FFFFFF');
 
+  playerRow.innerHTML = `
+    <!-- Player Card Left Section -->
+    <div class="player-row-card">
+      <div class="player-card-badge"></div>
+      <div class="player-card-image-placeholder">
 
-            <!-- Card Background (Fixed) -->
-            ${player.card_background ? `
-                <img src="${player.card_background}" 
-                    alt="Card Background" 
-                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
-                    onerror="this.style.display='none'">
-            ` : ''}
+        <!-- Card Background -->
+        ${player.cardbackground || player.card_background ? `
+          <img src="${player.cardbackground || player.card_background}" 
+               alt="Card Background" 
+               class="player-row-card-bg"
+               onerror="this.style.display='none'">
+        ` : ''}
 
+        <!-- Player Image -->
+        ${player.playerimage || player.player_image ? `
+          <img src="${player.playerimage || player.player_image}" 
+               alt="${player.name}"
+               class="player-row-main-img"
+               onerror="this.style.display='none'; this.nextElementSibling.classList.remove('player-initials-hidden')">
+          <span class="player-initials player-initials-hidden">${getInitials(player.name)}</span>
+        ` : `
+          <span class="player-initials">${getInitials(player.name)}</span>
+        `}
 
-
-            ${player.player_image ? `
-                <img src="${player.player_image}" 
-                    alt="${player.name}"
-                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 130%; height: 130%; object-fit: contain;"
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                <span class="player-initials" style="display:none">${getInitials(player.name)}</span>
-            ` : `
-                <span class="player-initials">${getInitials(player.name)}</span>
-            `}
-
-
-
-            <div style="
-                position: absolute;
-                top: 75px;
-                left: 50%;
-                transform: translateX(-50%) scaleY(1);
-                text-align: center;
-                padding: 2px 5px;
-                border-radius: 4px;
-                font-size: 11px;
-                font-weight: 800;
-                font-family: 'CruyffSans', sans-serif;
-                color: ${player.color_name || '#FFFFFF'};
-                z-index: 10;
-                letter-spacing: -0.8px;
-                line-height: 1;
-                text-transform: uppercase;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 100%;
-            ">
-                ${player.name}
-            </div>
-
-
-
-            <!-- OVR (Small, top-left) -->
-            <div style="
-                position: absolute;
-                top: 10px;
-                left: 8px;
-                padding: 2px 5px;
-                border-radius: 4px;
-                font-size: 16px;
-                font-weight: 700;
-                font-family: 'CruyffSans', sans-serif;
-                color: ${player.color_rating || '#FFB86B'};
-                z-index: 10;
-                letter-spacing: -1px;
-                line-height: 1.1;
-                transform: scaleY(1);
-            ">
-                ${player.ovr && player.ovr > 0 ? player.ovr : '?'}
-            </div>
-
-                        
-            <!-- Position (Tiny, top-right) -->
-            <div style="
-                position: absolute;
-                top: 28px;
-                left: 15px;
-                padding: 1px 4px;
-                border-radius: 3px;
-                font-size: 10px;
-                font-weight: 800;
-                font-family: 'CruyffSans', sans-serif;
-                color: ${player.color_position || '#FFFFFF'};
-                z-index: 10;
-                letter-spacing: -0.8px;
-                line-height: 1.1;
-                transform: scaleY(1);
-            ">
-                ${player.position || '?'}
-            </div>
-
-                        
-            <!-- Nation (Tiny flag, bottom-left) -->
-                  ${player.nation_flag ? `
-                            <img src="${player.nation_flag}" 
-                                alt="Nation" 
-                                style="position: absolute; bottom: 19px; left: 24px; width: 12px; height: 9px; object-fit: cover; border-radius: 1px; z-index: 10;"
-                                onerror="this.style.display='none'">
-            ` : ''}
-                        
-            <!-- Club (Tiny badge, bottom-right) -->
-                ${player.club_flag ? `
-                  <img src="${player.club_flag}" 
-                    alt="Club" 
-                    style="position: absolute; bottom: 16px; left: 52px; width: 15px; height: 12px; object-fit: contain; border-radius: 2px; z-index: 10;"
-                    onerror="this.style.display='none'">
-          ` : ''}
-
-
-          </div>
+        <!-- Player Name Overlay -->
+        <div class="player-row-name">
+          ${player.name}
         </div>
 
-        
+        <!-- OVR Rating -->
+        <div class="player-row-ovr">
+          ${player.ovr && player.ovr > 0 ? player.ovr : '?'}
+        </div>
 
-      <!-- Player Info Middle Section -->
-      <div class="player-row-info">
-        <div class="player-info-name">${player.name || 'Unknown'}</div>
-        <div class="player-info-meta">${player.team || 'NA'} • ${player.league || 'NA'}</div>
-        ${hasAltPositions 
-          ? `<div class="player-info-secondary">
-              ${altPositionsArray.filter(pos => pos && pos !== '0' && pos !== 0).map(pos => `<span class="secondary-position-badge">${pos}</span>`).join('')}
-            </div>`
-          : ''
-        }
+        <!-- Position Badge -->
+        <div class="player-row-position">
+          ${player.position || '?'}
+        </div>
+
+        <!-- Nation Flag -->
+        ${player.nationflag || player.nation_flag ? `
+          <img src="${player.nationflag || player.nation_flag}" 
+               alt="Nation" 
+               class="player-row-nation"
+               onerror="this.style.display='none'">
+        ` : ''}
+
+        <!-- Club Badge -->
+        ${player.clubflag || player.club_flag ? `
+          <img src="${player.clubflag || player.club_flag}" 
+               alt="Club" 
+               class="player-row-club"
+               onerror="this.style.display='none'">
+        ` : ''}
+
       </div>
-
-      <!-- Stats Grid Right Section -->
-      <div class="player-row-stats">
-        <div class="stat-pill">
-          <div class="stat-pill-value">${player.pace || 0}</div>
-          <div class="stat-pill-label">PAC</div>
-        </div>
-        <div class="stat-pill">
-          <div class="stat-pill-value">${player.shooting || 0}</div>
-          <div class="stat-pill-label">SHO</div>
-        </div>
-        <div class="stat-pill">
-          <div class="stat-pill-value">${player.passing || 0}</div>
-          <div class="stat-pill-label">PAS</div>
-        </div>
-        <div class="stat-pill">
-          <div class="stat-pill-value">${player.dribbling || 0}</div>
-          <div class="stat-pill-label">DRI</div>
-        </div>
-        <div class="stat-pill">
-          <div class="stat-pill-value">${player.defending || 0}</div>
-          <div class="stat-pill-label">DEF</div>
-        </div>
-        <div class="stat-pill">
-          <div class="stat-pill-value">${player.physical || 0}</div>
-          <div class="stat-pill-label">PHY</div>
-        </div>
-      </div>
-
-      <!-- Watchlist Button -->
-      <button class="player-row-watchlist active" data-player-id="${player.id}" title="Remove from watchlist">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-        </svg>
-      </button>
     </div>
+
+    <!-- Player Info Middle Section -->
+    <div class="player-row-info">
+      <div class="player-info-name">${player.name || 'Unknown'}</div>
+      <div class="player-info-meta">${player.team || 'NA'} • ${player.league || 'NA'}</div>
+      ${hasAltPositions 
+        ? `<div class="player-info-secondary">
+            ${altPositionsArray.filter(pos => pos && pos !== '0' && pos !== 0).map(pos => `<span class="secondary-position-badge">${pos}</span>`).join('')}
+          </div>`
+        : ''
+      }
+    </div>
+
+    <!-- Stats Grid Right Section -->
+    <div class="player-row-stats">
+      <div class="stat-pill">
+        <div class="stat-pill-value">${player.pace || 0}</div>
+        <div class="stat-pill-label">PAC</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-pill-value">${player.shooting || 0}</div>
+        <div class="stat-pill-label">SHO</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-pill-value">${player.passing || 0}</div>
+        <div class="stat-pill-label">PAS</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-pill-value">${player.dribbling || 0}</div>
+        <div class="stat-pill-label">DRI</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-pill-value">${player.defending || 0}</div>
+        <div class="stat-pill-label">DEF</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-pill-value">${player.physical || 0}</div>
+        <div class="stat-pill-label">PHY</div>
+      </div>
+    </div>
+
+    <!-- Watchlist Button -->
+    <button class="player-row-watchlist active" 
+            data-player-id="${actualPlayerId}" 
+            title="Remove from watchlist">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+    </button>
   `;
+
+  return playerRow.outerHTML;
 }
+
+
 
 
 
 // ✅ ATTACH EVENT LISTENERS TO ALL WATCHLIST BUTTONS
 function attachWatchlistEventListeners() {
   console.log('[WATCHLIST] Attaching event listeners to player rows and buttons');
-  
-  // ========== PLAYER ROW CLICK (Open Detail) ==========
+
+  // PLAYER ROW CLICK - Open Detail
   const playerRows = document.querySelectorAll('#watchlist-view .player-row');
   console.log('[WATCHLIST] Found', playerRows.length, 'player rows');
-  
+
   playerRows.forEach((row, index) => {
     const playerId = row.dataset.playerId;
-    console.log('[WATCHLIST] Attaching row click listener', index + 1, 'for player ID', playerId);
     
+    // ✅ FIX: Get full player data for fallback
+    let fallbackPlayer = null;
+    try {
+      if (row.dataset.playerData) {
+        fallbackPlayer = JSON.parse(row.dataset.playerData);
+      }
+    } catch (e) {
+      console.error('[WATCHLIST] Error parsing player data:', e);
+    }
+    
+    // ✅ ALSO: Try to find full player object from watchlistData
+    const fullPlayer = watchlistData.find(p => 
+      (p.player_id || p.playerid || p.id) === playerId
+    );
+    
+    console.log('[WATCHLIST] Attaching row click listener', index + 1, 'for player ID:', playerId);
+
     row.addEventListener('click', function(e) {
       // Don't trigger if clicking the heart button
-      if (e.target.closest('.player-row-watchlist')) {
-        return;
-      }
+      if (e.target.closest('.player-row-watchlist')) return;
+
+      console.log('[WATCHLIST] Row clicked! Opening player detail for ID:', playerId);
       
-      console.log('[WATCHLIST] Row clicked! Opening player detail for ID', playerId);
-      
-      // Call viewPlayerDetail function (same as database view)
+      // ✅ FIX: Pass both playerId AND fallback player object
       if (typeof viewPlayerDetail === 'function') {
-        viewPlayerDetail(playerId);
+        viewPlayerDetail(playerId, fullPlayer || fallbackPlayer);
       } else {
         console.error('[WATCHLIST] viewPlayerDetail function not found!');
       }
     });
-    
+
     // Add cursor pointer to show it's clickable
     row.style.cursor = 'pointer';
   });
-  
-  // ========== HEART BUTTON CLICK (Remove from Watchlist) ==========
+
+  // HEART BUTTON CLICK - Remove from Watchlist
   const buttons = document.querySelectorAll('#watchlist-view .player-row-watchlist');
   console.log('[WATCHLIST] Found', buttons.length, 'watchlist buttons');
-  
+
   buttons.forEach((btn, index) => {
     const playerId = btn.dataset.playerId;
-    console.log('[WATCHLIST] Attaching button listener', index + 1, 'for player ID', playerId);
-    
+    console.log('[WATCHLIST] Attaching button listener', index + 1, 'for player ID:', playerId);
+
     btn.addEventListener('click', function(e) {
       e.stopPropagation(); // Prevent row click
       e.preventDefault();
-      console.log('[WATCHLIST] Heart clicked! Removing player', playerId);
+      console.log('[WATCHLIST] Heart clicked! Removing player:', playerId);
       removePlayerFromWatchlist(playerId);
     });
   });
-  
+
   console.log('[WATCHLIST] All event listeners attached successfully');
 }
 
 
+
 // Setup event listeners for search and sort
 function setupWatchlistEvents() {
-  console.log('🔧 [WATCHLIST] Setting up event listeners');
+  console.log('[WATCHLIST] Setting up event listeners');
 
   // Search input - desktop
   const searchInput = document.querySelector('#watchlist-player-search');
   if (searchInput) {
     searchInput.addEventListener('input', debounce(handleWatchlistSearch, 300));
-    console.log('✅ [WATCHLIST] Desktop search listener attached');
+    console.log('[WATCHLIST] Desktop search listener attached');
   }
 
   // Search input - mobile
   const mobileSearchInput = document.querySelector('.mobile-search-input');
   if (mobileSearchInput && mobileSearchInput.closest('#watchlist-view')) {
     mobileSearchInput.addEventListener('input', debounce(handleWatchlistSearch, 300));
-    console.log('✅ [WATCHLIST] Mobile search listener attached');
+    console.log('[WATCHLIST] Mobile search listener attached');
   }
 
   // Sort select
   const sortSelect = document.querySelector('#watchlist-sort-by');
   if (sortSelect) {
     sortSelect.addEventListener('change', handleWatchlistSort);
-    console.log('✅ [WATCHLIST] Sort listener attached');
+    console.log('[WATCHLIST] Sort listener attached');
   }
 
-  // Clear filters button
-  const clearBtn = document.querySelector('#watchlist-clear-filters');
-  if (clearBtn) {
-    clearBtn.addEventListener('click', clearWatchlistFilters);
-    console.log('✅ [WATCHLIST] Clear filters listener attached');
-  }
+  // ✅ CRITICAL: Call setupClearAllButton
+  console.log('[WATCHLIST] About to setup clear button...');
+  setupClearAllButton();
+  console.log('[WATCHLIST] Clear button setup completed');
 }
+
 
 // Handle search
 function handleWatchlistSearch(event) {
@@ -752,52 +1016,20 @@ function handleWatchlistSearch(event) {
 }
 
 // Handle sort
-function handleWatchlistSort(event) {
-  const sortValue = event.target.value;
-  console.log('🔄 [WATCHLIST] Sorting by:', sortValue);
+function handleWatchlistSort(e) {
+  const value = e.target.value;
+
+  if (!value) return;
+
+  const [field, direction] = value.split('_');
 
   filteredWatchlist.sort((a, b) => {
-    switch(sortValue) {
-      case 'name-asc':
-        return (a.name || '').localeCompare(b.name || '');
-      case 'name-desc':
-        return (b.name || '').localeCompare(a.name || '');
-      case 'rating-desc':
-        return (b.overallrating || 0) - (a.overallrating || 0);
-      case 'rating-asc':
-        return (a.overallrating || 0) - (b.overallrating || 0);
-      case 'price-desc':
-        return (b.price || 0) - (a.price || 0);
-      case 'price-asc':
-        return (a.price || 0) - (b.price || 0);
-      default:
-        return 0;
+    if (direction === 'asc') {
+      return (a[field] || 0) - (b[field] || 0);
+    } else {
+      return (b[field] || 0) - (a[field] || 0);
     }
   });
-
-  renderWatchlist();
-}
-
-// Clear filters
-function clearWatchlistFilters() {
-  console.log('🧹 [WATCHLIST] Clearing filters');
-
-  // Reset filtered data
-  filteredWatchlist = [...watchlistData];
-
-  // Clear search inputs
-  const searchInputs = document.querySelectorAll('#watchlist-player-search, .mobile-search-input');
-  searchInputs.forEach(input => {
-    if (input && input.closest('#watchlist-view')) {
-      input.value = '';
-    }
-  });
-
-  // Reset sort
-  const sortSelect = document.querySelector('#watchlist-sort-by');
-  if (sortSelect) {
-    sortSelect.value = 'name-asc';
-  }
 
   renderWatchlist();
 }
@@ -997,30 +1229,34 @@ function showToast(message, type = 'info') {
 
 // ==========================================
 // INITIALIZATION
-// ==========================================
+// INITIALIZATION
+// Just log DOM readiness. The main app (app.js) will call
+// initProfessionalWatchlist() whenever the watchlist view is shown.
 
-// Initialize on DOM ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log('📄 [WATCHLIST] DOM loaded, waiting for view switch');
-  });
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('[WATCHLIST] DOM loaded for Professional Watchlist');
+    });
 } else {
-  console.log('📄 [WATCHLIST] DOM already loaded');
+    console.log('[WATCHLIST] DOM already loaded for Professional Watchlist');
 }
 
-// Hook into view switching
-const originalSwitchView = window.switchView;
-if (originalSwitchView && typeof originalSwitchView === 'function') {
-  window.switchView = function(viewName) {
-    console.log('🔄 [WATCHLIST] Switching to view:', viewName);
-    originalSwitchView(viewName);
 
-    if (viewName === 'watchlist') {
-      setTimeout(() => {
-        initProfessionalWatchlist();
-      }, 100);
-    }
-  };
+function syncDesktopFilters() {
+    if (document.getElementById('watchlist-filter-position'))
+        document.getElementById('watchlist-filter-position').value = watchlistFilters.position;
+
+    if (document.getElementById('watchlist-filter-league'))
+        document.getElementById('watchlist-filter-league').value = watchlistFilters.league;
+
+    if (document.getElementById('watchlist-filter-team'))
+        document.getElementById('watchlist-filter-team').value = watchlistFilters.team;
+
+    if (document.getElementById('watchlist-filter-nation'))
+        document.getElementById('watchlist-filter-nation').value = watchlistFilters.nation;
+
+    if (document.getElementById('watchlist-filter-event'))
+        document.getElementById('watchlist-filter-event').value = watchlistFilters.event;
 }
 
 // ==========================================
@@ -1032,3 +1268,14 @@ window.loadWatchlistData = loadWatchlistData;
 window.removePlayerFromWatchlist = removePlayerFromWatchlist;
 
 console.log("✅ WATCHLIST: Watchlist Professional JS loaded successfully - v3.1");
+
+
+// ==================== DEBUG ON LOAD ====================
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+console.log('📦 [DEBUG] watchlist-professional.js LOADED');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+console.log('✅ clearWatchlistFilters:', typeof clearWatchlistFilters);
+console.log('✅ setupClearAllButton:', typeof setupClearAllButton);
+console.log('✅ applyWatchlistFilters:', typeof applyWatchlistFilters);
+console.log('✅ updateActiveFilterChips:', typeof updateActiveFilterChips);
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

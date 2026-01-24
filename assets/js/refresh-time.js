@@ -121,65 +121,30 @@ function getAllRefreshTimes(baseTime) {
 // ============================================================================
 // 4. GET NEXT REFRESH TIME
 // ============================================================================
-// ============================================================================
-// 4. GET NEXT REFRESH TIME
-// ============================================================================
 function getNextRefresh(baseTime) {
   const now = new Date();
   const allRefreshes = getAllRefreshTimes(baseTime);
 
   // Filter to get only future refresh times
-  let futureRefreshes = allRefreshes.filter(r => r > now);
+  const futureRefreshes = allRefreshes.filter(r => r > now);
 
-  // If no future times, generate more for tomorrow
-  if (futureRefreshes.length === 0) {
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 2);
-    tomorrow.setUTCHours(baseTime.getUTCHours(), baseTime.getUTCMinutes(), baseTime.getUTCSeconds(), 0);
+  if (futureRefreshes.length > 0) {
+    return futureRefreshes[0];
+  }
 
-    for (let i = 0; i < 12; i++) {
-      const refreshTime = new Date(tomorrow);
-      refreshTime.setHours(refreshTime.getHours() + i * 2);
-      futureRefreshes.push(refreshTime);
-    }
+  // If no future times today, generate for tomorrow
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 2);
+  tomorrow.setUTCHours(baseTime.getUTCHours(), baseTime.getUTCMinutes(), baseTime.getUTCSeconds(), 0);
 
-    // Sort again after adding new times
-    futureRefreshes.sort((a, b) => a - b);
+  for (let i = 0; i < 12; i++) {
+    const refreshTime = new Date(tomorrow);
+    refreshTime.setHours(refreshTime.getHours() + i * 2);
+    futureRefreshes.push(refreshTime);
   }
 
   return futureRefreshes[0] || null;
 }
-
-// ============================================================================
-// 4B. GET UPCOMING REFRESHES (after the next one)
-// ============================================================================
-function getUpcomingRefreshes(baseTime, count = 2) {
-  const now = new Date();
-  const allRefreshes = getAllRefreshTimes(baseTime);
-
-  // Filter to get only future refresh times
-  let futureRefreshes = allRefreshes.filter(r => r > now);
-
-  // If not enough future times, generate more
-  if (futureRefreshes.length < count + 1) {
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 2);
-    tomorrow.setUTCHours(baseTime.getUTCHours(), baseTime.getUTCMinutes(), baseTime.getUTCSeconds(), 0);
-
-    for (let i = 0; i < 12; i++) {
-      const refreshTime = new Date(tomorrow);
-      refreshTime.setHours(refreshTime.getHours() + i * 2);
-      futureRefreshes.push(refreshTime);
-    }
-
-    // Sort again after adding new times
-    futureRefreshes.sort((a, b) => a - b);
-  }
-
-  // Return the next 'count' refreshes (skip the first one, which is the "next" refresh)
-  return futureRefreshes.slice(1, count + 1);
-}
-
 
 // ============================================================================
 // 5. FORMAT TIME UNTIL REFRESH
@@ -217,9 +182,9 @@ async function fetchPlayerRefreshData(playerId) {
     console.log('[REFRESH-DEBUG] Querying table: player_refresh_data');
 
     const { data, error } = await window.supabaseClient
-      .from('player_refresh_data')        // ✅ FIXED
-      .select('player_id, refresh_time, name, ovr')  // ✅ FIXED
-      .eq('player_id', playerId)          // ✅ FIXED
+      .from('player_refresh_data')        // âœ… FIXED
+      .select('player_id, refresh_time, name, ovr')  // âœ… FIXED
+      .eq('player_id', playerId)          // âœ… FIXED
       .maybeSingle();
 
     console.log('[REFRESH-DEBUG] Supabase response -> data:', data, 'error:', error);
@@ -234,7 +199,7 @@ async function fetchPlayerRefreshData(playerId) {
       return null;
     }
 
-    if (!data.refresh_time) {  // ✅ FIXED
+    if (!data.refresh_time) {  // âœ… FIXED
       console.warn('[REFRESH-DEBUG] Row found but refresh_time is NULL/empty for player_id =', playerId, 'row =', data);
       return null;
     }
@@ -254,7 +219,7 @@ async function fetchPlayerRefreshData(playerId) {
 async function buildRefreshTimeContainer(player) {
   try {
     // Fetch refresh data from Supabase
-    const refreshData = await fetchPlayerRefreshData(player.player_id);  // ✅ CORRECT
+    const refreshData = await fetchPlayerRefreshData(player.player_id);  // âœ… CORRECT
 
     console.log('[REFRESH] Raw refresh data:', refreshData);
     console.log('[REFRESH] Raw refreshtime value:', refreshData?.refreshtime);
@@ -320,26 +285,7 @@ async function buildRefreshTimeContainer(player) {
 
     // Get timezone abbreviation
     const tzAbbr = userTz.split('/').pop().replace(/_/g, ' ');
-    const containerId = `refresh-container-${player.player_id}`;  // ✅ CORRECT
-
-    // Get next 2 upcoming refreshes
-    const upcomingRefreshes = getUpcomingRefreshes(baseTime, 2);
-
-    // Format upcoming refreshes HTML
-    let upcomingHtml = '';
-    if (upcomingRefreshes.length > 0) {
-      upcomingHtml = upcomingRefreshes.map(refresh => {
-        const upcomingTimeStr = refresh.toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: true,
-          timeZone: userTz
-        });
-        return `<div style="font-size: 13px; color: var(--color-text-muted); padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">• ${upcomingTimeStr}</div>`;
-      }).join('');
-    }
-
+    const containerId = `refresh-container-${player.player_id}`;  // âœ… CORRECT
 
     // Start countdown timer
     setTimeout(() => startRefreshCountdown(containerId, nextRefreshTime), 100);
@@ -358,27 +304,14 @@ async function buildRefreshTimeContainer(player) {
       <!-- Next Refresh Time -->
       <div style="background: rgba(0, 194, 168, 0.08); border: 1px solid rgba(0, 194, 168, 0.25); border-radius: 10px; padding: 16px; margin-bottom: 12px;">
         <div style="font-size: 13px; font-weight: 700; color: var(--color-text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px;">Next Refresh</div>
-        
-        <!-- Time and Countdown on same line -->
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-          <div style="font-size: 20px; font-weight: 900; color: var(--color-teal-500); font-family: var(--font-family-base);">${timeStr}</div>
-          <div style="font-size: 14px; font-weight: 700; color: var(--color-teal-500); background: rgba(0,194,168,0.15); padding: 6px 12px; border-radius: 6px;">
-            <span id="refresh-countdown-${player.player_id}">${countdown}</span>
-          </div>
-        </div>
-        
+        <div style="font-size: 20px; font-weight: 900; color: var(--color-teal-500); font-family: var(--font-family-base); margin-bottom: 4px;">${timeStr}</div>
         <div style="font-size: 12px; color: var(--color-text-muted); font-weight: 600;">${tzAbbr}</div>
       </div>
 
-      <!-- Upcoming Refreshes -->
-      ${upcomingRefreshes.length > 0 ? `
-        <div style="margin-top: 12px;">
-          <div style="font-size: 12px; font-weight: 700; color: var(--color-text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px;">Upcoming Refreshes</div>
-          <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 8px 12px;">
-            ${upcomingHtml}
-          </div>
-        </div>
-      ` : ''}
+      <!-- Countdown -->
+      <div style="font-size: 14px; color: var(--color-text-secondary); font-weight: 600; text-align: center;">
+        <span id="refresh-countdown-${player.player_id}">${countdown}</span>  
+      </div>
     </div>`;
   } catch (error) {
     console.error('[REFRESH] Error building refresh container:', error);

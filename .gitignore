@@ -8,3 +8,9 @@ app.js.previous
 app.js.backup.halfskills
 temp.py
 api.py
+*.backup.main
+*.backup.AS
+*.backup.VS
+*.backup.uc
+*.js.3
+*.backup.special

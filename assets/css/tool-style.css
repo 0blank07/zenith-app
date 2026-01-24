@@ -26,6 +26,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  margin-top: 10px;
 }
 
 /* ===== HEADER - COMPACT ===== */
@@ -6909,4 +6910,191 @@ body.stats-open #squad-builder-modal {
     z-index: 10000 !important;
     max-height: 90vh;
     overflow-y: auto;
+}
+
+/* ============================================
+   SQUAD CUSTOMIZATION MODAL - MINI CARD PREVIEW
+   ============================================ */
+
+.squad-custom-player-card {
+  text-align: center;
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.squad-custom-mini-card {
+  position: relative;
+  width: 180px;
+  height: 240px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.squad-custom-card-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.8;
+  z-index: 1;
+}
+
+.squad-custom-card-player-img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  z-index: 2;
+}
+
+.squad-custom-card-ovr {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  color: #000;
+  font-size: 20px;
+  font-weight: 800;
+  padding: 6px 10px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+  z-index: 3;
+}
+
+.squad-custom-card-position {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 3;
+}
+
+.squad-custom-card-name {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
+  z-index: 3;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.squad-custom-card-flags {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 3;
+}
+
+.squad-custom-card-flag {
+  width: 20px;
+  height: 14px;
+  border-radius: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   RANK SELECTOR WITH IMAGES
+   ============================================ */
+
+.squad-rank-boxes-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.squad-rank-box {
+  padding: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.02);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.squad-rank-box:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.squad-rank-box.selected {
+  background: rgba(0, 194, 168, 0.15);
+  border: 2px solid #00C2A8;
+  box-shadow: 0 0 20px rgba(0, 194, 168, 0.5);
+  transform: scale(1.05);
+}
+
+.rank-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.squad-rank-box:hover .rank-icon {
+  transform: scale(1.025);
+}
+
+.rank-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #E6EEF2;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Rank-specific label colors */
+.squad-rank-box[data-rank="1"] .rank-label {
+  color: #3BD671;
+}
+
+.squad-rank-box[data-rank="2"] .rank-label {
+  color: #6366F1;
+}
+
+.squad-rank-box[data-rank="3"] .rank-label {
+  color: #8B5CF6;
+}
+
+.squad-rank-box[data-rank="4"] .rank-label {
+  color: #FF6B6B;
+}
+
+.squad-rank-box[data-rank="5"] .rank-label {
+  color: #FFB86B;
 }
