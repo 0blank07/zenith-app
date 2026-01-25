@@ -3966,7 +3966,7 @@ function createPlayerCard(player) {
                             class="player-card-main-image"
                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                         <span class="player-initials" style="display:none">${getInitials(player.name)}</span>
-                    ` : `
+                    ` : ` 
                         <span class="player-initials">${getInitials(player.name)}</span>
                     `}
 

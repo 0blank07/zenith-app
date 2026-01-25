@@ -250,7 +250,7 @@ async function buildRefreshTimeContainer(player) {
     }
 
     // Get user timezone
-    const userTz = await getUserTimezone();
+    const userTz = await getUserTimezone(); 
 
     // Get next refresh time (SINGLE DECLARATION - NO REDECLARATION)
     const nextRefreshTime = getNextRefresh(baseTime);

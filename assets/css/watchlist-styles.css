@@ -604,5 +604,5 @@
 .secondary-position-badge:hover {
     background: rgba(99, 102, 241, 0.25);
     border-color: rgba(99, 102, 241, 0.5);
-    transform: translateY(-1px);
+    transform: translateY(-1px); 
 }
