@@ -3095,7 +3095,7 @@ h1, h3, h4, h5, h6 {
 }
 
 /* Player Name */ 
-.player-card-name {
+.player-card-name { 
     position: absolute;
     top: 83px;
     left: 50%;
