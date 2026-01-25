@@ -394,14 +394,14 @@
 /* Player Name Overlay */
 .player-row-name {
     position: absolute;
-    top: 82px;
+    top: 79px;
     left: 50%;
     transform: translateX(-50%) scaleY(1);
     text-align: center;
     padding: 2px 5px;
     border-radius: 4px;
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 900;
     font-family: "CruyffSans", sans-serif;
     color: var(--player-name-color, #FFFFFF);
     z-index: 10;
@@ -412,14 +412,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 /* OVR Rating Badge */
 .player-row-ovr {
     position: absolute;
     top: 10px;
-    left: 8px;
+    left: 14px;
     padding: 2px 5px;
     border-radius: 4px;
     font-size: 16px;
@@ -437,7 +436,7 @@
 .player-row-position {
     position: absolute;
     top: 28px;
-    left: 15px;
+    left: 18px;
     padding: 1px 4px;
     border-radius: 3px;
     font-size: 10px;
@@ -454,10 +453,10 @@
 /* Nation Flag */
 .player-row-nation {
     position: absolute;
-    bottom: 19px;
-    left: 24px;
+    bottom: 20px;
+    left: 32px;
     width: 12px;
-    height: 9px;
+    height: 10px;
     object-fit: cover;
     border-radius: 1px;
     z-index: 10;
@@ -468,7 +467,7 @@
 .player-row-club {
     position: absolute;
     bottom: 19px;
-    right: 24px;
+    right: 32px;
     width: 15px;
     height: 12px;
     object-fit: contain;
@@ -483,102 +482,347 @@
    RESPONSIVE ADJUSTMENTS
    ========================================== */
 @media (max-width: 1024px) {
-    .player-row-name {
-        font-size: 10px;
-        top: 72px;
+
+
+    .player-row-card-bg{
+        width: 110px;
+        height: 140px;
     }
-    
+
+
+    .player-row-main-img{
+        padding-top: 15px;
+    }
+
+    .player-row-name {
+        position: absolute;
+        top: 83px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 800;
+        font-family: 'CruyffSans', sans-serif;
+        text-transform: uppercase;
+        z-index: 10;
+        letter-spacing: -0.8px;
+        line-height: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        margin-top: 6px;
+    }
+
+
     .player-row-ovr {
-        font-size: 14px;
-        top: 8px;
-        left: 6px;
+        position: absolute;
+        top: 10px;
+        left: 11px;
+        font-size: 16px;
+        font-weight: 700;
+        font-family: 'CruyffSans', sans-serif;
+        z-index: 10;
+        letter-spacing: -1px;
+        line-height: 1.1;
     }
     
     .player-row-position {
-        font-size: 9px;
-        top: 25px;
-        left: 13px;
+        position: absolute;
+        top: 28px;
+        left: 17px;
+        font-size: 10px;
+        font-weight: 800;
+        font-family: 'CruyffSans', sans-serif;
+        z-index: 10;
+        letter-spacing: -0.8px;
+        line-height: 1.1;
     }
     
     .player-row-nation {
         width: 10px;
-        height: 8px;
-        bottom: 17px;
-        left: 22px;
+        height: 10px;
+        bottom: 14px;
+        left: 32px;
     }
     
     .player-row-club {
         width: 13px;
         height: 10px;
         bottom: 14px;
-        left: 48px;
+        left: 65px;
+    }
+
+    .player-row-name{
+        position: absolute;
+        top: 83px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 800;
+        font-family: 'CruyffSans', sans-serif;
+        text-transform: uppercase;
+        z-index: 10;
+        letter-spacing: -0.8px;
+        line-height: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        padding: 0 4px;
+    }
+}
+
+@media (max-width: 968px) {
+
+    .player-row-card-bg{
+        width: 110px;
+        height: 110px;
+        padding-right: 7px;
+    }
+
+
+    .player-row-main-img{
+        padding-top: 15px;
+        padding-left: 5px;
+    }
+
+    .player-row-name {
+        font-size: 10px;
+        top: 62px;
+        margin-left: 1px;
+        font-size: 11px;
+    }
+    
+    .player-row-ovr {
+        position: absolute;
+        top: 12px;
+        left: 14px;
+        font-size: 16px;
+        font-weight: 700;
+        font-family: 'CruyffSans', sans-serif;
+        z-index: 10;
+        letter-spacing: -1px;
+        line-height: 1.1;
+    }
+    
+    .player-row-position {
+        position: absolute;
+        top: 28px;
+        left: 17px;
+        font-size: 10px;
+        font-weight: 800;
+        font-family: 'CruyffSans', sans-serif;
+        z-index: 10;
+        letter-spacing: -0.8px;
+        line-height: 1.1;
+    }
+    
+    .player-row-nation {
+        position: absolute;
+        top: 85px;
+        left: 30px;
+        width: 10px;
+        height: 7px;
+        border-radius: 1px;
+        z-index: 10;
+        object-fit: cover;
+    }
+    
+    .player-row-club {
+        position: absolute;
+        top: 82px;
+        left: 60px;
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        z-index: 10;
+        object-fit: contain;
     }
 }
 
 @media (max-width: 768px) {
-    .player-row-name {
-        font-size: 10px;
-        top: 72px;
+    .player-row-card-bg{
+        width: 110px;
+        height: 140px;
     }
-    
+
+
+    .player-row-main-img{
+        padding-top: 15px;
+        padding-right: 10px;
+    }
+
+    .player-row-name {
+        position: absolute;
+        top: 83px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 800;
+        font-family: 'CruyffSans', sans-serif;
+        text-transform: uppercase;
+        z-index: 10;
+        letter-spacing: -0.8px;
+        line-height: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        margin-top: 6px;
+    }
+
+
     .player-row-ovr {
-        font-size: 14px;
-        top: 8px;
-        left: 6px;
+        position: absolute;
+        top: 10px;
+        left: 11px;
+        font-size: 16px;
+        font-weight: 700;
+        font-family: 'CruyffSans', sans-serif;
+        z-index: 10;
+        letter-spacing: -1px;
+        line-height: 1.1;
     }
     
     .player-row-position {
-        font-size: 9px;
-        top: 25px;
-        left: 13px;
+        position: absolute;
+        top: 28px;
+        left: 17px;
+        font-size: 10px;
+        font-weight: 800;
+        font-family: 'CruyffSans', sans-serif;
+        z-index: 10;
+        letter-spacing: -0.8px;
+        line-height: 1.1;
     }
     
     .player-row-nation {
         width: 10px;
-        height: 8px;
-        bottom: 17px;
-        left: 22px;
+        height: 10px;
+        bottom: 14px;
+        left: 32px;
+        top: 108px;
     }
     
     .player-row-club {
         width: 13px;
         height: 10px;
         bottom: 14px;
-        left: 48px;
+        left: 64px;
+        top: 108px;
+    }
+
+    .player-row-name{
+        position: absolute;
+        top: 83px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 800;
+        font-family: 'CruyffSans', sans-serif;
+        text-transform: uppercase;
+        z-index: 10;
+        letter-spacing: -0.8px;
+        line-height: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        padding: 0 4px;
     }
 }
 
 @media (max-width: 480px) {
-    .player-row-name {
-        font-size: 9px;
-        top: 70px;
-        max-width: 95%;
+    .player-row-card-bg{
+        width: 110px;
+        height: 140px;
+        margin-left: 5px;
     }
-    
+
+
+    .player-row-main-img{
+        padding-top: 15px;
+    }
+
+    .player-row-name {
+        position: absolute;
+        top: 83px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 800;
+        font-family: 'CruyffSans', sans-serif;
+        text-transform: uppercase;
+        z-index: 10;
+        letter-spacing: -0.8px;
+        line-height: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        margin-top: 6px;
+    }
+
+
     .player-row-ovr {
-        font-size: 13px;
-        top: 7px;
-        left: 5px;
+        position: absolute;
+        top: 13px;
+        left: 11px;
+        font-size: 16px;
+        font-weight: 700;
+        font-family: 'CruyffSans', sans-serif;
+        z-index: 10;
+        letter-spacing: -1px;
+        line-height: 1.1;
     }
     
     .player-row-position {
-        font-size: 8px;
-        top: 23px;
-        left: 12px;
+        position: absolute;
+        top: 30px;
+        left: 17px;
+        font-size: 10px;
+        font-weight: 800;
+        font-family: 'CruyffSans', sans-serif;
+        z-index: 10;
+        letter-spacing: -0.8px;
+        line-height: 1.1;
     }
     
     .player-row-nation {
-        width: 9px;
-        height: 7px;
-        bottom: 16px;
-        left: 20px;
+        position: absolute; 
+        left: 33px;
+        width: 12px;
+        height: 9px;
+        border-radius: 1px;
+        z-index: 10;
+        object-fit: cover;
+        top: 105px;
     }
     
     .player-row-club {
-        width: 12px;
-        height: 9px;
-        bottom: 13px;
-        left: 45px;
+        width: 13px;
+        height: 10px;
+        left: 70px;
+        top: 105px;
+    }
+
+    .player-row-name{
+        position: absolute;
+        top: 83px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        font-weight: 800;
+        font-family: 'CruyffSans', sans-serif;
+        text-transform: uppercase;
+        z-index: 10;
+        letter-spacing: -0.8px;
+        line-height: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        padding: 0 4px;
     }
 }
 
@@ -604,5 +848,5 @@
 .secondary-position-badge:hover {
     background: rgba(99, 102, 241, 0.25);
     border-color: rgba(99, 102, 241, 0.5);
-    transform: translateY(-1px); 
+    transform: translateY(-1px);
 }

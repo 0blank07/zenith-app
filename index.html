@@ -3747,10 +3747,9 @@
           </div>
 
           <!-- PLAYER IMAGE (TOP CENTER) -->
-          <div id="squad-custom-player-card" class="squad-custom-player-card">
-            <!-- Card will be rendered by JavaScript -->
+          <div id="squad-custom-player-card" style="text-align: center; margin-bottom: 28px;">
+              <img src="" alt="Player" style="width: 180px; height: 240px; object-fit: contain;">
           </div>
-
 
           <!-- RANK SELECTION SECTION -->
           <div style="margin-bottom: 32px;">
@@ -3781,9 +3780,10 @@
                 
                 <div class="squad-rank-box" data-rank="5" onclick="selectSquadRank(5)">
                   <img src="assets/images/rank_simple/orange_gold_simple.png" alt="Orange Rank" class="rank-icon">
-                  <div class="rank-label">Gold</div>
+                  <div class="rank-label">Orange</div>
                 </div>
               </div>
+
           </div>
 
           <!-- TRAINING LEVEL DROPDOWN -->
@@ -4594,9 +4594,27 @@
     </div>
 
   </div>
-</footer> 
+</footer>
 
- 
+<!-- Market Under Construction Modal -->
+<div id="market-construction-modal" class="construction-modal">
+    <div class="construction-overlay"></div>
+    <div class="construction-content">
+        <button class="construction-close" onclick="closeMarketModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <div class="construction-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+            </svg>
+        </div>
+        <h2 class="construction-title">Under Construction</h2>
+        <p class="construction-message">Will launch soon</p>
+    </div>
+</div>
 
 </body>
 </html>
