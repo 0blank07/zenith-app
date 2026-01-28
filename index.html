@@ -4530,37 +4530,25 @@
       </div>
 
 
-
-<!-- ============ MARKET UNDER CONSTRUCTION OVERLAY ============ -->
-<div id="market-under-construction" class="market-under-construction" style="display: none;">
-  <div class="market-under-construction-content">
-    <!-- ✅ NEW: Close Button (X) -->
-    <button id="market-close-btn" class="market-close-btn" onclick="closeMarketOverlay()" title="Go to Dashboard">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </button>
-    
-    <div class="market-icon">
-      <svg viewBox="0 0 24 24">
-        <path d="M21 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-7h1a2 2 0 0 0 2-2zM7 10.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v4.5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1V10h-8v.5z"/>
-      </svg>
+<!-- Market Under Construction Modal -->
+<div id="market-construction-modal" class="construction-modal">
+    <div class="construction-overlay"></div>
+    <div class="construction-content">
+        <button class="construction-close" onclick="closeMarketModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <div class="construction-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+            </svg>
+        </div>
+        <h2 class="construction-title">Under Construction</h2>
+        <p class="construction-message">Will launch soon</p>
     </div>
-    <h1 class="market-title">Market</h1>
-    <p class="market-subtitle">
-      Buy &amp; sell players with other collectors.
-    </p>
-    <div class="market-status">🛠️ Under Construction</div>
-    <p style="font-size: 14px; color: #98A0A6; line-height: 1.6;">
-      Marketplace will be available soon! 🚀<br>
-      <strong>Coming in next update</strong>
-    </p>
-  </div>
 </div>
-
-
-
 
 
 
@@ -4615,6 +4603,5 @@
         <p class="construction-message">Will launch soon</p>
     </div>
 </div>
-
 </body>
 </html>
