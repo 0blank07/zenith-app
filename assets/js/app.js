@@ -4013,7 +4013,7 @@ function createPlayerCard(player) {
             ` : ''}
         </div>
 
-        <div class="player-row-stats">
+        <div class="player-row-stats player-card-stats-row">
             <div class="stat-pill"><div class="stat-pill-value">${player.pace && player.pace > 0 ? player.pace : '-'}</div><div class="stat-pill-label">PAC</div></div>
             <div class="stat-pill"><div class="stat-pill-value">${player.shooting && player.shooting > 0 ? player.shooting : '-'}</div><div class="stat-pill-label">SHO</div></div>
             <div class="stat-pill"><div class="stat-pill-value">${player.passing && player.passing > 0 ? player.passing : '-'}</div><div class="stat-pill-label">PAS</div></div>
@@ -4022,6 +4022,7 @@ function createPlayerCard(player) {
             <div class="stat-pill"><div class="stat-pill-value">${player.physical && player.physical > 0 ? player.physical : '-'}</div><div class="stat-pill-label">PHY</div></div>
             ${renderCustomStats(player)}
         </div>
+
 
 
         <button class="player-row-watchlist ${isWatchlisted ? 'active' : ''}"
@@ -4398,6 +4399,9 @@ async function loadDatabase() {
             });
 
             updateAllWatchlistButtons();
+            // ========== HORIZONTAL SCROLL SYNC ==========
+            initDatabaseScrollSync();
+
 
             // Show/hide Load More button
             if (loadMoreBtn) {
@@ -7031,3 +7035,67 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+
+// ========== DATABASE HORIZONTAL SCROLL SYNC ==========
+function initDatabaseScrollSync() {
+    const playersGrid = document.getElementById('players-grid');
+    if (!playersGrid) return;
+
+    // Check if top scrollbar already exists
+    let topScrollbar = document.getElementById('database-top-scrollbar');
+    
+    // Create top scrollbar if it doesn't exist
+    if (!topScrollbar) {
+        topScrollbar = document.createElement('div');
+        topScrollbar.id = 'database-top-scrollbar';
+        topScrollbar.className = 'database-top-scrollbar';
+        topScrollbar.innerHTML = '<div class="database-scrollbar-content"></div>';
+        
+        // Insert before players grid
+        playersGrid.parentNode.insertBefore(topScrollbar, playersGrid);
+    }
+
+    const scrollbarContent = topScrollbar.querySelector('.database-scrollbar-content');
+    const statRows = playersGrid.querySelectorAll('.player-card-stats-row');
+
+    if (statRows.length === 0) {
+        topScrollbar.style.display = 'none';
+        return;
+    }
+
+    // Show scrollbar
+    topScrollbar.style.display = 'block';
+
+    // Calculate max scroll width from all stat rows
+    let maxScrollWidth = 0;
+    statRows.forEach(row => {
+        if (row.scrollWidth > maxScrollWidth) {
+            maxScrollWidth = row.scrollWidth;
+        }
+    });
+
+    // Set scrollbar content width
+    scrollbarContent.style.width = `${maxScrollWidth}px`;
+
+    // Remove old listeners to avoid duplicates
+    topScrollbar.replaceWith(topScrollbar.cloneNode(true));
+    topScrollbar = document.getElementById('database-top-scrollbar');
+
+    // Top scrollbar controls all rows
+    topScrollbar.addEventListener('scroll', () => {
+        const scrollLeft = topScrollbar.scrollLeft;
+        statRows.forEach(row => {
+            row.scrollLeft = scrollLeft;
+        });
+    });
+
+    // Any row scroll updates top scrollbar
+    statRows.forEach(row => {
+        row.addEventListener('scroll', () => {
+            topScrollbar.scrollLeft = row.scrollLeft;
+        });
+    });
+
+    console.log('✅ Database scroll sync initialized:', statRows.length, 'rows');
+}

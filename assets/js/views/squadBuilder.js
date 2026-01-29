@@ -3065,7 +3065,7 @@ window.applySquadFilters = applySquadFilters;
 // Squad Customization Exports
 window.selectSquadRank = selectSquadRank;
 window.resetSquadPlayerRank = resetSquadPlayerRank;
-window.updateSquadTraining = updateSquadTraining;
+window.updateSquadTraining = updateSquadTraining; 
 window.openPlayerCustomizationModal = openPlayerCustomizationModal;
 window.closePlayerCustomizationModal = closePlayerCustomizationModal;
 window.removeSquadPlayer = removeSquadPlayer;
@@ -3073,7 +3073,7 @@ window.applySquadPlayerCustomization = applySquadPlayerCustomization;
 
 
 // ============================================
-// 🐛 DEBUG: Check if functions are loaded
+// 🐛 DEBUG: Check if functions are loaded. that's all
 // ============================================
 console.log('🔍 DEBUG: squadBuilder.js loaded');
 console.log('🔍 DEBUG: openPlayerCustomizationModal exists?', typeof window.openPlayerCustomizationModal);
