@@ -3364,6 +3364,16 @@
         </div>
         <div class="squad-header-center">
 
+
+
+        <!-- Export Button (NEW) -->
+        <button class="squad-action-btn export-btn" 
+                onclick="exportSquad()" 
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            📸 Export
+        </button>
+
+
           <button class="badges-btn" onclick="openBadgesModal()" title="Manage Team Badges">
                   <path d="M10 2L11.5 6.5L16 6.5L12.5 9.5L14 14L10 11.5L6 14L7.5 9.5L4 6.5L8.5 6.5L10 2Z" 
                         fill="currentColor"/>
@@ -3422,6 +3432,7 @@
             <option value="5-4-1-DEFEND">5-4-1-DEFEND</option>
           </select>
 
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 
           <button class="squad-action-btn save-btn" onclick="saveSquad()">
@@ -4090,6 +4101,7 @@
   <script src="assets/js/views/themeSelector.js"></script>
   <script src="assets/js/views/squadBuilder.js"></script>
   <script src="assets/js/views/squadBuilder-saveload.js"></script>
+  <script src="assets/js/views/squadBuilder-export.js"></script>
   <script src="assets/js/views/eventGuide.js"></script>
   <script src="assets/js/views/shardCalculator.js"></script>
   <script src="assets/js/watchlist-professional.js"></script>
