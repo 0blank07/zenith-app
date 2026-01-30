@@ -3422,8 +3422,17 @@
             <option value="5-4-1-DEFEND">5-4-1-DEFEND</option>
           </select>
 
-          <button class="btn squad-btn" onclick="saveSquadLocally()">Save</button>
-          <button class="btn squad-btn" onclick="loadSquadLocally()">Load</button>
+
+
+          <button class="squad-action-btn save-btn" onclick="saveSquad()">
+              💾 Save Squad
+          </button>
+
+          <!-- Replace existing Load button with: -->
+          <button class="squad-action-btn load-btn" onclick="loadSquad()">
+              📥 Load Squad
+          </button>
+
           <button class="squad-close" onclick="closeSquadBuilderModal()">✕</button>
         </div>
       </div>
@@ -4080,6 +4089,7 @@
   <script src="assets/js/views/roiCalculator.js"></script>
   <script src="assets/js/views/themeSelector.js"></script>
   <script src="assets/js/views/squadBuilder.js"></script>
+  <script src="assets/js/views/squadBuilder-saveload.js"></script>
   <script src="assets/js/views/eventGuide.js"></script>
   <script src="assets/js/views/shardCalculator.js"></script>
   <script src="assets/js/watchlist-professional.js"></script>

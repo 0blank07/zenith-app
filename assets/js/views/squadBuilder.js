@@ -3654,8 +3654,52 @@ function renderCustomizationMiniCard(player) {
   `;
 }
 
+/**
+ * Calculate total squad value
+ */
+function calculateValue() {
+    let total = 0;
+    
+    // Sum starter values
+    Object.values(squadState.starters).forEach(pid => {
+        if (!pid) return;
+        const player = getPlayers().find(p => 
+            p.id === pid || p.playerid === pid || p.player_id === pid
+        );
+        if (player) {
+            total += player.price || 0;
+        }
+    });
+    
+    // Sum bench values
+    squadState.bench.forEach(pid => {
+        if (!pid) return;
+        const player = getPlayers().find(p => 
+            p.id === pid || p.playerid === pid || p.player_id === pid
+        );
+        if (player) {
+            total += player.price || 0;
+        }
+    });
+    
+    return total;
+}
 
-function calculateValue() { return 0; }
+/**
+ * Format price for display
+ */
+function formatPrice(price) {
+    if (!price || price === 0) return '0';
+    
+    if (price >= 1000000) {
+        return (price / 1000000).toFixed(2) + 'M';
+    } else if (price >= 1000) {
+        return (price / 1000).toFixed(1) + 'K';
+    }
+    
+    return price.toString();
+}
+
 
 // Global Exports
 window.openSquadBuilderModal = openSquadBuilderModal;
