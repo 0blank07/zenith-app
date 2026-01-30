@@ -7,15 +7,24 @@
 // ============ DEVICE DETECTION & RESPONSIVE FORMATIONS ============
 function isMobileDevice() {
   const isMobileWidth = window.innerWidth <= 480;
-  const isTouchDevice = ('ontouchstart' in window) || 
-                        (navigator.maxTouchPoints > 0) || 
-                        (navigator.msMaxTouchPoints > 0);
-  return isMobileWidth; // Only use mobile formations for screens <= 768px
+  return isMobileWidth; // Only phones (≤480px) use mobile formations
 }
 
-function getFormations() {
-  return isMobileDevice() ? mobileFormations : formations;
+function isTabletDevice() {
+  const isTabletWidth = window.innerWidth > 480 && window.innerWidth <= 1024;
+  const isPortrait = window.innerHeight > window.innerWidth;
+  return isTabletWidth && isPortrait; // Portrait tablets (481-1024px)
 }
+function getFormations() {
+  if (isMobileDevice()) {
+    return mobileFormations; // Phones (≤480px)
+  } else if (isTabletDevice()) {
+    return tabletFormations; // Portrait tablets (481-1024px)
+  } else {
+    return formations; // Desktop & landscape tablets (>1024px or landscape)
+  }
+}
+
 
 let resizeTimer;
 window.addEventListener('resize', () => {
@@ -23,10 +32,11 @@ window.addEventListener('resize', () => {
   resizeTimer = setTimeout(() => {
     const currentView = document.querySelector('.view.active');
     if (currentView && currentView.id === 'squad-builder-view') {
-      renderFormation();
+      renderSquadBuilder(); // ✅ CORRECT: This function clears field.innerHTML = '' first
     }
   }, 250);
 });
+
 
 
 // ------- Local state -------
@@ -1699,6 +1709,605 @@ const mobileFormations = {
 };
 
 
+
+
+
+
+// ------- TABLET FORMATIONS (Optimized for Portrait Tablets 481-1024px) -------
+const tabletFormations = {
+  '3-4-1-2': {
+    label: '3-4-1-2',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LCB', label: 'CB', x: 22, y: 70 },
+      { id: 'CB', label: 'CB', x: 50, y: 70 },
+      { id: 'RCB', label: 'CB', x: 78, y: 70 },
+      { id: 'LM', label: 'LM', x: 15, y: 45 },
+      { id: 'LCM', label: 'CM', x: 35, y: 54 },
+      { id: 'RCM', label: 'CM', x: 65, y: 54 },
+      { id: 'RM', label: 'RM', x: 85, y: 45 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 36 },
+      { id: 'LS', label: 'ST', x: 40, y: 20 },
+      { id: 'RS', label: 'ST', x: 60, y: 20 }
+    ]
+  },
+  '3-4-2-1': {
+    label: '3-4-2-1',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LCB', label: 'LCB', x: 24, y: 72 },
+      { id: 'CB', label: 'CB', x: 50, y: 68 },
+      { id: 'RCB', label: 'RCB', x: 76, y: 72 },
+      { id: 'LM', label: 'LM', x: 15, y: 48 },
+      { id: 'LCM', label: 'LCM', x: 34, y: 56 },
+      { id: 'RCM', label: 'RCM', x: 66, y: 56 },
+      { id: 'RM', label: 'RM', x: 85, y: 48 },
+      { id: 'LAM', label: 'CAM', x: 34, y: 34 },
+      { id: 'RAM', label: 'CAM', x: 66, y: 34 },
+      { id: 'ST', label: 'ST', x: 50, y: 20 }
+    ]
+  },
+  '3-4-3-DIAMOND': {
+    label: '3-4-3 Diamond',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LCB', label: 'LCB', x: 24, y: 71 },
+      { id: 'CB', label: 'CB', x: 50, y: 71 },
+      { id: 'RCB', label: 'RCB', x: 76, y: 71 },
+      { id: 'LM', label: 'LM', x: 18, y: 50 },
+      { id: 'CDM', label: 'CDM', x: 40, y: 58 },
+      { id: 'CAM', label: 'CAM', x: 60, y: 50 },
+      { id: 'RM', label: 'RM', x: 82, y: 50 },
+      { id: 'LW', label: 'LW', x: 30, y: 28 },
+      { id: 'ST', label: 'ST', x: 50, y: 22 },
+      { id: 'RW', label: 'RW', x: 70, y: 28 }
+    ]
+  },
+  '3-4-3-FLAT': {
+    label: '3-4-3 Flat',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LCB', label: 'LCB', x: 22, y: 72 },
+      { id: 'CB', label: 'CB', x: 50, y: 72 },
+      { id: 'RCB', label: 'RCB', x: 78, y: 72 },
+      { id: 'LM', label: 'LM', x: 15, y: 52 },
+      { id: 'LCM', label: 'CM', x: 35, y: 52 },
+      { id: 'RCM', label: 'CM', x: 65, y: 52 },
+      { id: 'RM', label: 'RM', x: 85, y: 52 },
+      { id: 'LW', label: 'LW', x: 28, y: 26 },
+      { id: 'ST', label: 'ST', x: 50, y: 22 },
+      { id: 'RW', label: 'RW', x: 72, y: 26 }
+    ]
+  },
+  '3-5-1-1': {
+    label: '3-5-1-1',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LCB', label: 'LCB', x: 20, y: 70 },
+      { id: 'CB', label: 'CB', x: 50, y: 70 },
+      { id: 'RCB', label: 'RCB', x: 80, y: 70 },
+      { id: 'LM', label: 'LM', x: 15, y: 44 },
+      { id: 'LDM', label: 'CDM', x: 38, y: 58 },
+      { id: 'CM', label: 'CM', x: 50, y: 44 },
+      { id: 'RDM', label: 'CDM', x: 62, y: 58 },
+      { id: 'RM', label: 'RM', x: 85, y: 44 },
+      { id: 'LST', label: 'ST', x: 40, y: 24 },
+      { id: 'RST', label: 'ST', x: 60, y: 24 }
+    ]
+  },
+  '3-5-2': {
+    label: '3-5-2',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LCB', label: 'LCB', x: 22, y: 72 },
+      { id: 'CB', label: 'CB', x: 50, y: 72 },
+      { id: 'RCB', label: 'RCB', x: 78, y: 72 },
+      { id: 'LM', label: 'LM', x: 15, y: 50 },
+      { id: 'LDM', label: 'CDM', x: 35, y: 58 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 44 },
+      { id: 'RDM', label: 'CDM', x: 65, y: 58 },
+      { id: 'RM', label: 'RM', x: 85, y: 50 },
+      { id: 'LS', label: 'ST', x: 40, y: 24 },
+      { id: 'RS', label: 'ST', x: 60, y: 24 }
+    ]
+  },
+  '4-1-2-1-2-NARROW': {
+    label: '4-1-2-1-2 Narrow',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 74 },
+      { id: 'LCB', label: 'CB', x: 35, y: 76 },
+      { id: 'RCB', label: 'CB', x: 65, y: 76 },
+      { id: 'RB', label: 'RB', x: 88, y: 74 },
+      { id: 'CDM', label: 'CDM', x: 50, y: 60 },
+      { id: 'LCM', label: 'CM', x: 34, y: 48 },
+      { id: 'RCM', label: 'CM', x: 66, y: 48 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 34 },
+      { id: 'LS', label: 'ST', x: 40, y: 20 },
+      { id: 'RS', label: 'ST', x: 60, y: 20 }
+    ]
+  },
+  '4-1-2-1-2-WIDE': {
+    label: '4-1-2-1-2 Wide',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 76 },
+      { id: 'LCB', label: 'CB', x: 35, y: 78 },
+      { id: 'RCB', label: 'CB', x: 65, y: 78 },
+      { id: 'RB', label: 'RB', x: 88, y: 76 },
+      { id: 'CDM', label: 'CDM', x: 50, y: 62 },
+      { id: 'LM', label: 'LM', x: 18, y: 48 },
+      { id: 'RM', label: 'RM', x: 82, y: 48 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 36 },
+      { id: 'LS', label: 'ST', x: 40, y: 22 },
+      { id: 'RS', label: 'ST', x: 60, y: 22 }
+    ]
+  },
+  '4-1-3-2': {
+    label: '4-1-3-2',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 74 },
+      { id: 'LCB', label: 'CB', x: 34, y: 76 },
+      { id: 'RCB', label: 'CB', x: 66, y: 76 },
+      { id: 'RB', label: 'RB', x: 88, y: 74 },
+      { id: 'CDM', label: 'CDM', x: 50, y: 60 },
+      { id: 'LM', label: 'LM', x: 20, y: 46 },
+      { id: 'CM', label: 'CM', x: 50, y: 46 },
+      { id: 'RM', label: 'RM', x: 80, y: 46 },
+      { id: 'LS', label: 'ST', x: 40, y: 24 },
+      { id: 'RS', label: 'ST', x: 60, y: 24 }
+    ]
+  },
+  '4-1-4-1': {
+    label: '4-1-4-1',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 14, y: 76 },
+      { id: 'LCB', label: 'CB', x: 35, y: 76 },
+      { id: 'RCB', label: 'CB', x: 65, y: 76 },
+      { id: 'RB', label: 'RB', x: 86, y: 76 },
+      { id: 'CDM', label: 'CDM', x: 50, y: 60 },
+      { id: 'LM', label: 'LM', x: 18, y: 46 },
+      { id: 'LCM', label: 'CM', x: 38, y: 46 },
+      { id: 'RCM', label: 'CM', x: 62, y: 46 },
+      { id: 'RM', label: 'RM', x: 82, y: 46 },
+      { id: 'ST', label: 'ST', x: 50, y: 24 }
+    ]
+  },
+  '4-2-1-3': {
+    label: '4-2-1-3',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 74 },
+      { id: 'LCB', label: 'CB', x: 34, y: 76 },
+      { id: 'RCB', label: 'CB', x: 66, y: 76 },
+      { id: 'RB', label: 'RB', x: 88, y: 74 },
+      { id: 'LDM', label: 'CDM', x: 34, y: 58 },
+      { id: 'RDM', label: 'CDM', x: 66, y: 58 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 44 },
+      { id: 'LW', label: 'LW', x: 28, y: 26 },
+      { id: 'ST', label: 'ST', x: 50, y: 22 },
+      { id: 'RW', label: 'RW', x: 72, y: 26 }
+    ]
+  },
+  '4-2-1-3-WIDE': {
+    label: '4-2-1-3 Wide',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 76 },
+      { id: 'LCB', label: 'CB', x: 34, y: 78 },
+      { id: 'RCB', label: 'CB', x: 66, y: 78 },
+      { id: 'RB', label: 'RB', x: 88, y: 76 },
+      { id: 'LDM', label: 'CDM', x: 34, y: 62 },
+      { id: 'RDM', label: 'CDM', x: 66, y: 62 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 46 },
+      { id: 'LW', label: 'LW', x: 18, y: 28 },
+      { id: 'ST', label: 'ST', x: 50, y: 20 },
+      { id: 'RW', label: 'RW', x: 82, y: 28 }
+    ]
+  },
+  '4-2-2-2': {
+    label: '4-2-2-2',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 76 },
+      { id: 'LCB', label: 'CB', x: 35, y: 76 },
+      { id: 'RCB', label: 'CB', x: 65, y: 76 },
+      { id: 'RB', label: 'RB', x: 88, y: 76 },
+      { id: 'LDM', label: 'CDM', x: 38, y: 58 },
+      { id: 'RDM', label: 'CDM', x: 62, y: 58 },
+      { id: 'LAM', label: 'CAM', x: 30, y: 40 },
+      { id: 'RAM', label: 'CAM', x: 70, y: 40 },
+      { id: 'LS', label: 'ST', x: 40, y: 22 },
+      { id: 'RS', label: 'ST', x: 60, y: 22 }
+    ]
+  },
+  '4-2-3-1-NARROW': {
+    label: '4-2-3-1 Narrow',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 74 },
+      { id: 'LCB', label: 'CB', x: 35, y: 76 },
+      { id: 'RCB', label: 'CB', x: 65, y: 76 },
+      { id: 'RB', label: 'RB', x: 88, y: 74 },
+      { id: 'LDM', label: 'CDM', x: 28, y: 56 },
+      { id: 'RDM', label: 'CDM', x: 72, y: 56 },
+      { id: 'LAM', label: 'CAM', x: 32, y: 38 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 46 },
+      { id: 'RAM', label: 'CAM', x: 68, y: 38 },
+      { id: 'ST', label: 'ST', x: 50, y: 22 }
+    ]
+  },
+  '3-1-4-2': {
+    label: '3-1-4-2',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LCB', label: 'CB', x: 28, y: 74 },
+      { id: 'CB', label: 'CB', x: 50, y: 68 },
+      { id: 'RCB', label: 'CB', x: 72, y: 74 },
+      { id: 'CDM', label: 'CDM', x: 50, y: 50 },
+      { id: 'LCM', label: 'CM', x: 32, y: 50 },
+      { id: 'RCM', label: 'CM', x: 68, y: 50 },
+      { id: 'LM', label: 'LM', x: 15, y: 52 },
+      { id: 'RM', label: 'RM', x: 85, y: 52 },
+      { id: 'LST', label: 'ST', x: 40, y: 26 },
+      { id: 'RST', label: 'ST', x: 60, y: 26 }
+    ]
+  },
+  '4-2-3-1-WIDE': {
+    label: '4-2-3-1 Wide',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 76 },
+      { id: 'LCB', label: 'CB', x: 34, y: 78 },
+      { id: 'RCB', label: 'CB', x: 66, y: 78 },
+      { id: 'RB', label: 'RB', x: 88, y: 76 },
+      { id: 'LDM', label: 'CDM', x: 34, y: 58 },
+      { id: 'RDM', label: 'CDM', x: 66, y: 58 },
+      { id: 'LM', label: 'LM', x: 18, y: 46 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 42 },
+      { id: 'RM', label: 'RM', x: 82, y: 46 },
+      { id: 'ST', label: 'ST', x: 50, y: 24 }
+    ]
+  },
+  '4-2-4': {
+    label: '4-2-4',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 74 },
+      { id: 'LCB', label: 'CB', x: 32, y: 76 },
+      { id: 'RCB', label: 'CB', x: 68, y: 76 },
+      { id: 'RB', label: 'RB', x: 88, y: 74 },
+      { id: 'LDM', label: 'CDM', x: 34, y: 56 },
+      { id: 'RDM', label: 'CDM', x: 66, y: 56 },
+      { id: 'LW', label: 'LW', x: 20, y: 34 },
+      { id: 'LS', label: 'ST', x: 40, y: 22 },
+      { id: 'RS', label: 'ST', x: 60, y: 22 },
+      { id: 'RW', label: 'RW', x: 80, y: 34 }
+    ]
+  },
+  '4-3-1-2': {
+    label: '4-3-1-2',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 76 },
+      { id: 'LCB', label: 'CB', x: 34, y: 78 },
+      { id: 'RCB', label: 'CB', x: 66, y: 78 },
+      { id: 'RB', label: 'RB', x: 88, y: 76 },
+      { id: 'LCM', label: 'CM', x: 30, y: 56 },
+      { id: 'CM', label: 'CM', x: 50, y: 60 },
+      { id: 'RCM', label: 'CM', x: 70, y: 56 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 40 },
+      { id: 'LS', label: 'ST', x: 40, y: 22 },
+      { id: 'RS', label: 'ST', x: 60, y: 22 }
+    ]
+  },
+  '4-3-2-1': {
+    label: '4-3-2-1',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 14, y: 74 },
+      { id: 'LCB', label: 'CB', x: 35, y: 76 },
+      { id: 'RCB', label: 'CB', x: 65, y: 76 },
+      { id: 'RB', label: 'RB', x: 86, y: 74 },
+      { id: 'LCM', label: 'CM', x: 28, y: 56 },
+      { id: 'CM', label: 'CM', x: 50, y: 56 },
+      { id: 'RCM', label: 'CM', x: 72, y: 56 },
+      { id: 'LAM', label: 'CAM', x: 34, y: 36 },
+      { id: 'RAM', label: 'CAM', x: 66, y: 36 },
+      { id: 'ST', label: 'ST', x: 50, y: 22 }
+    ]
+  },
+  '4-3-3': {
+    label: '4-3-3',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 76 },
+      { id: 'LCB', label: 'CB', x: 34, y: 78 },
+      { id: 'RCB', label: 'CB', x: 66, y: 78 },
+      { id: 'RB', label: 'RB', x: 88, y: 76 },
+      { id: 'LCM', label: 'CM', x: 30, y: 58 },
+      { id: 'CM', label: 'CM', x: 50, y: 54 },
+      { id: 'RCM', label: 'CM', x: 70, y: 58 },
+      { id: 'LW', label: 'LW', x: 28, y: 30 },
+      { id: 'ST', label: 'ST', x: 50, y: 24 },
+      { id: 'RW', label: 'RW', x: 72, y: 30 }
+    ]
+  },
+  '4-3-3-ATTACK': {
+    label: '4-3-3 Attack',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 74 },
+      { id: 'LCB', label: 'CB', x: 34, y: 76 },
+      { id: 'RCB', label: 'CB', x: 66, y: 76 },
+      { id: 'RB', label: 'RB', x: 88, y: 74 },
+      { id: 'LCM', label: 'CM', x: 28, y: 56 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 50 },
+      { id: 'RCM', label: 'CM', x: 72, y: 56 },
+      { id: 'LW', label: 'LW', x: 28, y: 28 },
+      { id: 'ST', label: 'ST', x: 50, y: 22 },
+      { id: 'RW', label: 'RW', x: 72, y: 28 }
+    ]
+  },
+  '4-3-3-DEFEND': {
+    label: '4-3-3 Defend',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 76 },
+      { id: 'LCB', label: 'CB', x: 34, y: 78 },
+      { id: 'RCB', label: 'CB', x: 66, y: 78 },
+      { id: 'RB', label: 'RB', x: 88, y: 76 },
+      { id: 'LDM', label: 'CDM', x: 24, y: 58 },
+      { id: 'CM', label: 'CM', x: 50, y: 54 },
+      { id: 'RDM', label: 'CDM', x: 76, y: 58 },
+      { id: 'LW', label: 'LW', x: 26, y: 32 },
+      { id: 'ST', label: 'ST', x: 50, y: 24 },
+      { id: 'RW', label: 'RW', x: 74, y: 32 }
+    ]
+  },
+  '4-3-3-FALSE9': {
+    label: '4-3-3 False 9',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 14, y: 74 },
+      { id: 'LCB', label: 'CB', x: 35, y: 78 },
+      { id: 'RCB', label: 'CB', x: 65, y: 78 },
+      { id: 'RB', label: 'RB', x: 86, y: 74 },
+      { id: 'LCM', label: 'CM', x: 30, y: 58 },
+      { id: 'CM', label: 'CM', x: 50, y: 62 },
+      { id: 'RCM', label: 'CM', x: 70, y: 58 },
+      { id: 'LW', label: 'LW', x: 30, y: 30 },
+      { id: 'CF', label: 'CF', x: 50, y: 36 },
+      { id: 'RW', label: 'RW', x: 70, y: 30 }
+    ]
+  },
+  '4-3-3-HOLDING': {
+    label: '4-3-3 Holding',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 76 },
+      { id: 'LCB', label: 'CB', x: 34, y: 78 },
+      { id: 'RCB', label: 'CB', x: 66, y: 78 },
+      { id: 'RB', label: 'RB', x: 88, y: 76 },
+      { id: 'CDM', label: 'CDM', x: 50, y: 58 },
+      { id: 'LCM', label: 'CM', x: 30, y: 54 },
+      { id: 'RCM', label: 'CM', x: 70, y: 54 },
+      { id: 'LW', label: 'LW', x: 30, y: 30 },
+      { id: 'ST', label: 'ST', x: 50, y: 22 },
+      { id: 'RW', label: 'RW', x: 70, y: 30 }
+    ]
+  },
+  '4-4-1-1': {
+    label: '4-4-1-1',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 74 },
+      { id: 'LCB', label: 'CB', x: 34, y: 78 },
+      { id: 'RCB', label: 'CB', x: 66, y: 78 },
+      { id: 'RB', label: 'RB', x: 88, y: 74 },
+      { id: 'LM', label: 'LM', x: 18, y: 56 },
+      { id: 'LCM', label: 'CM', x: 38, y: 60 },
+      { id: 'RCM', label: 'CM', x: 62, y: 60 },
+      { id: 'RM', label: 'RM', x: 82, y: 56 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 38 },
+      { id: 'ST', label: 'ST', x: 50, y: 20 }
+    ]
+  },
+  '4-4-1-1-ATTACK': {
+    label: '4-4-1-1 Attack',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 74 },
+      { id: 'LCB', label: 'CB', x: 34, y: 76 },
+      { id: 'RCB', label: 'CB', x: 66, y: 76 },
+      { id: 'RB', label: 'RB', x: 88, y: 74 },
+      { id: 'LM', label: 'LM', x: 15, y: 54 },
+      { id: 'LCM', label: 'CM', x: 35, y: 58 },
+      { id: 'RCM', label: 'CM', x: 65, y: 58 },
+      { id: 'RM', label: 'RM', x: 85, y: 54 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 40 },
+      { id: 'ST', label: 'ST', x: 50, y: 22 }
+    ]
+  },
+  '4-4-2-FLAT': {
+    label: '4-4-2 Flat',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 74 },
+      { id: 'LCB', label: 'CB', x: 38, y: 76 },
+      { id: 'RCB', label: 'CB', x: 62, y: 76 },
+      { id: 'RB', label: 'RB', x: 88, y: 74 },
+      { id: 'LM', label: 'LM', x: 12, y: 52 },
+      { id: 'LCM', label: 'CM', x: 38, y: 56 },
+      { id: 'RCM', label: 'CM', x: 62, y: 56 },
+      { id: 'RM', label: 'RM', x: 88, y: 52 },
+      { id: 'LS', label: 'ST', x: 38, y: 28 },
+      { id: 'RS', label: 'ST', x: 62, y: 28 }
+    ]
+  },
+  '4-4-2-HOLDING': {
+    label: '4-4-2 Holding',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 14, y: 74 },
+      { id: 'LCB', label: 'CB', x: 38, y: 76 },
+      { id: 'RCB', label: 'CB', x: 62, y: 76 },
+      { id: 'RB', label: 'RB', x: 86, y: 74 },
+      { id: 'LM', label: 'LM', x: 18, y: 52 },
+      { id: 'LDM', label: 'CDM', x: 38, y: 58 },
+      { id: 'RDM', label: 'CDM', x: 62, y: 58 },
+      { id: 'RM', label: 'RM', x: 82, y: 52 },
+      { id: 'LS', label: 'ST', x: 38, y: 28 },
+      { id: 'RS', label: 'ST', x: 62, y: 28 }
+    ]
+  },
+  '4-5-1': {
+    label: '4-5-1',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 74 },
+      { id: 'LCB', label: 'CB', x: 34, y: 78 },
+      { id: 'RCB', label: 'CB', x: 66, y: 78 },
+      { id: 'RB', label: 'RB', x: 88, y: 74 },
+      { id: 'LM', label: 'LM', x: 15, y: 54 },
+      { id: 'LAM', label: 'CAM', x: 32, y: 44 },
+      { id: 'CM', label: 'CM', x: 50, y: 58 },
+      { id: 'RAM', label: 'CAM', x: 68, y: 44 },
+      { id: 'RM', label: 'RM', x: 85, y: 54 },
+      { id: 'ST', label: 'ST', x: 50, y: 24 }
+    ]
+  },
+  '4-5-1-FLAT': {
+    label: '4-5-1 Flat',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 76 },
+      { id: 'LCB', label: 'CB', x: 32, y: 78 },
+      { id: 'RCB', label: 'CB', x: 68, y: 78 },
+      { id: 'RB', label: 'RB', x: 88, y: 76 },
+      { id: 'LM', label: 'LM', x: 15, y: 54 },
+      { id: 'LCM', label: 'CM', x: 34, y: 58 },
+      { id: 'CM', label: 'CM', x: 50, y: 60 },
+      { id: 'RCM', label: 'CM', x: 66, y: 58 },
+      { id: 'RM', label: 'RM', x: 85, y: 54 },
+      { id: 'ST', label: 'ST', x: 50, y: 28 }
+    ]
+  },
+  '5-2-1-2': {
+    label: '5-2-1-2',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LWB', label: 'LWB', x: 14, y: 72 },
+      { id: 'LCB', label: 'CB', x: 34, y: 76 },
+      { id: 'CB', label: 'CB', x: 50, y: 76 },
+      { id: 'RCB', label: 'CB', x: 66, y: 76 },
+      { id: 'RWB', label: 'RWB', x: 86, y: 72 },
+      { id: 'LCM', label: 'CM', x: 32, y: 54 },
+      { id: 'RCM', label: 'CM', x: 68, y: 54 },
+      { id: 'CAM', label: 'CAM', x: 50, y: 38 },
+      { id: 'LS', label: 'ST', x: 40, y: 22 },
+      { id: 'RS', label: 'ST', x: 60, y: 22 }
+    ]
+  },
+  '5-2-2-1': {
+    label: '5-2-2-1',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LWB', label: 'LWB', x: 10, y: 68 },
+      { id: 'LCB', label: 'CB', x: 30, y: 74 },
+      { id: 'CB', label: 'CB', x: 50, y: 74 },
+      { id: 'RCB', label: 'CB', x: 70, y: 74 },
+      { id: 'RWB', label: 'RWB', x: 90, y: 68 },
+      { id: 'LCM', label: 'CM', x: 38, y: 52 },
+      { id: 'RCM', label: 'CM', x: 62, y: 52 },
+      { id: 'LW', label: 'LW', x: 30, y: 32 },
+      { id: 'RW', label: 'RW', x: 70, y: 32 },
+      { id: 'ST', label: 'ST', x: 50, y: 22 }
+    ]
+  },
+  '5-3-2': {
+    label: '5-3-2',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LWB', label: 'LWB', x: 12, y: 72 },
+      { id: 'LCB', label: 'CB', x: 34, y: 76 },
+      { id: 'CB', label: 'CB', x: 50, y: 76 },
+      { id: 'RCB', label: 'CB', x: 66, y: 76 },
+      { id: 'RWB', label: 'RWB', x: 88, y: 72 },
+      { id: 'LCM', label: 'CM', x: 24, y: 50 },
+      { id: 'CM', label: 'CM', x: 50, y: 50 },
+      { id: 'RCM', label: 'CM', x: 76, y: 50 },
+      { id: 'LS', label: 'ST', x: 38, y: 26 },
+      { id: 'RS', label: 'ST', x: 62, y: 26 }
+    ]
+  },
+  '5-4-1': {
+    label: '5-4-1',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LWB', label: 'LWB', x: 10, y: 72 },
+      { id: 'LCB', label: 'CB', x: 28, y: 78 },
+      { id: 'CB', label: 'CB', x: 50, y: 80 },
+      { id: 'RCB', label: 'CB', x: 72, y: 78 },
+      { id: 'RWB', label: 'RWB', x: 90, y: 72 },
+      { id: 'LM', label: 'LM', x: 20, y: 54 },
+      { id: 'LCM', label: 'CM', x: 38, y: 60 },
+      { id: 'RCM', label: 'CM', x: 62, y: 60 },
+      { id: 'RM', label: 'RM', x: 80, y: 54 },
+      { id: 'ST', label: 'ST', x: 50, y: 26 }
+    ]
+  },
+  '5-4-1-HOLDING': {
+    label: '5-4-1-HOLDING',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LWB', label: 'LWB', x: 12, y: 72 },
+      { id: 'LCB', label: 'CB', x: 30, y: 76 },
+      { id: 'CB', label: 'CB', x: 50, y: 76 },
+      { id: 'RCB', label: 'CB', x: 70, y: 76 },
+      { id: 'RWB', label: 'RWB', x: 88, y: 72 },
+      { id: 'LM', label: 'LM', x: 24, y: 46 },
+      { id: 'CDM', label: 'CDM', x: 40, y: 54 },
+      { id: 'CAM', label: 'CAM', x: 60, y: 40 },
+      { id: 'RM', label: 'RM', x: 76, y: 48 },
+      { id: 'ST', label: 'ST', x: 50, y: 24 }
+    ]
+  },
+  '5-4-1-DEFEND': {
+    label: '5-4-1-DEFEND',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 12, y: 76 },
+      { id: 'LCB', label: 'CB', x: 30, y: 72 },
+      { id: 'CB', label: 'CB', x: 50, y: 68 },
+      { id: 'RCB', label: 'CB', x: 70, y: 72 },
+      { id: 'RB', label: 'RB', x: 88, y: 76 },
+      { id: 'LM', label: 'LM', x: 18, y: 50 },
+      { id: 'LCM', label: 'CM', x: 38, y: 46 },
+      { id: 'RCM', label: 'CM', x: 62, y: 46 },
+      { id: 'RM', label: 'RM', x: 82, y: 50 },
+      { id: 'ST', label: 'ST', x: 50, y: 28 }
+    ]
+  },
+  '4-4-1-1-FLAT': {
+    label: '4-4-1-1-FLAT',
+    slots: [
+      { id: 'GK', label: 'GK', x: 50, y: 88 },
+      { id: 'LB', label: 'LB', x: 14, y: 72 },
+      { id: 'LCB', label: 'CB', x: 35, y: 76 },
+      { id: 'RCB', label: 'CB', x: 65, y: 76 },
+      { id: 'RB', label: 'RB', x: 86, y: 76 },
+      { id: 'RCM', label: 'CM', x: 60, y: 54 },
+      { id: 'LM', label: 'LM', x: 20, y: 46 },
+      { id: 'LCM', label: 'CM', x: 38, y: 54 },
+      { id: 'CF', label: 'CF', x: 50, y: 46 },
+      { id: 'RM', label: 'RM', x: 80, y: 46 },
+      { id: 'ST', label: 'ST', x: 50, y: 28 }
+    ]
+  }
+};
 
 
 // Modal functions

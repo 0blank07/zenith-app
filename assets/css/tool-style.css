@@ -29,6 +29,18 @@
   margin-top: 10px;
 }
 
+/* Mobile: Full screen modal */
+@media (max-width: 768px) {
+  .squad-modal {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    margin-top: 0 !important;
+  }
+}
+
+
 /* ===== HEADER - COMPACT ===== */
 .squad-header {
   display: grid;
@@ -39,7 +51,8 @@
   border-bottom: 1px solid rgba(59, 130, 246, 0.15);
   align-items: center;
   flex-shrink: 0;
-  margin-top: 55px;
+  margin-top: 5px !important;  /* ✅ REDUCED from 55px */
+  padding: 8px 12px !important;
   /* ← Prevent shrinking */
 }
 
@@ -195,6 +208,16 @@
   height: 100%;
   overflow: hidden;
 }
+
+
+@media (max-width: 768px) {
+  .squad-body {
+    padding: 6px !important;  /* ✅ Reduced from 12px */
+    gap: 6px !important;
+  }
+}
+
+
 
 /* ===== FIELD CONTAINER ===== */
 .squad-field-container {
@@ -646,7 +669,8 @@
 
   .squad-header {
     grid-template-columns: 1fr;
-    gap: 8px;
+    margin-top: 5px !important;  /* ✅ REDUCED from 55px */
+    padding: 8px 12px !important;
   }
 
   .squad-header-left,
@@ -1036,24 +1060,48 @@
   }
 
   /* Squad field - Better height on mobile */
-  /* Squad field - Renderz-style dimensions for mobile */
-  /* Squad field - Renderz-style dimensions for mobile */
+  /* 📱 MOBILE PHONES (≤480px) */
   .squad-field-container {
-    width: 90vw !important;
-    /* 90% of viewport width - DYNAMIC */
-    max-width: 500px !important;
-    /* Never wider than 500px on large screens */
-    height: 527px !important;
-    min-height: 527px !important;
-    max-height: 527px !important;
-    margin: 12px auto !important;
-    /* Center horizontally */
+    width: 95vw !important;
+    max-width: 420px !important;
+    height: 600px !important;
+    min-height: 600px !important;
+    max-height: 650px !important;
+    margin: 10px auto !important;
     border-radius: 12px !important;
-    padding: 12px !important;
+    padding: 10px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
   }
+
+  /* 📱 PORTRAIT TABLETS (481px - 1024px) */
+  @media screen and (min-width: 481px) and (max-width: 1024px) and (orientation: portrait) {
+  .squad-field-container {
+    width: 85vw !important;
+    max-width: 600px !important;
+    height: 700px !important;
+    min-height: 700px !important;
+    max-height: 750px !important;
+    margin: 15px auto !important;
+    padding: 15px !important;   
+  }
+  }
+
+  /* 💻 LANDSCAPE TABLETS & SMALL DESKTOPS (481px - 1024px landscape OR 1025px - 1440px) */
+  @media screen and (min-width: 481px) and (orientation: landscape),
+  screen and (min-width: 1025px) and (max-width: 1440px) {
+    .squad-field-container {
+    width: 70vw !important;
+    max-width: 700px !important;
+    height: 550px !important;
+    min-height: 550px !important;
+    max-height: 600px !important;
+    margin: 20px auto !important;
+    padding: 15px !important;
+  }
+  }
+
 
 
   /* Squad slots - Adjust positioning */
@@ -1133,13 +1181,17 @@
   }
 
   /* Field - middle */
+  @media (max-width: 768px) {
   .squad-field-container {
-    order: 2 !important;
-    width: 90vw !important;
+    width: 95vw !important;        /* ✅ Increased from 90vw */
     max-width: 500px !important;
-    height: 527px !important;
-    margin: 12px auto !important;
+    height: 60vh !important;       /* ✅ Use viewport height instead of fixed */
+    min-height: 400px !important;  /* ✅ Minimum safety */
+    max-height: 550px !important;
+    margin: 6px auto !important;   /* ✅ Reduced margin */
   }
+}
+
 
   /* Player list - below field */
   .squad-player-list,
@@ -1274,8 +1326,8 @@
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .squad-builder-modal {
-    width: 90vw !important;
-    height: 90vh !important;
+  width: 100vw !important;
+  height: 100vh !important;
   }
 
   .squad-field-container {
