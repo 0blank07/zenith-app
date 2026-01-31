@@ -3975,8 +3975,14 @@ function createPlayerCard(player) {
                     </div>
 
                     <div class="player-card-ovr" style="color:${player.color_rating || '#FFB86B'};">
-                        ${player.ovr && player.ovr > 0 ? player.ovr : '?'}
+                        ${(() => {
+                            // Define slotPosition based on player's own position
+                            const slotPosition = (player.position || 'ST').toLowerCase();
+                            const adjustedOVR = getPositionAdjustedOVR(player, slotPosition);
+                            return adjustedOVR > 0 ? adjustedOVR : '?';
+                        })()}
                     </div>
+
 
                     <div class="player-card-position" style="color:${player.color_position || '#FFFFFF'};">
                         ${player.position || '?'}

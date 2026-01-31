@@ -57,8 +57,8 @@ const squadState = {
 };
 
 
-
 let squadCustomizationState = {
+  
     playerId: null,
     slotId: null,
     selectedRank: 0,
@@ -69,6 +69,90 @@ let squadCustomizationState = {
 
 // Local players cache for squad builder
 let players = [];
+
+
+
+// ============================================================
+// POSITION OVR PENALTY SYSTEM
+// ============================================================
+const POSITION_PENALTIES = {
+  'GK': {
+    'gk': 0, 'lb': -18, 'cb': -18, 'rb': -18, 'lwb': -18, 'rwb': -18,
+    'cdm': -18, 'cm': -18, 'cam': -18, 'lm': -18, 'rm': -18,
+    'lw': -18, 'rw': -18, 'cf': -18, 'st': -18
+  },
+  'ST': {
+    'st': 0, 'rw': -6, 'lw': -6, 'cf': 0,
+    'cm': -18, 'rm': -18, 'lm': -18, 'cdm': -18, 'cb': -18, 'lb': -18, 'rb': -18, 'lwb': -18, 'rwb': -18,
+    'cam': -9, 'gk': -18
+  },
+  'LW': {
+    'lw': 0, 'st': -6, 'cf': -6, 'lwb': -6, 'rw': -4, 'lm': -4,
+    'rm': -18, 'cm': -18, 'cdm': -18, 'cb': -18, 'rb': -18, 'rwb': -18, 'cam': -18,
+    'lb': -9, 'gk': -18
+  },
+  'RW': {
+    'rw': 0, 'lw': -4, 'rm': -4, 'st': -6, 'cf': -6, 'rwb': -6,
+    'lm': -18, 'cm': -18, 'cdm': -18, 'lb': -18, 'cb': -18, 'lwb': -18, 'cam': -18,
+    'rb': -9, 'gk': -18
+  },
+  'CAM': {
+    'cam': 0, 'cf': 0, 'cm': -4, 'lm': -6, 'rm': -6, 'st': -9, 'cdm': -9,
+    'lw': -18, 'rw': -18, 'lb': -18, 'cb': -18, 'rb': -18, 'lwb': -18, 'rwb': -18, 'gk': -18
+  },
+  'CM': {
+    'cm': 0, 'cdm': -4, 'cam': -4, 'lm': -4, 'rm': -4,
+    'cf': -9, 'lb': -9, 'cb': -9, 'rb': -9, 'lwb': -9, 'rwb': -9,
+    'lw': -18, 'st': -18, 'rw': -18, 'gk': -18
+  },
+  'CDM': {
+    'cdm': 0, 'cm': -4, 'cb': -4, 'lm': -6, 'rm': -6, 'lb': -6, 'rb': -6, 'lwb': -6, 'rwb': -6,
+    'cam': -9, 'lw': -18, 'st': -18, 'rw': -18, 'cf': -18, 'gk': -18
+  },
+  'LM': {
+    'lm': 0, 'rm': -4, 'lw': -4, 'lwb': -4, 'cdm': -6, 'lb': -6, 'cam': -6, 'cm': -6,
+    'cb': -9, 'rb': -9, 'rwb': -9, 'st': -18, 'rw': -18, 'cf': -18, 'gk': -18
+  },
+  'RM': {
+    'rm': 0, 'rw': -4, 'rwb': -4, 'cam': -5, 'cm': -5, 'cdm': -5, 'rb': -5,
+    'lb': -7, 'cb': -7, 'lwb': -8, 'cf': -8, 'st': -17, 'lw': -18, 'lm': -17, 'gk': -18
+  },
+  'LB': {
+    'lb': 0, 'lwb': 0, 'cb': -4, 'rb': -4, 'rwb': -4, 'cdm': -6, 'lm': -6,
+    'lw': -9, 'cm': -9, 'cam': -9, 'rm': -9, 'st': -18, 'rw': -18, 'cf': -18, 'gk': -18
+  },
+  'CB': {
+    'cb': 0, 'lb': -4, 'rb': -4, 'cdm': -4, 'cm': -9, 'lm': -9, 'rm': -9, 'lwb': -9, 'rwb': -9,
+    'lw': -18, 'st': -18, 'rw': -18, 'cam': -18, 'cf': -18, 'gk': -18
+  },
+  'RB': {
+    'rb': 0, 'rwb': 0, 'lb': -4, 'cb': -4, 'lwb': -4, 'cdm': -6, 'rm': -6,
+    'rw': -9, 'cm': -9, 'lm': -9, 'lw': -18, 'st': -18, 'cf': -18, 'cam': -18, 'gk': -18
+  },
+  'LWB': {
+    'lwb': 0, 'lb': 0, 'rb': -3, 'rwb': -3, 'lm': -3, 'lw': -5, 'cdm': -5,
+    'cm': -7, 'cb': -7, 'rm': -7, 'st': -15, 'cf': -15, 'cam': -15, 'rw': -15, 'gk': -18
+  },
+  'RWB': {
+    'rwb': 0, 'rb': 0, 'lb': -3, 'lwb': -3, 'rm': -5, 'cdm': -5, 'rw': -5,
+    'lm': -7, 'cm': -7, 'cb': -7, 'lw': -15, 'st': -15, 'cf': -15, 'cam': -15, 'gk': -18
+  },
+  'CF': {
+    'cf': 0, 'cam': -4, 'st': -4, 'cm': -4, 'lm': -4, 'rm': -4, 'lw': -6, 'rw': -6,
+    'cdm': -15, 'lb': -15, 'cb': -15, 'rb': -15, 'lwb': -15, 'rwb': -15, 'gk': -18
+  }
+};
+
+function getPositionAdjustedOVR(player, slotPosition) {
+  const playerPos = (player.position || '').toUpperCase().trim();
+  const slotPos = (slotPosition || '').toLowerCase().trim();
+  const baseOVR = player.ovr || player.overall || 0;
+  
+  if (!playerPos || !slotPos) return baseOVR;
+  
+  const penalty = POSITION_PENALTIES[playerPos]?.[slotPos] ?? -18;
+  return Math.max(0, baseOVR + penalty);
+}
 
 // Function to get players from global state or API
 function getPlayers() {
@@ -97,47 +181,44 @@ function addPlayerToCache(player) {
 // TEAM OVR CALCULATOR (CORRECT BENCH LOGIC)
 // ========================================
 function calculateTeamOVR() {
-    let totalOVR = 0;
-    let filledBenchCount = 0;
+  let totalOVR = 0;
+  let filledBenchCount = 0;
+  
+  // Get formation slots (11 starters with positions)
+  const currentFormation = getFormations()[squadState.formationId];
+  if (!currentFormation) return 0;
+  
+  // ---- Calculate STARTERS with position penalties ----
+  currentFormation.slots.forEach(slot => {
+    const pid = squadState.starters[slot.id];
+    if (!pid) return;
     
-    // ---- Sum ALL STARTERS ----
-    Object.values(squadState.starters).forEach(pid => {
-        if (!pid) return; // Skip empty slots
-        
-        const player = getPlayers().find(p => 
-            p.id === pid || p.playerid === pid || p.player_id === pid
-        );
-        
-        if (player) {
-            const ovr = player.ovr || player.overall || 0;
-            totalOVR += ovr;
-        }
-    });
+    const player = getPlayers().find(p => 
+      p.id === pid || p.playerid === pid || p.player_id === pid
+    );
     
-    // ---- Sum ALL BENCH PLAYERS & Count Filled Slots ----
-    squadState.bench.forEach(pid => {
-        if (!pid) return; // Skip empty bench slots
-        
-        const player = getPlayers().find(p => 
-            p.id === pid || p.playerid === pid || p.player_id === pid
-        );
-        
-        if (player) {
-            const ovr = player.ovr || player.overall || 0;
-            totalOVR += ovr;
-            filledBenchCount++; // Count this filled bench slot
-        }
-    });
-    
-    // ---- Calculate Denominator: 11 + filled bench slots ----
-    const denominator = 11 + filledBenchCount;
-    
-    // ---- ALWAYS DIVIDE BY DENOMINATOR, ALWAYS ROUND UP ----
-    if (totalOVR === 0) return 0; // Edge case: empty squad
-    
-    // Calculate base OVR (without badges)
-    const baseOVR = Math.ceil(totalOVR / denominator);
-    return baseOVR;
+    if (player) {
+      const adjustedOVR = getPositionAdjustedOVR(player, slot.position);
+      totalOVR += adjustedOVR;
+    }
+  });
+  
+  // ---- Calculate BENCH (no position penalties) ----
+  squadState.bench.forEach(pid => {
+    if (!pid) return;
+    const player = getPlayers().find(p => 
+      p.id === pid || p.playerid === pid || p.player_id === pid
+    );
+    if (player) {
+      totalOVR += (player.ovr || player.overall || 0);
+      filledBenchCount++;
+    }
+  });
+  
+  const denominator = 11 + filledBenchCount;
+  if (totalOVR === 0) return 0;
+  
+  return Math.ceil(totalOVR / denominator);
 }
 
 
@@ -2747,8 +2828,11 @@ function renderSlot(slot) {
         const colorRating = player.colorrating || player.color_rating || player.colorRating || '#FFFFFF';
         const colorPosition = player.colorposition || player.color_position || player.colorPosition || '#FFFFFF';
         const colorName = player.colorname || player.color_name || player.colorName || '#FFFFFF';
+        // ✅ NEW: Get position-adjusted OVR
+        const slotPosition = slot.label.toLowerCase(); // Get position from slot (e.g., 'lb', 'st', 'cam')
+        const adjustedOVR = getPositionAdjustedOVR(player, slotPosition);
+        
 
-        // Create PREVIEW CARD that sits ON TOP of position dot
         const previewCard = document.createElement('div');
         previewCard.className = 'player-preview-card';
         console.log('🎨 DEBUG: Creating preview card for slot:', slot.id, 'player:', assignedId);
@@ -2795,7 +2879,7 @@ function renderSlot(slot) {
                      alt="${playerName}" 
                      class="preview-card-player-img" 
                      onerror="this.style.display='none';">
-                <div class="preview-card-ovr" style="color: ${colorRating}">${overall > 0 ? overall : 'NA'}</div>
+                <div class="preview-card-ovr" style="color: ${colorRating};">${adjustedOVR > 0 ? adjustedOVR : 'NA'}</div>
                 <div class="preview-card-position" style="color: ${colorPosition}">${position}</div>
                 <div class="preview-card-name" style="color: ${colorName}">${playerName}</div>
                 ${player.nationflag || player.nation_flag ? 

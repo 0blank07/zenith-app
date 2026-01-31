@@ -10478,7 +10478,7 @@ body.overflow-hidden {
     gap: 8px;
     max-width: 100%;
     scroll-behavior: smooth;
-    padding-right: 8px;
+    padding-right: 2px;
 }
 
 /* Prevent stat pills from shrinking */
