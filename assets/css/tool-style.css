@@ -1094,9 +1094,9 @@
     .squad-field-container {
     width: 70vw !important;
     max-width: 700px !important;
-    height: 550px !important;
-    min-height: 550px !important;
-    max-height: 600px !important;
+    height: 70vh !important;
+    min-height: 500px !important;
+    max-height: 75vh !important;
     margin: 20px auto !important;
     padding: 15px !important;
   }
@@ -1185,9 +1185,9 @@
   .squad-field-container {
     width: 95vw !important;        /* ✅ Increased from 90vw */
     max-width: 500px !important;
-    height: 60vh !important;       /* ✅ Use viewport height instead of fixed */
-    min-height: 400px !important;  /* ✅ Minimum safety */
-    max-height: 550px !important;
+    height: 78vh !important; 
+    min-height: 500px !important;
+    max-height: 85vh !important;
     margin: 6px auto !important;   /* ✅ Reduced margin */
   }
 }
@@ -1227,9 +1227,10 @@
     max-width: 500px !important;
     /* Never wider than 500px */
     height: 527px !important;
-    min-height: 527px !important;
-    max-height: 527px !important;
-    margin: 10px auto !important;
+    height: 78vh !important;
+    min-height: 500px !important;
+    max-height: 85vh !important;
+
     /* Matches your spacing */
     border-radius: 10px !important;
     /* Matches your radius */
@@ -1326,13 +1327,13 @@
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .squad-builder-modal {
-  width: 100vw !important;
-  height: 100vh !important;
+    width: 100vw !important;
+    height: 100vh !important;
   }
 
   .squad-field-container {
-    min-height: 320px !important;
-    height: 380px !important;
+    min-height: 500px !important;
+    height: 70vh !important;
   }
 
   .squad-slot {
