@@ -2,24 +2,24 @@
   /* Graphite Teal Pro - Primitive Tokens */
   --color-white: #FFFFFF;
   --color-black: #000000;
-  
+
   /* Graphite Base Scale */
   --color-graphite-900: #0E1114; /* Base Background */
   --color-graphite-800: #14181C; /* Surface / Cards */
   --color-graphite-700: #1B2126; /* Elevated */
-  
+
   /* Teal Pro Accent Scale */
   --color-teal-500: #00C2A8; /* Primary Accent */
   --color-teal-600: #00AA96; /* Hover */
   --color-teal-700: #009182; /* Active */
-  
+
   /* Data / Utility Scale */
   --color-status-success: #3BD671;
   --color-status-error: #FF6B6B;
   --color-status-warning: #FFB86B;
   --color-status-info: #98A0A6;
   --color-elite: #4DA8FF;
-  
+
 
   /* Text Scale */
   --color-text-primary: #E6EEF2;
@@ -47,26 +47,26 @@
   --color-surface: var(--color-graphite-800);
   --color-text: var(--color-text-primary);
   --color-text-secondary: var(--color-text-muted);
-  
+
   --color-primary: var(--color-teal-500);
   --color-primary-hover: var(--color-teal-600);
   --color-primary-active: var(--color-teal-700);
-  
+
   --color-secondary: rgba(255, 255, 255, 0.05);
   --color-secondary-hover: rgba(255, 255, 255, 0.08);
   --color-secondary-active: rgba(255, 255, 255, 0.12);
-  
+
   --color-border: rgba(255, 255, 255, 0.08);
   --color-btn-primary-text: var(--color-graphite-900); /* Dark text on Teal button for contrast */
-  
+
   --color-card-border: rgba(255, 255, 255, 0.06);
   --color-card-border-inner: rgba(255, 255, 255, 0.04);
-  
+
   --color-error: var(--color-status-error);
   --color-success: var(--color-status-success);
   --color-warning: var(--color-status-warning);
   --color-info: var(--color-status-info);
-  
+
   --color-focus-ring: rgba(var(--color-teal-rgb), 0.4);
   --color-select-caret: rgba(230, 238, 242, 0.8);
 
@@ -75,7 +75,7 @@
   --focus-outline: 2px solid var(--color-primary);
   --status-bg-opacity: 0.15;
   --status-border-opacity: 0.20;
-  
+
   /* SVG Carets - Updated to be light for dark background */
   --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23E6EEF2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23E6EEF2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -86,7 +86,7 @@
   /* Typography Defaults */
   --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  
+
   --font-size-xs: 11px;
   --font-size-sm: 12px;
   --font-size-base: 14px;
@@ -96,12 +96,12 @@
   --font-size-2xl: 20px;
   --font-size-3xl: 24px;
   --font-size-4xl: 30px;
-  
+
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 550;
   --font-weight-bold: 600;
-  
+
   --line-height-tight: 1.2;
   --line-height-normal: 1.5;
   --letter-spacing-tight: -0.01em;
@@ -171,11 +171,11 @@ html, body {
     --color-surface: var(--color-graphite-800);
     --color-text: var(--color-text-primary);
     --color-text-secondary: var(--color-text-muted);
-    
+
     --color-primary: var(--color-teal-500);
     --color-primary-hover: var(--color-teal-600);
     --color-primary-active: var(--color-teal-700);
-    
+
     --color-border: rgba(255, 255, 255, 0.08);
     --color-card-border: rgba(255, 255, 255, 0.06);
     --color-select-caret: rgba(230, 238, 242, 0.8);
@@ -199,13 +199,13 @@ html, body {
   --color-border: rgba(255, 255, 255, 0.08);
   --color-btn-primary-text: var(--color-graphite-900);
   --color-card-border: rgba(255, 255, 255, 0.06);
-  
+
   /* Utilities */
   --color-error: var(--color-status-error);
   --color-success: var(--color-status-success);
   --color-warning: var(--color-status-warning);
   --color-info: var(--color-status-info);
-  
+
   /* RGB Maps */
   --color-teal-rgb: 0, 194, 168;
   --color-success-rgb: 59, 214, 113;
@@ -663,7 +663,7 @@ select.form-control {
 /* END PERPLEXITY DESIGN SYSTEM */
 
 
-/* 
+/*
    GRAPHITE TEAL PRO THEME INTEGRATION
    Note: Old "Futbin-Inspired" root variables removed to use
    the unified system from Part 1.
@@ -1434,7 +1434,12 @@ body {
 
 .database-content {
   flex: 1;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
 }
+
 
 .database-toolbar {
   display: flex;
@@ -2532,7 +2537,7 @@ body {
     transition: all 0.3s ease;
     height: 39px;
     margin-top: -20px;
-  }  
+  }
 
 }
 
@@ -3079,8 +3084,8 @@ h1, h3, h4, h5, h6 {
     z-index: 5;
 }
 
-/* Player Name */ 
-.player-card-name { 
+/* Player Name */
+.player-card-name {
     position: absolute;
     top: 83px;
     left: 50%;
@@ -3514,17 +3519,20 @@ h1, h3, h4, h5, h6 {
 /* Player Row Container */
 .player-row {
   display: grid;
-  grid-template-columns: 140px 220px minmax(320px, 480px) 60px;
+  grid-template-columns: 140px minmax(120px, 200px) 1fr 60px;
   gap: 16px;
   align-items: center;
-  padding: 16px 20px;
+  padding: 10px 20px;
   border-bottom: 1px solid var(--renderz-border);
   background: var(--renderz-bg);
   transition: all 0.2s ease;
   cursor: pointer;
   position: relative;
-  min-height: 100px;
+  min-height: 80px;
   width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 
@@ -3536,13 +3544,13 @@ h1, h3, h4, h5, h6 {
 /* Player Card (Left Section) */
 .player-row-card {
   position: relative;
-  width: 110px;                    /* âœ… Increased from 90px */
-  height: 130px;                   /* âœ… Increased from 120px */
+  width: 90px;
+  height: 110px;
   background: var(--color-graphite-700);
   border-radius: 8px;
   flex-shrink: 0;
   margin-right: 16px;
-  overflow: visible;               /* âœ… Changed from hidden */
+  overflow: visible;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border);
 }
@@ -3679,9 +3687,36 @@ h1, h3, h4, h5, h6 {
 .player-row-stats {
   display: flex;
   gap: 12px;
-  margin-left: 20px;
-  margin-right: 16px;
+  margin-left: 0;
+  margin-right: 0;
   flex-shrink: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  justify-content: flex-start;
+  /* Ensure the stats container never forces the row wider than the viewport */
+  width: 100%;
+  max-width: 100%;
+  min-width: 0; /* critical to prevent grid/flex child overflow expanding the row */
+  scroll-behavior: smooth;
+}
+
+.player-row-stats::-webkit-scrollbar {
+  height: 6px;
+}
+
+.player-row-stats::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.player-row-stats::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.player-row-stats::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 
@@ -3693,16 +3728,16 @@ h1, h3, h4, h5, h6 {
   background: var(--renderz-stat-pill);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  padding: 8px 10px;
+  padding: 6px 8px;
   gap: 1px;
-  width: 62px;
-  height: 48px;
+  width: 58px;
+  height: 42px;
   flex-shrink: 0;
   transition: all 0.2s ease;
 }
 
 .stat-pill-value {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--color-text-primary);
   background: none;
@@ -3796,7 +3831,7 @@ h1, h3, h4, h5, h6 {
   text-align: center;
   transition: all 0.2s ease;
   user-select: none;
-  width: 62px;
+  width: 58px;
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -3889,7 +3924,7 @@ h1, h3, h4, h5, h6 {
     margin-right: 12px;
     overflow: visible;      /* Don't clip card */
   }
-  
+
   .player-card-image-placeholder {
     width: 100% !important;
     height: 100% !important;
@@ -4051,7 +4086,7 @@ h1, h3, h4, h5, h6 {
     margin-right: 12px;
     overflow: visible;      /* Don't clip card */
   }
-  
+
   .player-card-image-placeholder {
     width: 100% !important;
     height: 100% !important;
@@ -4865,7 +4900,7 @@ watchlist-view .view-content {
     font-size: 0.55rem !important;
   }
 
-  
+
   /* WATCHLIST BUTTON COMPACT */
   .latest-watchlist {
     top: 0.8rem !important;
@@ -7188,7 +7223,7 @@ watchlist-view .view-content {
     padding: 1px 0;  /* Reduced from 12px */
     border-bottom: 1px solid #0f3460;  /* Thinner border */
   }
-  
+
   .slider span {
     font-size: 12px;  /* Smaller text */
     font-weight: 500;
@@ -7653,19 +7688,19 @@ watchlist-view .view-content {
         width: 60px;
         height: 85px;
     }
-    
+
     .search-player-name {
         font-size: 0.95rem;
     }
-    
+
     .search-ovr {
         font-size: 1.5rem;
     }
-    
+
     .search-position {
         font-size: 0.8rem;
     }
-    
+
     .tradable-badge {
         font-size: 0.75rem;
     }
@@ -7675,7 +7710,7 @@ watchlist-view .view-content {
     .search-result-card {
         gap: 0.5rem;
     }
-    
+
     .search-card-image {
         width: 50px;
         height: 70px;
@@ -7741,7 +7776,7 @@ watchlist-view .view-content {
   border: 2px solid rgba(255,255,255,0.15) !important;
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
   color: #f8fafc !important;
-  box-shadow: 
+  box-shadow:
     0 8px 25px rgba(0,0,0,0.4),
     0 0 0 1px rgba(255,255,255,0.1) inset !important;
   letter-spacing: 0.5px;
@@ -7752,7 +7787,7 @@ watchlist-view .view-content {
 
 .load-more-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 
+  box-shadow:
     0 12px 35px rgba(0,0,0,0.5),
     0 0 0 1px rgba(255,255,255,0.15) inset !important;
   background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%) !important;
@@ -8030,25 +8065,25 @@ watchlist-view .view-content {
     .search-dropdown {
         max-height: 380px;
     }
-    
+
     .dropdown-player-row {
         gap: 12px;
         padding: 10px 12px;
     }
-    
+
     .dropdown-player-card {
         width: 50px;
         height: 68px;
     }
-    
+
     .dropdown-player-name {
         font-size: 14px;
     }
-    
+
     .dropdown-player-ovr {
         font-size: 24px;
     }
-    
+
     .dropdown-player-position {
         font-size: 11px;
     }
@@ -8699,7 +8734,7 @@ watchlist-view .view-content {
     background: var(--color-graphite-800); /* #14181C - Surface color */
     /* OR use this for elevated look: */
     /* background: var(--color-graphite-700); */ /* #1B2126 - Elevated */
-    
+
     padding: 15px;
     border-radius: 12px;
     border: 1px solid rgba(0, 194, 168, 0.15); /* Optional: teal border like rank section */
@@ -9621,7 +9656,7 @@ watchlist-view .view-content {
     color: #fbbf24;
     vertical-align: middle;
     letter-spacing: 1.5px;
-    margin-left: 1px; 
+    margin-left: 1px;
 }
 
 
@@ -9747,7 +9782,7 @@ watchlist-view .view-content {
     overflow-y: hidden;
     padding: 4px 0;
     scroll-behavior: smooth;
-    
+
     /* Hide scrollbar but keep functionality */
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
@@ -9807,8 +9842,8 @@ watchlist-view .view-content {
 
 
 .player-card-scale {
-    transform: scale(1.1); /* 10% bigger */
-    transform-origin: top left;
+    transform: scale(0.9); /* Reduced from 1.1 */
+    transform-origin: center left;
 }
 
 /* ============ MARKET UNDER CONSTRUCTION ============ */
@@ -10095,7 +10130,7 @@ body.overflow-hidden {
   font-size: 15px;
   color: #00C2A8;                               /* ðŸ”¥ Original teal - not too bright */
   letter-spacing: 0.8px;
-  text-shadow: 
+  text-shadow:
     0 0 12px rgba(0,194,168,0.35),              /* ðŸ”¥ Moderate glow */
     0 2px 4px rgba(0,0,0,0.2);
   transition: all 0.2s ease;
@@ -10103,7 +10138,7 @@ body.overflow-hidden {
 
 .zenith-footer-logo:hover {
   color: #00D4B8;                               /* ðŸ”¥ Slightly brighter on hover */
-  text-shadow: 
+  text-shadow:
     0 0 16px rgba(0,194,168,0.5),
     0 0 28px rgba(0,194,168,0.25);
   transform: translateY(-2px);
@@ -10191,12 +10226,12 @@ body.overflow-hidden {
   inset: 0;
   background:
     radial-gradient(
-      circle at 25% 50%, 
+      circle at 25% 50%,
       rgba(0,194,168,0.14) 0%,                  /* ðŸ”¥ Moderate teal smoke */
       transparent 50%
     ),
     radial-gradient(
-      circle at 75% 50%, 
+      circle at 75% 50%,
       rgba(0,194,168,0.10) 0%,                  /* ðŸ”¥ Subtle teal smoke */
       transparent 50%
     );
@@ -10456,11 +10491,11 @@ body.overflow-hidden {
         padding: 40px 30px;
         margin: 0 20px;
     }
-    
+
     .construction-title {
         font-size: 24px;
     }
-    
+
     .construction-message {
         font-size: 16px;
     }
@@ -10513,7 +10548,7 @@ body.overflow-hidden {
         flex-wrap: wrap;
         grid-template-columns: unset !important;
     }
-    
+
     .player-row-stats.player-card-stats-row {
         display: flex !important;
         overflow-x: auto;
@@ -10527,7 +10562,7 @@ body.overflow-hidden {
         scrollbar-width: none;
         -ms-overflow-style: none;
     }
-    
+
     .player-row-stats.player-card-stats-row::-webkit-scrollbar {
         display: none;
     }
