@@ -3638,6 +3638,11 @@ function updateAllWatchlistButtons() {
 // ========== WATCHLIST TOGGLE (REACTIVE) ==========
 // In assets/js/app.js
 
+// Helper function to get unique ID from player object
+function getPlayerUniqueId(player) {
+  return `${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}`;
+}
+
 window.toggleWatchlist = function(uniqueId) {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('[TOGGLE] START');
