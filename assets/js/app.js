@@ -5046,10 +5046,16 @@ document.addEventListener('DOMContentLoaded', async function () {
       if (state.filters.priceMax) params.max_price = state.filters.priceMax;
 
       const response = await window.apiClient.searchPlayers(params);
-      const players = response.results || [];
+      let players = response.results || [];
       const total = response.total || 0;
 
       console.log('[SEARCH] Found', players.length, 'players, total:', total);
+
+      // 🔥 Sync prices with Supabase (same as regular database view)
+      if (window.supabaseProvider && typeof window.supabaseProvider.syncPrices === 'function') {
+        console.log('[SEARCH] Syncing prices for search results...');
+        players = await window.supabaseProvider.syncPrices(players);
+      }
 
       if (!append) {
         playerSearchOffset = 0;
