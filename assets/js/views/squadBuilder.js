@@ -3585,9 +3585,10 @@ async function renderSquadPlayerSkills(playerId, rank) {
     try {
         const stateKey = getSquadSkillStateKey(playerId, rank);
         
-        // Fetch skills data (always fresh from API)
-        const playerResp = await window.apiClient.getPlayerDetails(playerId, rank);
-        const skills = playerResp.skills || [];
+        // Fetch all skills from the general skills endpoint (not player-specific)
+        // This avoids 404 errors when player details endpoint is unavailable
+        const skillsResp = await window.apiClient.getSkills();
+        const skills = skillsResp.skills || skillsResp || [];
         
         if (skills.length === 0) {
             skillsGrid.innerHTML = '<p style="color: #98A0A6; text-align: center; grid-column: 1 / -1;">No skills available</p>';
@@ -3601,6 +3602,9 @@ async function renderSquadPlayerSkills(playerId, rank) {
                 availablePoints: rank,
                 skills: skills
             };
+        } else {
+            // Update skills if they changed
+            squadBuilderSkillsState[stateKey].skills = skills;
         }
         
         const state = squadBuilderSkillsState[stateKey];
