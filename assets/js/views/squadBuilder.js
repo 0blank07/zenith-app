@@ -1536,9 +1536,9 @@ const mobileFormations = {
     { id: 'LCB', label: 'CB', x: 34, y: 67 },
     { id: 'RCB', label: 'CB', x: 70, y: 67 },
     { id: 'RB', label: 'RB', x: 92, y: 65 },
-    { id: 'LCM', label: 'CM', x: 30, y: 41 },
-    { id: 'CM', label: 'CM', x: 52, y: 37 },
-    { id: 'RCM', label: 'CM', x: 74, y: 41 },
+    { id: 'LCM', label: 'CM', x: 30, y: 38 },
+    { id: 'CM', label: 'CM', x: 52, y: 34 },
+    { id: 'RCM', label: 'CM', x: 74, y: 38 },
     { id: 'LW', label: 'LW', x: 27, y: 21 },
     { id: 'ST', label: 'ST', x: 52, y: 15 },
     { id: 'RW', label: 'RW', x: 77, y: 21 }
