@@ -3507,7 +3507,7 @@ async function openSkillSelectionForSquad(skillIndex) {
         return;
     }
     
-    if (rank === 0) {
+    if (!rank || rank === 0) {
         if (typeof showToast === 'function') {
             showToast('Please select a rank first', 'info');
         }
@@ -3704,7 +3704,11 @@ function showSquadSkillSelectionModal(skills, skillIndex) {
     });
     
     modalContent.appendChild(skillsContainer);
-    modalOverlay.innerHTML = ''; // Clear previous content
+    
+    // Clear previous content securely
+    while (modalOverlay.firstChild) {
+        modalOverlay.removeChild(modalOverlay.firstChild);
+    }
     modalOverlay.appendChild(modalContent);
     modalOverlay.style.display = 'flex';
 }
@@ -3735,7 +3739,10 @@ function selectSquadSkill(skillId, skillIndex, skillName, maxLevel) {
     // Update the visual representation of the skill slot - SECURE: Use DOM methods
     const slot = document.querySelector(`[data-skill-index="${skillIndex}"]`);
     if (slot) {
-        slot.innerHTML = ''; // Clear existing content
+        // Clear existing content securely
+        while (slot.firstChild) {
+            slot.removeChild(slot.firstChild);
+        }
         
         const icon = document.createElement('div');
         icon.style.cssText = 'font-size: 20px; margin-bottom: 6px;';
