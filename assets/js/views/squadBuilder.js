@@ -2795,20 +2795,19 @@ function clearDragState() {
 
 // Helper function to generate price display HTML
 function getPlayerPriceHTML(player, cardType = 'preview') {
-    const playerPrice = player.price || 0;
-    const hasPrice = playerPrice > 0;
+    const hasPrice = (player.price || 0) > 0;
     const className = `${cardType}-card-price`;
     
     if (hasPrice) {
         return `<span class="${className}">
-                 <img src="assets/images/background/fc coin img.webp" alt="coin" class="price-coin-icon">
-                 <span class="price-value">${formatPrice(playerPrice)}</span>
-               </span>`;
+            <img src="assets/images/background/fc coin img.webp" alt="coin" class="price-coin-icon">
+            <span class="price-value">${formatPrice(player.price)}</span>
+        </span>`;
     } else {
         return `<img src="${NON_AUCTIONABLE_IMAGE_URL}" 
-                    alt="Non-auctionable" 
-                    class="${className} non-auctionable-badge"
-                    title="Non-auctionable">`;
+            alt="Non-auctionable" 
+            class="${className} non-auctionable-badge"
+            title="Non-auctionable">`;
     }
 }
 
