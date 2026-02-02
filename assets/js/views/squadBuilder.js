@@ -3585,10 +3585,29 @@ async function renderSquadPlayerSkills(playerId, rank) {
     try {
         const stateKey = getSquadSkillStateKey(playerId, rank);
         
-        // Fetch all skills from the general skills endpoint (not player-specific)
-        // This avoids 404 errors when player details endpoint is unavailable
-        const skillsResp = await window.apiClient.getSkills();
-        const skills = skillsResp.skills || skillsResp || [];
+        // Fetch player-specific skills from getPlayerDetails endpoint
+        // This returns only the 5 skills that belong to this player (like Player Details page)
+        let skills = [];
+        try {
+            const playerResp = await window.apiClient.getPlayerDetails(playerId, rank);
+            skills = playerResp.skills || [];
+            console.log('[SQUAD SKILLS] Fetched player-specific skills:', skills.length, 'skills');
+        } catch (error) {
+            console.warn('[SQUAD SKILLS] Could not fetch player details, falling back to general skills:', error);
+            // Fallback to general skills if player details endpoint fails
+            const skillsResp = await window.apiClient.getSkills();
+            const allSkills = skillsResp.skills || skillsResp || [];
+            // Try to get player from cache to see if it has skills
+            const player = getPlayers().find(p => p.id === playerId || p.player_id === playerId);
+            if (player && player.skills && player.skills.length > 0) {
+                skills = player.skills;
+                console.log('[SQUAD SKILLS] Using cached player skills:', skills.length, 'skills');
+            } else {
+                // As last resort, use all skills but this is not ideal
+                skills = allSkills;
+                console.warn('[SQUAD SKILLS] Using all skills as fallback');
+            }
+        }
         
         if (skills.length === 0) {
             skillsGrid.innerHTML = '<p style="color: #98A0A6; text-align: center; grid-column: 1 / -1;">No skills available</p>';
@@ -3627,6 +3646,7 @@ async function renderSquadPlayerSkills(playerId, rank) {
         }
         
         console.log('[SQUAD SKILLS] Points - Available:', state.availablePoints, 'Spent:', pointsSpent, 'Remaining:', pointsRemaining);
+        console.log('[SQUAD SKILLS] Rendering', skills.length, 'skill cards');
         
         // Render skill cards
         skillsGrid.innerHTML = '';
