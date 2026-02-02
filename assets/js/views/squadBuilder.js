@@ -1,8 +1,8 @@
 // squadBuilder.js - FIXED: API Search Error & Database Redirect
 // FC Market Pro - Squad Builder
 
-// squadBuilder.js - FIXED: API Search Error & Database Redirect
-// FC Market Pro - Squad Builder
+// Constants
+const MAX_PLAYER_SKILLS = 5; // Maximum number of skills a player can have
 
 // ============ DEVICE DETECTION & RESPONSIVE FORMATIONS ============
 function isMobileDevice() {
@@ -3524,8 +3524,8 @@ async function openSkillSelectionForSquad(skillIndex) {
         
         console.log(`SQUAD CUSTOM: Found ${playerSkills.length} skills for this player`);
         
-        // Limit to 5 skills maximum
-        const limitedSkills = playerSkills.slice(0, 5);
+        // Limit to MAX_PLAYER_SKILLS (5) maximum
+        const limitedSkills = playerSkills.slice(0, MAX_PLAYER_SKILLS);
         
         if (limitedSkills.length === 0) {
             if (typeof showToast === 'function') {
@@ -3569,20 +3569,22 @@ function showSquadSkillSelectionModal(skills, skillIndex) {
         document.body.appendChild(modalOverlay);
     }
     
-    // Calculate max levels for skills
+    // Calculate max levels for skills - OPTIMIZED: O(n) instead of O(n²)
     const maxLevels = {};
+    const skillNameMap = new Map(); // Map for fast prerequisite lookup
+    
+    // First pass: set max levels and build name map
     skills.forEach(skill => {
-        // Use max_level from skill data if available, otherwise default to 1
         maxLevels[skill.skill_id] = skill.max_level || 1;
+        if (skill.skill_name) {
+            skillNameMap.set(skill.skill_name.toUpperCase(), skill);
+        }
     });
     
-    // Also check prerequisites
+    // Second pass: check prerequisites using the map
     skills.forEach(skill => {
         if (skill.unlock_requirement_skillname && skill.unlock_requirement_level) {
-            const prereqSkill = skills.find(s => 
-                s.skill_name && skill.unlock_requirement_skillname &&
-                s.skill_name.toUpperCase() === skill.unlock_requirement_skillname.toUpperCase()
-            );
+            const prereqSkill = skillNameMap.get(skill.unlock_requirement_skillname.toUpperCase());
             if (prereqSkill) {
                 const currentMax = maxLevels[prereqSkill.skill_id] || 1;
                 const requiredLevel = skill.unlock_requirement_level || 1;
@@ -3591,79 +3593,119 @@ function showSquadSkillSelectionModal(skills, skillIndex) {
         }
     });
     
-    // Build skills HTML
-    const skillsHTML = skills.map(skill => {
-        const maxLevel = maxLevels[skill.skill_id] || 1;
-        return `
-            <div class="squad-skill-option" 
-                 data-skill-id="${skill.skill_id}"
-                 data-skill-index="${skillIndex}"
-                 style="
-                     background-color: #1A1F26;
-                     border: 2px solid rgba(0,194,168,0.3);
-                     border-radius: 12px;
-                     padding: 16px;
-                     cursor: pointer;
-                     transition: all 0.2s;
-                     display: flex;
-                     align-items: center;
-                     gap: 12px;
-                 "
-                 onmouseover="this.style.borderColor='rgba(0,194,168,0.6)'; this.style.backgroundColor='rgba(0,194,168,0.1)';"
-                 onmouseout="this.style.borderColor='rgba(0,194,168,0.3)'; this.style.backgroundColor='#1A1F26';"
-                 onclick="selectSquadSkill(${skill.skill_id}, ${skillIndex}, '${skill.skill_name.replace(/'/g, "\\'")}', ${maxLevel})">
-                <img src="${skill.skill_image}" 
-                     alt="${skill.skill_name}" 
-                     style="width: 60px; height: 60px; object-fit: contain; border-radius: 8px;"
-                     onerror="this.src='https://via.placeholder.com/60?text=SKILL'">
-                <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 16px; color: #E6EEF2; margin-bottom: 4px;">
-                        ${skill.skill_name}
-                    </div>
-                    <div style="font-size: 13px; color: #98A0A6;">
-                        Max Level: ${maxLevel}
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    modalOverlay.innerHTML = `
-        <div style="
-            background-color: #14181C;
-            border-radius: 16px;
-            padding: 32px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-        ">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h3 style="font-size: 20px; font-weight: 700; color: #E6EEF2; margin: 0;">
-                    Select Skill for Slot ${skillIndex}
-                </h3>
-                <button onclick="closeSquadSkillSelectionModal()" 
-                        style="
-                            background: none;
-                            border: none;
-                            color: #E6EEF2;
-                            font-size: 24px;
-                            cursor: pointer;
-                            padding: 0;
-                            width: 32px;
-                            height: 32px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        ">✕</button>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                ${skillsHTML}
-            </div>
-        </div>
+    // Create modal content container
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background-color: #14181C;
+        border-radius: 16px;
+        padding: 32px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
     `;
     
+    // Create header
+    const header = document.createElement('div');
+    header.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;';
+    
+    const title = document.createElement('h3');
+    title.style.cssText = 'font-size: 20px; font-weight: 700; color: #E6EEF2; margin: 0;';
+    title.textContent = `Select Skill for Slot ${skillIndex}`;
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.style.cssText = `
+        background: none;
+        border: none;
+        color: #E6EEF2;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    closeBtn.addEventListener('click', closeSquadSkillSelectionModal);
+    
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+    modalContent.appendChild(header);
+    
+    // Create skills container
+    const skillsContainer = document.createElement('div');
+    skillsContainer.style.cssText = 'display: flex; flex-direction: column; gap: 12px;';
+    
+    // Create skill options - SECURE: No inline handlers or innerHTML injection
+    skills.forEach(skill => {
+        const maxLevel = maxLevels[skill.skill_id] || 1;
+        
+        const skillOption = document.createElement('div');
+        skillOption.className = 'squad-skill-option';
+        skillOption.dataset.skillId = skill.skill_id;
+        skillOption.dataset.skillIndex = skillIndex;
+        skillOption.style.cssText = `
+            background-color: #1A1F26;
+            border: 2px solid rgba(0,194,168,0.3);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        `;
+        
+        // Add hover effects with event listeners
+        skillOption.addEventListener('mouseover', function() {
+            this.style.borderColor = 'rgba(0,194,168,0.6)';
+            this.style.backgroundColor = 'rgba(0,194,168,0.1)';
+        });
+        skillOption.addEventListener('mouseout', function() {
+            this.style.borderColor = 'rgba(0,194,168,0.3)';
+            this.style.backgroundColor = '#1A1F26';
+        });
+        
+        // Add click handler
+        skillOption.addEventListener('click', () => {
+            selectSquadSkill(skill.skill_id, skillIndex, skill.skill_name, maxLevel);
+        });
+        
+        // Create skill image
+        const img = document.createElement('img');
+        img.src = skill.skill_image || 'https://via.placeholder.com/60?text=SKILL';
+        img.alt = skill.skill_name || 'Skill';
+        img.style.cssText = 'width: 60px; height: 60px; object-fit: contain; border-radius: 8px;';
+        img.addEventListener('error', function() {
+            this.src = 'https://via.placeholder.com/60?text=SKILL';
+        });
+        
+        // Create skill info container
+        const infoDiv = document.createElement('div');
+        infoDiv.style.cssText = 'flex: 1;';
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.style.cssText = 'font-weight: 700; font-size: 16px; color: #E6EEF2; margin-bottom: 4px;';
+        nameDiv.textContent = skill.skill_name || 'Unknown Skill'; // SECURE: textContent instead of innerHTML
+        
+        const levelDiv = document.createElement('div');
+        levelDiv.style.cssText = 'font-size: 13px; color: #98A0A6;';
+        levelDiv.textContent = `Max Level: ${maxLevel}`;
+        
+        infoDiv.appendChild(nameDiv);
+        infoDiv.appendChild(levelDiv);
+        
+        skillOption.appendChild(img);
+        skillOption.appendChild(infoDiv);
+        skillsContainer.appendChild(skillOption);
+    });
+    
+    modalContent.appendChild(skillsContainer);
+    modalOverlay.innerHTML = ''; // Clear previous content
+    modalOverlay.appendChild(modalContent);
     modalOverlay.style.display = 'flex';
 }
 
@@ -3690,14 +3732,26 @@ function selectSquadSkill(skillId, skillIndex, skillName, maxLevel) {
         maxLevel: maxLevel
     };
     
-    // Update the visual representation of the skill slot
+    // Update the visual representation of the skill slot - SECURE: Use DOM methods
     const slot = document.querySelector(`[data-skill-index="${skillIndex}"]`);
     if (slot) {
-        slot.innerHTML = `
-            <div style="font-size: 20px; margin-bottom: 6px;">⚡</div>
-            <div style="font-size: 11px; font-weight: 600; color: #00C2A8;">${skillName}</div>
-            <div style="font-size: 10px; color: #98A0A6; margin-top: 2px;">Max: ${maxLevel}</div>
-        `;
+        slot.innerHTML = ''; // Clear existing content
+        
+        const icon = document.createElement('div');
+        icon.style.cssText = 'font-size: 20px; margin-bottom: 6px;';
+        icon.textContent = '⚡';
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.style.cssText = 'font-size: 11px; font-weight: 600; color: #00C2A8;';
+        nameDiv.textContent = skillName; // SECURE: textContent instead of innerHTML
+        
+        const levelDiv = document.createElement('div');
+        levelDiv.style.cssText = 'font-size: 10px; color: #98A0A6; margin-top: 2px;';
+        levelDiv.textContent = `Max: ${maxLevel}`;
+        
+        slot.appendChild(icon);
+        slot.appendChild(nameDiv);
+        slot.appendChild(levelDiv);
     }
     
     // Close modal
