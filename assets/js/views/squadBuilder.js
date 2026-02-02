@@ -3597,22 +3597,39 @@ async function renderSquadPlayerSkills(playerId, rank) {
             // Fallback to general skills if player details endpoint fails
             const skillsResp = await window.apiClient.getSkills();
             const allSkills = skillsResp.skills || skillsResp || [];
+            
             // Try to get player from cache to see if it has skills
             const player = getPlayers().find(p => p.id === playerId || p.player_id === playerId);
-            if (player && player.skills && player.skills.length > 0) {
+            console.log('[SQUAD SKILLS] Cached player object:', player ? 'Found' : 'Not found');
+            if (player) {
+                console.log('[SQUAD SKILLS] Player skills type:', typeof player.skills);
+                console.log('[SQUAD SKILLS] Player skills is array?', Array.isArray(player.skills));
+                console.log('[SQUAD SKILLS] Player skills value:', player.skills);
+            }
+            
+            // Check if player has skills AND it's actually an array
+            if (player && player.skills && Array.isArray(player.skills) && player.skills.length > 0) {
                 skills = player.skills;
-                console.log('[SQUAD SKILLS] Using cached player skills:', skills.length, 'skills');
+                console.log('[SQUAD SKILLS] Using cached player skills array:', skills.length, 'skills');
             } else {
                 // As last resort, use all skills but this is not ideal
-                skills = allSkills;
-                console.warn('[SQUAD SKILLS] Using all skills as fallback');
+                skills = Array.isArray(allSkills) ? allSkills : [];
+                console.warn('[SQUAD SKILLS] Using all skills as fallback:', skills.length, 'skills');
             }
+        }
+        
+        // Ensure skills is always an array before proceeding
+        if (!Array.isArray(skills)) {
+            console.error('[SQUAD SKILLS] Skills is not an array, got:', typeof skills, skills);
+            skills = [];
         }
         
         if (skills.length === 0) {
             skillsGrid.innerHTML = '<p style="color: #98A0A6; text-align: center; grid-column: 1 / -1;">No skills available</p>';
             return;
         }
+        
+        console.log('[SQUAD SKILLS] About to process', skills.length, 'skills');
         
         // Initialize state for this player/rank if not exists
         if (!squadBuilderSkillsState[stateKey]) {
