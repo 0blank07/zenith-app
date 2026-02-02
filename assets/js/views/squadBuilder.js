@@ -66,8 +66,7 @@ let squadCustomizationState = {
     playerId: null,
     slotId: null,
     selectedRank: 0,
-    trainingLevel: 0,
-    selectedSkills: []
+    trainingLevel: 0
 };
 
 // Independent skills state for Squad Builder (separate from Player Details)
@@ -3720,12 +3719,16 @@ function renderSquadSkillDetailModal(skillName, boosts, currentLevel, pointsRema
         const canAfford = pointsNeeded <= pointsRemaining;
         const isDisabled = !isSelected && !canAfford;
         
-        const onclickAttr = isDisabled ? '' : `onclick="event.stopPropagation(); selectSquadSkillLevel(${skillId}, ${levelNum}, ${currentLevel}, ${playerId}, ${rank})"`;
         const cursorStyle = isDisabled ? 'cursor: not-allowed;' : 'cursor: pointer;';
         
         boostsHTML += `
             <div class="boost-level-section ${isSelected ? 'selected' : ''} ${currentLevel >= levelNum && !isSelected ? 'unlocked' : ''} ${isDisabled ? 'disabled' : ''}" 
-                 ${onclickAttr}
+                 data-skill-id="${skillId}"
+                 data-level="${levelNum}"
+                 data-current-level="${currentLevel}"
+                 data-player-id="${playerId}"
+                 data-rank="${rank}"
+                 data-disabled="${isDisabled}"
                  style="${cursorStyle}">
                 <div class="level-checkbox ${isSelected ? 'checked' : ''} ${currentLevel >= levelNum && !isSelected ? 'partial' : ''} ${isDisabled ? 'disabled' : ''}">
                     ${isSelected ? '✓' : (currentLevel >= levelNum ? '○' : '')}
@@ -3757,12 +3760,29 @@ function renderSquadSkillDetailModal(skillName, boosts, currentLevel, pointsRema
                 <div class="current-level-badge">Current Level: ${currentLevel}</div>
                 <div class="points-remaining-badge">${pointsRemaining} point${pointsRemaining !== 1 ? 's' : ''} available</div>
             </div>
-            <div class="boosts-container">
+            <div class="boosts-container" id="squad-skill-boosts-container">
                 ${boostsHTML || '<p>No boost data available</p>'}
             </div>
             <button class="modal-action-btn" onclick="closeSquadSkillDetailModal()">Close</button>
         </div>
     `;
+    
+    // Attach event listeners to boost level sections
+    const boostSections = modal.querySelectorAll('.boost-level-section');
+    boostSections.forEach(section => {
+        const isDisabled = section.dataset.disabled === 'true';
+        if (!isDisabled) {
+            section.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const skillId = parseInt(section.dataset.skillId);
+                const level = parseInt(section.dataset.level);
+                const currentLevel = parseInt(section.dataset.currentLevel);
+                const playerId = parseInt(section.dataset.playerId);
+                const rank = parseInt(section.dataset.rank);
+                selectSquadSkillLevel(skillId, level, currentLevel, playerId, rank);
+            });
+        }
+    });
 }
 
 // Select skill level in squad builder
@@ -3871,12 +3891,15 @@ function closeSquadSkillDetailModal() {
 }
 
 // Close modal on backdrop click
-document.addEventListener('click', (e) => {
-    const modal = document.getElementById('squad-skill-detail-modal');
-    if (e.target === modal) {
-        closeSquadSkillDetailModal();
-    }
-});
+if (!window.squadSkillModalListenerAttached) {
+    document.addEventListener('click', (e) => {
+        const modal = document.getElementById('squad-skill-detail-modal');
+        if (e.target === modal) {
+            closeSquadSkillDetailModal();
+        }
+    });
+    window.squadSkillModalListenerAttached = true;
+}
 
 // Make functions globally accessible
 window.selectSquadSkillLevel = selectSquadSkillLevel;
