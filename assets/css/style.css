@@ -675,20 +675,6 @@ select.form-control {
   box-sizing: border-box;
 }
 
-/* GLOBAL FUTBIN-STYLE BACKGROUND */
-body {
-  font-family: var(--font-family-base);
-  color: var(--color-text);
-  line-height: 1.6;
-  overflow-x: hidden;
-  background-color: var(--color-graphite-900) !important; /* fallback */
-  background-image: url("../images/background/player_detail_main.webp") !important;
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed !important;
-  background-position: center top !important;
-}
-
 
 /* ----------------- Graphite Teal Pro Part 2 ----------------- */
 
@@ -3646,7 +3632,7 @@ h1, h3, h4, h5, h6 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-left: 14px;
+  margin-left: 11px;
 }
 
 .player-info-meta {
@@ -8875,6 +8861,7 @@ watchlist-view .view-content {
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(5px);
+  margin-top: -1070px;
 }
 
 .skill-modal-content {
@@ -9487,7 +9474,6 @@ watchlist-view .view-content {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: url("../images/background/database_img_main.webp") !important;
   background-size: cover !important;
   background-position: center top !important;
   background-repeat: no-repeat !important;
@@ -9635,7 +9621,6 @@ watchlist-view .view-content {
 #dashboard-view {
   position: relative !important;
   min-height: 100vh !important;
-  background-image: url("../images/background/database_img_main.webp") !important;
   background-size: cover !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;
@@ -9651,7 +9636,6 @@ watchlist-view .view-content {
 #market-view {
   position: relative !important;
   min-height: 100vh !important;
-  background-image: url("../images/background/database_img_main.webp") !important;
   background-size: cover !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;
@@ -9671,7 +9655,6 @@ watchlist-view .view-content {
 #watchlist-view {
   position: relative !important;
   min-height: 100vh !important;
-  background-image: url("../images/background/database_img_main.webp") !important;
   background-size: cover !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;
@@ -9710,7 +9693,6 @@ watchlist-view .view-content {
 #database-view {
   position: relative !important;
   min-height: 100vh !important;
-  background-image: url("../images/background/database_img_main.webp") !important;
   background-size: cover !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;
