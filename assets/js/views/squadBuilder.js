@@ -3493,17 +3493,220 @@ function renderSquadSkillSlots(unlockedCount) {
 
 
 
-function openSkillSelectionForSquad(skillIndex) {
+async function openSkillSelectionForSquad(skillIndex) {
     console.log('SQUAD CUSTOM: Opening skill selection for slot:', skillIndex);
     
-    if (typeof showToast === 'function') {
-        showToast(`Skill ${skillIndex} clicked - Skill selection coming soon`, 'info');
+    const playerId = squadCustomizationState.playerId;
+    const rank = squadCustomizationState.selectedRank || 0;
+    
+    if (!playerId) {
+        console.error('SQUAD CUSTOM: No player ID in state');
+        if (typeof showToast === 'function') {
+            showToast('Error: No player selected', 'error');
+        }
+        return;
     }
     
-    // TODO: Integrate with the same skill selection modal as app.js
+    if (rank === 0) {
+        if (typeof showToast === 'function') {
+            showToast('Please select a rank first', 'info');
+        }
+        return;
+    }
+    
+    try {
+        // Fetch player details with skills for the selected rank
+        console.log(`SQUAD CUSTOM: Fetching skills for player ${playerId} at rank ${rank}`);
+        const playerDetails = await window.apiClient.getPlayerDetails(playerId, rank);
+        
+        // Get player-specific skills (should be max 5)
+        const playerSkills = playerDetails.skills || [];
+        
+        console.log(`SQUAD CUSTOM: Found ${playerSkills.length} skills for this player`);
+        
+        // Limit to 5 skills maximum
+        const limitedSkills = playerSkills.slice(0, 5);
+        
+        if (limitedSkills.length === 0) {
+            if (typeof showToast === 'function') {
+                showToast('No skills available for this player at this rank', 'info');
+            }
+            return;
+        }
+        
+        // Show skill selection modal
+        showSquadSkillSelectionModal(limitedSkills, skillIndex);
+        
+    } catch (error) {
+        console.error('SQUAD CUSTOM: Error fetching player skills:', error);
+        if (typeof showToast === 'function') {
+            showToast('Error loading skills', 'error');
+        }
+    }
 }
 
 
+function showSquadSkillSelectionModal(skills, skillIndex) {
+    console.log('SQUAD CUSTOM: Showing skill selection modal with', skills.length, 'skills');
+    
+    // Create or get modal overlay
+    let modalOverlay = document.getElementById('squad-skill-selection-overlay');
+    if (!modalOverlay) {
+        modalOverlay = document.createElement('div');
+        modalOverlay.id = 'squad-skill-selection-overlay';
+        modalOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+        document.body.appendChild(modalOverlay);
+    }
+    
+    // Calculate max levels for skills
+    const maxLevels = {};
+    skills.forEach(skill => {
+        // Use max_level from skill data if available, otherwise default to 1
+        maxLevels[skill.skill_id] = skill.max_level || 1;
+    });
+    
+    // Also check prerequisites
+    skills.forEach(skill => {
+        if (skill.unlock_requirement_skillname && skill.unlock_requirement_level) {
+            const prereqSkill = skills.find(s => 
+                s.skill_name && skill.unlock_requirement_skillname &&
+                s.skill_name.toUpperCase() === skill.unlock_requirement_skillname.toUpperCase()
+            );
+            if (prereqSkill) {
+                const currentMax = maxLevels[prereqSkill.skill_id] || 1;
+                const requiredLevel = skill.unlock_requirement_level || 1;
+                maxLevels[prereqSkill.skill_id] = Math.max(currentMax, requiredLevel);
+            }
+        }
+    });
+    
+    // Build skills HTML
+    const skillsHTML = skills.map(skill => {
+        const maxLevel = maxLevels[skill.skill_id] || 1;
+        return `
+            <div class="squad-skill-option" 
+                 data-skill-id="${skill.skill_id}"
+                 data-skill-index="${skillIndex}"
+                 style="
+                     background-color: #1A1F26;
+                     border: 2px solid rgba(0,194,168,0.3);
+                     border-radius: 12px;
+                     padding: 16px;
+                     cursor: pointer;
+                     transition: all 0.2s;
+                     display: flex;
+                     align-items: center;
+                     gap: 12px;
+                 "
+                 onmouseover="this.style.borderColor='rgba(0,194,168,0.6)'; this.style.backgroundColor='rgba(0,194,168,0.1)';"
+                 onmouseout="this.style.borderColor='rgba(0,194,168,0.3)'; this.style.backgroundColor='#1A1F26';"
+                 onclick="selectSquadSkill(${skill.skill_id}, ${skillIndex}, '${skill.skill_name.replace(/'/g, "\\'")}', ${maxLevel})">
+                <img src="${skill.skill_image}" 
+                     alt="${skill.skill_name}" 
+                     style="width: 60px; height: 60px; object-fit: contain; border-radius: 8px;"
+                     onerror="this.src='https://via.placeholder.com/60?text=SKILL'">
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 16px; color: #E6EEF2; margin-bottom: 4px;">
+                        ${skill.skill_name}
+                    </div>
+                    <div style="font-size: 13px; color: #98A0A6;">
+                        Max Level: ${maxLevel}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    modalOverlay.innerHTML = `
+        <div style="
+            background-color: #14181C;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 style="font-size: 20px; font-weight: 700; color: #E6EEF2; margin: 0;">
+                    Select Skill for Slot ${skillIndex}
+                </h3>
+                <button onclick="closeSquadSkillSelectionModal()" 
+                        style="
+                            background: none;
+                            border: none;
+                            color: #E6EEF2;
+                            font-size: 24px;
+                            cursor: pointer;
+                            padding: 0;
+                            width: 32px;
+                            height: 32px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        ">✕</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                ${skillsHTML}
+            </div>
+        </div>
+    `;
+    
+    modalOverlay.style.display = 'flex';
+}
+
+
+function closeSquadSkillSelectionModal() {
+    const modalOverlay = document.getElementById('squad-skill-selection-overlay');
+    if (modalOverlay) {
+        modalOverlay.style.display = 'none';
+    }
+}
+
+
+function selectSquadSkill(skillId, skillIndex, skillName, maxLevel) {
+    console.log('SQUAD CUSTOM: Selected skill:', skillId, 'for slot:', skillIndex);
+    
+    // Store the selected skill
+    if (!squadCustomizationState.selectedSkills) {
+        squadCustomizationState.selectedSkills = [];
+    }
+    
+    squadCustomizationState.selectedSkills[skillIndex - 1] = {
+        skillId: skillId,
+        skillName: skillName,
+        maxLevel: maxLevel
+    };
+    
+    // Update the visual representation of the skill slot
+    const slot = document.querySelector(`[data-skill-index="${skillIndex}"]`);
+    if (slot) {
+        slot.innerHTML = `
+            <div style="font-size: 20px; margin-bottom: 6px;">⚡</div>
+            <div style="font-size: 11px; font-weight: 600; color: #00C2A8;">${skillName}</div>
+            <div style="font-size: 10px; color: #98A0A6; margin-top: 2px;">Max: ${maxLevel}</div>
+        `;
+    }
+    
+    // Close modal
+    closeSquadSkillSelectionModal();
+    
+    if (typeof showToast === 'function') {
+        showToast(`${skillName} selected for Skill ${skillIndex}`, 'success');
+    }
+}
 
 
 function removeSquadPlayer() {
@@ -3852,6 +4055,8 @@ window.openPlayerCustomizationModal = openPlayerCustomizationModal;
 window.closePlayerCustomizationModal = closePlayerCustomizationModal;
 window.removeSquadPlayer = removeSquadPlayer;
 window.applySquadPlayerCustomization = applySquadPlayerCustomization;
+window.closeSquadSkillSelectionModal = closeSquadSkillSelectionModal;
+window.selectSquadSkill = selectSquadSkill;
 
 
 // ============================================

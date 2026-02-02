@@ -1482,12 +1482,12 @@ async function renderPlayerDetail(player) {
 function calculateMaxLevels(skills) {
   const maxLevels = {};
   
-  // Default: all skills have max level 1
+  // First, use max_level from skill data if available, otherwise default to 1
   skills.forEach(skill => {
-    maxLevels[skill.skill_id] = 1;
+    maxLevels[skill.skill_id] = skill.max_level || 1;
   });
   
-  // Find skills that appear as prerequisites and update their max levels
+  // Also check prerequisites and update if they require higher levels
   skills.forEach(skill => {
     if (skill.unlock_requirement_skillname && skill.unlock_requirement_level) {
       // Find the skill_id of the prerequisite by matching name
