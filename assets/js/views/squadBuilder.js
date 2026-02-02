@@ -4,6 +4,9 @@
 // squadBuilder.js - FIXED: API Search Error & Database Redirect
 // FC Market Pro - Squad Builder
 
+// ============ CONSTANTS ============
+const NON_AUCTIONABLE_IMAGE_URL = 'https://images-bucket.renderz.app/common_23_noauction';
+
 // ============ DEVICE DETECTION & RESPONSIVE FORMATIONS ============
 function isMobileDevice() {
   const isMobileWidth = window.innerWidth <= 480;
@@ -2797,15 +2800,14 @@ function getPlayerPriceHTML(player, cardType = 'preview') {
     const className = `${cardType}-card-price`;
     
     if (hasPrice) {
-        return `<span class="${className}" style="color: #fbbf24; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 2px;">
-                 <img src="assets/images/background/fc coin img.webp" alt="coin" style="width: 10px; height: 10px;">
-                 <span>${formatPrice(playerPrice)}</span>
+        return `<span class="${className}">
+                 <img src="assets/images/background/fc coin img.webp" alt="coin" class="price-coin-icon">
+                 <span class="price-value">${formatPrice(playerPrice)}</span>
                </span>`;
     } else {
-        return `<img src="https://images-bucket.renderz.app/common_23_noauction" 
+        return `<img src="${NON_AUCTIONABLE_IMAGE_URL}" 
                     alt="Non-auctionable" 
-                    class="${className}"
-                    style="height: 12px; width: auto; opacity: 0.9;" 
+                    class="${className} non-auctionable-badge"
                     title="Non-auctionable">`;
     }
 }

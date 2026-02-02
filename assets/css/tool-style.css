@@ -5695,6 +5695,21 @@ body.stats-open #squad-builder-modal {
     justify-content: center;
     align-items: center;
     z-index: 3;
+    color: #fbbf24;
+    font-size: 10px;
+    font-weight: 600;
+    gap: 2px;
+}
+
+.preview-card-price .price-coin-icon {
+    width: 10px;
+    height: 10px;
+}
+
+.preview-card-price.non-auctionable-badge {
+    height: 12px;
+    width: auto;
+    opacity: 0.9;
 }
 
 .preview-card-flag-nation {
@@ -5927,6 +5942,21 @@ body.stats-open #squad-builder-modal {
     display: flex;
     align-items: center;
     z-index: 3;
+    color: #fbbf24;
+    font-size: 10px;
+    font-weight: 600;
+    gap: 2px;
+}
+
+.bench-card-price .price-coin-icon {
+    width: 10px;
+    height: 10px;
+}
+
+.bench-card-price.non-auctionable-badge {
+    height: 12px;
+    width: auto;
+    opacity: 0.9;
 }
 
 .bench-card-flag-nation {
