@@ -103,7 +103,12 @@ window.openStatsModal = function () {
   if (modal) {
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
-    initStatsModal();
+    
+    // ✅ RENDER ALL STATS (DISPLAY THEM) WITHOUT SELECTING
+    renderStatTemplates();
+    renderPriceTiers();
+    renderAllStats();
+    updateSelectionCounters();
   }
 };
 

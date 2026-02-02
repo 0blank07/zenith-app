@@ -3051,8 +3051,8 @@ h1, h3, h4, h5, h6 {
 /* Player Card Container */
 .player-card-image-container {
     position: relative;
-    height: 124px;
-    width: 98px;
+    height: 134px;
+    width: 108px;
     margin-right: 30px;
     margin-bottom: 10px;
     margin-top: 15px;
@@ -3090,7 +3090,7 @@ h1, h3, h4, h5, h6 {
     top: 83px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     font-family: 'CruyffSans', sans-serif;
     text-transform: uppercase;
@@ -3108,8 +3108,8 @@ h1, h3, h4, h5, h6 {
 .player-card-ovr {
     position: absolute;
     top: 13px;
-    left: 11px;
-    font-size: 16px;
+    left: 14px;
+    font-size: 18px;
     font-weight: 700;
     font-family: 'CruyffSans', sans-serif;
     z-index: 10;
@@ -3120,10 +3120,10 @@ h1, h3, h4, h5, h6 {
 /* Position Badge */
 .player-card-position {
     position: absolute;
-    top: 28px;
-    left: 17px;
-    font-size: 10px;
-    font-weight: 800;
+    top: 29px;
+    left: 21px;
+    font-size: 20px;
+    font-weight: 999;
     font-family: 'CruyffSans', sans-serif;
     z-index: 10;
     letter-spacing: -0.8px;
@@ -3133,8 +3133,8 @@ h1, h3, h4, h5, h6 {
 /* Nation Flag */
 .player-card-nation-flag {
     position: absolute;
-    bottom: 20px;
-    left: 27px;
+    bottom: 24px;
+    left: 35px;
     width: 12px;
     height: 9px;
     border-radius: 1px;
@@ -3145,7 +3145,7 @@ h1, h3, h4, h5, h6 {
 /* Club Flag */
 .player-card-club-flag {
     position: absolute;
-    top: 93px;
+    top: 99px;
     left: 60px;
     width: 14px;
     height: 14px;
@@ -3666,21 +3666,34 @@ h1, h3, h4, h5, h6 {
 }
 
 .secondary-position-badge {
-    background: linear-gradient(135deg, #34435E 0%, #1E2533 100%);
-    color: white;
-    font-weight: 600;
-    font-size: 0.75rem;
-    padding: 3px 6px;
-    border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.3);
-    letter-spacing: 0.5px;
-    min-width: 28px;
-    text-align: center;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0px 1px 2px rgba(0,0,0,0.4);
-    margin-left: 6px;
+
+    background: rgba(var(--color-teal-rgb), 0.15);
+    border: 1px solid rgba(var(--color-teal-rgb), 0.35);
+    color: var(--color-teal-500);
+
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 6px;
+
+    box-shadow: 0 0 10px rgba(var(--color-teal-rgb), 0.25);
+    backdrop-filter: blur(6px);
+
+    transition: all 0.2s var(--ease-standard);
+}
+
+.secondary-position-badge:hover {
+    background: rgba(var(--color-teal-rgb), 0.25);
+    border-color: var(--color-teal-500);
+    box-shadow: 0 0 18px rgba(var(--color-teal-rgb), 0.45);
+    transform: translateY(-1px) scale(1.03);
 }
 
 /* Stats Grid (Right Section) - SINGLE ROW */
@@ -10567,6 +10580,3 @@ body.overflow-hidden {
         display: none;
     }
 }
-
-
-

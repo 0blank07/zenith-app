@@ -391,16 +391,29 @@
     display: none;
 }
 
+
+.player-row-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 105%;
+    object-fit: cover;
+    border-radius: inherit;
+    z-index: 1;
+    padding-bottom: 10px;
+}
+
 /* Player Name Overlay */
 .player-row-name {
     position: absolute;
-    top: 79px;
+    top: 66px;
     left: 50%;
     transform: translateX(-50%) scaleY(1);
     text-align: center;
     padding: 2px 5px;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 900;
     font-family: "CruyffSans", sans-serif;
     color: var(--player-name-color, #FFFFFF);
@@ -418,7 +431,7 @@
 .player-row-ovr {
     position: absolute;
     top: 10px;
-    left: 14px;
+    left: 7px;
     padding: 2px 5px;
     border-radius: 4px;
     font-size: 16px;
@@ -436,7 +449,7 @@
 .player-row-position {
     position: absolute;
     top: 28px;
-    left: 18px;
+    left: 14px;
     padding: 1px 4px;
     border-radius: 3px;
     font-size: 10px;
@@ -453,8 +466,8 @@
 /* Nation Flag */
 .player-row-nation {
     position: absolute;
-    bottom: 20px;
-    left: 32px;
+    bottom: 16px;
+    left: 26px;
     width: 12px;
     height: 10px;
     object-fit: cover;
@@ -466,8 +479,8 @@
 /* Club Badge */
 .player-row-club {
     position: absolute;
-    bottom: 19px;
-    right: 32px;
+    bottom: 15px;
+    right: 25px;
     width: 15px;
     height: 12px;
     object-fit: contain;
@@ -483,21 +496,23 @@
    ========================================== */
 @media (max-width: 1024px) {
 
-
     .player-row-card-bg{
-        width: 110px;
-        height: 140px;
+        width: 120px;
+        height: 130px;
     }
 
 
     .player-row-main-img{
-        padding-top: 15px;
+        padding-top: 15px;  
+        padding-left: 28px;
+        width: 140px;
+        height: 140px;
     }
 
     .player-row-name {
         position: absolute;
-        top: 83px;
-        left: 50%;
+        margin-top: -6px;
+        margin-left: 15px;
         transform: translateX(-50%);
         font-size: 11px;
         font-weight: 800;
@@ -510,14 +525,14 @@
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: 100%;
-        margin-top: 6px;
+        margin-bottom: 15px;
     }
 
 
     .player-row-ovr {
         position: absolute;
         top: 10px;
-        left: 11px;
+        left: 17px;
         font-size: 16px;
         font-weight: 700;
         font-family: 'CruyffSans', sans-serif;
@@ -529,7 +544,7 @@
     .player-row-position {
         position: absolute;
         top: 28px;
-        left: 17px;
+        left: 22px;
         font-size: 10px;
         font-weight: 800;
         font-family: 'CruyffSans', sans-serif;
@@ -541,15 +556,15 @@
     .player-row-nation {
         width: 10px;
         height: 10px;
-        bottom: 14px;
-        left: 32px;
+        bottom: 6px;
+        left: 40px;
     }
     
     .player-row-club {
         width: 13px;
-        height: 10px;
-        bottom: 14px;
-        left: 65px;
+        height: 8px;
+        bottom: 7px;
+        left: 68px;
     }
 
     .player-row-name{
@@ -575,28 +590,31 @@
 @media (max-width: 968px) {
 
     .player-row-card-bg{
-        width: 110px;
-        height: 110px;
+        width: 125px;
+        height: 125px;
         padding-right: 7px;
+        top: -5px;
     }
 
 
     .player-row-main-img{
         padding-top: 15px;
-        padding-left: 5px;
+        padding-left: 21px;
     }
 
     .player-row-name {
-        font-size: 10px;
+        font-size: 9px;
         top: 62px;
-        margin-left: 1px;
+        margin-left: 9px;
+        margin-bottom: 40px;
         font-size: 11px;
+        margin-top: 7px;
     }
     
     .player-row-ovr {
         position: absolute;
-        top: 12px;
-        left: 14px;
+        top: 6px;
+        left: 17px;
         font-size: 16px;
         font-weight: 700;
         font-family: 'CruyffSans', sans-serif;
@@ -607,8 +625,8 @@
     
     .player-row-position {
         position: absolute;
-        top: 28px;
-        left: 17px;
+        top: 25px;
+        left: 22px;
         font-size: 10px;
         font-weight: 800;
         font-family: 'CruyffSans', sans-serif;
@@ -620,7 +638,7 @@
     .player-row-nation {
         position: absolute;
         top: 85px;
-        left: 30px;
+        left: 37px;
         width: 10px;
         height: 7px;
         border-radius: 1px;
@@ -630,8 +648,8 @@
     
     .player-row-club {
         position: absolute;
-        top: 82px;
-        left: 60px;
+        top: 83px;
+        left: 70px;
         width: 12px;
         height: 12px;
         border-radius: 2px;
@@ -644,18 +662,23 @@
     .player-row-card-bg{
         width: 110px;
         height: 140px;
+        margin-left: 4px;
     }
 
 
     .player-row-main-img{
-        padding-top: 15px;
-        padding-right: 10px;
+        margin-top: -10px;
+        margin-right: 5px;
+        width: 150px;  
+        height: 160px;
+        margin-left: -8px;
+
     }
 
     .player-row-name {
         position: absolute;
         top: 83px;
-        left: 50%;
+        left: 50px;
         transform: translateX(-50%);
         font-size: 11px;
         font-weight: 800;
@@ -668,14 +691,16 @@
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: 100%;
-        margin-top: 6px;
+        margin-top: -5px;
+        margin-left: 0px;
+        margin-right: 5px;
     }
 
 
     .player-row-ovr {
         position: absolute;
         top: 10px;
-        left: 11px;
+        left: 13px;
         font-size: 16px;
         font-weight: 700;
         font-family: 'CruyffSans', sans-serif;
@@ -687,7 +712,7 @@
     .player-row-position {
         position: absolute;
         top: 28px;
-        left: 17px;
+        left: 19px;
         font-size: 10px;
         font-weight: 800;
         font-family: 'CruyffSans', sans-serif;
@@ -701,7 +726,7 @@
         height: 10px;
         bottom: 14px;
         left: 32px;
-        top: 108px;
+        top: 95px;
     }
     
     .player-row-club {
@@ -709,7 +734,7 @@
         height: 10px;
         bottom: 14px;
         left: 64px;
-        top: 108px;
+        top: 96px;
     }
 
     .player-row-name{
@@ -831,22 +856,32 @@
    ========================================== */
 
 .secondary-position-badge {
-    display: inline-block;
-    background: rgba(99, 102, 241, 0.15);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    color: #818CF8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(var(--color-teal-rgb), 0.15);
+    border: 1px solid rgba(var(--color-teal-rgb), 0.35);
+    color: var(--color-teal-500);
+
     font-size: 10px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 4px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+
     text-transform: uppercase;
-    letter-spacing: 0.3px;
-    margin-right: 4px;
-    transition: all 0.2s ease;
+    letter-spacing: 0.5px;
+    margin-right: 6px;
+
+    box-shadow: 0 0 10px rgba(var(--color-teal-rgb), 0.25);
+    backdrop-filter: blur(6px);
+
+    transition: all 0.2s var(--ease-standard);
 }
 
 .secondary-position-badge:hover {
-    background: rgba(99, 102, 241, 0.25);
-    border-color: rgba(99, 102, 241, 0.5);
-    transform: translateY(-1px);
+    background: rgba(var(--color-teal-rgb), 0.25);
+    border-color: var(--color-teal-500);
+    box-shadow: 0 0 18px rgba(var(--color-teal-rgb), 0.45);
+    transform: translateY(-1px) scale(1.03);
 }
