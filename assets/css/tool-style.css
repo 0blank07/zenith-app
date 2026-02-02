@@ -5686,6 +5686,17 @@ body.stats-open #squad-builder-modal {
     letter-spacing: -0.1px;
 }
 
+.preview-card-price {
+    position: absolute;
+    bottom: 22px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3;
+}
+
 .preview-card-flag-nation {
     position: absolute;
     top: 98px;
@@ -5907,6 +5918,15 @@ body.stats-open #squad-builder-modal {
     padding: 0 6px;
     letter-spacing: -0.3px;
     font-family: var(--font-family-base, Arial, sans-serif);
+}
+
+.bench-card-price {
+    position: absolute;
+    top: 70px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    z-index: 3;
 }
 
 .bench-card-flag-nation {

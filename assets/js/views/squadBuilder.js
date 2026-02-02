@@ -2913,6 +2913,20 @@ function renderSlot(slot) {
         console.log('✅ DEBUG: Click listener attached to preview card');
 
 
+        // Price display logic
+        const playerPrice = player.price || 0;
+        const isAuctionable = playerPrice > 0;
+        const priceHTML = isAuctionable 
+            ? `<span class="preview-card-price" style="color: #fbbf24; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 2px;">
+                 <img src="assets/images/background/fc coin img.webp" alt="coin" style="width: 10px; height: 10px;">
+                 <span>${formatPrice(playerPrice)}</span>
+               </span>`
+            : `<img src="https://images-bucket.renderz.app/common_23_noauction" 
+                    alt="Non-auctionable" 
+                    class="preview-card-price"
+                    style="height: 12px; width: auto; opacity: 0.9;" 
+                    title="Non-auctionable">`;
+
         previewCard.innerHTML = `
             <div class="preview-card-inner">
                 <img src="${cardBg}" 
@@ -2926,6 +2940,7 @@ function renderSlot(slot) {
                 <div class="preview-card-ovr" style="color: ${colorRating};">${adjustedOVR > 0 ? adjustedOVR : 'NA'}</div>
                 <div class="preview-card-position" style="color: ${colorPosition}">${position}</div>
                 <div class="preview-card-name" style="color: ${colorName}">${playerName}</div>
+                ${priceHTML}
                 ${player.nationflag || player.nation_flag ? 
                     `<img src="${player.nationflag || player.nation_flag}" alt="Nation" class="preview-card-flag-nation" onerror="this.style.display='none'">` 
                     : ''}
@@ -3051,6 +3066,20 @@ function renderBench() {
 
             });
 
+            // Price display logic
+            const playerPrice = player.price || 0;
+            const isAuctionable = playerPrice > 0;
+            const priceHTML = isAuctionable 
+                ? `<span class="bench-card-price" style="color: #fbbf24; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 2px;">
+                     <img src="assets/images/background/fc coin img.webp" alt="coin" style="width: 10px; height: 10px;">
+                     <span>${formatPrice(playerPrice)}</span>
+                   </span>`
+                : `<img src="https://images-bucket.renderz.app/common_23_noauction" 
+                        alt="Non-auctionable" 
+                        class="bench-card-price"
+                        style="height: 12px; width: auto; opacity: 0.9;" 
+                        title="Non-auctionable">`;
+
             benchCard.innerHTML = `
                 <div class="bench-card-inner">
                     <img src="${cardBg}" 
@@ -3064,6 +3093,7 @@ function renderBench() {
                     <div class="bench-card-ovr" style="color: ${colorRating}">${overall > 0 ? overall : 'NA'}</div>
                     <div class="bench-card-position" style="color: ${colorPosition}">${position}</div>
                     <div class="bench-card-name" style="color: ${colorName}">${playerName}</div>
+                    ${priceHTML}
                     ${player.nationflag || player.nation_flag ? 
                         `<img src="${player.nationflag || player.nation_flag}" alt="Nation" class="bench-card-flag-nation" onerror="this.style.display='none'">` 
                         : ''}
