@@ -3601,7 +3601,7 @@ h1, h3, h4, h5, h6 {
 }
 
 .player-card-position {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--color-text-primary);
   text-transform: uppercase;
@@ -5252,14 +5252,6 @@ watchlist-view .view-content {
   border-color: var(--color-teal-500);
 }
 
-.stats-tabs {
-  display: flex;
-  gap: 0;
-  margin-bottom: 24px;
-  border-radius: 12px 12px 0 0;
-  overflow: hidden;
-}
-
 .stats-tab {
   flex: 1;
   padding: 14px 20px;
@@ -5602,43 +5594,6 @@ watchlist-view .view-content {
 
 .stats-section:last-of-type {
   border-bottom: none;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  background: none;
-  -webkit-background-clip: unset;
-  -webkit-text-fill-color: unset;
-  margin: 0;
-  letter-spacing: -0.3px;
-}
-
-.section-helpers {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.selection-counter {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  background: var(--color-graphite-700);
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-weight: 600;
-  border: 1px solid var(--color-border);
 }
 
 .select-all-btn {
