@@ -11,7 +11,8 @@ let watchlistFilters = {
   event: '',
   skill_moves: '',
   minOvr: 40,
-  maxOvr: 150
+  maxOvr: 150,
+  searchQuery: '' // Track search query
 };
 
 
@@ -146,7 +147,8 @@ function clearWatchlistFilters() {
     event: '',
     skill_moves: '',
     minOvr: 40,
-    maxOvr: 150
+    maxOvr: 150,
+    searchQuery: ''
   };
   
   console.log('✅ [DEBUG] Filter state reset');
@@ -163,7 +165,8 @@ function clearWatchlistFilters() {
     'watchlist-filter-event': '',
     'watchlist-filter-skill': '',
     'watchlist-rating-min': 40,
-    'watchlist-rating-max': 150
+    'watchlist-rating-max': 150,
+    'watchlist-search-input': '' // Clear search input (FIXED: correct ID)
   };
 
   let resetCount = 0;
@@ -204,6 +207,13 @@ function clearWatchlistFilters() {
   });
   console.log(`📱 [DEBUG] Reset ${mobileResetCount}/${Object.keys(mobileElements).length} mobile elements`);
 
+  // Clear mobile search input (FIXED: use correct ID)
+  const mobileSearchInput = document.querySelector('#watchlist-mobile-search');
+  if (mobileSearchInput) {
+    mobileSearchInput.value = '';
+    console.log('📱 [DEBUG] Reset mobile search input');
+  }
+
   // Apply filters
   console.log('🔄 [DEBUG] Calling applyWatchlistFilters()...');
   applyWatchlistFilters();
@@ -235,37 +245,55 @@ function applyWatchlistFilters() {
     console.log('📊 [APPLY FILTERS] Total players:', watchlistData.length);
     console.log('🔍 [APPLY FILTERS] Current filters:', watchlistFilters);
     console.log('[WATCHLIST] Applying filters:', watchlistFilters);
-    
+
     // Start with all watchlist data
     filteredWatchlist = watchlistData.filter(player => {
+        // Search query filter - MUST BE FIRST
+        if (watchlistFilters.searchQuery) {
+            const query = watchlistFilters.searchQuery.toLowerCase();
+            const name = (player.name || '').toLowerCase();
+            const club = (player.team || '').toLowerCase();
+            const league = (player.league || '').toLowerCase();
+            const nation = (player.nation || '').toLowerCase();
+            const position = (player.position || '').toLowerCase();
+
+            const matchesSearch = name.includes(query) ||
+                                 club.includes(query) ||
+                                 league.includes(query) ||
+                                 nation.includes(query) ||
+                                 position.includes(query);
+
+            if (!matchesSearch) return false;
+        }
+
         // Position filter
         if (watchlistFilters.position && player.position !== watchlistFilters.position) {
             return false;
         }
-        
+
         // League filter
         if (watchlistFilters.league && player.league !== watchlistFilters.league) {
             return false;
         }
-        
+
         // Team filter
         if (watchlistFilters.team && player.team !== watchlistFilters.team) {
             return false;
         }
-        
+
         // Nation filter
         if (watchlistFilters.nation && player.nation !== watchlistFilters.nation) {
             return false;
         }
-        
+
         // Event filter
         if (watchlistFilters.event && player.event !== watchlistFilters.event) {
             return false;
         }
 
-        
+
         // Skill Moves
-        if (watchlistFilters.skill_moves && 
+        if (watchlistFilters.skill_moves &&
             String(player.skill_moves) !== String(watchlistFilters.skill_moves)) {
           return false;
         }
@@ -275,17 +303,17 @@ function applyWatchlistFilters() {
         if (ovr < watchlistFilters.minOvr || ovr > watchlistFilters.maxOvr) {
             return false;
         }
-        
+
         return true;
     });
-    
+
     console.log('[WATCHLIST] Filtered results:', filteredWatchlist.length, 'of', watchlistData.length);
     console.log('✅ [APPLY FILTERS] Filtered results:', filteredWatchlist.length, 'of', watchlistData.length);
     console.log('📋 [APPLY FILTERS] Sample filtered player:', filteredWatchlist[0]);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     // Re-render with filtered results
     renderWatchlist();
-    
+
     // Update active filter chips
     updateActiveFilterChips();
 
@@ -392,8 +420,8 @@ function setupWatchlistFilterListeners() {
 
 function clearWatchlistFilters() {
   console.log('[WATCHLIST] Clearing all filters');
-  
-  // ✅ FIX: Reset filter state (including skill_moves)
+
+  // ✅ FIX: Reset filter state (including skill_moves and searchQuery)
   watchlistFilters = {
     position: '',
     league: '',
@@ -402,7 +430,8 @@ function clearWatchlistFilters() {
     event: '',
     skill_moves: '', // ✅ FIXED: Was missing
     minOvr: 40,
-    maxOvr: 150
+    maxOvr: 150,
+    searchQuery: '' // Reset search query
   };
 
   // ✅ FIX: Reset Desktop UI with null checks
@@ -414,7 +443,8 @@ function clearWatchlistFilters() {
     'watchlist-filter-event': '',
     'watchlist-filter-skill': '', // ✅ FIXED: Was missing
     'watchlist-rating-min': 40,
-    'watchlist-rating-max': 150
+    'watchlist-rating-max': 150,
+    'watchlist-search-input': '' // Clear search input (FIXED: correct ID)
   };
 
   Object.keys(desktopElements).forEach(id => {
@@ -446,6 +476,13 @@ function clearWatchlistFilters() {
       console.log(`[WATCHLIST] Reset mobile ${id} to "${mobileElements[id]}"`);
     }
   });
+
+  // Clear mobile search input (FIXED: use correct ID)
+  const mobileSearchInput = document.querySelector('#watchlist-mobile-search');
+  if (mobileSearchInput) {
+    mobileSearchInput.value = '';
+    console.log('[WATCHLIST] Reset mobile search input');
+  }
 
   // ✅ FIX: Apply filters to show all players
   applyWatchlistFilters();
@@ -960,25 +997,31 @@ function attachWatchlistEventListeners() {
 function setupWatchlistEvents() {
   console.log('[WATCHLIST] Setting up event listeners');
 
-  // Search input - desktop
-  const searchInput = document.querySelector('#watchlist-player-search');
+  // Search input - desktop (FIXED: correct ID)
+  const searchInput = document.querySelector('#watchlist-search-input');
   if (searchInput) {
     searchInput.addEventListener('input', debounce(handleWatchlistSearch, 300));
-    console.log('[WATCHLIST] Desktop search listener attached');
+    console.log('[WATCHLIST] Desktop search listener attached to #watchlist-search-input');
+  } else {
+    console.error('[WATCHLIST] Desktop search input NOT FOUND (#watchlist-search-input)');
   }
 
   // Search input - mobile
-  const mobileSearchInput = document.querySelector('.mobile-search-input');
-  if (mobileSearchInput && mobileSearchInput.closest('#watchlist-view')) {
+  const mobileSearchInput = document.querySelector('#watchlist-mobile-search');
+  if (mobileSearchInput) {
     mobileSearchInput.addEventListener('input', debounce(handleWatchlistSearch, 300));
-    console.log('[WATCHLIST] Mobile search listener attached');
+    console.log('[WATCHLIST] Mobile search listener attached to #watchlist-mobile-search');
+  } else {
+    console.error('[WATCHLIST] Mobile search input NOT FOUND (#watchlist-mobile-search)');
   }
 
-  // Sort select
-  const sortSelect = document.querySelector('#watchlist-sort-by');
+  // Sort select (FIXED: correct ID)
+  const sortSelect = document.querySelector('#watchlist-sort-select');
   if (sortSelect) {
     sortSelect.addEventListener('change', handleWatchlistSort);
-    console.log('[WATCHLIST] Sort listener attached');
+    console.log('[WATCHLIST] Sort listener attached to #watchlist-sort-select');
+  } else {
+    console.error('[WATCHLIST] Sort select NOT FOUND (#watchlist-sort-select)');
   }
 
   // ✅ CRITICAL: Call setupClearAllButton
@@ -990,29 +1033,14 @@ function setupWatchlistEvents() {
 
 // Handle search
 function handleWatchlistSearch(event) {
-  const query = (event.target ? event.target.value : event).toLowerCase().trim();
+  const query = (event.target ? event.target.value : event).trim();
   console.log('🔍 [WATCHLIST] Search query:', query);
 
-  if (!query) {
-    filteredWatchlist = [...watchlistData];
-  } else {
-    filteredWatchlist = watchlistData.filter(player => {
-      const name = (player.name || '').toLowerCase();
-      const club = (player.team || '').toLowerCase();
-      const league = (player.league || '').toLowerCase();
-      const nation = (player.nation || '').toLowerCase();
-      const position = (player.position || '').toLowerCase();
+  // Update filter state
+  watchlistFilters.searchQuery = query;
 
-      return name.includes(query) || 
-             club.includes(query) || 
-             league.includes(query) || 
-             nation.includes(query) || 
-             position.includes(query);
-    });
-  }
-
-  console.log('📊 [WATCHLIST] Filtered results:', filteredWatchlist.length);
-  renderWatchlist();
+  // Apply all filters (including search)
+  applyWatchlistFilters();
 }
 
 // Handle sort
