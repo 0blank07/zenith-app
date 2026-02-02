@@ -109,51 +109,65 @@ async function viewPlayerDetail(playerId, fallbackPlayer = null) {
 const STAT_MAPPING = {
     // Pace
     'acceleration': { key: 'acceleration', label: 'ACC' },
-    'sprint_speed': { key: 'sprintspeed', label: 'SPD' },
-    
+    'sprint_speed': { key: 'sprint_speed', label: 'SPD' },
+    'sprint-speed': { key: 'sprint_speed', label: 'SPD' },
+
     // Shooting
     'finishing': { key: 'finishing', label: 'FIN' },
-    'long_shot': { key: 'longshot', label: 'LSH' },
-    'shot_power': { key: 'shotpower', label: 'POW' },
+    'long_shot': { key: 'long_shot', label: 'LSH' },
+    'long-shot': { key: 'long_shot', label: 'LSH' },
+    'shot_power': { key: 'shot_power', label: 'POW' },
+    'shot-power': { key: 'shot_power', label: 'POW' },
     'positioning': { key: 'positioning', label: 'POS' },
     'volley': { key: 'volley', label: 'VOL' },
     'penalties': { key: 'penalties', label: 'PEN' },
-    
+
     // Passing
-    'short_passing': { key: 'shortpassing', label: 'SPA' },
-    'long_passing': { key: 'longpassing', label: 'LPA' },
+    'short_passing': { key: 'short_passing', label: 'SPA' },
+    'short-passing': { key: 'short_passing', label: 'SPA' },
+    'long_passing': { key: 'long_passing', label: 'LPA' },
+    'long-passing': { key: 'long_passing', label: 'LPA' },
     'crossing': { key: 'crossing', label: 'CRO' },
     'vision': { key: 'vision', label: 'VIS' },
     'curve': { key: 'curve', label: 'CUR' },
-    'free_kick': { key: 'freekick', label: 'FK' },
-    
+    'free_kick': { key: 'free_kick', label: 'FK' },
+    'free-kick': { key: 'free_kick', label: 'FK' },
+
     // Dribbling
     'dribbling': { key: 'dribbling', label: 'DRI' },
     'ball_control': { key: 'ball_control', label: 'B.CON' },
+    'ball-control': { key: 'ball_control', label: 'B.CON' },
     'agility': { key: 'agility', label: 'AGI' },
     'balance': { key: 'balance', label: 'BAL' },
     'reactions': { key: 'reactions', label: 'REA' },
-    
+
     // Defending
     'marking': { key: 'marking', label: 'MAR' },
-    'standing_tackle': { key: 'standingtackle', label: 'STA' },
-    'sliding_tackle': { key: 'slidingtackle', label: 'SLD' },
+    'standing_tackle': { key: 'standing_tackle', label: 'STA' },
+    'standing-tackle': { key: 'standing_tackle', label: 'STA' },
+    'sliding_tackle': { key: 'sliding_tackle', label: 'SLD' },
+    'sliding-tackle': { key: 'sliding_tackle', label: 'SLD' },
     'interceptions': { key: 'interceptions', label: 'INT' },
     'heading': { key: 'heading', label: 'HEA' },
-    
+
     // Physical
     'strength': { key: 'strength', label: 'STR' },
     'jumping': { key: 'jumping', label: 'JUM' },
     'stamina': { key: 'stamina_stat', label: 'STA' },
     'aggression': { key: 'aggression', label: 'AGG' },
     'awareness': { key: 'awareness', label: 'AWR' },
-    
+
     // Goalkeeper
-    'gk_diving': { key: 'gkdiving', label: 'DIV' },
-    'gk_handling': { key: 'gkhandling', label: 'HAN' },
-    'gk_kicking': { key: 'gkkicking', label: 'KIC' },
-    'gk_positioning': { key: 'gkpositioning', label: 'GPO' },
-    'gk_reflexes': { key: 'gkreflexes', label: 'REF' }
+    'gk_diving': { key: 'gk_diving', label: 'DIV' },
+    'gk-diving': { key: 'gk_diving', label: 'DIV' },
+    'gk_handling': { key: 'gk_handling', label: 'HAN' },
+    'gk-handling': { key: 'gk_handling', label: 'HAN' },
+    'gk_kicking': { key: 'gk_kicking', label: 'KIC' },
+    'gk-kicking': { key: 'gk_kicking', label: 'KIC' },
+    'gk_positioning': { key: 'gk_positioning', label: 'GPO' },
+    'gk-positioning': { key: 'gk_positioning', label: 'GPO' },
+    'gk_reflexes': { key: 'gk_reflexes', label: 'REF' },
+    'gk-reflexes': { key: 'gk_reflexes', label: 'REF' }
 };
 
 
