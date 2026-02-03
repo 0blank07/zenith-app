@@ -4138,9 +4138,63 @@ function createPlayerCard(player) {
 
     // 6. Event Listeners
 
-    // Main card click (View Details)
+    // Main card click (View Details or assign to squad)
     card.addEventListener('click', function(e) {
         if (e.target.closest('.player-row-watchlist')) return;
+
+        if (window.squadState && window.squadState.pendingDatabaseAssign && window.squadState.activeSlot) {
+            const slotId = window.squadState.activeSlot;
+            const playerId = player.player_id || player.id;
+            const overall = player.ovr || player.overall || 0;
+
+            if (typeof ensurePlayerInGlobalList === 'function') {
+                ensurePlayerInGlobalList(player, playerId, overall);
+            } else if (typeof addPlayerToCache === 'function') {
+                addPlayerToCache({
+                    ...player,
+                    id: playerId,
+                    player_id: playerId,
+                    overall,
+                    ovr: overall,
+                    team: player.club || player.team,
+                    club: player.club || player.team,
+                    price: player.price || 0
+                });
+            }
+
+            if (slotId.startsWith('BENCH')) {
+                const index = parseInt(slotId.replace('BENCH', ''), 10);
+                if (!Number.isNaN(index)) {
+                    if (typeof isPlayerAlreadyInSquad === 'function' && isPlayerAlreadyInSquad(playerId, null)) {
+                        showToast(`${player.name} is already in the squad`, 'error');
+                        return;
+                    }
+                    if (typeof removeIfAssigned === 'function') removeIfAssigned(playerId);
+                    window.squadState.bench[index] = playerId;
+                    if (typeof renderSquadBuilder === 'function') renderSquadBuilder();
+                    if (typeof showToast === 'function') showToast(`${player.name} added to bench`, 'success');
+                }
+            } else {
+                if (typeof validateAssignment === 'function' && !validateAssignment(player, slotId)) {
+                    return;
+                }
+                if (typeof isPlayerAlreadyInSquad === 'function' && isPlayerAlreadyInSquad(playerId, slotId)) {
+                    showToast(`${player.name} is already in the squad`, 'error');
+                    return;
+                }
+                if (typeof removeIfAssigned === 'function') removeIfAssigned(playerId);
+                window.squadState.starters[slotId] = playerId;
+                if (typeof renderSquadBuilder === 'function') renderSquadBuilder();
+                if (typeof showToast === 'function') showToast(`${player.name} assigned to ${slotId}`, 'success');
+            }
+
+            window.squadState.pendingDatabaseAssign = false;
+            window.squadState.activeSlot = null;
+
+            if (typeof switchView === 'function') switchView('squadbuilder');
+            if (typeof openSquadBuilderModal === 'function') openSquadBuilderModal();
+            return;
+        }
 
         if (typeof viewPlayerDetail === 'function') {
             viewPlayerDetail(player.player_id);

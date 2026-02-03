@@ -45,7 +45,7 @@ window.addEventListener('resize', () => {
 
 
 // ------- Local state -------
-const squadState = {
+window.squadState = {
   name: 'My Squad',
   formationId: '4-3-3',
   starters: {},
@@ -54,6 +54,7 @@ const squadState = {
   dragSource: null,
   searchQuery: '',
   activeSlot: null,
+  pendingDatabaseAssign: false,
   badges: {
         badge1: false,
         badge2: false,
@@ -2944,6 +2945,7 @@ function renderSlot(slot) {
     if (!player) {
         container.addEventListener('click', () => {
             squadState.activeSlot = slot.id;
+            squadState.pendingDatabaseAssign = true;
             if(state && state.filters) {
                 state.filters.position = slot.label;
             }
@@ -3081,6 +3083,7 @@ function renderBench() {
         if (!player) {
             cell.addEventListener('click', () => {
                 squadState.activeSlot = `BENCH${i}`;
+                squadState.pendingDatabaseAssign = true;
                 closeSquadBuilderModal();
                 if (typeof switchView === 'function') switchView('database');
                 if (typeof showToast === 'function') showToast('Select a player from Database', 'info');
