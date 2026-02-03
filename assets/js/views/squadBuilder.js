@@ -397,7 +397,7 @@ function renderPlayerPicker() {
     row.setAttribute('draggable', 'true');
     
     // Normalize Data
-    const pid = p.id || p.player_id;
+    const pid = p.player_id || p.id;
     const overall = p.ovr || p.overall || 0;
     const position = p.position || 'N/A';
     const price = p.price || 0;
@@ -523,10 +523,11 @@ function renderPlayerPicker() {
 function ensurePlayerInGlobalList(p, pid, overall) {
   console.log('📦 Ensuring player in list:', p.name, pid);
   
+  const resolvedId = p.player_id || pid || p.id;
   const normalizedPlayer = {
     ...p,
-    id: pid || p.id || p.player_id,
-    player_id: pid || p.id || p.player_id,
+    id: resolvedId,
+    player_id: resolvedId,
     overall: overall || p.ovr || p.overall || 0,
     ovr: overall || p.ovr || p.overall || 0,
     name: p.name,
@@ -3362,7 +3363,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // SQUAD PLAYER CUSTOMIZATION FUNCTIONS
 // ============================================
 
-function selectSquadRank(rankNumber) {
+async function selectSquadRank(rankNumber) {
     console.log('SQUAD CUSTOM: Selecting rank:', rankNumber);
     
     squadCustomizationState.selectedRank = rankNumber;
@@ -3391,7 +3392,8 @@ function selectSquadRank(rankNumber) {
         pointsDisplay.textContent = `${skillPoints} Point${skillPoints !== 1 ? 's' : ''}`;
     }
     
-    renderSquadSkillSlots(skillPoints);
+    renderSquadSkillsMessage('Loading skills...');
+    await renderSquadPlayerSkills();
     
     if (typeof showToast === 'function') {
         showToast(`Rank ${rankNumber} selected - ${skillPoints} skill point${skillPoints !== 1 ? 's' : ''} available`, 'success');
@@ -3422,7 +3424,7 @@ function resetSquadPlayerRank() {
         pointsDisplay.textContent = '0 Points';
     }
     
-    renderSquadSkillSlots(0);
+    renderSquadSkillsMessage('Select a rank to view skills');
     
     if (typeof showToast === 'function') {
         showToast('Rank reset', 'info');
@@ -3443,67 +3445,111 @@ function updateSquadTraining(level) {
 
 
 
-function renderSquadSkillSlots(unlockedCount) {
+function renderSquadSkillsMessage(message) {
     const container = document.getElementById('squad-custom-skills');
     if (!container) return;
-    
-    container.innerHTML = '';
-    
-    for (let i = 1; i <= 5; i++) {
-        const slot = document.createElement('div');
-        slot.className = `squad-skill-slot ${i <= unlockedCount ? 'unlocked' : 'locked'}`;
-        slot.dataset.skillIndex = i;
-        slot.style.cssText = `
-            padding: 16px;
-            border-radius: 8px;
-            cursor: ${i <= unlockedCount ? 'pointer' : 'not-allowed'};
-            text-align: center;
-            border: 2px solid ${i <= unlockedCount ? 'rgba(0,194,168,0.3)' : 'rgba(255,255,255,0.08)'};
-            background-color: ${i <= unlockedCount ? 'rgba(0,194,168,0.08)' : 'rgba(255,255,255,0.02)'};
-            transition: all 0.2s;
-            opacity: ${i <= unlockedCount ? '1' : '0.5'};
-        `;
-        
-        if (i <= unlockedCount) {
-            slot.onclick = () => openSkillSelectionForSquad(i);
-            slot.onmouseover = function() {
-                this.style.borderColor = 'rgba(0,194,168,0.6)';
-                this.style.boxShadow = '0 0 12px rgba(0,194,168,0.3)';
-                this.style.backgroundColor = 'rgba(0,194,168,0.15)';
-            };
-            slot.onmouseout = function() {
-                this.style.borderColor = 'rgba(0,194,168,0.3)';
-                this.style.boxShadow = 'none';
-                this.style.backgroundColor = 'rgba(0,194,168,0.08)';
-            };
-            
-            slot.innerHTML = `
-                <div style="font-size: 28px; margin-bottom: 8px;">⚡</div>
-                <div style="font-size: 12px; font-weight: 600; color: #00C2A8;">Skill ${i}</div>
-            `;
-        } else {
-            slot.innerHTML = `
-                <div style="font-size: 28px; margin-bottom: 8px;">🔒</div>
-                <div style="font-size: 12px; font-weight: 600; color: #98A0A6;">Locked</div>
-            `;
-        }
-        
-        container.appendChild(slot);
-    }
-    
-    console.log('SQUAD CUSTOM: Rendered skill slots,', unlockedCount, 'unlocked');
+    container.innerHTML = `<p style="color: #98A0A6; text-align: center;">${message}</p>`;
 }
 
+async function renderSquadPlayerSkills() {
+    const container = document.getElementById('squad-custom-skills');
+    if (!container) return;
 
+    const playerId = squadCustomizationState.playerId;
+    const rank = squadCustomizationState.selectedRank || 0;
 
-function openSkillSelectionForSquad(skillIndex) {
-    console.log('SQUAD CUSTOM: Opening skill selection for slot:', skillIndex);
-    
-    if (typeof showToast === 'function') {
-        showToast(`Skill ${skillIndex} clicked - Skill selection coming soon`, 'info');
+    if (!playerId || !rank) {
+        renderSquadSkillsMessage('Select a rank to view skills');
+        return;
     }
-    
-    // TODO: Integrate with the same skill selection modal as app.js
+
+    if (!window.apiClient || typeof window.apiClient.getPlayerDetails !== 'function') {
+        renderSquadSkillsMessage('Skills unavailable');
+        return;
+    }
+
+    let detailsResponse;
+    try {
+        detailsResponse = await window.apiClient.getPlayerDetails(playerId, rank, { cache: false });
+    } catch (error) {
+        console.error('[SQUAD SKILLS] Error loading skills:', error);
+        renderSquadSkillsMessage('Failed to load skills');
+        return;
+    }
+
+    const basePlayer = getPlayers().find(p => p.player_id === playerId || p.id === playerId) || {};
+    const mergedPlayer = {
+        ...basePlayer,
+        ...(detailsResponse.player || {}),
+        player_id: basePlayer.player_id || basePlayer.id || detailsResponse.player?.player_id || playerId,
+        rank: rank,
+        skills: detailsResponse.skills || [],
+        available_skill_points: detailsResponse.available_skill_points
+    };
+
+    squadCustomizationState.player = mergedPlayer;
+    if (window.state) {
+        window.state.selectedPlayer = mergedPlayer;
+    }
+
+    const availableSkills = mergedPlayer.skills || [];
+    console.log("Available skills length:", availableSkills.length);
+
+    const availablePoints = mergedPlayer.available_skill_points || rank || 0;
+    const pointsDisplay = document.getElementById('squad-skill-points-display');
+    if (pointsDisplay) {
+        pointsDisplay.textContent = `${availablePoints} Point${availablePoints !== 1 ? 's' : ''}`;
+    }
+
+    if (availableSkills.length === 0) {
+        renderSquadSkillsMessage('No skills available');
+        return;
+    }
+
+    let userAllocations = [];
+    const userId = typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null;
+    if (userId && typeof window.apiClient.getUserSkillAllocations === 'function') {
+        try {
+            const response = await window.apiClient.getUserSkillAllocations(
+                userId,
+                mergedPlayer.player_id,
+                rank
+            );
+            userAllocations = response.allocations || [];
+        } catch (error) {
+            console.error('[SQUAD SKILLS] Error fetching allocations:', error);
+        }
+    }
+
+    const allocationMap = {};
+    userAllocations.forEach(a => {
+        allocationMap[a.skill_id] = a.skill_level;
+    });
+
+    const pointsSpent = userAllocations.reduce((sum, a) => sum + a.skill_level, 0);
+    const pointsRemaining = availablePoints - pointsSpent;
+
+    const maxLevels = typeof calculateMaxLevels === 'function'
+        ? calculateMaxLevels(availableSkills)
+        : {};
+
+    container.innerHTML = '';
+    availableSkills.forEach(skill => {
+        const currentLevel = allocationMap[skill.skill_id] || 0;
+        const isUnlocked = typeof checkIfSkillUnlocked === 'function'
+            ? checkIfSkillUnlocked(skill, allocationMap, availableSkills)
+            : true;
+
+        if (typeof createSkillCard === 'function') {
+            const card = createSkillCard(skill, currentLevel, isUnlocked, pointsRemaining, mergedPlayer, maxLevels);
+            container.appendChild(card);
+        } else {
+            const fallbackCard = document.createElement('div');
+            fallbackCard.className = `skill-card ${!isUnlocked ? 'locked' : ''}`;
+            fallbackCard.textContent = skill.skill_name || 'Skill';
+            container.appendChild(fallbackCard);
+        }
+    });
 }
 
 
@@ -3553,11 +3599,12 @@ function openPlayerCustomizationModal(playerId, slotId) {
   console.log('DEBUG: playerId:', playerId);
   console.log('DEBUG: slotId:', slotId);
 
-  squadCustomizationState.playerId = playerId;
+  squadCustomizationState.playerId = playerId || squadState.lastAssignedPlayerId || squadState.dragging || null;
   squadCustomizationState.slotId = slotId;
   squadCustomizationState.selectedRank = 0;
   squadCustomizationState.trainingLevel = 0;
   squadCustomizationState.selectedSkills = [];
+  squadCustomizationState.player = null;
 
   const player = getPlayers().find(p => p.id === playerId || p.player_id === playerId);
   const modal = document.getElementById('squad-player-customization-modal');
@@ -3570,7 +3617,7 @@ function openPlayerCustomizationModal(playerId, slotId) {
   // Render mini card preview
   renderCustomizationMiniCard(player);
 
-  renderSquadSkillSlots(0);
+  renderSquadSkillsMessage('Select a rank to view skills');
 
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';

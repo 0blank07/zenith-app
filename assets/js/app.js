@@ -4188,6 +4188,10 @@ function createPlayerCard(player) {
                 if (typeof showToast === 'function') showToast(`${player.name} assigned to ${slotId}`, 'success');
             }
 
+            if (window.squadState) {
+                window.squadState.lastAssignedPlayerId = playerId;
+            }
+
             window.squadState.pendingDatabaseAssign = false;
             window.squadState.activeSlot = null;
 
