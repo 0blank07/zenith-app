@@ -3590,32 +3590,13 @@ async function renderSquadPlayerSkills(playerId, rank) {
         let skills = [];
         try {
             const playerResp = await window.apiClient.getPlayerDetails(playerId, rank);
-            skills = playerResp.skills || [];
+            // Get player-specific skills and limit to max 5 (same as player details page)
+            skills = (playerResp.skills || []).slice(0, 5);
             console.log('[SQUAD SKILLS] Fetched player-specific skills:', skills.length, 'skills');
         } catch (error) {
-            console.warn('[SQUAD SKILLS] Could not fetch player details, falling back to general skills:', error);
-            // Fallback to general skills if player details endpoint fails
-            const skillsResp = await window.apiClient.getSkills();
-            const allSkills = skillsResp.skills || skillsResp || [];
-            
-            // Try to get player from cache to see if it has skills
-            const player = getPlayers().find(p => p.id === playerId || p.player_id === playerId);
-            console.log('[SQUAD SKILLS] Cached player object:', player ? 'Found' : 'Not found');
-            if (player) {
-                console.log('[SQUAD SKILLS] Player skills type:', typeof player.skills);
-                console.log('[SQUAD SKILLS] Player skills is array?', Array.isArray(player.skills));
-                console.log('[SQUAD SKILLS] Player skills value:', player.skills);
-            }
-            
-            // Check if player has skills AND it's actually an array
-            if (player && player.skills && Array.isArray(player.skills) && player.skills.length > 0) {
-                skills = player.skills;
-                console.log('[SQUAD SKILLS] Using cached player skills array:', skills.length, 'skills');
-            } else {
-                // As last resort, use all skills but this is not ideal
-                skills = Array.isArray(allSkills) ? allSkills : [];
-                console.warn('[SQUAD SKILLS] Using all skills as fallback:', skills.length, 'skills');
-            }
+            console.error('[SQUAD SKILLS] Error fetching player details:', error);
+            // Don't fallback to all skills - show error instead
+            skills = [];
         }
         
         // Ensure skills is always an array before proceeding
