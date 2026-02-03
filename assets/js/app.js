@@ -3124,10 +3124,37 @@ function initCountryAutocomplete(inputId, listId) {
   : document.getElementById('filter-nation-flag');
 
 
-  if (!input || !list || !flagImg) {
-    console.warn("[NATION] Missing input, list, or flag image");
+  if (!input || !list) {
+    console.warn("[NATION] Missing input or list for autocomplete");
     return;
   }
+
+  if (!flagImg) {
+    console.warn("[NATION] Flag image not found, continuing without flag support");
+  }
+
+  const getWatchlistNations = () => {
+    const raw = input.getAttribute('data-watchlist-nations');
+    if (raw === null) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed.filter(Boolean);
+      }
+    } catch (e) {
+      console.warn("[NATION] Failed to parse watchlist nations data:", e);
+    }
+    return [];
+  };
+
+  const getAutocompleteSource = () => {
+    const isWatchlist = (typeof state !== 'undefined' && state.currentView === 'watchlist');
+    if (isWatchlist) {
+      const watchlistNations = getWatchlistNations();
+      if (watchlistNations !== null) return watchlistNations;
+    }
+    return COUNTRIES;
+  };
 
   function render(items) {
     list.innerHTML = '';
@@ -3150,24 +3177,47 @@ function initCountryAutocomplete(inputId, listId) {
         list.innerHTML = '';
 
         // ✅ update filter state explicitly
-        state.filters.nation = country;
+        const isWatchlist = (typeof state !== 'undefined' && state.currentView === 'watchlist');
+        if (isWatchlist && typeof watchlistFilters !== 'undefined') {
+          watchlistFilters.nation = country;
+
+          const watchlistNation = document.getElementById('watchlist-filter-nation');
+          if (watchlistNation) watchlistNation.value = country;
+
+          if (typeof applyWatchlistFilters === 'function') {
+            applyWatchlistFilters();
+          }
+
+          if (typeof updateActiveFilterChips === 'function') {
+            updateActiveFilterChips();
+          }
+
+          if (typeof updateWatchlistFilterBadge === 'function') {
+            updateWatchlistFilterBadge();
+          }
+        } else if (typeof state !== 'undefined') {
+          // update filter state explicitly (database)
+          state.filters.nation = country;
+        }
 
         // ✅ set flag
         const flagUrl = getCountryFlagUrl(country);
-        if (flagUrl) {
+        if (flagImg && flagUrl) {
           flagImg.src = flagUrl;
           flagImg.style.display = 'block';
-        } else {
+        } else if (flagImg) {
           flagImg.style.display = 'none';
         }
 
         // ✅ reload database deterministically
-        state.currentOffset = 0;
-        if (state.currentView === 'database') {
-          loadDatabase();
-        }
-        if (state.currentView === 'watchlist') {
-          loadWatchlist();
+        if (typeof state !== 'undefined') {
+          state.currentOffset = 0;
+          if (state.currentView === 'database') {
+            loadDatabase();
+          }
+          if (state.currentView === 'watchlist' && typeof applyWatchlistFilters !== 'function') {
+            loadWatchlist();
+          }
         }
 
       });
@@ -3181,44 +3231,70 @@ function initCountryAutocomplete(inputId, listId) {
     input.value = country;
     list.innerHTML = '';
 
-    // update filter state
-    state.filters.nation = country;
+    const isWatchlist = (typeof state !== 'undefined' && state.currentView === 'watchlist');
+    if (isWatchlist && typeof watchlistFilters !== 'undefined') {
+      watchlistFilters.nation = country;
+
+      const watchlistNation = document.getElementById('watchlist-filter-nation');
+      if (watchlistNation) watchlistNation.value = country;
+
+      if (typeof applyWatchlistFilters === 'function') {
+        applyWatchlistFilters();
+      }
+
+      if (typeof updateActiveFilterChips === 'function') {
+        updateActiveFilterChips();
+      }
+
+      if (typeof updateWatchlistFilterBadge === 'function') {
+        updateWatchlistFilterBadge();
+      }
+    } else if (typeof state !== 'undefined') {
+      // update filter state
+      state.filters.nation = country;
+    }
 
     // set flag
     const flagUrl = getCountryFlagUrl(country);
-    if (flagUrl) {
+    if (flagImg && flagUrl) {
       flagImg.src = flagUrl;
       flagImg.style.display = 'block';
-    } else {
+    } else if (flagImg) {
       flagImg.style.display = 'none';
     }
 
     // reload database
-    state.currentOffset = 0;
-    if (state.currentView === 'database') {
-      loadDatabase();
-    }
-    if (state.currentView === 'watchlist') {
-      loadWatchlist();
+    if (typeof state !== 'undefined') {
+      state.currentOffset = 0;
+      if (state.currentView === 'database') {
+        loadDatabase();
+      }
+      if (state.currentView === 'watchlist' && typeof applyWatchlistFilters !== 'function') {
+        loadWatchlist();
+      }
     }
 
   }
 
 
-  input.addEventListener('input', () => {
+  const updateSuggestions = () => {
     const q = input.value.trim().toLowerCase();
 
-    if (!q) {
+    if (!q && flagImg) {
       flagImg.style.display = 'none';
       flagImg.src = '';
     }
 
+    const source = getAutocompleteSource();
     const matches = q
-      ? COUNTRIES.filter(c => c.toLowerCase().includes(q)).slice(0, 40)
-      : COUNTRIES.slice(0, 30);
+      ? source.filter(c => c.toLowerCase().includes(q)).slice(0, 40)
+      : source.slice(0, 30);
 
     render(matches);
-  });
+  };
+
+  input.addEventListener('input', updateSuggestions);
+  input.addEventListener('focus', updateSuggestions);
 
   enableKeyboardNavigation({
     input,
@@ -5529,16 +5605,72 @@ function toggleMobileFilters() {
 }
 
 function applyMobileFilters() {
-  const position = document.getElementById('mobile-filter-position').value;
-  const ratingMin = document.getElementById('mobile-rating-min').value;
-  const ratingMax = document.getElementById('mobile-rating-max').value;
-  const priceMin = document.getElementById('mobile-price-min').value;
-  const priceMax = document.getElementById('mobile-price-max').value;
-  const league = document.getElementById('mobile-filter-league').value;
-  const nation = document.getElementById('mobile-filter-nation').value;
-  const skill = document.getElementById('mobile-filter-skill').value;
-  const event = document.getElementById('mobile-filter-event').value;
-  const sortBy = document.getElementById('mobile-sort-by').value;
+  const position = document.getElementById('mobile-filter-position')?.value || '';
+  const ratingMin = parseInt(document.getElementById('mobile-rating-min')?.value, 10) || 40;
+  const ratingMax = parseInt(document.getElementById('mobile-rating-max')?.value, 10) || 150;
+  const priceMin = document.getElementById('mobile-price-min')?.value || '';
+  const priceMax = document.getElementById('mobile-price-max')?.value || '';
+  const league = document.getElementById('mobile-filter-league')?.value || '';
+  const nation = document.getElementById('mobile-filter-nation')?.value || '';
+  const skill = document.getElementById('mobile-filter-skill')?.value || '';
+  const event = document.getElementById('mobile-filter-event')?.value || '';
+  const sortBy = document.getElementById('mobile-sort-by')?.value || '';
+  const teamElement = document.getElementById('mobile-filter-team');
+  const team = teamElement ? teamElement.value : null;
+
+  if (typeof state !== 'undefined' && state.currentView === 'watchlist') {
+    if (typeof watchlistFilters !== 'undefined') {
+      watchlistFilters.position = position;
+      watchlistFilters.league = league;
+      if (team !== null) {
+        watchlistFilters.team = team;
+      }
+      watchlistFilters.nation = nation;
+      watchlistFilters.event = event;
+      watchlistFilters.skill_moves = skill;
+      watchlistFilters.minOvr = ratingMin;
+      watchlistFilters.maxOvr = ratingMax;
+    }
+
+    const watchlistMap = {
+      'watchlist-filter-position': position,
+      'watchlist-filter-league': league,
+      'watchlist-filter-team': team,
+      'watchlist-filter-nation': nation,
+      'watchlist-filter-event': event,
+      'watchlist-rating-min': ratingMin,
+      'watchlist-rating-max': ratingMax
+    };
+
+    Object.keys(watchlistMap).forEach(id => {
+      if (watchlistMap[id] === null) return;
+      const el = document.getElementById(id);
+      if (el !== null && el !== undefined) {
+        el.value = watchlistMap[id];
+      }
+    });
+
+    if (typeof applyWatchlistFilters === 'function') {
+      applyWatchlistFilters();
+    }
+
+    if (sortBy) {
+      const watchlistSort = document.getElementById('watchlist-sort-select');
+      if (watchlistSort) {
+        const sortMap = { name: 'Name', rating: 'Rating', price: 'Price' };
+        watchlistSort.value = sortMap[sortBy] || sortBy;
+        watchlistSort.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+
+    if (typeof updateWatchlistFilterBadge === 'function') {
+      updateWatchlistFilterBadge();
+    }
+
+    toggleMobileFilters();
+    showToast('Filters applied', 'success');
+    return;
+  }
 
   if (document.getElementById('filter-position'))
     document.getElementById('filter-position').value = position;
@@ -5573,6 +5705,19 @@ function applyMobileFilters() {
 }
 
 function clearMobileFilters() {
+  if (typeof state !== 'undefined' && state.currentView === 'watchlist') {
+    if (typeof clearWatchlistFilters === 'function') {
+      clearWatchlistFilters();
+    }
+
+    if (typeof updateWatchlistFilterBadge === 'function') {
+      updateWatchlistFilterBadge();
+    }
+
+    showToast('Filters cleared', 'success');
+    return;
+  }
+
   if (document.getElementById('mobile-filter-position'))
     document.getElementById('mobile-filter-position').value = '';
   if (document.getElementById('mobile-rating-min'))
@@ -5645,6 +5790,33 @@ function updateFilterBadge() {
     league ||
     nation ||
     skill;
+
+  badge.style.display = hasActiveFilters ? 'block' : 'none';
+}
+
+function updateWatchlistFilterBadge() {
+  const badge = document.getElementById('watchlist-filter-badge');
+  if (!badge) return;
+
+  const wl = (typeof watchlistFilters !== 'undefined') ? watchlistFilters : null;
+
+  const position = wl ? wl.position : (document.getElementById('mobile-filter-position')?.value || '');
+  const league = wl ? wl.league : (document.getElementById('mobile-filter-league')?.value || '');
+  const team = wl ? wl.team : (document.getElementById('mobile-filter-team')?.value || '');
+  const nation = wl ? wl.nation : (document.getElementById('mobile-filter-nation')?.value || '');
+  const event = wl ? wl.event : (document.getElementById('mobile-filter-event')?.value || '');
+  const skill = wl ? wl.skill_moves : (document.getElementById('mobile-filter-skill')?.value || '');
+  const minOvr = wl ? wl.minOvr : (parseInt(document.getElementById('mobile-rating-min')?.value, 10) || 40);
+  const maxOvr = wl ? wl.maxOvr : (parseInt(document.getElementById('mobile-rating-max')?.value, 10) || 150);
+
+  const hasActiveFilters = position ||
+    league ||
+    team ||
+    nation ||
+    event ||
+    skill ||
+    minOvr !== 40 ||
+    maxOvr !== 150;
 
   badge.style.display = hasActiveFilters ? 'block' : 'none';
 }

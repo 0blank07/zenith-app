@@ -24,49 +24,85 @@ let filteredWatchlist = [];
 
 function populateWatchlistFilters() {
     console.log('[WATCHLIST] Populating filters from', watchlistData.length, 'players');
-    
+
     // Get unique values from watchlist players
     const positions = [...new Set(watchlistData.map(p => p.position).filter(Boolean))].sort();
     const leagues = [...new Set(watchlistData.map(p => p.league).filter(Boolean))].sort();
     const teams = [...new Set(watchlistData.map(p => p.team).filter(Boolean))].sort();
     const nations = [...new Set(watchlistData.map(p => p.nation).filter(Boolean))].sort();
     const events = [...new Set(watchlistData.map(p => p.event).filter(Boolean))].sort();
-    
-    // Populate Position dropdown
+
+    // Populate Desktop Position dropdown
     const positionSelect = document.getElementById('watchlist-filter-position');
     if (positionSelect) {
-        positionSelect.innerHTML = '<option value="">All Positions</option>' + 
+        positionSelect.innerHTML = '<option value="">All Positions</option>' +
             positions.map(pos => `<option value="${pos}">${pos}</option>`).join('');
     }
-    
-    // Populate League dropdown
+
+    // Populate Desktop League dropdown
     const leagueSelect = document.getElementById('watchlist-filter-league');
     if (leagueSelect) {
-        leagueSelect.innerHTML = '<option value="">All Leagues</option>' + 
+        leagueSelect.innerHTML = '<option value="">All Leagues</option>' +
             leagues.map(league => `<option value="${league}">${league}</option>`).join('');
     }
-    
-    // Populate Team dropdown
+
+    // Populate Desktop Team dropdown
     const teamSelect = document.getElementById('watchlist-filter-team');
     if (teamSelect) {
-        teamSelect.innerHTML = '<option value="">All Clubs</option>' + 
+        teamSelect.innerHTML = '<option value="">All Clubs</option>' +
             teams.map(team => `<option value="${team}">${team}</option>`).join('');
     }
-    
-    // Populate Nation dropdown
+
+    // Populate Desktop Nation dropdown
     const nationSelect = document.getElementById('watchlist-filter-nation');
     if (nationSelect) {
-        nationSelect.innerHTML = '<option value="">All Nations</option>' + 
+        nationSelect.innerHTML = '<option value="">All Nations</option>' +
             nations.map(nation => `<option value="${nation}">${nation}</option>`).join('');
     }
-    
-    // Populate Event dropdown
+
+    // Populate Desktop Event dropdown
     const eventSelect = document.getElementById('watchlist-filter-event');
     if (eventSelect) {
-        eventSelect.innerHTML = '<option value="">All Events</option>' + 
+        eventSelect.innerHTML = '<option value="">All Events</option>' +
             events.map(event => `<option value="${event}">${event}</option>`).join('');
     }
-    
+
+    // ✅ FIX: Populate Mobile Position dropdown
+    const mobilePositionSelect = document.getElementById('mobile-filter-position');
+    if (mobilePositionSelect) {
+        mobilePositionSelect.innerHTML = '<option value="">All Positions</option>' +
+            positions.map(pos => `<option value="${pos}">${pos}</option>`).join('');
+    }
+
+    // ✅ FIX: Populate Mobile League dropdown
+    const mobileLeagueSelect = document.getElementById('mobile-filter-league');
+    if (mobileLeagueSelect) {
+        mobileLeagueSelect.innerHTML = '<option value="">All Leagues</option>' +
+            leagues.map(league => `<option value="${league}">${league}</option>`).join('');
+    }
+
+    // ✅ FIX: Populate Mobile Team dropdown
+    const mobileTeamSelect = document.getElementById('mobile-filter-team');
+    if (mobileTeamSelect) {
+        mobileTeamSelect.innerHTML = '<option value="">All Clubs</option>' +
+            teams.map(team => `<option value="${team}">${team}</option>`).join('');
+    }
+
+    // ✅ FIX: Populate Mobile Nation dropdown (note: this is an input, not select)
+    // Since mobile nation is an autocomplete input, we'll handle it differently
+    // We'll set a data attribute so the autocomplete knows which nations to show
+    const mobileNationInput = document.getElementById('mobile-filter-nation');
+    if (mobileNationInput) {
+        mobileNationInput.setAttribute('data-watchlist-nations', JSON.stringify(nations));
+    }
+
+    // ✅ FIX: Populate Mobile Event dropdown
+    const mobileEventSelect = document.getElementById('mobile-filter-event');
+    if (mobileEventSelect) {
+        mobileEventSelect.innerHTML = '<option value="">All Events</option>' +
+            events.map(event => `<option value="${event}">${event}</option>`).join('');
+    }
+
     console.log('[WATCHLIST] Filters populated:', {
         positions: positions.length,
         leagues: leagues.length,
@@ -318,6 +354,10 @@ function applyWatchlistFilters() {
     updateActiveFilterChips();
 
     syncDesktopFilters();
+
+    if (typeof updateWatchlistFilterBadge === 'function') {
+        updateWatchlistFilterBadge();
+    }
 }
 
 
