@@ -5,31 +5,31 @@ const fieldThemes = {
   'stadium-blue': {
     id: 'stadium-blue',
     name: 'fc-stadium',
-    background: 'url(https://i.postimg.cc/QxcWyfkg/fc-mobile-bg.png) center/cover no-repeat',
+    background: 'url(assets/images/background/squad_builder_1.webp) center/cover no-repeat',
   },
 
   'camp-nou': {
     id: 'camp-nou',
     name: 'Camp Nou',
-    background: 'url(https://i.postimg.cc/Tw3ZZWXh/camp-nou.png) center/cover no-repeat',
+    background: 'url(assets/images/background/squad_builder_2.webp) center/cover no-repeat',
   },
 
   'old-trafford': {
     id: 'old-trafford',
     name: 'Old Trafford',
-    background: 'url(https://i.postimg.cc/vBwM1tkL/trafford-old.png) center/cover no-repeat',
+    background: 'url(assets/images/background/squad_builder_3.webp) center/cover no-repeat',
   },
 
   'santiago-bernabeu': {
     id: 'santiago-bernabeu',
     name: 'Santiago Bernabeu',
-    background: 'url(https://i.ibb.co/MkRJmR67/santiago-to-put-in-hugging.png) center/cover no-repeat',
+    background: 'url(assets/images/background/squad_builder_4.webp) center/cover no-repeat',
   },
 
   'anfield': {
     id: 'anfield',
     name: 'Anfield',
-    background: 'url(https://i.ibb.co/jkq6txBC/final-anfield-zenith-main.webp) center/cover no-repeat',
+    background: 'url(assets/images/background/squad_builder_5.webp) center/cover no-repeat',
   }
 };
 
