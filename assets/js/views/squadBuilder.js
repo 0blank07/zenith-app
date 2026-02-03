@@ -63,13 +63,15 @@ const squadState = {
 
 
 let squadCustomizationState = {
-  
     playerId: null,
     slotId: null,
     selectedRank: 0,
-    trainingLevel: 0,
-    selectedSkills: []
+    trainingLevel: 0
 };
+
+// Independent skills state for Squad Builder (separate from Player Details)
+// Structure: { "playerId_rank": { allocations: [], availablePoints: 0, skills: [] } }
+let squadBuilderSkillsState = {};
 
 
 // Local players cache for squad builder
@@ -3359,11 +3361,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // SQUAD PLAYER CUSTOMIZATION FUNCTIONS
 // ============================================
 
-function selectSquadRank(rankNumber) {
+async function selectSquadRank(rankNumber) {
     console.log('SQUAD CUSTOM: Selecting rank:', rankNumber);
     
     squadCustomizationState.selectedRank = rankNumber;
-    squadCustomizationState.selectedSkills = [];
     
     document.querySelectorAll('.squad-rank-box').forEach(box => {
         const rank = parseInt(box.dataset.rank);
@@ -3388,7 +3389,8 @@ function selectSquadRank(rankNumber) {
         pointsDisplay.textContent = `${skillPoints} Point${skillPoints !== 1 ? 's' : ''}`;
     }
     
-    renderSquadSkillSlots(skillPoints);
+    // Render proper skills section (not just slots)
+    await renderSquadPlayerSkills(squadCustomizationState.playerId, rankNumber);
     
     if (typeof showToast === 'function') {
         showToast(`Rank ${rankNumber} selected - ${skillPoints} skill point${skillPoints !== 1 ? 's' : ''} available`, 'success');
@@ -3396,7 +3398,7 @@ function selectSquadRank(rankNumber) {
 }
 
 
-function resetSquadPlayerRank() {
+async function resetSquadPlayerRank() {
     console.log('SQUAD CUSTOM: Resetting rank');
     
     squadCustomizationState.selectedRank = 0;
@@ -3419,7 +3421,11 @@ function resetSquadPlayerRank() {
         pointsDisplay.textContent = '0 Points';
     }
     
-    renderSquadSkillSlots(0);
+    // Clear skills display
+    const container = document.getElementById('squad-custom-skills');
+    if (container) {
+        container.innerHTML = '<p style="color: #98A0A6; text-align: center; grid-column: 1 / -1;">Select a rank to unlock skills</p>';
+    }
     
     if (typeof showToast === 'function') {
         showToast('Rank reset', 'info');
@@ -3440,68 +3446,505 @@ function updateSquadTraining(level) {
 
 
 
-function renderSquadSkillSlots(unlockedCount) {
-    const container = document.getElementById('squad-custom-skills');
-    if (!container) return;
+// ==================== SQUAD BUILDER SKILLS SYSTEM ====================
+// This is an independent implementation adapted from Player Details skills system
+// State is completely separate - changes here do NOT affect Player Details
+
+// Helper: Get state key for squad builder skills
+function getSquadSkillStateKey(playerId, rank) {
+    return `${playerId}_${rank}`;
+}
+
+// Helper: Calculate max levels for each skill (same logic as Player Details)
+function calculateSquadMaxLevels(skills) {
+    const maxLevels = {};
     
-    container.innerHTML = '';
+    // Default: all skills have max level 1
+    skills.forEach(skill => {
+        maxLevels[skill.skill_id] = 1;
+    });
     
-    for (let i = 1; i <= 5; i++) {
-        const slot = document.createElement('div');
-        slot.className = `squad-skill-slot ${i <= unlockedCount ? 'unlocked' : 'locked'}`;
-        slot.dataset.skillIndex = i;
-        slot.style.cssText = `
-            padding: 16px;
-            border-radius: 8px;
-            cursor: ${i <= unlockedCount ? 'pointer' : 'not-allowed'};
-            text-align: center;
-            border: 2px solid ${i <= unlockedCount ? 'rgba(0,194,168,0.3)' : 'rgba(255,255,255,0.08)'};
-            background-color: ${i <= unlockedCount ? 'rgba(0,194,168,0.08)' : 'rgba(255,255,255,0.02)'};
-            transition: all 0.2s;
-            opacity: ${i <= unlockedCount ? '1' : '0.5'};
-        `;
-        
-        if (i <= unlockedCount) {
-            slot.onclick = () => openSkillSelectionForSquad(i);
-            slot.onmouseover = function() {
-                this.style.borderColor = 'rgba(0,194,168,0.6)';
-                this.style.boxShadow = '0 0 12px rgba(0,194,168,0.3)';
-                this.style.backgroundColor = 'rgba(0,194,168,0.15)';
-            };
-            slot.onmouseout = function() {
-                this.style.borderColor = 'rgba(0,194,168,0.3)';
-                this.style.boxShadow = 'none';
-                this.style.backgroundColor = 'rgba(0,194,168,0.08)';
-            };
+    // Find skills that appear as prerequisites and update their max levels
+    skills.forEach(skill => {
+        if (skill.unlock_requirement_skillname && skill.unlock_requirement_level) {
+            const prereqSkill = skills.find(s => 
+                s.skill_name && skill.unlock_requirement_skillname &&
+                s.skill_name.toUpperCase() === skill.unlock_requirement_skillname.toUpperCase()
+            );
             
-            slot.innerHTML = `
-                <div style="font-size: 28px; margin-bottom: 8px;">⚡</div>
-                <div style="font-size: 12px; font-weight: 600; color: #00C2A8;">Skill ${i}</div>
-            `;
-        } else {
-            slot.innerHTML = `
-                <div style="font-size: 28px; margin-bottom: 8px;">🔒</div>
-                <div style="font-size: 12px; font-weight: 600; color: #98A0A6;">Locked</div>
-            `;
+            if (prereqSkill) {
+                const currentMax = maxLevels[prereqSkill.skill_id] || 1;
+                const requiredLevel = skill.unlock_requirement_level || 1;
+                maxLevels[prereqSkill.skill_id] = Math.max(currentMax, requiredLevel);
+            }
+        }
+    });
+    
+    return maxLevels;
+}
+
+// Helper: Check if skill is unlocked (same logic as Player Details)
+function checkSquadSkillUnlocked(skill, allocationMap, allSkills) {
+    const hasUnlockRequirement = skill.unlock_requirement_type && 
+                                skill.unlock_requirement_type === 'skill_level' &&
+                                skill.unlock_requirement_skillname && 
+                                skill.unlock_requirement_level;
+    
+    if (!hasUnlockRequirement) {
+        return true;
+    }
+    
+    const requiredSkillName = skill.unlock_requirement_skillname.toUpperCase();
+    const requiredLevel = skill.unlock_requirement_level;
+    
+    // Try using prerequisite_skill_id first
+    if (skill.prerequisite_skill_id && skill.prerequisite_skill_id !== 0) {
+        const prereqLevel = allocationMap[skill.prerequisite_skill_id] || 0;
+        return prereqLevel >= requiredLevel;
+    }
+    
+    // Fallback: Find by skill name
+    const prereqSkill = allSkills.find(s => 
+        s.skill_name && s.skill_name.toUpperCase() === requiredSkillName
+    );
+    
+    if (prereqSkill) {
+        const prereqLevel = allocationMap[prereqSkill.skill_id] || 0;
+        return prereqLevel >= requiredLevel;
+    }
+    
+    return false;
+}
+
+// Create skill card for squad builder (adapted for modal size)
+function createSquadSkillCard(skill, currentLevel, isUnlocked, pointsRemaining, playerId, rank, maxLevels) {
+    const card = document.createElement('div');
+    card.className = `skill-card ${!isUnlocked ? 'locked' : ''}`;
+    
+    // Get max level
+    const maxLevel = maxLevels[skill.skill_id] || 1;
+    
+    // Make card clickable
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', (e) => {
+        openSquadSkillDetailModal(skill.skill_id, skill.skill_name, playerId, rank);
+    });
+    
+    card.innerHTML = `
+        <div class="skill-card-inner">
+            <div class="skill-icon">
+                <img src="${skill.skill_image}" alt="${skill.skill_name}" 
+                     onerror="this.src='https://via.placeholder.com/80?text=SKILL'">
+                ${!isUnlocked ? '<div class="lock-overlay">🔒</div>' : ''}
+            </div>
+            
+            <div class="skill-name">${skill.skill_name}</div>
+            
+            <div class="skill-level">
+                Level: <span class="level-number">${currentLevel}</span>/${maxLevel}
+            </div>
+            
+            ${!isUnlocked ? `
+                <div class="unlock-requirement">
+                    <small>${skill.unlock_requirement_text || 'Locked'}</small>
+                </div>
+            ` : `
+                <div class="skill-actions">
+                    ${currentLevel >= maxLevel ? `
+                        <div class="max-level-badge">MAX LEVEL</div>
+                    ` : ''}
+                    ${currentLevel < maxLevel && pointsRemaining === 0 ? `
+                        <small style="color: #FF6B6B;">No points remaining</small>
+                    ` : ''}
+                </div>
+            `}
+        </div>
+    `;
+    
+    return card;
+}
+
+// Main render function for squad builder skills
+async function renderSquadPlayerSkills(playerId, rank) {
+    console.log('[SQUAD SKILLS] Rendering skills for player:', playerId, 'Rank:', rank);
+    
+    const skillsGrid = document.getElementById('squad-custom-skills');
+    if (!skillsGrid) {
+        console.error('[SQUAD SKILLS] Grid element not found');
+        return;
+    }
+    
+    if (!playerId || rank === 0) {
+        skillsGrid.innerHTML = '<p style="color: #98A0A6; text-align: center; grid-column: 1 / -1;">Select a rank to unlock skills</p>';
+        return;
+    }
+    
+    // Show loading state
+    skillsGrid.innerHTML = '<p style="color: #98A0A6; text-align: center; grid-column: 1 / -1;">Loading skills...</p>';
+    
+    try {
+        const stateKey = getSquadSkillStateKey(playerId, rank);
+        
+        // Fetch player-specific skills from getPlayerDetails endpoint
+        // This returns only the 5 skills that belong to this player (like Player Details page)
+        let skills = [];
+        try {
+            const playerResp = await window.apiClient.getPlayerDetails(playerId, rank);
+            skills = playerResp.skills || [];
+            console.log('[SQUAD SKILLS] Fetched player-specific skills:', skills.length, 'skills');
+        } catch (error) {
+            console.warn('[SQUAD SKILLS] Could not fetch player details, falling back to general skills:', error);
+            // Fallback to general skills if player details endpoint fails
+            const skillsResp = await window.apiClient.getSkills();
+            const allSkills = skillsResp.skills || skillsResp || [];
+            
+            // Try to get player from cache to see if it has skills
+            const player = getPlayers().find(p => p.id === playerId || p.player_id === playerId);
+            console.log('[SQUAD SKILLS] Cached player object:', player ? 'Found' : 'Not found');
+            if (player) {
+                console.log('[SQUAD SKILLS] Player skills type:', typeof player.skills);
+                console.log('[SQUAD SKILLS] Player skills is array?', Array.isArray(player.skills));
+                console.log('[SQUAD SKILLS] Player skills value:', player.skills);
+            }
+            
+            // Check if player has skills AND it's actually an array
+            if (player && player.skills && Array.isArray(player.skills) && player.skills.length > 0) {
+                skills = player.skills;
+                console.log('[SQUAD SKILLS] Using cached player skills array:', skills.length, 'skills');
+            } else {
+                // As last resort, use all skills but this is not ideal
+                skills = Array.isArray(allSkills) ? allSkills : [];
+                console.warn('[SQUAD SKILLS] Using all skills as fallback:', skills.length, 'skills');
+            }
         }
         
-        container.appendChild(slot);
+        // Ensure skills is always an array before proceeding
+        if (!Array.isArray(skills)) {
+            console.error('[SQUAD SKILLS] Skills is not an array, got:', typeof skills, skills);
+            skills = [];
+        }
+        
+        if (skills.length === 0) {
+            skillsGrid.innerHTML = '<p style="color: #98A0A6; text-align: center; grid-column: 1 / -1;">No skills available</p>';
+            return;
+        }
+        
+        console.log('[SQUAD SKILLS] About to process', skills.length, 'skills');
+        
+        // Initialize state for this player/rank if not exists
+        if (!squadBuilderSkillsState[stateKey]) {
+            squadBuilderSkillsState[stateKey] = {
+                allocations: [],
+                availablePoints: rank,
+                skills: skills
+            };
+        } else {
+            // Update skills if they changed
+            squadBuilderSkillsState[stateKey].skills = skills;
+        }
+        
+        const state = squadBuilderSkillsState[stateKey];
+        const maxLevels = calculateSquadMaxLevels(skills);
+        
+        // Build allocation map
+        const allocationMap = {};
+        state.allocations.forEach(a => {
+            allocationMap[a.skill_id] = a.skill_level;
+        });
+        
+        // Calculate points
+        const pointsSpent = state.allocations.reduce((sum, a) => sum + a.skill_level, 0);
+        const pointsRemaining = state.availablePoints - pointsSpent;
+        
+        // Update points display
+        const pointsDisplay = document.getElementById('squad-skill-points-display');
+        if (pointsDisplay) {
+            pointsDisplay.textContent = `${pointsRemaining} Point${pointsRemaining !== 1 ? 's' : ''} available`;
+        }
+        
+        console.log('[SQUAD SKILLS] Points - Available:', state.availablePoints, 'Spent:', pointsSpent, 'Remaining:', pointsRemaining);
+        console.log('[SQUAD SKILLS] Rendering', skills.length, 'skill cards');
+        
+        // Render skill cards
+        skillsGrid.innerHTML = '';
+        
+        skills.forEach(skill => {
+            const currentLevel = allocationMap[skill.skill_id] || 0;
+            const isUnlocked = checkSquadSkillUnlocked(skill, allocationMap, skills);
+            
+            const card = createSquadSkillCard(skill, currentLevel, isUnlocked, pointsRemaining, playerId, rank, maxLevels);
+            skillsGrid.appendChild(card);
+        });
+        
+    } catch (error) {
+        console.error('[SQUAD SKILLS] Error rendering skills:', error);
+        skillsGrid.innerHTML = '<p style="color: #FF6B6B; text-align: center; grid-column: 1 / -1;">Error loading skills</p>';
     }
-    
-    console.log('SQUAD CUSTOM: Rendered skill slots,', unlockedCount, 'unlocked');
 }
 
-
-
-function openSkillSelectionForSquad(skillIndex) {
-    console.log('SQUAD CUSTOM: Opening skill selection for slot:', skillIndex);
+// Open skill detail modal for squad builder
+async function openSquadSkillDetailModal(skillId, skillName, playerId, rank) {
+    console.log('[SQUAD SKILLS] Opening modal for skill:', skillId);
     
-    if (typeof showToast === 'function') {
-        showToast(`Skill ${skillIndex} clicked - Skill selection coming soon`, 'info');
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('squad-skill-detail-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'squad-skill-detail-modal';
+        modal.className = 'skill-detail-modal';
+        modal.style.display = 'none';
+        document.body.appendChild(modal);
     }
     
-    // TODO: Integrate with the same skill selection modal as app.js
+    // Store info for re-rendering
+    modal.dataset.skillId = skillId;
+    modal.dataset.skillName = skillName;
+    modal.dataset.playerId = playerId;
+    modal.dataset.rank = rank;
+    
+    // Show loading
+    modal.innerHTML = `
+        <div class="skill-modal-content">
+            <h3>Loading ${skillName}...</h3>
+        </div>
+    `;
+    modal.style.display = 'flex';
+    
+    try {
+        const stateKey = getSquadSkillStateKey(playerId, rank);
+        const state = squadBuilderSkillsState[stateKey];
+        
+        if (!state) {
+            throw new Error('No skill state found');
+        }
+        
+        // Fetch skill boosts
+        const boostsData = await window.apiClient.getSkillBoosts(skillId);
+        const boosts = boostsData.boosts || [];
+        
+        // Find current level
+        const allocation = state.allocations.find(a => a.skill_id === skillId);
+        const currentLevel = allocation ? allocation.skill_level : 0;
+        
+        // Calculate points remaining
+        const pointsSpent = state.allocations.reduce((sum, a) => sum + a.skill_level, 0);
+        const pointsRemaining = state.availablePoints - pointsSpent;
+        
+        console.log('[SQUAD SKILLS] Current level:', currentLevel, 'Points remaining:', pointsRemaining);
+        
+        // Render modal
+        renderSquadSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining, skillId, playerId, rank);
+        
+    } catch (error) {
+        console.error('[SQUAD SKILLS] Error loading skill details:', error);
+        modal.innerHTML = `
+            <div class="skill-modal-content">
+                <h3>Error Loading Skill</h3>
+                <p style="color: #FF6B6B;">${error.message}</p>
+                <button onclick="closeSquadSkillDetailModal()" style="margin-top: 15px; padding: 10px 20px; background: #00C2A8; border: none; border-radius: 8px; cursor: pointer;">Close</button>
+            </div>
+        `;
+    }
 }
+
+// Render modal content
+function renderSquadSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining, skillId, playerId, rank) {
+    const modal = document.getElementById('squad-skill-detail-modal');
+    
+    let boostsHTML = '';
+    
+    boosts.forEach(boost => {
+        const levelNum = boost.level_number;
+        const isSelected = currentLevel === levelNum;
+        const pointsNeeded = levelNum - currentLevel;
+        const canAfford = pointsNeeded <= pointsRemaining;
+        const isDisabled = !isSelected && !canAfford;
+        
+        const cursorStyle = isDisabled ? 'cursor: not-allowed;' : 'cursor: pointer;';
+        
+        boostsHTML += `
+            <div class="boost-level-section ${isSelected ? 'selected' : ''} ${currentLevel >= levelNum && !isSelected ? 'unlocked' : ''} ${isDisabled ? 'disabled' : ''}" 
+                 data-skill-id="${skillId}"
+                 data-level="${levelNum}"
+                 data-current-level="${currentLevel}"
+                 data-player-id="${playerId}"
+                 data-rank="${rank}"
+                 data-disabled="${isDisabled}"
+                 style="${cursorStyle}">
+                <div class="level-checkbox ${isSelected ? 'checked' : ''} ${currentLevel >= levelNum && !isSelected ? 'partial' : ''} ${isDisabled ? 'disabled' : ''}">
+                    ${isSelected ? '✓' : (currentLevel >= levelNum ? '○' : '')}
+                </div>
+                <h4>Level ${levelNum}</h4>
+                ${isDisabled && pointsNeeded > 0 ? `<div class="insufficient-points">Need ${pointsNeeded} more point${pointsNeeded > 1 ? 's' : ''}</div>` : ''}
+                <div class="boost-stats">
+        `;
+        
+        // Show all non-zero boosts
+        for (const [key, value] of Object.entries(boost)) {
+            if (key.startsWith('boost_') && value && value !== 0) {
+                const statName = key.replace('boost_', '').replace(/_/g, ' ').toUpperCase();
+                boostsHTML += `<div class="boost-stat">+${value} ${statName}</div>`;
+            }
+        }
+        
+        boostsHTML += `
+                </div>
+            </div>
+        `;
+    });
+    
+    modal.innerHTML = `
+        <div class="skill-modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="closeSquadSkillDetailModal()">✕</button>
+            <h2>${skillName}</h2>
+            <div class="points-info">
+                <div class="current-level-badge">Current Level: ${currentLevel}</div>
+                <div class="points-remaining-badge">${pointsRemaining} point${pointsRemaining !== 1 ? 's' : ''} available</div>
+            </div>
+            <div class="boosts-container" id="squad-skill-boosts-container">
+                ${boostsHTML || '<p>No boost data available</p>'}
+            </div>
+            <button class="modal-action-btn" onclick="closeSquadSkillDetailModal()">Close</button>
+        </div>
+    `;
+    
+    // Attach event listeners to boost level sections
+    const boostSections = modal.querySelectorAll('.boost-level-section');
+    boostSections.forEach(section => {
+        const isDisabled = section.dataset.disabled === 'true';
+        if (!isDisabled) {
+            section.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const skillId = parseInt(section.dataset.skillId);
+                const level = parseInt(section.dataset.level);
+                const currentLevel = parseInt(section.dataset.currentLevel);
+                const playerId = parseInt(section.dataset.playerId);
+                const rank = parseInt(section.dataset.rank);
+                selectSquadSkillLevel(skillId, level, currentLevel, playerId, rank);
+            });
+        }
+    });
+}
+
+// Select skill level in squad builder
+async function selectSquadSkillLevel(skillId, targetLevel, currentLevel, playerId, rank) {
+    console.log('[SQUAD SKILLS] Selecting level:', targetLevel, 'Current:', currentLevel);
+    
+    try {
+        const stateKey = getSquadSkillStateKey(playerId, rank);
+        const state = squadBuilderSkillsState[stateKey];
+        
+        if (!state) {
+            throw new Error('No skill state found');
+        }
+        
+        // Determine new level
+        let newLevel = targetLevel;
+        if (currentLevel === targetLevel && targetLevel > 0) {
+            newLevel = 0; // Deselect
+        }
+        
+        if (newLevel === currentLevel) {
+            console.log('[SQUAD SKILLS] No change needed');
+            return;
+        }
+        
+        // Check points availability for upgrades
+        const pointsSpent = state.allocations.reduce((sum, a) => sum + a.skill_level, 0);
+        const pointsRemaining = state.availablePoints - pointsSpent;
+        const pointsNeeded = newLevel - currentLevel;
+        
+        if (pointsNeeded > pointsRemaining) {
+            if (typeof showToast === 'function') {
+                showToast(`❌ Not enough skill points (need ${pointsNeeded}, have ${pointsRemaining})`, 'error');
+            }
+            return;
+        }
+        
+        // Update state
+        const existingIndex = state.allocations.findIndex(a => a.skill_id === skillId);
+        if (existingIndex >= 0) {
+            if (newLevel === 0) {
+                state.allocations.splice(existingIndex, 1);
+            } else {
+                state.allocations[existingIndex].skill_level = newLevel;
+            }
+        } else if (newLevel > 0) {
+            state.allocations.push({ skill_id: skillId, skill_level: newLevel });
+        }
+        
+        console.log('[SQUAD SKILLS] Updated allocations:', state.allocations);
+        
+        // Show success message
+        if (typeof showToast === 'function') {
+            if (newLevel === 0) {
+                showToast(`✅ Skill removed!`, 'success');
+            } else if (newLevel > currentLevel) {
+                showToast(`✅ Skill upgraded to Level ${newLevel}!`, 'success');
+            } else {
+                showToast(`✅ Skill changed to Level ${newLevel}`, 'success');
+            }
+        }
+        
+        // Re-render skills
+        await renderSquadPlayerSkills(playerId, rank);
+        
+        // Update modal in-place
+        const modal = document.getElementById('squad-skill-detail-modal');
+        if (modal && modal.style.display !== 'none') {
+            const allocationMap = {};
+            state.allocations.forEach(a => {
+                allocationMap[a.skill_id] = a.skill_level;
+            });
+            
+            const newPointsSpent = state.allocations.reduce((sum, a) => sum + a.skill_level, 0);
+            const newPointsRemaining = state.availablePoints - newPointsSpent;
+            const updatedCurrentLevel = allocationMap[skillId] || 0;
+            
+            const boostsData = await window.apiClient.getSkillBoosts(skillId);
+            const boosts = boostsData.boosts || [];
+            
+            renderSquadSkillDetailModal(
+                modal.dataset.skillName,
+                boosts,
+                updatedCurrentLevel,
+                newPointsRemaining,
+                skillId,
+                playerId,
+                rank
+            );
+            
+            modal.style.display = 'flex';
+        }
+        
+    } catch (error) {
+        console.error('[SQUAD SKILLS] Error selecting level:', error);
+        if (typeof showToast === 'function') {
+            showToast(`❌ ${error.message}`, 'error');
+        }
+    }
+}
+
+// Close squad skill modal
+function closeSquadSkillDetailModal() {
+    const modal = document.getElementById('squad-skill-detail-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+// Close modal on backdrop click
+if (!window.squadSkillModalListenerAttached) {
+    document.addEventListener('click', (e) => {
+        const modal = document.getElementById('squad-skill-detail-modal');
+        if (e.target === modal) {
+            closeSquadSkillDetailModal();
+        }
+    });
+    window.squadSkillModalListenerAttached = true;
+}
+
+// Make functions globally accessible
+window.selectSquadSkillLevel = selectSquadSkillLevel;
+window.closeSquadSkillDetailModal = closeSquadSkillDetailModal;
 
 
 
@@ -3567,7 +4010,11 @@ function openPlayerCustomizationModal(playerId, slotId) {
   // Render mini card preview
   renderCustomizationMiniCard(player);
 
-  renderSquadSkillSlots(0);
+  // Initialize skills display with message to select rank
+  const skillsGrid = document.getElementById('squad-custom-skills');
+  if (skillsGrid) {
+    skillsGrid.innerHTML = '<p style="color: #98A0A6; text-align: center; grid-column: 1 / -1;">Select a rank to unlock skills</p>';
+  }
 
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
