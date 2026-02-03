@@ -2702,7 +2702,8 @@ window.state = {
         club: '',
         nation: '',
         skillMoves: '',
-        event: ''
+        event: '',
+        auctionable: ''
     },
     searchQuery: '',
     sortBy: 'ovr',  // Changed default to 'ovr'
@@ -4390,16 +4391,22 @@ async function loadDatabase() {
 
         // ========== ✅ NEW: Add Auctionable filter ==========
         const auctionableToggle = document.getElementById('auctionable-toggle');
+        const mobileAuctionable = document.getElementById('mobile-filter-auctionable')?.value || '';
         console.log('[DEBUG] Auctionable toggle element:', auctionableToggle);
         console.log('[DEBUG] Toggle checked state:', auctionableToggle?.checked);
-        const auctionableOnly = auctionableToggle?.checked ?? false;
-        if (auctionableOnly) {
+        const auctionableFilter = auctionableToggle?.checked
+            ? 'auctionable'
+            : ((state.filters && state.filters.auctionable) || mobileAuctionable || '');
+        if (auctionableFilter === 'auctionable') {
             // Only show tradable players (is_untradable = 0)
             filters.is_untradable = 0;
-            console.log('[DEBUG] Toggle is ON - Added filter: is_untradable = 0');
-
+            console.log('[DEBUG] Auctionable filter: Auctionable only (is_untradable = 0)');
+        } else if (auctionableFilter === 'unauctionable') {
+            // Only show non-tradable players (is_untradable = 1)
+            filters.is_untradable = 1;
+            console.log('[DEBUG] Auctionable filter: Non-auctionable only (is_untradable = 1)');
         } else {
-            console.log('[DEBUG] Toggle is OFF - No is_untradable filter added');
+            console.log('[DEBUG] Auctionable filter: All players (no is_untradable filter)');
         }
         // When toggle is OFF, don't send filter = show all players
 
@@ -4875,6 +4882,9 @@ function initFilters() {
                     auctionStatusText.textContent = 'All Players';
                     console.log('[DEBUG EVENT] Text updated to: All Players');
                 }
+                if (state && state.filters) {
+                    state.filters.auctionable = e.target.checked ? 'auctionable' : '';
+                }
                 
                 // Re-apply filters
                 state.currentOffset = 0;
@@ -4928,7 +4938,8 @@ function clearAllFilters() {
         nation: '',
         club: '',
         skillMoves: '',
-        event: ''
+        event: '',
+        auctionable: ''
     };
 
     // 2. Reset UI Elements
@@ -4962,6 +4973,13 @@ function clearAllFilters() {
 
     const eventFilter = document.getElementById('filter-event');
     if (eventFilter) eventFilter.value = '';
+
+    const auctionableToggle = document.getElementById('auctionable-toggle');
+    const auctionStatusText = document.getElementById('auction-status-text');
+    if (auctionableToggle) {
+        auctionableToggle.checked = false;
+        if (auctionStatusText) auctionStatusText.textContent = 'All Players';
+    }
 
     // Reset nation flag
     const nationFlag = document.getElementById('filter-nation-flag');
@@ -5641,6 +5659,7 @@ function applyMobileFilters() {
   const sortBy = document.getElementById('mobile-sort-by')?.value || '';
   const teamElement = document.getElementById('mobile-filter-team');
   const team = teamElement ? teamElement.value : null;
+  const auctionableStatus = document.getElementById('mobile-filter-auctionable')?.value || '';
 
   if (typeof state !== 'undefined' && state.currentView === 'watchlist') {
     if (typeof watchlistFilters !== 'undefined') {
@@ -5696,6 +5715,24 @@ function applyMobileFilters() {
     return;
   }
 
+  if (typeof state !== 'undefined') {
+    state.filters.position = position;
+    state.filters.ratingMin = ratingMin;
+    state.filters.ratingMax = ratingMax;
+    state.filters.priceMin = priceMin === '' ? null : parseInt(priceMin, 10);
+    state.filters.priceMax = priceMax === '' ? null : parseInt(priceMax, 10);
+    state.filters.league = league;
+    state.filters.club = team || '';
+    state.filters.nation = nation;
+    state.filters.skillMoves = skill;
+    state.filters.event = event;
+    state.filters.auctionable = auctionableStatus;
+    if (sortBy) {
+      state.sortBy = sortBy;
+    }
+    state.currentOffset = 0;
+  }
+
   if (document.getElementById('filter-position'))
     document.getElementById('filter-position').value = position;
   if (document.getElementById('rating-min'))
@@ -5720,6 +5757,24 @@ function applyMobileFilters() {
   if (document.getElementById('sort-by'))
     document.getElementById('sort-by').value = sortBy;
 
+  const auctionableToggle = document.getElementById('auctionable-toggle');
+  const auctionStatusText = document.getElementById('auction-status-text');
+  if (auctionableToggle) {
+    if (auctionableStatus === 'auctionable') {
+      auctionableToggle.checked = true;
+      if (auctionStatusText) auctionStatusText.textContent = 'Only With Prices';
+    } else {
+      auctionableToggle.checked = false;
+      if (auctionStatusText) {
+        auctionStatusText.textContent = auctionableStatus === 'unauctionable'
+          ? 'Non-auctionable Only'
+          : 'All Players';
+      }
+    }
+  }
+
+  updateRatingDisplay();
+  updatePriceDisplay();
   updateFilterBadge();
   toggleMobileFilters();
 
@@ -5765,6 +5820,8 @@ function clearMobileFilters() {
 
   if (document.getElementById('mobile-filter-event')) document.getElementById('mobile-filter-event').value = '';
 
+  if (document.getElementById('mobile-filter-auctionable'))
+    document.getElementById('mobile-filter-auctionable').value = '';
 
   if (document.getElementById('mobile-sort-by'))
     document.getElementById('mobile-sort-by').value = 'name';
@@ -5790,6 +5847,31 @@ function clearMobileFilters() {
   if (document.getElementById('sort-by'))
     document.getElementById('sort-by').value = 'name';
 
+  const auctionableToggle = document.getElementById('auctionable-toggle');
+  const auctionStatusText = document.getElementById('auction-status-text');
+  if (auctionableToggle) {
+    auctionableToggle.checked = false;
+    if (auctionStatusText) auctionStatusText.textContent = 'All Players';
+  }
+
+  if (typeof state !== 'undefined') {
+    state.filters.position = '';
+    state.filters.ratingMin = 40;
+    state.filters.ratingMax = 150;
+    state.filters.priceMin = null;
+    state.filters.priceMax = null;
+    state.filters.league = '';
+    state.filters.club = '';
+    state.filters.nation = '';
+    state.filters.skillMoves = '';
+    state.filters.event = '';
+    state.filters.auctionable = '';
+    state.sortBy = 'name';
+    state.currentOffset = 0;
+  }
+
+  updateRatingDisplay();
+  updatePriceDisplay();
   updateFilterBadge();
 
   if (typeof loadDatabase === 'function') {
@@ -5809,8 +5891,11 @@ function updateFilterBadge() {
   const priceMin = document.getElementById('mobile-price-min')?.value || '';
   const priceMax = document.getElementById('mobile-price-max')?.value || '';
   const league = document.getElementById('mobile-filter-league')?.value || '';
+  const team = document.getElementById('mobile-filter-team')?.value || '';
   const nation = document.getElementById('mobile-filter-nation')?.value || '';
   const skill = document.getElementById('mobile-filter-skill')?.value || '';
+  const event = document.getElementById('mobile-filter-event')?.value || '';
+  const auctionableStatus = document.getElementById('mobile-filter-auctionable')?.value || '';
 
   const hasActiveFilters = position ||
     ratingMin != 40 ||
@@ -5820,7 +5905,9 @@ function updateFilterBadge() {
     league ||
     team ||
     nation ||
-    skill;
+    skill ||
+    event ||
+    auctionableStatus;
 
   badge.style.display = hasActiveFilters ? 'block' : 'none';
 }
