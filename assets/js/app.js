@@ -5598,10 +5598,34 @@ function toggleMobileFilters() {
 
     if (modal.classList.contains('active')) {
       document.body.style.overflow = 'hidden';
+      if (typeof state !== 'undefined' && state.currentView === 'database') {
+        syncMobileClubFilterOptions();
+      }
     } else {
       document.body.style.overflow = '';
     }
   }
+}
+
+function syncMobileClubFilterOptions() {
+  const source = document.getElementById('filter-club');
+  const target = document.getElementById('mobile-filter-team');
+  if (!source || !target) return;
+  if (target.dataset.synced === 'true') return;
+  if (target.options.length > 1) {
+    target.dataset.synced = 'true';
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  Array.from(source.options).forEach(option => {
+    const cloned = option.cloneNode(true);
+    fragment.appendChild(cloned);
+  });
+
+  target.innerHTML = '';
+  target.appendChild(fragment);
+  target.dataset.synced = 'true';
 }
 
 function applyMobileFilters() {
@@ -5684,6 +5708,8 @@ function applyMobileFilters() {
     document.getElementById('price-max').value = priceMax;
   if (document.getElementById('filter-league'))
     document.getElementById('filter-league').value = league;
+  if (document.getElementById('filter-club'))
+    document.getElementById('filter-club').value = team;
   if (document.getElementById('filter-nation'))
     document.getElementById('filter-nation').value = nation;
   if (document.getElementById('filter-skill'))
@@ -5730,6 +5756,8 @@ function clearMobileFilters() {
     document.getElementById('mobile-price-max').value = '';
   if (document.getElementById('mobile-filter-league'))
     document.getElementById('mobile-filter-league').value = '';
+  if (document.getElementById('mobile-filter-team'))
+    document.getElementById('mobile-filter-team').value = '';
   if (document.getElementById('mobile-filter-nation'))
     document.getElementById('mobile-filter-nation').value = '';
   if (document.getElementById('mobile-filter-skill'))
@@ -5753,6 +5781,8 @@ function clearMobileFilters() {
     document.getElementById('price-max').value = '';
   if (document.getElementById('filter-league'))
     document.getElementById('filter-league').value = '';
+  if (document.getElementById('filter-club'))
+    document.getElementById('filter-club').value = '';
   if (document.getElementById('filter-nation'))
     document.getElementById('filter-nation').value = '';
   if (document.getElementById('filter-skill'))
@@ -5788,6 +5818,7 @@ function updateFilterBadge() {
     priceMin ||
     priceMax ||
     league ||
+    team ||
     nation ||
     skill;
 

@@ -3590,6 +3590,16 @@ let nationFilterTimeout = null;
 async function loadNationsForSquadBuilder() {
     try {
         console.log('🌍 [SQUAD BUILDER] Fetching nations from API...');
+        if (!window.apiClient || typeof window.apiClient.getNations !== 'function') {
+            console.warn('âš ï¸ [SQUAD BUILDER] apiClient.getNations unavailable, falling back to COUNTRIES');
+            if (typeof COUNTRIES !== 'undefined' && Array.isArray(COUNTRIES)) {
+                allNations = COUNTRIES.slice();
+                return;
+            }
+            allNations = [];
+            return;
+        }
+
         const response = await window.apiClient.getNations();
         
         // API returns {nations: Array(176)}
