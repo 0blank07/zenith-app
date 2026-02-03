@@ -1516,7 +1516,6 @@ async function renderPlayerSkills(player) {
   
   const skillsGrid = document.getElementById('player-skills-grid');
   if (!skillsGrid) {
-    console.error('[SKILLS] Grid element not found');
     return;
   }
 
@@ -1605,6 +1604,17 @@ function checkIfSkillUnlocked(skill, allocationMap, allSkills) {
   
   // Can't find prerequisite = assume locked
   return false;
+}
+
+function getSkillUnlockMessage(skill) {
+  if (!skill) return 'Skill locked';
+  if (skill.unlock_requirement_text) return skill.unlock_requirement_text;
+  if (skill.unlock_requirement_type === 'skill_level' &&
+      skill.unlock_requirement_skillname &&
+      skill.unlock_requirement_level) {
+    return `Requires ${skill.unlock_requirement_skillname} Level ${skill.unlock_requirement_level}`;
+  }
+  return 'Skill locked';
 }
 
 
@@ -1831,10 +1841,14 @@ window.resetPlayerSkills = async function(playerId, rank) {
 window.openSkillDetailModal = async function(skillId, skillName) {
   console.log('[SKILLS] Opening modal for skill:', skillId);
   
-  const modal = document.getElementById('skill-detail-modal');
+  let modal = document.getElementById('skill-detail-modal');
   if (!modal) {
-    console.error('[SKILLS] Modal element not found');
-    return;
+    modal = document.createElement('div');
+    modal.id = 'skill-detail-modal';
+    modal.className = 'skill-detail-modal';
+    modal.style.display = 'none';
+    modal.innerHTML = '<div class="skill-modal-content"></div>';
+    document.body.appendChild(modal);
   }
   
   // Store skill info in modal dataset for re-opening
@@ -1872,6 +1886,27 @@ window.openSkillDetailModal = async function(skillId, skillName) {
     // Find current level for this skill
     const allocation = userAllocations.find(a => a.skill_id === skillId);
     const currentLevel = allocation ? allocation.skill_level : 0;
+
+    // Determine unlock state
+    const allocationMap = {};
+    userAllocations.forEach(a => {
+      allocationMap[a.skill_id] = a.skill_level;
+    });
+    const allSkills = player.skills || [];
+    const skillEntry = allSkills.find(s => s.skill_id === skillId);
+    const isUnlocked = skillEntry ? checkIfSkillUnlocked(skillEntry, allocationMap, allSkills) : true;
+    const unlockMessage = isUnlocked ? '' : getSkillUnlockMessage(skillEntry);
+    if (!isUnlocked) {
+      modal.innerHTML = `
+        <div class="skill-modal-content" onclick="event.stopPropagation()">
+          <button class="modal-close-btn" onclick="closeSkillDetailModal()">✕</button>
+          <h2>${skillName}</h2>
+          <div style="margin-top: 8px; color: #FFB86B; font-weight: 600;">${unlockMessage}</div>
+          <button class="modal-action-btn" onclick="closeSkillDetailModal()">Close</button>
+        </div>
+      `;
+      return;
+    }
     
     // Calculate points remaining
     const availablePoints = player.available_skill_points || player.rank || 0;
@@ -1881,7 +1916,10 @@ window.openSkillDetailModal = async function(skillId, skillName) {
     console.log('[SKILLS] Current level:', currentLevel, 'Points remaining:', pointsRemaining);
     
     // Render modal content
-    renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining, skillId, player);
+    renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining, skillId, player, {
+      isUnlocked,
+      unlockMessage
+    });
     
   } catch (error) {
     console.error('[SKILLS] Error loading skill details:', error);
@@ -1895,8 +1933,10 @@ window.openSkillDetailModal = async function(skillId, skillName) {
   }
 };
 
-function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining, skillId, player) {
+function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining, skillId, player, options = {}) {
   const modal = document.getElementById('skill-detail-modal');
+  const isUnlocked = options.isUnlocked !== false;
+  const unlockMessage = options.unlockMessage || '';
   
   let boostsHTML = '';
   
@@ -1909,14 +1949,15 @@ function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining
     const canAfford = pointsNeeded <= pointsRemaining;
     // Only disable if NOT selected AND requires MORE points than available
     const isDisabled = !isSelected && !canAfford;
+    const isLocked = !isUnlocked;
     
     // FIX: Allow clicking any affordable level (including lower levels for downgrade)
     // Add event.stopPropagation() to prevent modal from closing
-    const onclickAttr = isDisabled ? '' : `onclick="event.stopPropagation(); selectSkillLevel(${skillId}, ${levelNum}, ${currentLevel}, ${player.player_id}, ${player.rank})"`;
-    const cursorStyle = isDisabled ? 'cursor: not-allowed;' : 'cursor: pointer;';
+    const onclickAttr = (isDisabled || isLocked) ? '' : `onclick="event.stopPropagation(); selectSkillLevel(${skillId}, ${levelNum}, ${currentLevel}, ${player.player_id}, ${player.rank})"`;
+    const cursorStyle = (isDisabled || isLocked) ? 'cursor: not-allowed;' : 'cursor: pointer;';
     
     boostsHTML += `
-      <div class="boost-level-section ${isSelected ? 'selected' : ''} ${currentLevel >= levelNum && !isSelected ? 'unlocked' : ''} ${isDisabled ? 'disabled' : ''}" 
+      <div class="boost-level-section ${isSelected ? 'selected' : ''} ${currentLevel >= levelNum && !isSelected ? 'unlocked' : ''} ${(isDisabled || isLocked) ? 'disabled' : ''}" 
            ${onclickAttr}
            style="${cursorStyle}">
         <div class="level-checkbox ${isSelected ? 'checked' : ''} ${currentLevel >= levelNum && !isSelected ? 'partial' : ''} ${isDisabled ? 'disabled' : ''}">
@@ -1957,6 +1998,7 @@ function renderSkillDetailModal(skillName, boosts, currentLevel, pointsRemaining
     <div class="skill-modal-content" onclick="event.stopPropagation()">
       <button class="modal-close-btn" onclick="closeSkillDetailModal()">✕</button>
       <h2>${skillName}</h2>
+      ${!isUnlocked ? `<div style="margin-top: 8px; color: #FFB86B; font-weight: 600;">${unlockMessage}</div>` : ''}
       <div class="points-info">
         <div class="current-level-badge">Current Level: ${currentLevel}</div>
         <div class="points-remaining-badge">${pointsRemaining} point${pointsRemaining !== 1 ? 's' : ''} available</div>
@@ -2064,17 +2106,38 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
         const boosts = boostsData.boosts || [];
         
         // Re-render modal content directly (no loading state, no flicker)
+        const updatedAllocMap = {};
+        allocations.forEach(a => {
+          updatedAllocMap[a.skill_id] = a.skill_level;
+        });
+        const updatedSkills = updatedPlayer.skills || [];
+        const updatedSkillEntry = updatedSkills.find(s => s.skill_id === skillId);
+        const updatedUnlocked = updatedSkillEntry ? checkIfSkillUnlocked(updatedSkillEntry, updatedAllocMap, updatedSkills) : true;
+        const updatedUnlockMessage = updatedUnlocked ? '' : getSkillUnlockMessage(updatedSkillEntry);
+
         renderSkillDetailModal(
           modal.dataset.skillName, 
           boosts, 
           updatedCurrentLevel, 
           pointsRemaining, 
           skillId, 
-          updatedPlayer
+          updatedPlayer,
+          {
+            isUnlocked: updatedUnlocked,
+            unlockMessage: updatedUnlockMessage
+          }
         );
         
         // FIX: Ensure modal stays visible
         modal.style.display = 'flex';
+      }
+
+      // Update squad builder skills if customization modal is open
+      if (typeof renderSquadPlayerSkills === 'function' &&
+          window.squadCustomizationState &&
+          String(window.squadCustomizationState.playerId) === String(playerId)) {
+        window.squadCustomizationState.selectedRank = rank;
+        await renderSquadPlayerSkills();
       }
     }
     

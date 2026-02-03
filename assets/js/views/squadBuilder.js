@@ -63,8 +63,8 @@ window.squadState = {
 };
 
 
-let squadCustomizationState = {
-  
+let squadCustomizationState = window.squadCustomizationState = {
+    
     playerId: null,
     slotId: null,
     selectedRank: 0,
@@ -3363,7 +3363,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // SQUAD PLAYER CUSTOMIZATION FUNCTIONS
 // ============================================
 
-async function selectSquadRank(rankNumber) {
+async function selectSquadRank(rankNumber, options = {}) {
     console.log('SQUAD CUSTOM: Selecting rank:', rankNumber);
     
     squadCustomizationState.selectedRank = rankNumber;
@@ -3395,7 +3395,7 @@ async function selectSquadRank(rankNumber) {
     renderSquadSkillsMessage('Loading skills...');
     await renderSquadPlayerSkills();
     
-    if (typeof showToast === 'function') {
+    if (options.showToast !== false && typeof showToast === 'function') {
         showToast(`Rank ${rankNumber} selected - ${skillPoints} skill point${skillPoints !== 1 ? 's' : ''} available`, 'success');
     }
 }
@@ -3451,9 +3451,19 @@ function renderSquadSkillsMessage(message) {
     container.innerHTML = `<p style="color: #98A0A6; text-align: center;">${message}</p>`;
 }
 
+function ensureSquadSkillDetailModal() {
+    const modal = document.getElementById('skill-detail-modal');
+    if (!modal) return;
+    if (modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+    }
+}
+
 async function renderSquadPlayerSkills() {
     const container = document.getElementById('squad-custom-skills');
     if (!container) return;
+
+    ensureSquadSkillDetailModal();
 
     const playerId = squadCustomizationState.playerId;
     const rank = squadCustomizationState.selectedRank || 0;
@@ -3533,6 +3543,9 @@ async function renderSquadPlayerSkills() {
         ? calculateMaxLevels(availableSkills)
         : {};
 
+    container.style.display = 'grid';
+    container.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+    container.style.gap = '12px';
     container.innerHTML = '';
     availableSkills.forEach(skill => {
         const currentLevel = allocationMap[skill.skill_id] || 0;
@@ -3542,6 +3555,8 @@ async function renderSquadPlayerSkills() {
 
         if (typeof createSkillCard === 'function') {
             const card = createSkillCard(skill, currentLevel, isUnlocked, pointsRemaining, mergedPlayer, maxLevels);
+            card.style.minHeight = '120px';
+            card.style.pointerEvents = isUnlocked ? 'auto' : 'none';
             container.appendChild(card);
         } else {
             const fallbackCard = document.createElement('div');
@@ -3606,7 +3621,8 @@ function openPlayerCustomizationModal(playerId, slotId) {
   squadCustomizationState.selectedSkills = [];
   squadCustomizationState.player = null;
 
-  const player = getPlayers().find(p => p.id === playerId || p.player_id === playerId);
+  const resolvedPlayerId = squadCustomizationState.playerId;
+  const player = getPlayers().find(p => p.player_id === resolvedPlayerId || p.id === resolvedPlayerId);
   const modal = document.getElementById('squad-player-customization-modal');
 
   if (!modal) {
@@ -3617,7 +3633,9 @@ function openPlayerCustomizationModal(playerId, slotId) {
   // Render mini card preview
   renderCustomizationMiniCard(player);
 
-  renderSquadSkillsMessage('Select a rank to view skills');
+  ensureSquadSkillDetailModal();
+  const initialRank = player?.rank || 1;
+  selectSquadRank(initialRank, { showToast: false });
 
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -3629,6 +3647,9 @@ function closePlayerCustomizationModal() {
     if (modal) {
         modal.style.display = 'none';
         document.body.style.overflow = 'auto';
+    }
+    if (typeof closeSkillDetailModal === 'function') {
+        closeSkillDetailModal();
     }
 }
 
