@@ -402,6 +402,11 @@ window.getStat = getStat;
 window.renderPlayerStatsSection = function(player) {
     if (!player) return '';
 
+    console.log('[STATS] Rendering stats for player:', player.player_id, 'Boosts:', {
+        training: player.training_boosts,
+        skills: player.skill_boosts
+    });
+
     const isGoalkeeper = player.position === 'GK';
 
     const getBaseColor = (value) => {
@@ -1465,6 +1470,23 @@ async function renderPlayerDetail(player) {
     }, 100);
 }
 
+window.updatePlayerStatsSection = function(player) {
+    const container = document.getElementById('player-detail-view');
+    if (!container) {
+        console.warn('[STATS] Player detail container not found - skipping stats update.');
+        return;
+    }
+
+    const statsSection = container.querySelector('.player-stats-section');
+    if (!statsSection) {
+        console.warn('[STATS] Stats section not found - skipping stats update.');
+        return;
+    }
+
+    console.log('[STATS] Re-rendering player detail stats section for:', player.player_id);
+    statsSection.outerHTML = window.renderPlayerStatsSection(player);
+};
+
 // Add this function after renderPlayerDetail()
 // ==================== RENDER PLAYER SKILLS ====================
 // ==================== CALCULATE MAX LEVELS ====================
@@ -1761,14 +1783,21 @@ window.upgradeSkillLevel = async function(skillId, newLevel, playerId, rank) {
       };
       
       state.selectedPlayer = updatedPlayer;
+      console.log('[SKILLS] Updated player boosts after upgrade:', {
+        training: updatedPlayer.training_boosts,
+        skills: updatedPlayer.skill_boosts
+      });
       
       // Re-render skills section only
       await renderPlayerSkills(updatedPlayer);
-      
-      // Optionally re-render entire detail view to show updated stats
-         await renderPlayerSkills(updatedPlayer);
-         renderPlayerDetail(updatedPlayer);
-         cleanupRankAnimations();
+
+      // Re-render stats section to show updated skill boosts
+      if (typeof window.updatePlayerStatsSection === 'function') {
+        window.updatePlayerStatsSection(updatedPlayer);
+      } else {
+        renderPlayerDetail(updatedPlayer);
+        cleanupRankAnimations();
+      }
     }
     
   } catch (error) {
@@ -1811,7 +1840,11 @@ window.resetPlayerSkills = async function(playerId, rank) {
       
       // Re-render both skills section and player detail
       await renderPlayerSkills(updatedPlayer);
-      renderPlayerDetail(updatedPlayer);
+      if (typeof window.updatePlayerStatsSection === 'function') {
+        window.updatePlayerStatsSection(updatedPlayer);
+      } else {
+        renderPlayerDetail(updatedPlayer);
+      }
     }
     
   } catch (error) {
@@ -2068,9 +2101,20 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
       };
       
       state.selectedPlayer = updatedPlayer;
+      console.log('[SKILLS] Updated player boosts after level change:', {
+        training: updatedPlayer.training_boosts,
+        skills: updatedPlayer.skill_boosts
+      });
       
       // Re-render skills grid
       await renderPlayerSkills(updatedPlayer);
+
+      // Re-render stats section to show updated skill boosts
+      if (typeof window.updatePlayerStatsSection === 'function') {
+        window.updatePlayerStatsSection(updatedPlayer);
+      } else {
+        renderPlayerDetail(updatedPlayer);
+      }
       
       // FIX: Update modal content in-place (keep modal open, no flicker)
       const modal = document.getElementById('skill-detail-modal');
