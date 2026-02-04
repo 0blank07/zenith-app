@@ -9,6 +9,7 @@
  */
 function calculateValue() {
     let total = 0;
+    const missing = [];
     
     // Sum starter values
     Object.values(squadState.starters).forEach(pid => {
@@ -17,7 +18,12 @@ function calculateValue() {
             p.id === pid || p.playerid === pid || p.player_id === pid
         );
         if (player) {
-            total += player.price || 0;
+            const price = typeof resolveSquadPlayerPrice === 'function'
+                ? resolveSquadPlayerPrice(player)
+                : (player.price || 0);
+            total += price;
+        } else {
+            missing.push(pid);
         }
     });
     
@@ -28,10 +34,16 @@ function calculateValue() {
             p.id === pid || p.playerid === pid || p.player_id === pid
         );
         if (player) {
-            total += player.price || 0;
+            const price = typeof resolveSquadPlayerPrice === 'function'
+                ? resolveSquadPlayerPrice(player)
+                : (player.price || 0);
+            total += price;
+        } else {
+            missing.push(pid);
         }
     });
     
+    console.log('[SQUAD VALUE] Total:', total, 'Missing:', missing.length ? missing : 'none');
     return total;
 }
 

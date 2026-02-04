@@ -327,7 +327,18 @@ async function fetchPlayersForPicker() {
 
         // Use getPlayers instead of searchPlayers to ensure filters like Position are respected
         const data = await window.apiClient.getPlayers(params);
-        pickerSearchResults = data.players;
+        let players = data.players || [];
+
+        if (window.supabaseProvider && typeof window.supabaseProvider.syncPrices === 'function') {
+            console.log('[SQUAD BUILDER] Syncing prices for picker players:', players.length);
+            players = await window.supabaseProvider.syncPrices(players);
+            console.log('[SQUAD BUILDER] Picker price sync complete. Sample:', players.slice(0, 3).map(p => ({
+                id: p.player_id || p.id,
+                price: p.price
+            })));
+        }
+
+        pickerSearchResults = players;
 
         // 🔍 DEBUG: Check what API returned
         console.log('🔍 API RESPONSE: Total players received:', pickerSearchResults.length);
@@ -519,6 +530,47 @@ function renderPlayerPicker() {
   });
 }
 
+function resolveSquadPlayerPrice(player) {
+    if (!player) return 0;
+
+    const candidates = [];
+    const rank = parseInt(player.rank ?? player.selectedRank ?? player.rank_level ?? player.rankLevel ?? 0, 10);
+    const rankKey = Number.isFinite(rank) ? `price${rank}` : null;
+
+    if (rankKey && player[rankKey] !== undefined) {
+        candidates.push(player[rankKey]);
+    }
+
+    for (let i = 0; i <= 5; i++) {
+        const key = `price${i}`;
+        if (player[key] !== undefined) {
+            candidates.push(player[key]);
+        }
+    }
+
+    candidates.push(
+        player.price,
+        player.market_price,
+        player.current_price,
+        player.latest_price,
+        player.min_price,
+        player.max_price,
+        player.value,
+        player.buy_now_price
+    );
+
+    for (const candidate of candidates) {
+        if (candidate === null || candidate === undefined) continue;
+        const normalized = typeof candidate === 'string' ? candidate.replace(/,/g, '') : candidate;
+        const numeric = Number(normalized);
+        if (Number.isFinite(numeric) && numeric > 0) {
+            return numeric;
+        }
+    }
+
+    return 0;
+}
+
 // Helper: Add player to global list so they appear correctly on the pitch
 function ensurePlayerInGlobalList(p, pid, overall) {
   console.log('📦 Ensuring player in list:', p.name, pid);
@@ -534,7 +586,7 @@ function ensurePlayerInGlobalList(p, pid, overall) {
     position: p.position,
     team: p.club || p.team,
     club: p.club || p.team,
-    price: p.price || 0,
+    price: resolveSquadPlayerPrice(p),
     player_img: p.player_img || p.playerImg || p.image
   };
   
@@ -3876,7 +3928,7 @@ function calculateValue() {
             p.id === pid || p.playerid === pid || p.player_id === pid
         );
         if (player) {
-            total += player.price || 0;
+            total += resolveSquadPlayerPrice(player);
         }
     });
     
@@ -3887,7 +3939,7 @@ function calculateValue() {
             p.id === pid || p.playerid === pid || p.player_id === pid
         );
         if (player) {
-            total += player.price || 0;
+            total += resolveSquadPlayerPrice(player);
         }
     });
     
@@ -3923,6 +3975,7 @@ window.closeBadgesModal = closeBadgesModal;
 window.toggleBadge = toggleBadge;
 // Export to global scope
 window.toggleSquadFilterPanel = toggleSquadFilterPanel;
+window.resolveSquadPlayerPrice = resolveSquadPlayerPrice;
 window.cancelSquadFilters = cancelSquadFilters;
 window.applySquadFilters = applySquadFilters;
 // Squad Customization Exports
