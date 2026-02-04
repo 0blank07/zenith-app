@@ -390,64 +390,35 @@ window.togglePlayerWatchlist = function(uniqueId) {
     }
 };
 
-
-
-
-async function renderPlayerDetail(player) {
-    const container = document.getElementById('player-detail-view');
-    if (!container) return;
-
-    cleanupRankAnimations();
-
-    // 🔁 Refresh market price based on current rank
-    if (window.supabaseProvider && typeof window.supabaseProvider.syncPrices === 'function') {
-      await window.supabaseProvider.syncPrices([player]);
+const getStat = (obj, ...names) => {
+    for (const n of names) {
+        if (obj?.[n] !== undefined && obj?.[n] !== null) return obj[n];
     }
+    return 0;
+};
 
-    const uniqueId = `${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}`;
-    const isWatchlisted = state.watchlist && state.watchlist.includes(uniqueId);
+window.getStat = getStat;
 
-    const nationField = player.nation_region || player.nation || '';
-    const flagUrl = typeof getCountryFlagUrl === 'function' ? getCountryFlagUrl(nationField) : '';
+window.renderPlayerStatsSection = function(player) {
+    if (!player) return '';
 
-    const rankIconHtml = '';  // Disable blinking rank icon
-
-
-    // Check if player is a goalkeeper
     const isGoalkeeper = player.position === 'GK';
 
-    // ---- helpers ----
     const getBaseColor = (value) => {
-        // base color (used for substats)
-        if (value >= 90) return '#3BD671';      // green
-        if (value >= 80) return '#00C2A8';      // teal
-        if (value >= 70) return '#FFB86B';      // orange
-        return '#98A0A6';                       // gray
+        if (value >= 90) return '#3BD671';
+        if (value >= 80) return '#00C2A8';
+        if (value >= 70) return '#FFB86B';
+        return '#98A0A6';
     };
 
-    const getStat = (obj, ...names) => {
-        for (const n of names) {
-            if (obj[n] !== undefined && obj[n] !== null) return obj[n];
-        }
-        return 0;
-    };
-
-    // Helper to get stat with training boost applied
     const getStatWithBoost = (player, boosts, ...names) => {
-        // Get base stat value
         let baseStat = getStat(player, ...names);
-        
-        // If no boosts, return base
         if (!boosts) return baseStat;
-        
-        // Try to find matching boost for this stat
+
         for (const name of names) {
             const normalizedName = name.toLowerCase().replace(/_/g, '');
-            
-            // Check if boost exists for this stat
             for (const boostKey in boosts) {
                 const normalizedBoostKey = boostKey.toLowerCase().replace(/_/g, '');
-                
                 if (normalizedBoostKey === normalizedName) {
                     const boost = parseInt(boosts[boostKey]) || 0;
                     console.log(`[TRAINING] Applying boost to ${name}: ${baseStat} + ${boost} = ${baseStat + boost}`);
@@ -455,11 +426,10 @@ async function renderPlayerDetail(player) {
                 }
             }
         }
-        
+
         return baseStat;
     };
 
-    // ========== WEIGHTED MAIN CATEGORY CALCULATIONS ==========
     const roundHalfUp = (val) => Math.floor(val + 0.5);
 
     const calculatePaceWithBoosts = (player, boosts) => {
@@ -575,17 +545,13 @@ async function renderPlayerDetail(player) {
         return roundHalfUp(val);
     };
 
-
-
-    // ---- build stat categories based on position ----
     let statCategories;
     if (isGoalkeeper) {
-        // GK-specific stat categories
         statCategories = [
             {
                 name: 'Diving',
                 key: 'diving',
-                mainValue: getStatWithBoost(player, player.training_boosts, 'diving'),  // Direct stat
+                mainValue: getStatWithBoost(player, player.training_boosts, 'diving'),
                 substats: [
                     { label: 'GK Diving', value: getStatWithBoost(player, player.training_boosts, 'gk_diving', 'diving') }
                 ]
@@ -593,7 +559,7 @@ async function renderPlayerDetail(player) {
             {
                 name: 'Positioning',
                 key: 'gk_positioning',
-                mainValue: getStatWithBoost(player, player.training_boosts, 'gk_positioning', 'positioning'),  // Direct stat
+                mainValue: getStatWithBoost(player, player.training_boosts, 'gk_positioning', 'positioning'),
                 substats: [
                     { label: 'GK Positioning', value: getStatWithBoost(player, player.training_boosts, 'gk_positioning', 'positioning') }
                 ]
@@ -601,7 +567,7 @@ async function renderPlayerDetail(player) {
             {
                 name: 'Handling',
                 key: 'handling',
-                mainValue: getStatWithBoost(player, player.training_boosts, 'handling'),  // Direct stat
+                mainValue: getStatWithBoost(player, player.training_boosts, 'handling'),
                 substats: [
                     { label: 'GK Handling', value: getStatWithBoost(player, player.training_boosts, 'gk_handling', 'handling') }
                 ]
@@ -609,7 +575,7 @@ async function renderPlayerDetail(player) {
             {
                 name: 'Reflexes',
                 key: 'reflexes',
-                mainValue: getStatWithBoost(player, player.training_boosts, 'reflexes'),  // Direct stat
+                mainValue: getStatWithBoost(player, player.training_boosts, 'reflexes'),
                 substats: [
                     { label: 'GK Reflexes', value: getStatWithBoost(player, player.training_boosts, 'gk_reflexes', 'reflexes') },
                     { label: 'Jumping', value: getStatWithBoost(player, player.training_boosts, 'jumping') }
@@ -618,7 +584,7 @@ async function renderPlayerDetail(player) {
             {
                 name: 'Kicking',
                 key: 'kicking',
-                mainValue: getStatWithBoost(player, player.training_boosts, 'kicking'),  // Direct stat
+                mainValue: getStatWithBoost(player, player.training_boosts, 'kicking'),
                 substats: [
                     { label: 'GK Kicking', value: getStatWithBoost(player, player.training_boosts, 'gk_kicking', 'kicking') },
                     { label: 'Long Passing', value: getStatWithBoost(player, player.training_boosts, 'long_passing') }
@@ -627,7 +593,7 @@ async function renderPlayerDetail(player) {
             {
                 name: 'Physical',
                 key: 'physical',
-                mainValue: calculateGKPhysicalWithBoosts(player, player.training_boosts),  // ✅ Weighted formula
+                mainValue: calculateGKPhysicalWithBoosts(player, player.training_boosts),
                 substats: [
                     { label: 'Reactions', value: getStatWithBoost(player, player.training_boosts, 'reactions') },
                     { label: 'Agility', value: getStatWithBoost(player, player.training_boosts, 'agility') },
@@ -636,14 +602,12 @@ async function renderPlayerDetail(player) {
                 ]
             }
         ];
-    
-   } else {
-        // Outfield player stat categories - WEIGHTED CALCULATIONS
+    } else {
         statCategories = [
             {
                 name: 'Pace',
                 key: 'pace',
-                mainValue: calculatePaceWithBoosts(player, player.training_boosts),  // ✅ CORRECT
+                mainValue: calculatePaceWithBoosts(player, player.training_boosts),
                 substats: [
                     { label: 'Acceleration', value: getStatWithBoost(player, player.training_boosts, 'acceleration') },
                     { label: 'Sprint Speed', value: getStatWithBoost(player, player.training_boosts, 'sprint_speed') }
@@ -652,7 +616,7 @@ async function renderPlayerDetail(player) {
             {
                 name: 'Shooting',
                 key: 'shooting',
-                mainValue: calculateShootingWithBoosts(player, player.training_boosts),  // ✅ CORRECT
+                mainValue: calculateShootingWithBoosts(player, player.training_boosts),
                 substats: [
                     { label: 'Finishing', value: getStatWithBoost(player, player.training_boosts, 'finishing') },
                     { label: 'Long Shot', value: getStatWithBoost(player, player.training_boosts, 'long_shot', 'long_shots') },
@@ -665,7 +629,7 @@ async function renderPlayerDetail(player) {
             {
                 name: 'Passing',
                 key: 'passing',
-                mainValue: calculatePassingWithBoosts(player, player.training_boosts),  // ✅ CORRECT
+                mainValue: calculatePassingWithBoosts(player, player.training_boosts),
                 substats: [
                     { label: 'Short Passing', value: getStatWithBoost(player, player.training_boosts, 'short_passing') },
                     { label: 'Long Passing', value: getStatWithBoost(player, player.training_boosts, 'long_passing') },
@@ -678,7 +642,7 @@ async function renderPlayerDetail(player) {
             {
                 name: 'Dribbling',
                 key: 'dribbling',
-                mainValue: calculateDribblingWithBoosts(player, player.training_boosts),  // ✅ CORRECT
+                mainValue: calculateDribblingWithBoosts(player, player.training_boosts),
                 substats: [
                     { label: 'Dribbling', value: getStatWithBoost(player, player.training_boosts, 'dribbling') },
                     { label: 'Balance', value: getStatWithBoost(player, player.training_boosts, 'balance') },
@@ -690,7 +654,7 @@ async function renderPlayerDetail(player) {
             {
                 name: 'Defending',
                 key: 'defending',
-                mainValue: calculateDefendingWithBoosts(player, player.training_boosts),  // ✅ CORRECT
+                mainValue: calculateDefendingWithBoosts(player, player.training_boosts),
                 substats: [
                     { label: 'Marking', value: getStatWithBoost(player, player.training_boosts, 'marking') },
                     { label: 'Standing Tackle', value: getStatWithBoost(player, player.training_boosts, 'standing_tackle') },
@@ -702,7 +666,7 @@ async function renderPlayerDetail(player) {
             {
                 name: 'Physical',
                 key: 'physical',
-                mainValue: calculatePhysicalWithBoosts(player, player.training_boosts),  // ✅ CORRECT
+                mainValue: calculatePhysicalWithBoosts(player, player.training_boosts),
                 substats: [
                     { label: 'Strength', value: getStatWithBoost(player, player.training_boosts, 'strength') },
                     { label: 'Aggression', value: getStatWithBoost(player, player.training_boosts, 'aggression') },
@@ -713,28 +677,180 @@ async function renderPlayerDetail(player) {
         ];
     }
 
-
-
-    // ---- major stat color ranking (top3 green, next2 orange, last red) ----
     const sorted = [...statCategories]
         .map(c => ({ key: c.key, value: c.mainValue }))
         .sort((a, b) => b.value - a.value);
 
     const majorColors = {};
     sorted.forEach((item, idx) => {
-        if (idx <= 2) majorColors[item.key] = '#3BD671';      // top 3
-        else if (idx <= 4) majorColors[item.key] = '#FFB86B'; // next 2
-        else majorColors[item.key] = '#FF6B6B';               // last
+        if (idx <= 2) majorColors[item.key] = '#3BD671';
+        else if (idx <= 4) majorColors[item.key] = '#FFB86B';
+        else majorColors[item.key] = '#FF6B6B';
     });
 
     const getMajorColor = (cat) => majorColors[cat.key] || getBaseColor(cat.mainValue);
 
-    // progress bar max for main + sub stats
     const MAX_BAR = 280;
     const clampBarWidth = (value) => {
         const v = Math.max(0, Math.min(Number(value) || 0, MAX_BAR));
         return (v / MAX_BAR) * 100;
     };
+
+    return `
+        <div class="player-stats-section" style="
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px 32px 24px;
+        ">
+            <h2 style="
+                font-size: 22px;
+                font-weight: 800;
+                color: var(--color-text-primary, #E6EEF2);
+                margin: 0 0 20px 0;
+                font-family: var(--font-family-base);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            ">${isGoalkeeper ? 'Goalkeeper Statistics' : 'Player Statistics'}</h2>
+
+            <div class="stats-grid-container">
+                <div style="
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 20px;
+                ">
+                    ${statCategories.map(cat => {
+                        const majorColor = getMajorColor(cat);
+                        const mainBarWidth = clampBarWidth(cat.mainValue);
+                        return `
+                            <div style="
+                                background: var(--color-graphite-800, #14181C);
+                                border: 1px solid rgba(255,255,255,0.08);
+                                border-left: 4px solid ${majorColor};
+                                border-radius: var(--radius-lg, 12px);
+                                padding: 24px;
+                                box-shadow: var(--shadow-md);
+                            ">
+                                <div style="
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    margin-bottom: 20px;
+                                    padding-bottom: 16px;
+                                    border-bottom: 1px solid rgba(255,255,255,0.08);
+                                ">
+                                    <h3 style="
+                                        font-size: 16px;
+                                        font-weight: 700;
+                                        color: var(--color-text-primary, #E6EEF2);
+                                        margin: 0;
+                                        font-family: var(--font-family-base);
+                                        text-transform: uppercase;
+                                        letter-spacing: 0.5px;
+                                    ">${cat.name}</h3>
+                                    <div style="
+                                        font-size: 36px;
+                                        font-weight: 900;
+                                        color: ${majorColor};
+                                        font-family: var(--font-family-base);
+                                        line-height: 1;
+                                    ">${cat.mainValue}</div>
+                                </div>
+
+                                <div style="
+                                    width: 100%;
+                                    height: 10px;
+                                    background: rgba(255,255,255,0.08);
+                                    border-radius: 5px;
+                                    overflow: hidden;
+                                    margin-bottom: 20px;
+                                ">
+                                    <div style="
+                                        width: ${mainBarWidth}%;
+                                        height: 100%;
+                                        background: ${majorColor};
+                                        border-radius: 5px;
+                                        box-shadow: 0 0 10px ${majorColor}60;
+                                        transition: width 0.6s ease;
+                                    "></div>
+                                </div>
+
+                                <div style="display: grid; gap: 12px;">
+                                    ${cat.substats.map(sub => {
+                                        const subColor = getBaseColor(sub.value);
+                                        const subWidth = clampBarWidth(sub.value);
+                                        return `
+                                            <div>
+                                                <div style="
+                                                    display: flex;
+                                                    justify-content: space-between;
+                                                    align-items: center;
+                                                    margin-bottom: 6px;
+                                                ">
+                                                    <span style="
+                                                        font-size: 13px;
+                                                        color: var(--color-text-muted, #98A0A6);
+                                                        font-weight: 600;
+                                                        font-family: var(--font-family-base);
+                                                    ">${sub.label}</span>
+                                                    <span style="
+                                                        font-size: 17px;
+                                                        font-weight: 800;
+                                                        color: ${subColor};
+                                                        font-family: var(--font-family-base);
+                                                    ">${sub.value}</span>
+                                                </div>
+                                                <div style="
+                                                    width: 100%;
+                                                    height: 6px;
+                                                    background: rgba(255,255,255,0.08);
+                                                    border-radius: 3px;
+                                                    overflow: hidden;
+                                                ">
+                                                    <div style="
+                                                        width: ${subWidth}%;
+                                                        height: 100%;
+                                                        background: ${subColor};
+                                                        border-radius: 3px;
+                                                        transition: width 0.5s ease;
+                                                    "></div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+
+
+
+async function renderPlayerDetail(player) {
+    const container = document.getElementById('player-detail-view');
+    if (!container) return;
+
+    cleanupRankAnimations();
+
+    // 🔁 Refresh market price based on current rank
+    if (window.supabaseProvider && typeof window.supabaseProvider.syncPrices === 'function') {
+      await window.supabaseProvider.syncPrices([player]);
+    }
+
+    const uniqueId = `${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}`;
+    const isWatchlisted = state.watchlist && state.watchlist.includes(uniqueId);
+
+    const nationField = player.nation_region || player.nation || '';
+    const flagUrl = typeof getCountryFlagUrl === 'function' ? getCountryFlagUrl(nationField) : '';
+
+    const rankIconHtml = '';  // Disable blinking rank icon
+
+
+    const statsMarkup = window.renderPlayerStatsSection(player);
 
     container.innerHTML = `
         <div style="background: rgba(20, 24, 28, 0.5); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); min-height: 100vh; padding: 0; border-radius: 16px;">
@@ -1021,134 +1137,7 @@ async function renderPlayerDetail(player) {
                 </div>
             </div>
 
-            <!-- Bottom Section: Stats Table -->
-            <div style="
-                max-width: 1400px;
-                margin: 0 auto;
-                padding: 0 24px 32px 24px;
-            ">
-                <h2 style="
-                    font-size: 22px;
-                    font-weight: 800;
-                    color: var(--color-text-primary, #E6EEF2);
-                    margin: 0 0 20px 0;
-                    font-family: var(--font-family-base);
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                ">${isGoalkeeper ? 'Goalkeeper Statistics' : 'Player Statistics'}</h2>
-
-                <div class="stats-grid-container">
-                    <div style="
-                        display: grid;
-                        grid-template-columns: repeat(3, 1fr);
-                        gap: 20px;
-                    ">
-                        ${statCategories.map(cat => {
-                            const majorColor = getMajorColor(cat);
-                            const mainBarWidth = clampBarWidth(cat.mainValue);
-                            return `
-                                <div style="
-                                    background: var(--color-graphite-800, #14181C);
-                                    border: 1px solid rgba(255,255,255,0.08);
-                                    border-left: 4px solid ${majorColor};
-                                    border-radius: var(--radius-lg, 12px);
-                                    padding: 24px;
-                                    box-shadow: var(--shadow-md);
-                                ">
-                                    <div style="
-                                        display: flex;
-                                        justify-content: space-between;
-                                        align-items: center;
-                                        margin-bottom: 20px;
-                                        padding-bottom: 16px;
-                                        border-bottom: 1px solid rgba(255,255,255,0.08);
-                                    ">
-                                        <h3 style="
-                                            font-size: 16px;
-                                            font-weight: 700;
-                                            color: var(--color-text-primary, #E6EEF2);
-                                            margin: 0;
-                                            font-family: var(--font-family-base);
-                                            text-transform: uppercase;
-                                            letter-spacing: 0.5px;
-                                        ">${cat.name}</h3>
-                                        <div style="
-                                            font-size: 36px;
-                                            font-weight: 900;
-                                            color: ${majorColor};
-                                            font-family: var(--font-family-base);
-                                            line-height: 1;
-                                        ">${cat.mainValue}</div>
-                                    </div>
-
-                                    <div style="
-                                        width: 100%;
-                                        height: 10px;
-                                        background: rgba(255,255,255,0.08);
-                                        border-radius: 5px;
-                                        overflow: hidden;
-                                        margin-bottom: 20px;
-                                    ">
-                                        <div style="
-                                            width: ${mainBarWidth}%;
-                                            height: 100%;
-                                            background: ${majorColor};
-                                            border-radius: 5px;
-                                            box-shadow: 0 0 10px ${majorColor}60;
-                                            transition: width 0.6s ease;
-                                        "></div>
-                                    </div>
-
-                                    <div style="display: grid; gap: 12px;">
-                                        ${cat.substats.map(sub => {
-                                            const subColor = getBaseColor(sub.value);
-                                            const subWidth = clampBarWidth(sub.value);
-                                            return `
-                                                <div>
-                                                    <div style="
-                                                        display: flex;
-                                                        justify-content: space-between;
-                                                        align-items: center;
-                                                        margin-bottom: 6px;
-                                                    ">
-                                                        <span style="
-                                                            font-size: 13px;
-                                                            color: var(--color-text-muted, #98A0A6);
-                                                            font-weight: 600;
-                                                            font-family: var(--font-family-base);
-                                                        ">${sub.label}</span>
-                                                        <span style="
-                                                            font-size: 17px;
-                                                            font-weight: 800;
-                                                            color: ${subColor};
-                                                            font-family: var(--font-family-base);
-                                                        ">${sub.value}</span>
-                                                    </div>
-                                                    <div style="
-                                                        width: 100%;
-                                                        height: 6px;
-                                                        background: rgba(255,255,255,0.08);
-                                                        border-radius: 3px;
-                                                        overflow: hidden;
-                                                    ">
-                                                        <div style="
-                                                            width: ${subWidth}%;
-                                                            height: 100%;
-                                                            background: ${subColor};
-                                                            border-radius: 3px;
-                                                            transition: width 0.5s ease;
-                                                        "></div>
-                                                    </div>
-                                                </div>
-                                            `;
-                                        }).join('')}
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            </div>
+            ${statsMarkup}
         </div>
 
         <style>

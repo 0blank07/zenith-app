@@ -3497,6 +3497,79 @@ function updateSquadTraining(level) {
 
 
 
+async function openSquadPlayerStatsView() {
+    console.log('SQUAD CUSTOM: Opening stats view');
+    const modal = document.getElementById('squad-player-customization-modal');
+    const statsView = document.getElementById('squad-stats-view');
+    const statsContent = document.getElementById('squad-stats-content');
+    if (!modal || !statsView || !statsContent) return;
+
+    modal.classList.add('stats-mode');
+    statsView.style.display = 'block';
+    statsContent.innerHTML = '<div style="color: #98A0A6; text-align: center; padding: 20px;">Loading stats...</div>';
+
+    const playerId = squadCustomizationState.playerId;
+    const rank = squadCustomizationState.selectedRank || 0;
+    const trainingLevel = squadCustomizationState.trainingLevel || 0;
+
+    if (!playerId || !rank || !window.apiClient) {
+        statsContent.innerHTML = '<div style="color: #FF6B6B; text-align: center;">Stats unavailable</div>';
+        return;
+    }
+
+    try {
+        const detailsResponse = await window.apiClient.getPlayerDetails(playerId, rank, { cache: false });
+        const basePlayer = getPlayers().find(p => p.player_id === playerId || p.id === playerId) || {};
+        const mergedPlayer = {
+            ...basePlayer,
+            ...(detailsResponse.player || {}),
+            player_id: basePlayer.player_id || basePlayer.id || detailsResponse.player?.player_id || playerId,
+            rank: rank,
+            skills: detailsResponse.skills || [],
+            available_skill_points: detailsResponse.available_skill_points
+        };
+
+        let userAllocations = [];
+        const userId = typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null;
+        if (userId && typeof window.apiClient.getUserSkillAllocations === 'function') {
+            const response = await window.apiClient.getUserSkillAllocations(userId, mergedPlayer.player_id, rank);
+            userAllocations = response.allocations || [];
+        }
+
+        const skillBoosts = typeof calculateSkillBoosts === 'function'
+            ? await calculateSkillBoosts(userAllocations)
+            : {};
+
+        const trainingBoosts = typeof getTrainingBoosts === 'function'
+            ? await getTrainingBoosts(mergedPlayer.position, trainingLevel)
+            : null;
+
+        mergedPlayer.training_level = trainingLevel;
+        mergedPlayer.training_boosts = typeof mergeBoosts === 'function'
+            ? mergeBoosts(trainingBoosts, skillBoosts)
+            : (trainingBoosts || {});
+
+        console.log('SQUAD CUSTOM: Stats boosts', { trainingBoosts, skillBoosts });
+
+        if (typeof window.renderPlayerStatsSection === 'function') {
+            statsContent.innerHTML = window.renderPlayerStatsSection(mergedPlayer);
+        } else {
+            statsContent.innerHTML = '<div style="color: #FF6B6B; text-align: center;">Stats renderer unavailable</div>';
+        }
+    } catch (error) {
+        console.error('[SQUAD STATS] Error loading stats:', error);
+        statsContent.innerHTML = '<div style="color: #FF6B6B; text-align: center;">Failed to load stats</div>';
+    }
+}
+
+function closeSquadPlayerStatsView() {
+    console.log('SQUAD CUSTOM: Closing stats view');
+    const modal = document.getElementById('squad-player-customization-modal');
+    const statsView = document.getElementById('squad-stats-view');
+    if (statsView) statsView.style.display = 'none';
+    if (modal) modal.classList.remove('stats-mode');
+}
+
 function renderSquadSkillsMessage(message) {
     const container = document.getElementById('squad-custom-skills');
     if (!container) return;
@@ -3688,6 +3761,7 @@ function openPlayerCustomizationModal(playerId, slotId) {
   ensureSquadSkillDetailModal();
   const initialRank = player?.rank || 1;
   selectSquadRank(initialRank, { showToast: false });
+  closeSquadPlayerStatsView();
 
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -3703,6 +3777,7 @@ function closePlayerCustomizationModal() {
     if (typeof closeSkillDetailModal === 'function') {
         closeSkillDetailModal();
     }
+    closeSquadPlayerStatsView();
 }
 
 // ==================== NATION FILTER AUTOCOMPLETE ====================
@@ -3986,6 +4061,8 @@ window.openPlayerCustomizationModal = openPlayerCustomizationModal;
 window.closePlayerCustomizationModal = closePlayerCustomizationModal;
 window.removeSquadPlayer = removeSquadPlayer;
 window.applySquadPlayerCustomization = applySquadPlayerCustomization;
+window.openSquadPlayerStatsView = openSquadPlayerStatsView;
+window.closeSquadPlayerStatsView = closeSquadPlayerStatsView;
 
 
 // ============================================

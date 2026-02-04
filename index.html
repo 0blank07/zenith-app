@@ -5128,13 +5128,33 @@
       <div class="modal-overlay" onclick="closePlayerCustomizationModal()"></div>
       
       <div class="modal-content squad-customization-content" style="max-width: 500px;">
-          <!-- HEADER WITH RESET BUTTON -->
+          <!-- HEADER WITH RESET/STATS BUTTONS -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; position: relative;">
               <button class="modal-close-btn" onclick="closePlayerCustomizationModal()">✕</button>
-              <button id="squad-reset-rank-btn" class="btn-reset-rank" onclick="resetSquadPlayerRank()" 
-                      style="background-color: #FF6B6B; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                  Reset Rank
-              </button>
+              <div style="display: flex; gap: 10px; align-items: center;">
+                  <button id="squad-reset-rank-btn" class="btn-reset-rank" onclick="resetSquadPlayerRank()" 
+                          style="background-color: #FF6B6B; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                      Reset Rank
+                  </button>
+                  <button id="squad-stats-btn" class="btn-stats-view" onclick="openSquadPlayerStatsView()"
+                          style="background-color: rgba(59, 130, 246, 0.2); color: #E6EEF2; padding: 8px 16px; border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 6px; cursor: pointer; font-weight: 600;">
+                      Stats
+                  </button>
+              </div>
+          </div>
+
+          <!-- STATS VIEW PANEL -->
+          <div id="squad-stats-view" class="squad-stats-view" style="display: none;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                  <button class="btn-stats-back" onclick="closeSquadPlayerStatsView()" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #E6EEF2; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                      ← Back
+                  </button>
+                  <div style="font-size: 14px; font-weight: 700; color: #E6EEF2; text-transform: uppercase; letter-spacing: 0.4px;">
+                      Player Statistics
+                  </div>
+                  <div style="width: 60px;"></div>
+              </div>
+              <div id="squad-stats-content" class="squad-stats-content"></div>
           </div>
 
           <!-- PLAYER IMAGE (TOP CENTER) -->

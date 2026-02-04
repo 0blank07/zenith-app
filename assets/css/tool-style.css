@@ -7240,6 +7240,46 @@ body.stats-open #squad-builder-modal {
     overflow-y: auto;
 }
 
+#squad-player-customization-modal.stats-mode #squad-custom-player-card,
+#squad-player-customization-modal.stats-mode #squad-rank-boxes,
+#squad-player-customization-modal.stats-mode #squad-training-level,
+#squad-player-customization-modal.stats-mode #squad-custom-skills,
+#squad-player-customization-modal.stats-mode #squad-remove-btn,
+#squad-player-customization-modal.stats-mode #squad-apply-btn,
+#squad-player-customization-modal.stats-mode #squad-reset-rank-btn,
+#squad-player-customization-modal.stats-mode .btn-reset-rank,
+#squad-player-customization-modal.stats-mode #squad-stats-btn {
+    display: none !important;
+}
+
+#squad-player-customization-modal .squad-stats-view {
+    display: none;
+    width: 100%;
+}
+
+#squad-player-customization-modal.stats-mode .squad-stats-view {
+    display: block;
+}
+
+#squad-player-customization-modal .squad-stats-content .player-stats-section {
+    padding: 0;
+    max-width: 100%;
+}
+
+#squad-player-customization-modal .squad-stats-content .stats-grid-container > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+}
+
+#squad-player-customization-modal .squad-stats-content .stats-grid-container > div > div {
+    padding: 18px !important;
+}
+
+#squad-player-customization-modal .squad-stats-content h2 {
+    font-size: 18px !important;
+    margin-bottom: 14px !important;
+}
+
 #squad-player-customization-modal .modal-content.squad-customization-content::-webkit-scrollbar {
     width: 8px;
 }
