@@ -8430,6 +8430,30 @@ watchlist-view .view-content {
 #watchlist-search-input {
   flex: 1;
   min-width: 200px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  padding: 12px 44px 12px 52px;
+  background: var(--color-graphite-800);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#watchlist-search-input:focus {
+  outline: none;
+  border-color: var(--color-teal-500);
+  box-shadow: 0 0 0 2px rgba(0, 194, 168, 0.18);
+}
+
+#watchlist-search-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.database-toolbar .search-container {
+  position: relative;
+}
+
+.database-toolbar .search-container .search-icon {
+  left: 16px;
 }
 
 /* Animation Keyframes */
@@ -10652,6 +10676,24 @@ body.overflow-hidden {
 
 .player-price-history-section[data-auctionable="false"] {
   display: none !important;
+}
+
+.reset-rank-btn {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-text-muted, #98A0A6);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reset-rank-btn:hover {
+  border-color: rgba(0, 194, 168, 0.4);
+  color: var(--color-teal-500, #00C2A8);
 }
 
 /* ==================== PLAYER DETAILS RESPONSIVE LAYOUT ==================== */

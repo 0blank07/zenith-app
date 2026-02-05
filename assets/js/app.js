@@ -2136,6 +2136,18 @@ window.resetPlayerSkills = async function(playerId, rank) {
   console.log('[SKILLS] Resetting all skills for player', playerId, 'at rank', rank);
   
   try {
+    if (state.selectedPlayer) {
+      console.log('[SKILLS] Pre-reset skills:', state.selectedPlayer.skill_boosts);
+      console.log('[SKILLS] Pre-reset stats snapshot:', {
+        pace: state.selectedPlayer.pace,
+        shooting: state.selectedPlayer.shooting,
+        passing: state.selectedPlayer.passing,
+        dribbling: state.selectedPlayer.dribbling,
+        defending: state.selectedPlayer.defending,
+        physical: state.selectedPlayer.physical
+      });
+    }
+
     // Call API to reset skills
     const result = await window.apiClient.resetSkills(CURRENT_USER_ID, playerId, rank);
     
@@ -2149,15 +2161,33 @@ window.resetPlayerSkills = async function(playerId, rank) {
     // Re-fetch player data and re-render
     if (state.selectedPlayer) {
       const resp = await window.apiClient.getPlayerDetails(playerId, rank);
+      const allocationsResp = await window.apiClient.getUserSkillAllocations(
+        CURRENT_USER_ID,
+        playerId,
+        rank
+      );
+      const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
+      const combinedBoosts = mergeBoosts(resp.player.training_boosts, skillBoosts);
+
       const updatedPlayer = {
         ...state.selectedPlayer,
         ...resp.player,
         skills: resp.skills,
         available_skill_points: resp.available_skill_points,
-        skill_boosts: {}  // Clear skill boosts after reset
+        training_boosts: combinedBoosts,
+        skill_boosts: skillBoosts
       };
       
       state.selectedPlayer = updatedPlayer;
+      console.log('[SKILLS] Post-reset skills:', updatedPlayer.skill_boosts);
+      console.log('[SKILLS] Post-reset stats snapshot:', {
+        pace: updatedPlayer.pace,
+        shooting: updatedPlayer.shooting,
+        passing: updatedPlayer.passing,
+        dribbling: updatedPlayer.dribbling,
+        defending: updatedPlayer.defending,
+        physical: updatedPlayer.physical
+      });
       
       // Re-render both skills section and player detail
       await renderPlayerSkills(updatedPlayer);
@@ -2815,7 +2845,10 @@ async function buildRankSelectionSection(player) {
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                     </svg>
-                    Select Rank
+                    <span>Select Rank</span>
+                    <button class="reset-rank-btn" onclick="window.resetPlayerRank(${player.player_id})" type="button">
+                      Reset Rank
+                    </button>
                 </div>
                 
                 <div class="rank-cards-grid" style="
@@ -3013,6 +3046,49 @@ window.selectPlayerRank = async function(playerId, rankNumber) {
     }
   } else {
     console.error('[RANK] Player ID mismatch or no selected player');
+  }
+};
+
+window.resetPlayerRank = async function(playerId) {
+  console.log('[RANK] Resetting rank to base for player', playerId);
+
+  if (!state.selectedPlayer || String(state.selectedPlayer.player_id) !== String(playerId)) {
+    console.warn('[RANK] Reset rank aborted - player mismatch.');
+    return;
+  }
+
+  try {
+    const resp = await window.apiClient.getPlayerDetails(playerId, 0);
+    const allocationsResp = await window.apiClient.getUserSkillAllocations(
+      CURRENT_USER_ID,
+      playerId,
+      0
+    );
+    const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
+    const combinedBoosts = mergeBoosts(resp.player.training_boosts, skillBoosts);
+
+    const updatedPlayer = {
+      ...state.selectedPlayer,
+      ...resp.player,
+      rank: 0,
+      skills: resp.skills,
+      available_skill_points: resp.available_skill_points,
+      training_boosts: combinedBoosts,
+      skill_boosts: skillBoosts
+    };
+
+    state.selectedPlayer = updatedPlayer;
+    renderPlayerDetail(updatedPlayer);
+
+    console.log('[RANK] Rank reset complete.');
+    if (typeof showToast === 'function') {
+      showToast('✅ Rank reset to base', 'success');
+    }
+  } catch (error) {
+    console.error('[RANK] Rank reset error:', error);
+    if (typeof showToast === 'function') {
+      showToast(`❌ ${error.message}`, 'error');
+    }
   }
 };
 
