@@ -3066,6 +3066,7 @@ h1, h3, h4, h5, h6 {
     border-radius: 8px;
     bottom: 17px;
     right: 5px;
+    bottom: 28px;
 }
 
 /* Card Background Image */
@@ -3529,7 +3530,7 @@ h1, h3, h4, h5, h6 {
   grid-template-columns: 140px minmax(120px, 200px) 1fr 60px;
   gap: 16px;
   align-items: center;
-  padding: 10px 20px;
+  padding: 13px 20px;
   border-bottom: 1px solid var(--renderz-border);
   background: var(--renderz-bg);
   transition: all 0.2s ease;
@@ -4097,7 +4098,7 @@ h1, h3, h4, h5, h6 {
 @media (max-width: 768px) {
   .player-row {
     flex-wrap: wrap;
-    padding: 12px 16px;
+    padding: 6px 16px;
   }
 
  .player-row-card {
@@ -10528,7 +10529,7 @@ body.overflow-hidden {
         width: 100%;
         margin-left: 0;
         margin-right: 0;
-        margin-top: 12px;
+        margin-top: -23px;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         -ms-overflow-style: none;
