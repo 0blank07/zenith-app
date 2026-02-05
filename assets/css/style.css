@@ -10538,3 +10538,358 @@ body.overflow-hidden {
         display: none;
     }
 }
+
+/* ==================== PLAYER PRICE HISTORY ==================== */
+.player-price-history-section {
+  margin-top: 24px;
+  background: var(--color-graphite-800, #14181C);
+  border: 1px solid rgba(0, 194, 168, 0.15);
+  border-radius: 14px;
+  padding: 18px 20px 22px;
+  box-shadow: 0 20px 60px rgba(5, 11, 16, 0.45);
+  width: 100%;
+}
+
+.price-history-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.price-history-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text-primary, #E6EEF2);
+  font-family: var(--font-family-base);
+}
+
+.price-history-subtitle {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--color-text-muted, #98A0A6);
+  letter-spacing: 0.3px;
+}
+
+.price-history-ranges {
+  display: inline-flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 999px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.price-range-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted, #98A0A6);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-family-base);
+}
+
+.price-range-btn.active {
+  background: rgba(0, 194, 168, 0.15);
+  color: var(--color-teal-500, #00C2A8);
+  box-shadow: 0 0 16px rgba(0, 194, 168, 0.35);
+}
+
+.price-range-btn:hover {
+  color: var(--color-text-primary, #E6EEF2);
+}
+
+.price-history-custom {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.price-history-custom-label {
+  font-size: 12px;
+  color: var(--color-text-muted, #98A0A6);
+  font-weight: 600;
+}
+
+.price-history-slider {
+  flex: 1;
+  accent-color: var(--color-teal-500, #00C2A8);
+}
+
+.player-price-history-section[data-range="Custom"] .price-history-custom {
+  display: flex;
+}
+
+.price-history-body {
+  position: relative;
+  min-height: clamp(300px, 34vw, 440px);
+}
+
+.price-history-chart {
+  height: clamp(300px, 34vw, 440px);
+  width: 100%;
+}
+
+.price-history-chart canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.player-price-history-section[data-auctionable="false"] {
+  display: none !important;
+}
+
+/* ==================== PLAYER DETAILS RESPONSIVE LAYOUT ==================== */
+@media (max-width: 1200px) and (min-width: 769px) {
+  #player-detail-view {
+    overflow-x: hidden;
+  }
+
+  #player-detail-view > div > div {
+    width: min(80vw, 980px);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(20px, 3vw, 28px) !important;
+    padding-right: clamp(20px, 3vw, 28px) !important;
+  }
+
+  .player-top-section {
+    width: 100%;
+    max-width: 100% !important;
+    justify-content: center;
+  }
+
+  .player-top-section > div {
+    width: 100%;
+  }
+
+  .player-rank-refresh-grid {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+  }
+
+  .player-refresh-container {
+    margin-top: 0 !important;
+  }
+
+  .player-refresh-time-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .player-price-history-section {
+    width: 100%;
+  }
+
+  .price-history-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .price-history-ranges {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  #player-detail-view {
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 768px) {
+  #player-detail-view > div > div {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .player-top-section {
+    max-width: 100% !important;
+  }
+
+  .player-top-section > div:first-child > div:first-child {
+    padding: 18px 14px !important;
+  }
+
+  .player-refresh-container {
+    padding: 16px !important;
+  }
+
+  .player-refresh-time {
+    font-size: 18px !important;
+  }
+
+  .player-refresh-countdown {
+    width: 100%;
+    text-align: center;
+  }
+
+  .player-skills-section {
+    padding: 10px;
+  }
+
+  .skills-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .player-price-history-section {
+    padding: 16px;
+  }
+
+  .price-history-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .price-history-ranges {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .price-history-chart {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  #player-detail-view {
+    overflow-x: hidden;
+  }
+
+  #player-detail-view > div > div {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .player-top-section {
+    gap: 20px !important;
+  }
+
+  .player-rank-refresh-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .player-refresh-container {
+    padding: 14px !important;
+  }
+
+  .player-price-history-section {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  #player-detail-view > div > div {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .player-top-section {
+    gap: 18px !important;
+  }
+
+  .player-skills-section {
+    padding: 8px;
+  }
+
+  .skills-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .player-refresh-time {
+    font-size: 17px !important;
+  }
+
+  .player-refresh-countdown {
+    padding: 6px 10px !important;
+  }
+
+  .player-price-history-section {
+    padding: 12px;
+  }
+}
+
+.price-history-loading,
+.price-history-empty {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--color-text-muted, #98A0A6);
+  font-size: 13px;
+  text-align: center;
+}
+
+.price-history-loading {
+  display: flex;
+}
+
+.price-history-skeleton {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+  animation: priceHistoryPulse 1.4s ease-in-out infinite;
+}
+
+.price-history-skeleton:nth-child(2) {
+  width: 80%;
+}
+
+.price-history-skeleton:nth-child(3) {
+  width: 60%;
+}
+
+@keyframes priceHistoryPulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+@media (max-width: 768px) {
+  .price-history-ranges {
+    flex-wrap: wrap;
+  }
+
+  .price-history-chart {
+    height: 320px;
+  }
+
+  .price-history-body {
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 480px) {
+  .price-history-chart {
+    height: 300px;
+  }
+
+  .price-history-body {
+    min-height: 300px;
+  }
+}

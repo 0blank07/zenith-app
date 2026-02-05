@@ -1137,6 +1137,41 @@ async function renderPlayerDetail(player) {
                             </div>
                           </div>
                         </div>
+
+                        <!-- 📈 PRICE HISTORY SECTION -->
+                        <div class="player-price-history-section" data-auctionable="${player.price ? 'true' : 'false'}">
+                          <div class="price-history-header">
+                            <div>
+                              <h3>📈 Price History</h3>
+                              <span class="price-history-subtitle">Track market movement over time</span>
+                            </div>
+                            <div class="price-history-ranges" role="tablist" aria-label="Price history ranges">
+                              ${['1D','3D','7D','15D','30D','Custom'].map((label) => {
+                                const isActive = label === '7D';
+                                return `<button class="price-range-btn ${isActive ? 'active' : ''}" data-range="${label}" type="button">${label}</button>`;
+                              }).join('')}
+                            </div>
+                          </div>
+                          <div class="price-history-custom">
+                            <div class="price-history-custom-label">
+                              Custom range: <span id="price-history-custom-days">7</span> days
+                            </div>
+                            <input class="price-history-slider" id="price-history-slider" type="range" min="1" max="30" value="7">
+                          </div>
+                          <div class="price-history-body">
+                            <div class="price-history-loading" id="price-history-loading">
+                              <div class="price-history-skeleton"></div>
+                              <div class="price-history-skeleton"></div>
+                              <div class="price-history-skeleton"></div>
+                            </div>
+                            <div class="price-history-empty" id="price-history-empty">
+                              No price data available for this range.
+                            </div>
+                            <div class="price-history-chart">
+                              <canvas id="player-price-history-chart"></canvas>
+                            </div>
+                          </div>
+                        </div>
                     </div>
 
                 </div>
@@ -1467,6 +1502,9 @@ async function renderPlayerDetail(player) {
     setTimeout(() => {
         renderPlayerSkills(player);
         initAllRankAnimations();
+        if (typeof window.initPlayerPriceHistory === 'function') {
+          window.initPlayerPriceHistory(player);
+        }
     }, 100);
 }
 
@@ -1485,6 +1523,289 @@ window.updatePlayerStatsSection = function(player) {
 
     console.log('[STATS] Re-rendering player detail stats section for:', player.player_id);
     statsSection.outerHTML = window.renderPlayerStatsSection(player);
+};
+
+// ==================== PRICE HISTORY (PLAYER DETAIL) ====================
+window.initPlayerPriceHistory = function(player) {
+  const container = document.querySelector('.player-price-history-section');
+  if (!container || !player) return;
+
+  const isAuctionable = !!player.price;
+  container.style.display = isAuctionable ? '' : 'none';
+  console.log('[PRICE HISTORY] Auctionable:', isAuctionable);
+  if (!isAuctionable) {
+    if (window.state.priceHistoryChart) {
+      window.state.priceHistoryChart.destroy();
+      window.state.priceHistoryChart = null;
+    }
+    return;
+  }
+
+  const buttons = container.querySelectorAll('.price-range-btn');
+  const slider = document.getElementById('price-history-slider');
+  const sliderValue = document.getElementById('price-history-custom-days');
+
+  if (slider && sliderValue) {
+    slider.value = window.state?.priceHistory?.customDays ?? 7;
+    sliderValue.textContent = slider.value;
+  }
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const range = btn.dataset.range || '7D';
+      window.state.priceHistory.range = range;
+      container.setAttribute('data-range', range);
+      console.log('[PRICE HISTORY] Range changed:', range);
+
+      if (range !== 'Custom') {
+        window.refreshPlayerPriceHistory(player, { range });
+      } else {
+        window.refreshPlayerPriceHistory(player, { range, customDays: window.state.priceHistory.customDays });
+      }
+    });
+  });
+
+  if (slider) {
+    slider.addEventListener('input', () => {
+      const days = parseInt(slider.value, 10);
+      window.state.priceHistory.customDays = days;
+      if (sliderValue) sliderValue.textContent = days;
+      console.log('[PRICE HISTORY] Custom range days changed:', days);
+
+      if (window.state.priceHistory.range === 'Custom') {
+        window.refreshPlayerPriceHistory(player, { range: 'Custom', customDays: days });
+      }
+    });
+  }
+
+  const activeRange = window.state?.priceHistory?.range || '7D';
+  buttons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.range === activeRange);
+  });
+  container.setAttribute('data-range', activeRange);
+
+  window.refreshPlayerPriceHistory(player, { range: activeRange, customDays: window.state?.priceHistory?.customDays });
+};
+
+window.refreshPlayerPriceHistory = async function(player, { range = '7D', customDays } = {}) {
+  if (!player) return;
+
+  if (!player.price) {
+    console.log('[PRICE HISTORY] Skipping fetch for unauctionable player.');
+    return;
+  }
+
+  const chartEl = document.getElementById('player-price-history-chart');
+  const loadingEl = document.getElementById('price-history-loading');
+  const emptyEl = document.getElementById('price-history-empty');
+  if (!chartEl) return;
+
+  const ctx = chartEl.getContext('2d');
+  if (!ctx) return;
+
+  const chartContainer = chartEl.parentElement;
+  if (chartContainer) {
+    chartEl.height = chartContainer.clientHeight || chartEl.height || 320;
+    chartEl.width = chartContainer.clientWidth || chartEl.width;
+  }
+
+  const rangeDays = window.getPriceHistoryRangeDays(range, customDays);
+
+  const startTime = new Date();
+  startTime.setDate(startTime.getDate() - rangeDays);
+  const endTime = new Date();
+
+  const rankValue = player.rank || 0;
+  const priceColumn = window.getPriceHistoryColumn(rankValue);
+
+  console.log('[PRICE HISTORY] Fetching data:', {
+    playerId: player.player_id,
+    range,
+    rangeDays,
+    rankValue,
+    priceColumn
+  });
+
+  if (loadingEl) loadingEl.style.display = 'flex';
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  try {
+    if (!window.supabaseProvider || typeof window.supabaseProvider.fetchPriceHistory !== 'function') {
+      throw new Error('Supabase provider not available');
+    }
+
+    const history = await window.supabaseProvider.fetchPriceHistory({
+      playerId: player.player_id,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      priceColumn
+    });
+
+    console.log('[PRICE HISTORY] Supabase data received:', history);
+
+    const normalized = history
+      .filter(entry => entry && entry[priceColumn] != null && entry.captured_at)
+      .map(entry => ({
+        date: new Date(entry.captured_at),
+        price: Number(entry[priceColumn])
+      }))
+      .sort((a, b) => a.date - b.date);
+
+    const downsampled = window.downsampleHistory(normalized, 200);
+
+    if (!downsampled.length) {
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (emptyEl) emptyEl.style.display = 'flex';
+      if (window.state.priceHistoryChart) {
+        window.state.priceHistoryChart.destroy();
+        window.state.priceHistoryChart = null;
+      }
+      return;
+    }
+
+    if (window.state.priceHistoryChart) {
+      window.state.priceHistoryChart.destroy();
+    }
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, (chartEl.parentElement?.clientHeight || chartEl.height || 200));
+    gradient.addColorStop(0, 'rgba(0, 194, 168, 0.35)');
+    gradient.addColorStop(1, 'rgba(0, 194, 168, 0.02)');
+
+    window.state.priceHistoryChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: downsampled.map(point => point.date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric'
+        })),
+        datasets: [{
+          data: downsampled.map(point => point.price),
+          borderColor: '#00C2A8',
+          backgroundColor: gradient,
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#E6EEF2',
+          pointHoverBorderColor: '#00C2A8',
+          pointHoverBorderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        resizeDelay: 80,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: '#11161B',
+            borderColor: 'rgba(0, 194, 168, 0.6)',
+            borderWidth: 1,
+            titleColor: '#E6EEF2',
+            bodyColor: '#9CA3AF',
+            padding: 12,
+            displayColors: false,
+            callbacks: {
+              title: function(context) {
+                const idx = context?.[0]?.dataIndex ?? 0;
+                const date = downsampled[idx]?.date;
+                return date ? date.toLocaleDateString('en-US', {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric'
+                }) : '';
+              },
+              label: function(context) {
+                const value = context.parsed.y;
+                return `Price: ${typeof formatPrice === 'function' ? formatPrice(value) : value.toLocaleString()}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: {
+              color: '#7E8A94',
+              maxTicksLimit: 8
+            }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: {
+              color: '#7E8A94',
+              callback: function(value) {
+                return typeof formatPrice === 'function' ? formatPrice(value) : value;
+              }
+            }
+          }
+        },
+        interaction: {
+          mode: 'nearest',
+          axis: 'x',
+          intersect: false
+        },
+        animation: {
+          duration: 600,
+          easing: 'easeOutQuart'
+        },
+        onResize: function(chartInstance, size) {
+          console.log('[PRICE HISTORY] Chart resized:', size);
+        }
+      }
+    });
+
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (emptyEl) emptyEl.style.display = 'none';
+  } catch (error) {
+    console.error('[PRICE HISTORY] Error fetching history:', error);
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (emptyEl) {
+      emptyEl.textContent = 'Unable to load price data.';
+      emptyEl.style.display = 'flex';
+    }
+  }
+};
+
+window.getPriceHistoryRangeDays = function(range, customDays) {
+  switch (range) {
+    case '1D':
+      return 1;
+    case '3D':
+      return 3;
+    case '7D':
+      return 7;
+    case '15D':
+      return 15;
+    case '30D':
+      return 30;
+    case 'Custom':
+      return Math.min(Math.max(parseInt(customDays || 7, 10), 1), 30);
+    default:
+      return 7;
+  }
+};
+
+window.getPriceHistoryColumn = function(rank) {
+  const safeRank = Math.min(Math.max(parseInt(rank || 0, 10), 0), 5);
+  return `price${safeRank}`;
+};
+
+window.downsampleHistory = function(points, maxPoints) {
+  if (!Array.isArray(points) || points.length <= maxPoints) return points || [];
+  const step = Math.ceil(points.length / maxPoints);
+  const sampled = points.filter((_, index) => index % step === 0);
+  const lastPoint = points[points.length - 1];
+  if (sampled[sampled.length - 1] !== lastPoint) {
+    sampled.push(lastPoint);
+  }
+  return sampled;
 };
 
 // Add this function after renderPlayerDetail()
@@ -2471,7 +2792,7 @@ async function buildRankSelectionSection(player) {
     const refreshTimeHtml = await window.buildRefreshTimeContainer(player);
     
     return `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="player-rank-refresh-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <!-- LEFT: Rank Selection -->
             <div style="
                 background: var(--color-graphite-800);
@@ -2663,7 +2984,11 @@ window.selectPlayerRank = async function(playerId, rankNumber) {
       state.selectedPlayer = updatedPlayer;
       renderPlayerDetail(updatedPlayer);
       
-      console.log('[RANK] Switched from rank', previousRank, 'to rank', rankNumber);
+        console.log('[RANK] Switched from rank', previousRank, 'to rank', rankNumber);
+
+        if (typeof window.refreshPlayerPriceHistory === 'function') {
+          window.refreshPlayerPriceHistory(updatedPlayer, { range: window.state?.priceHistory?.range });
+        }
       
       // Show notification
       if (typeof showToast === 'function') {
@@ -2677,6 +3002,10 @@ window.selectPlayerRank = async function(playerId, rankNumber) {
       console.error('[RANK] Error switching rank:', error);
       state.selectedPlayer.rank = rankNumber;
       renderPlayerDetail(state.selectedPlayer);
+
+      if (typeof window.refreshPlayerPriceHistory === 'function') {
+        window.refreshPlayerPriceHistory(state.selectedPlayer, { range: window.state?.priceHistory?.range });
+      }
       
       if (typeof showToast === 'function') {
         showToast(`❌ Error: ${error.message}`, 'error');
@@ -2819,7 +3148,11 @@ window.state = {
     searchResults: [],
     searchDisplayed: 0,
     currentSearchQuery: '',
-    searchTotalResults: 0
+    searchTotalResults: 0,
+    priceHistory: {
+        range: '7D',
+        customDays: 7
+    }
 };
 
 

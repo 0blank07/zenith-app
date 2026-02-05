@@ -268,7 +268,7 @@ async function buildRefreshTimeContainer(player) {
 
     if (!refreshData.refresh_time) {
       console.warn('[REFRESH-DEBUG] buildRefreshTimeContainer: refreshtime is missing for player', player.playerid, 'data =', refreshData);
-      return `<div style="background: var(--color-graphite-800); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px; text-align: center;">
+      return `<div class="player-refresh-container" style="background: var(--color-graphite-800); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px; text-align: center;">
         <div style="font-size: 14px; color: var(--color-text-muted); font-weight: 600;">No refreshtime value for this player</div>
       </div>`;
     }
@@ -278,7 +278,7 @@ async function buildRefreshTimeContainer(player) {
     // Parse refresh time
     const baseTime = parseRefreshTime(refreshData.refresh_time);
     if (!baseTime) {
-      return `<div style="background: var(--color-graphite-800); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px; text-align: center;">
+      return `<div class="player-refresh-container" style="background: var(--color-graphite-800); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px; text-align: center;">
         <div style="font-size: 14px; color: var(--color-text-muted); font-weight: 600;">Invalid refresh time format</div>
       </div>`;
     }
@@ -289,7 +289,7 @@ async function buildRefreshTimeContainer(player) {
     // Get next refresh time (SINGLE DECLARATION - NO REDECLARATION)
     const nextRefreshTime = getNextRefresh(baseTime);
     if (!nextRefreshTime) {
-      return `<div style="background: var(--color-graphite-800); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px; text-align: center;">
+      return `<div class="player-refresh-container" style="background: var(--color-graphite-800); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px; text-align: center;">
         <div style="font-size: 14px; color: var(--color-text-muted); font-weight: 600;">Unable to calculate next refresh</div>
       </div>`;
     }
@@ -344,7 +344,7 @@ async function buildRefreshTimeContainer(player) {
     setTimeout(() => startRefreshCountdown(containerId, nextRefreshTime), 100);
 
     // Return HTML
-    return `<div id="${containerId}" style="background: var(--color-graphite-800); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px;">
+    return `<div id="${containerId}" class="player-refresh-container" style="background: var(--color-graphite-800); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px;">
       <!-- Title -->
       <div style="font-size: 16px; font-weight: 800; color: var(--color-text-primary); margin: 0 0 18px 0; text-transform: uppercase; font-family: var(--font-family-base); letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -359,9 +359,9 @@ async function buildRefreshTimeContainer(player) {
         <div style="font-size: 13px; font-weight: 700; color: var(--color-text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px;">Next Refresh</div>
         
         <!-- Time and Countdown on same line -->
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-          <div style="font-size: 20px; font-weight: 900; color: var(--color-teal-500); font-family: var(--font-family-base);">${timeStr}</div>
-          <div style="font-size: 14px; font-weight: 700; color: var(--color-teal-500); background: rgba(0,194,168,0.15); padding: 6px 12px; border-radius: 6px;">
+        <div class="player-refresh-time-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <div class="player-refresh-time" style="font-size: 20px; font-weight: 900; color: var(--color-teal-500); font-family: var(--font-family-base);">${timeStr}</div>
+          <div class="player-refresh-countdown" style="font-size: 14px; font-weight: 700; color: var(--color-teal-500); background: rgba(0,194,168,0.15); padding: 6px 12px; border-radius: 6px;">
             <span id="refresh-countdown-${player.player_id}">${countdown}</span>
           </div>
         </div>
@@ -381,7 +381,7 @@ async function buildRefreshTimeContainer(player) {
     </div>`;
   } catch (error) {
     console.error('[REFRESH] Error building refresh container:', error);
-    return `<div style="background: var(--color-graphite-800); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px; text-align: center;">
+    return `<div class="player-refresh-container" style="background: var(--color-graphite-800); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px; text-align: center;">
       <div style="font-size: 14px; color: var(--color-text-muted); font-weight: 600;">Error loading refresh time</div>
     </div>`;
   }
