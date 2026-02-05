@@ -5915,7 +5915,7 @@ body.stats-open #squad-builder-modal {
     position: absolute;
     bottom: 6px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) scale(1.1)  ;
     width: 120px;
     height: 125px;
     object-fit: contain;
@@ -5924,9 +5924,9 @@ body.stats-open #squad-builder-modal {
 
 .preview-card-ovr {
     position: absolute;
-    top: 10px;
-    left: 12px;
-    font-size: 16px;
+    top: 11px;
+    left: 20px;
+    font-size: 18px;
     font-weight: 900;
     z-index: 3;
     font-family: var(--font-family-base, Arial, sans-serif);
@@ -5935,8 +5935,8 @@ body.stats-open #squad-builder-modal {
 
 .preview-card-position {
     position: absolute;
-    top: 27px;
-    left: 18px;
+    top: 28px;
+    left: 24px;
     font-size: 11px;
     font-weight: 850;
     z-index: 3;
@@ -5963,20 +5963,20 @@ body.stats-open #squad-builder-modal {
 
 .preview-card-flag-nation {
     position: absolute;
-    top: 98px;
-    left: 30px;
-    width: 11px;
-    height: 7px;
+    top: 102px;
+    left: 40px;
+    width: 13px;
+    height: 11px;
     object-fit: cover;
     z-index: 3;
 }
 
 .preview-card-flag-club {
     position: absolute;
-    top: 98px;
-    left: 60px;
-    width: 13px;
-    height: 9px;
+    top: 102px;
+    left: 65px;
+    width: 15px;
+    height: 13px;
     object-fit: contain;
     z-index: 3;
     border-radius: 2px;
@@ -7366,8 +7366,8 @@ body.stats-open #squad-builder-modal {
 
 .squad-custom-mini-card {
   position: relative;
-  width: 190px;
-  height: 220px;
+  width: 170px;
+  height: 210px;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -7378,86 +7378,90 @@ body.stats-open #squad-builder-modal {
 
 .squad-custom-card-bg {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;                 /* replaces top/left/width/height */
   width: 100%;
   height: 100%;
   object-fit: cover;
   opacity: 0.8;
   z-index: 1;
-  margin-left: 15px;
 }
 
 .squad-custom-card-player-img {
   position: absolute;
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 300%;
-  height: 300%;
+  left: 47%;
+  transform: translate(-50%, -50%) scale(1.3);
+  height: 100%;
+  width: 100%;
   object-fit: contain;
-  z-index: 10;
+  z-index: 2;
 }
 
 .squad-custom-card-ovr {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  font-size: 20px;
+  top: 9px;
+  left: -4px;
+  font-size: 27px;
   font-weight: 800;
   padding: 6px 10px;
   z-index: 3;
+  margin-left: 13px;
 }
 
 .squad-custom-card-position {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 10px;
+  top: 40px;
+  left: 4px;
+  font-size: 17px;
+  font-weight: 800;
+  padding: 6px 10px;
   z-index: 3;
+  margin-left: 13px;
 }
 
 .squad-custom-card-name {
   position: absolute;
-  bottom: 12px;
+  top: 63%;
   left: 50%;
-  transform: translateX(-50%);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
+  transform: translateX(-50%) scaleY(0.8);
+
+  font-size: 1.3rem;
+  font-weight: 800;
+  z-index: 3;
+  font-family: "CruyffSans", sans-serif;
+
+  letter-spacing: -2.6px;
+  line-height: 1.1;
   text-align: center;
+  text-transform: uppercase;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 90%;
-  z-index: 3;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-.squad-custom-card-flags {
+
+.squad-custom-card-flag{
   position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
+  bottom: -29%;
+  left: 12%;
+  width: 15px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 3px;
   z-index: 3;
-  width: 16px;
-  height: 20px;
-  margin-top: -60px;
+  transform: scale(0.1);
 }
 
-.squad-custom-card-flag {
-  width: 20px;
-  height: 14px;
-  border-radius: 2px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  width: 16px;
-  height: 20px;
-  margin-top: -60px;
-} 
+
+.squad-custom-card-club {
+  position: absolute;
+  bottom: -29%;
+  left: -10%;
+  width: 15px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 3px;
+  z-index: 3;
+  transform: scale(0.1);
+}
 
 /* ============================================
    RANK SELECTOR WITH IMAGES

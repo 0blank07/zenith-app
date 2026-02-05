@@ -3979,13 +3979,13 @@ function renderCustomizationMiniCard(player) {
     <div class="squad-custom-mini-card">
       <img src="${cardBg}" alt="Card Background" class="squad-custom-card-bg" onerror="this.src='https://via.placeholder.com/180x240'">
       <img src="${playerImg}" alt="${playerName}" class="squad-custom-card-player-img" onerror="this.style.display='none'">
-      <div class="squad-custom-card-ovr" style="color: ${ovrColor}">${overall > 0 ? overall : 'N/A'}</div>
-      <div class="squad-custom-card-position">${position}</div>
+      <div class="squad-custom-card-ovr" style="color: ${player.color_rating || '#FFFFFF'}">${overall > 0 ? overall : 'N/A'}</div>
+      <div class="squad-custom-card-position" style="color: ${player.color_position || '#FFFFFF'}">${position}</div>
       <div class="squad-custom-card-flags">
         ${nationFlag ? `<img src="${nationFlag}" alt="Nation" class="squad-custom-card-flag" onerror="this.style.display='none'">` : ''}
-        ${clubFlag ? `<img src="${clubFlag}" alt="Club" class="squad-custom-card-flag" onerror="this.style.display='none'">` : ''}
+        ${clubFlag ? `<img src="${clubFlag}" alt="Club" class="squad-custom-card-club" onerror="this.style.display='none'">` : ''}
       </div>
-      <div class="squad-custom-card-name">${playerName}</div>
+      <div class="squad-custom-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
     </div>
   `;
 }
