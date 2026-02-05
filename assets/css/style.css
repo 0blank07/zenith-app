@@ -6986,10 +6986,6 @@ watchlist-view .view-content {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg,
-      rgba(15, 23, 42, 0.8) 0%,
-      rgba(0, 194, 168, 0.25) 50%,
-      rgba(15, 23, 42, 0.8) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6997,10 +6993,8 @@ watchlist-view .view-content {
 }
 
 
-
 .banner-content {
   text-align: center;
-  color: #000000; /* solid black */
   max-width: 600px;
 }
 
@@ -7017,7 +7011,7 @@ watchlist-view .view-content {
 .banner-subtitle {
   font-size: 1rem;
   font-weight: 500;
-  color: #000000; /* solid black */
+  color: #FFFFFF; /* solid black */
   letter-spacing: 0.01em;
 }
 
@@ -7194,24 +7188,9 @@ watchlist-view .view-content {
   transition: transform 0.3s ease;
 }
 
-.banner-slide[data-redirect]:hover .banner-overlay {
-  background: linear-gradient(135deg,
-      rgba(15, 23, 42, 0.7) 0%,
-      rgba(0, 194, 168, 0.35) 50%,
-      rgba(15, 23, 42, 0.7) 100%);
-}
-
-.banner-slide[data-redirect]:hover .banner-title {
-  transform: translateY(-2px);
-  transition: transform 0.3s ease;
-}
-
 .banner-slide[data-redirect]:active {
   transform: scale(0.98);
 }
-
-/* FIRST BADGE FORE TEAL PRO 14 */
-
 
 /* Mobile Slider Size Adjustment */
 @media (max-width: 768px) {
