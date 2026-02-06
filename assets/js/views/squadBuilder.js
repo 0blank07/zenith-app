@@ -69,7 +69,11 @@ let squadCustomizationState = window.squadCustomizationState = {
     slotId: null,
     selectedRank: 0,
     trainingLevel: 0,
-    selectedSkills: []
+    selectedSkills: [],
+    baseOvr: null,
+    basePosition: null,
+    baseName: null,
+    baseColors: null
 };
 
 
@@ -3420,6 +3424,8 @@ async function selectSquadRank(rankNumber, options = {}) {
     
     squadCustomizationState.selectedRank = rankNumber;
     squadCustomizationState.selectedSkills = [];
+
+    updateSquadCustomizationMiniCard();
     
     document.querySelectorAll('.squad-rank-box').forEach(box => {
         const rank = parseInt(box.dataset.rank);
@@ -3475,6 +3481,8 @@ function resetSquadPlayerRank() {
     if (pointsDisplay) {
         pointsDisplay.textContent = '0 Points';
     }
+
+    updateSquadCustomizationMiniCard();
     
     renderSquadSkillsMessage('Select a rank to view skills');
     
@@ -3756,6 +3764,14 @@ function openPlayerCustomizationModal(playerId, slotId) {
   }
 
   // Render mini card preview
+  squadCustomizationState.baseOvr = player?.ovr || player?.overall || 0;
+  squadCustomizationState.basePosition = player?.position || 'N/A';
+  squadCustomizationState.baseName = player?.name || 'Unknown Player';
+  squadCustomizationState.baseColors = {
+    color_rating: player?.color_rating || '#FFFFFF',
+    color_position: player?.color_position || '#FFFFFF',
+    color_name: player?.color_name || '#FFFFFF'
+  };
   renderCustomizationMiniCard(player);
 
   ensureSquadSkillDetailModal();
@@ -3988,6 +4004,31 @@ function renderCustomizationMiniCard(player) {
       <div class="squad-custom-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
     </div>
   `;
+}
+
+function updateSquadCustomizationMiniCard() {
+  const ovrEl = document.querySelector('.squad-custom-card-ovr');
+  const positionEl = document.querySelector('.squad-custom-card-position');
+  const nameEl = document.querySelector('.squad-custom-card-name');
+
+  if (!ovrEl || !positionEl || !nameEl) return;
+
+  const baseOvr = squadCustomizationState.baseOvr ?? 0;
+  const basePosition = squadCustomizationState.basePosition || 'N/A';
+  const baseName = squadCustomizationState.baseName || 'Unknown Player';
+  const colors = squadCustomizationState.baseColors || {};
+
+  const rankBonus = Math.min(Math.max(parseInt(squadCustomizationState.selectedRank || 0, 10), 0), 5);
+  const bonusValue = rankBonus;
+  const updatedOvr = baseOvr > 0 ? baseOvr + bonusValue : baseOvr;
+
+  ovrEl.textContent = updatedOvr > 0 ? updatedOvr : 'N/A';
+  positionEl.textContent = basePosition;
+  nameEl.textContent = baseName;
+
+  if (colors.color_rating) ovrEl.style.color = colors.color_rating;
+  if (colors.color_position) positionEl.style.color = colors.color_position;
+  if (colors.color_name) nameEl.style.color = colors.color_name;
 }
 
 /**

@@ -7296,7 +7296,7 @@ watchlist-view .view-content {
 /* Player Name */
 .card-player-name {
     position: absolute;
-    bottom: 30%;
+    bottom: 28%;
     font-size: 0.9rem;
     font-weight: 800;
     text-transform: uppercase;
@@ -7927,6 +7927,37 @@ watchlist-view .view-content {
     font-weight: 700;
     font-size: 20px;
     color: var(--color-text-muted);
+}
+
+.dropdown-player-card .dropdown-mini-card {
+    width: 100%;
+    height: 100%;
+    margin-left: 0;
+}
+
+.dropdown-player-card .dropdown-mini-card .squad-custom-card-ovr {
+    top: 6px;
+    left: 0;
+    font-size: 16px;
+    margin-left: 6px;
+}
+
+.dropdown-player-card .dropdown-mini-card .squad-custom-card-position {
+    top: 26px;
+    left: 0;
+    font-size: 11px;
+    margin-left: 6px;
+}
+
+.dropdown-player-card .dropdown-mini-card .squad-custom-card-name {
+    top: 64%;
+    font-size: 0.7rem;
+    letter-spacing: -1px;
+}
+
+.dropdown-player-card .dropdown-mini-card .squad-custom-card-player-img {
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.25);
 }
 
 /* Player Info */

@@ -3006,12 +3006,21 @@ window.selectPlayerRank = async function(playerId, rankNumber) {
       // Fetch player data for new rank
       const resp = await window.apiClient.getPlayerDetails(playerId, rankNumber);
       
+      const preservedColors = {
+        color_rating: state.selectedPlayer?.color_rating,
+        color_position: state.selectedPlayer?.color_position,
+        color_name: state.selectedPlayer?.color_name
+      };
+
       const updatedPlayer = {
         ...state.selectedPlayer,
         ...resp.player,
         rank: rankNumber,
         skills: resp.skills,
-        available_skill_points: resp.available_skill_points
+        available_skill_points: resp.available_skill_points,
+        color_rating: resp.player?.color_rating || preservedColors.color_rating,
+        color_position: resp.player?.color_position || preservedColors.color_position,
+        color_name: resp.player?.color_name || preservedColors.color_name
       };
       
       state.selectedPlayer = updatedPlayer;
@@ -3074,7 +3083,10 @@ window.resetPlayerRank = async function(playerId) {
       skills: resp.skills,
       available_skill_points: resp.available_skill_points,
       training_boosts: combinedBoosts,
-      skill_boosts: skillBoosts
+      skill_boosts: skillBoosts,
+      color_rating: resp.player?.color_rating || state.selectedPlayer?.color_rating,
+      color_position: resp.player?.color_position || state.selectedPlayer?.color_position,
+      color_name: resp.player?.color_name || state.selectedPlayer?.color_name
     };
 
     state.selectedPlayer = updatedPlayer;
@@ -6044,6 +6056,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     row.className = 'dropdown-player-row';
 
     const isAuctionable = player.is_untradable !== 'True' && player.is_untradable !== true;
+    const cardBackground = player.card_background || player.cardBackground || player.cardbackground || 'https://via.placeholder.com/120x160';
+    const playerImage = player.player_image || player.playerImage || player.playerimage || player.playerimg || '';
+    const playerName = player.name || 'Unknown Player';
+    const playerOvr = player.ovr || 'N/A';
+    const playerPosition = player.position || 'N/A';
 
     // ========== FIXED: Show price for auctionable cards in search ==========
     const priceDisplay = isAuctionable && player.price
@@ -6052,15 +6069,21 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     row.innerHTML = `
       <div class="dropdown-player-card">
-          ${player.player_image ?
-        `<img src="${player.player_image}" alt="${player.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-               <span class="player-initials" style="display: none;">${getInitials(player.name)}</span>` :
-        `<span class="player-initials">${getInitials(player.name)}</span>`
-      }
+          <div class="squad-custom-mini-card dropdown-mini-card">
+            <img src="${cardBackground}" alt="Card Background" class="squad-custom-card-bg" onerror="this.src='https://via.placeholder.com/120x160'">
+            ${playerImage ?
+              `<img src="${playerImage}" alt="${playerName}" class="squad-custom-card-player-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+               <span class="player-initials" style="display: none;">${getInitials(playerName)}</span>` :
+              `<span class="player-initials">${getInitials(playerName)}</span>`
+            }
+            <div class="squad-custom-card-ovr" style="color: ${player.color_rating || '#FFFFFF'}">${playerOvr}</div>
+            <div class="squad-custom-card-position" style="color: ${player.color_position || '#FFFFFF'}">${playerPosition}</div>
+            <div class="squad-custom-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
+          </div>
       </div>
 
       <div class="dropdown-player-info">
-          <div class="dropdown-player-name">${player.name}</div>
+          <div class="dropdown-player-name">${playerName}</div>
           <span class="dropdown-player-badge ${isAuctionable ? 'auctionable' : 'non-auctionable'}">
               ${isAuctionable ? '✅ Auctionable' : '🔴 Non-auctionable'}
           </span>
@@ -6068,8 +6091,8 @@ document.addEventListener('DOMContentLoaded', async function () {
       </div>
 
       <div class="dropdown-player-stats">
-          <div class="dropdown-player-ovr">${player.ovr || 'N/A'}</div>
-          <div class="dropdown-player-position">${player.position || 'N/A'}</div>
+          <div class="dropdown-player-ovr">${playerOvr}</div>
+          <div class="dropdown-player-position">${playerPosition}</div>
       </div>
     `;
 
