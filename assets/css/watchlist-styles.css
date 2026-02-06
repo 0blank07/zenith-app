@@ -418,11 +418,11 @@
     font-family: "CruyffSans", sans-serif;
     color: var(--player-name-color, #FFFFFF);
     z-index: 10;
-    letter-spacing: -0.8px;
+    letter-spacing: -1.3px;
     line-height: 1;
     text-transform: uppercase;
     white-space: nowrap;
-    overflow: hidden;
+    overflow: hidden; 
     text-overflow: ellipsis;
     max-width: 100%;
 }
@@ -430,29 +430,28 @@
 /* OVR Rating Badge */
 .player-row-ovr {
     position: absolute;
-    top: 10px;
-    left: 7px;
+    top: 8px;
+    left: 5px;
     padding: 2px 5px;
     border-radius: 4px;
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 800;
     font-family: "CruyffSans", sans-serif;
     color: var(--player-ovr-color, #FFB86B);
     z-index: 10;
-    letter-spacing: -1px;
+    letter-spacing: -2.2px;
     line-height: 1.1;
     transform: scaleY(1);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 /* Position Badge */
 .player-row-position {
     position: absolute;
-    top: 28px;
-    left: 14px;
+    top: 25px;
+    left: 10px;
     padding: 1px 4px;
     border-radius: 3px;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
     font-family: "CruyffSans", sans-serif;
     color: var(--player-position-color, #FFFFFF);
@@ -460,13 +459,12 @@
     letter-spacing: -0.8px;
     line-height: 1.1;
     transform: scaleY(1);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 /* Nation Flag */
 .player-row-nation {
     position: absolute;
-    bottom: 16px;
+    bottom: 18px;
     left: 26px;
     width: 12px;
     height: 10px;
@@ -479,7 +477,7 @@
 /* Club Badge */
 .player-row-club {
     position: absolute;
-    bottom: 15px;
+    bottom: 16px;
     right: 25px;
     width: 15px;
     height: 12px;

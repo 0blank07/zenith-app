@@ -3095,7 +3095,7 @@ h1, h3, h4, h5, h6 {
 /* Player Name */
 .player-card-name {
     position: absolute;
-    top: 87px;
+    top: 86px;
     left: 50%;
     transform: translateX(-50%);
     font-size: 11.4px;
@@ -3116,12 +3116,12 @@ h1, h3, h4, h5, h6 {
 .player-card-ovr {
     position: absolute;
     top: 13px;
-    left: 14px;
+    left: 11px;
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 800;
     font-family: 'CruyffSans', sans-serif;
     z-index: 10;
-    letter-spacing: -1px;
+    letter-spacing: -2.5px;
     line-height: 1.1;
 }
 
@@ -3129,12 +3129,12 @@ h1, h3, h4, h5, h6 {
 .player-card-position {
     position: absolute;
     top: 29px;
-    left: 21px;
+    left: 18px;
     font-size: 20px;
-    font-weight: 999;
+    font-weight: 800;
     font-family: 'CruyffSans', sans-serif;
     z-index: 10;
-    letter-spacing: -0.8px;
+    letter-spacing: 1px;
     line-height: 1.1;
 }
 
@@ -3609,12 +3609,13 @@ h1, h3, h4, h5, h6 {
 }
 
 .player-card-position {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 800;
   color: var(--color-text-primary);
   text-transform: uppercase;
   margin-top: 2px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  letter-spacing: -0.5px;
+  left: 16px;
 }
 
 .player-card-image-placeholder {
@@ -4119,7 +4120,7 @@ h1, h3, h4, h5, h6 {
   }
 
   .player-card-position {
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .player-initials {
@@ -7267,8 +7268,8 @@ watchlist-view .view-content {
 /* OVR Badge (Top Center) */
 .card-ovr {
     position: absolute;
-    top: 11%;
-    left: 11%;
+    top: 10%;
+    left: 9%;
     font-size: 1.4rem;
     font-weight: 800;
     z-index: 3;
@@ -7282,11 +7283,11 @@ watchlist-view .view-content {
 /* Position Badge */
 .card-position {
     position: absolute;
-    top: 26%;
-    left: 18%;
+    top: 24%;
+    left: 15%;
     transform: translateX(-50%);
-    font-size: 1.1rem;
-    font-weight: 799;
+    font-size: 1rem;
+    font-weight: 999;
     z-index: 3;
     letter-spacing: -0.7px;
     line-height: 0.8;
@@ -7350,10 +7351,10 @@ watchlist-view .view-content {
     }
 
     .card-ovr {
-        top: 9%;
-        left: 10%;
+        top: 10%;
+        left: 9%;
         font-size: 1.7rem;
-        letter-spacing: -0.9px;
+        letter-spacing: -2.9px;
     }
 
     .card-position {
@@ -7364,7 +7365,7 @@ watchlist-view .view-content {
     }
 
     .card-player-name {
-        bottom: 24%;
+        bottom: 27%;
         font-size: 1.1rem;
         letter-spacing: -0.5px;
     }
@@ -7409,41 +7410,110 @@ watchlist-view .view-content {
 
     .card-ovr {
         top: 9%;
-        left: 10%;
-        font-size: 1.5rem;
-        letter-spacing: -0.2px;
+        left: 9%;
+        font-size: 1.9rem;
+        letter-spacing: -3px;
     }
 
     .card-position {
-        top: 24%;
-        left: 14.5%;
-        font-size: 1rem;
-        letter-spacing: -0.3px;
+        top: 25%;
+        left: 14%;
+        font-size: 1.3rem;
+        letter-spacing: -1.4px;
     }
 
     .card-player-name {
-        bottom: 24%;
-        font-size: 1rem;
-        letter-spacing: -0.4px;
+        bottom: 28%;
+        font-size: 1.1rem;
+        letter-spacing: -1.5px;
         max-width: 95%;
     }
 
     .card-nation-flag {
         bottom: 18%;
         left: 27%;
-        width: 16px;
-        height: 12px;
+        width: 19px;
+        height: 15px;
     }
 
     .card-club-flag {
         bottom: 16%;
         right: 28%;
-        width: 16px;
-        height: 16px;
+        width: 19px;
+        height: 19px;
     }
 }
 
-/* Mobile (max-width: 480px) */
+
+
+
+
+/* Mobile (max-width: 511px) */
+@media (max-width: 512px) {
+    #latest-players-grid,
+    #trending-players-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.8rem;  /* Increased gap creates natural spacing */
+        padding: 0.5rem 0.3rem;  /* Small side padding */
+    }
+
+    .dashboard-player-card {
+        width: 100%;  /* Full width - no need for 89% hack */
+        margin: 0 auto;  /* Center within grid cell */
+    }
+
+    .dashboard-player-card:hover {
+        transform: translateY(-3px) scale(1.01);
+        box-shadow: 0 6px 15px rgba(0, 255, 170, 0.2);
+    }
+
+    .player-image-img {
+        width: 120%;
+        height: 120%;
+    }
+
+    .card-ovr {
+        top: 9%;
+        left: 8%;
+        font-size: 1.7rem;
+        font-weight: 800;
+        letter-spacing: -2px;
+    }
+
+    .card-position {
+        top: 24%;
+        left: 15%;
+        font-size: 1.2rem;
+        font-weight: 900;
+        letter-spacing: -1.5px;
+    }
+
+    .card-player-name {
+        bottom: 30%;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: -1.2px;
+        max-width: 90%;
+    }
+
+    .card-nation-flag {
+        bottom: 17%;
+        left: 27%;
+        width: 15px;
+        height: 12px;
+        border-radius: 2px;
+    }
+
+    .card-club-flag {
+        bottom: 16%;
+        right: 28%;
+        width: 15px;
+        height: 15px;
+    }
+}
+
+
+
 /* Mobile (max-width: 480px) */
 @media (max-width: 480px) {
     #latest-players-grid,
@@ -7471,40 +7541,40 @@ watchlist-view .view-content {
     .card-ovr {
         top: 9%;
         left: 10%;
-        font-size: 1.2rem;
-        font-weight: 700;
-        letter-spacing: -0.2px;
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -2px;
     }
 
     .card-position {
         top: 24%;
-        left: 14.5%;
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: -0.2px;
+        left: 15%;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: -1.5px;
     }
 
     .card-player-name {
-        bottom: 24%;
-        font-size: 0.75rem;
+        bottom: 30%;
+        font-size: 1rem;
         font-weight: 800;
-        letter-spacing: -0.3px;
+        letter-spacing: -1.2px;
         max-width: 90%;
     }
 
     .card-nation-flag {
-        bottom: 18%;
+        bottom: 17%;
         left: 27%;
-        width: 12px;
-        height: 9px;
+        width: 15px;
+        height: 12px;
         border-radius: 2px;
     }
 
     .card-club-flag {
         bottom: 16%;
         right: 28%;
-        width: 12px;
-        height: 12px;
+        width: 15px;
+        height: 15px;
     }
 }
 
@@ -9500,97 +9570,6 @@ watchlist-view .view-content {
     z-index: 3;
 }
 
-@media (max-width: 480px) {
-
-  .card-background-img-inside {
-    position: absolute;
-    margin-top: 120px;
-    margin-left: 108px;
-    width: 140%;
-    height: 200%;
-    object-fit: cover;
-    z-index: 1;
-    scale: 6;
-}
-
-.player-image-img-inside {
-    position: absolute;
-    top: 55%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    z-index: 2;
-}
-
-.card-ovr-inside {
-    position: absolute;
-    top: 15%;
-    left: 21%;
-    font-size: 2rem;
-    font-weight: 900;
-    z-index: 3;
-    font-family: "CruyffSans", sans-serif;
-
-    letter-spacing: -2.6px;
-    line-height: 1.1;
-    transform: scaleY(1.4);
-}
-
-.card-position-inside {
-    position: absolute;
-    top: 29%;
-    left: 24%;
-    transform: translateX(-50%);
-    font-size: 1.4rem;
-    font-weight: 799;
-    z-index: 3;
-    letter-spacing: -0.7px;
-    line-height: 0.7;
-    transform: scaleY(1.2);
-}
-
-
-.card-player-name-inside {
-    position: absolute;
-    bottom: 25%;
-    font-size: 1.3rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    z-index: 3;
-    text-align: center;
-    max-width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-family: "CruyffSans", sans-serif;
-    letter-spacing: -0.3px;
-    line-height: 1.1;
-    transform: scaleY(1.2);
-}
-
-.card-nation-flag-inside {
-    position: absolute;
-    bottom: 13%;
-    left: 34%;
-    width: 28px;
-    height: 28px;
-    object-fit: cover;
-    border-radius: 3px;
-    z-index: 3;
-}
-
-.card-club-flag-inside {
-    position: absolute;
-    bottom: 14%;
-    right: 36%;
-    width: 26px;
-    height: 26px;
-    object-fit: contain;
-    z-index: 3;
-}
-}
 
 .players-grid .player-row,
 .players-grid .player-card {
