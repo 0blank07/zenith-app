@@ -50,6 +50,7 @@ window.squadState = {
   formationId: '4-3-3',
   starters: {},
   bench: [],
+  playerCustomizations: {},
   dragging: null,
   dragSource: null,
   searchQuery: '',
@@ -80,6 +81,77 @@ let squadCustomizationState = window.squadCustomizationState = {
 
 // Local players cache for squad builder
 let players = [];
+
+function resolveSquadPlayerId(playerOrId) {
+  if (!playerOrId) return null;
+  if (typeof playerOrId === 'object') {
+    return playerOrId.player_id || playerOrId.id || playerOrId.playerid || null;
+  }
+  return playerOrId;
+}
+
+function getSquadPlayerById(playerId) {
+  if (!playerId) return null;
+  return getPlayers().find(p =>
+    p.id === playerId || p.playerid === playerId || p.player_id === playerId
+  ) || null;
+}
+
+function getSquadPlayerCustomization(playerId) {
+  if (!playerId || !squadState.playerCustomizations) return null;
+  return squadState.playerCustomizations[playerId] || null;
+}
+
+function setSquadPlayerCustomization(playerId, updates = {}, reason = 'update') {
+  if (!playerId) return;
+  if (!squadState.playerCustomizations) squadState.playerCustomizations = {};
+  const current = squadState.playerCustomizations[playerId] || {};
+  const next = { ...current, ...updates };
+  squadState.playerCustomizations[playerId] = next;
+  console.log('[SQUAD CUSTOM] Synced to squad state', { playerId, reason, updates: Object.keys(updates) });
+}
+
+function parseAlternatePositions(player) {
+  const raw = player?.alternate_position || player?.alternatePosition || player?.alternate_positions || '';
+  if (!raw) return [];
+  return raw
+    .split(',')
+    .map(pos => pos.trim())
+    .filter(pos => pos.length > 0 && pos !== '0')
+    .map(pos => pos.toUpperCase());
+}
+
+function getSquadPlayerAltPositions(player) {
+  const playerId = resolveSquadPlayerId(player);
+  const customization = getSquadPlayerCustomization(playerId);
+  if (customization?.altPositions) return customization.altPositions;
+  return parseAlternatePositions(player);
+}
+
+function isPlayerInSquad(playerId) {
+  if (!playerId) return false;
+  const starters = Object.values(squadState.starters || {});
+  return starters.includes(playerId) || (squadState.bench || []).includes(playerId);
+}
+
+function getSquadPlayerBoostedOVR(player) {
+  if (!player) return 0;
+  const playerId = resolveSquadPlayerId(player);
+  const customization = getSquadPlayerCustomization(playerId);
+  if (customization && Number.isFinite(customization.boostedOvr) && isPlayerInSquad(playerId)) {
+    return customization.boostedOvr;
+  }
+  return player.ovr || player.overall || 0;
+}
+
+function isAltPositionUnlocked(player, slotLabel) {
+  const playerId = resolveSquadPlayerId(player);
+  const customization = getSquadPlayerCustomization(playerId);
+  const unlocked = customization?.altPositionsUnlocked || [];
+  if (!unlocked.length) return false;
+  const normalizedSlot = (slotLabel || '').toUpperCase().trim();
+  return unlocked.includes(normalizedSlot);
+}
 
 
 
@@ -154,15 +226,36 @@ const POSITION_PENALTIES = {
   }
 };
 
-function getPositionAdjustedOVR(player, slotPosition) {
-  const playerPos = (player.position || '').toUpperCase().trim();
-  const slotPos = (slotPosition || '').toLowerCase().trim();
-  const baseOVR = player.ovr || player.overall || 0;
+function getPositionAdjustedOVR(player, slotPosition, options = {}) {
+  const playerPos = (player?.position || '').toUpperCase().trim();
+  const slotPosKey = (slotPosition || '').toLowerCase().trim();
+  const slotPosLabel = (slotPosition || '').toUpperCase().trim();
+  const useSquadOverrides = options.useSquadOverrides === true;
+  const baseOVR = useSquadOverrides ? getSquadPlayerBoostedOVR(player) : (player?.ovr || player?.overall || 0);
   
-  if (!playerPos || !slotPos) return baseOVR;
+  if (!playerPos || !slotPosKey) return baseOVR;
   
-  const penalty = POSITION_PENALTIES[playerPos]?.[slotPos] ?? -18;
-  return Math.max(0, baseOVR + penalty);
+  if (useSquadOverrides && isAltPositionUnlocked(player, slotPosLabel)) {
+    console.log('[SQUAD OVR] Alt position unlocked, no penalty', {
+      playerId: resolveSquadPlayerId(player),
+      slot: slotPosLabel,
+      baseOVR
+    });
+    return baseOVR;
+  }
+  
+  const penalty = POSITION_PENALTIES[playerPos]?.[slotPosKey] ?? -18;
+  const adjusted = Math.max(0, baseOVR + penalty);
+  if (useSquadOverrides) {
+    console.log('[SQUAD OVR] Effective OVR calculated', {
+      playerId: resolveSquadPlayerId(player),
+      slot: slotPosLabel,
+      baseOVR,
+      penalty,
+      adjusted
+    });
+  }
+  return adjusted;
 }
 
 // Function to get players from global state or API
@@ -209,7 +302,7 @@ function calculateTeamOVR() {
     );
     
     if (player) {
-      const adjustedOVR = getPositionAdjustedOVR(player, slot.position);
+      const adjustedOVR = getPositionAdjustedOVR(player, slot.position, { useSquadOverrides: true });
       totalOVR += adjustedOVR;
     }
   });
@@ -221,7 +314,7 @@ function calculateTeamOVR() {
       p.id === pid || p.playerid === pid || p.player_id === pid
     );
     if (player) {
-      totalOVR += (player.ovr || player.overall || 0);
+      totalOVR += getSquadPlayerBoostedOVR(player);
       filledBenchCount++;
     }
   });
@@ -2915,7 +3008,7 @@ function renderSlot(slot) {
         console.log('🎨 Rendering player card:', player);
         
         const playerId = player.id || player.playerid || player.player_id;
-        const overall = player.ovr || player.overall || 0;
+        const overall = getSquadPlayerBoostedOVR(player);
         const position = player.position || 'NA';
         const playerName = player.name || 'Unknown';
         
@@ -2932,8 +3025,8 @@ function renderSlot(slot) {
         const colorPosition = player.colorposition || player.color_position || player.colorPosition || '#FFFFFF';
         const colorName = player.colorname || player.color_name || player.colorName || '#FFFFFF';
         // ✅ NEW: Get position-adjusted OVR
-        const slotPosition = slot.label.toLowerCase(); // Get position from slot (e.g., 'lb', 'st', 'cam')
-        const adjustedOVR = getPositionAdjustedOVR(player, slotPosition);
+        const slotPosition = slot.label || '';
+        const adjustedOVR = getPositionAdjustedOVR(player, slotPosition, { useSquadOverrides: true });
 
 
         const previewCard = document.createElement('div');
@@ -3062,7 +3155,7 @@ function renderBench() {
         // If player assigned, create PREVIEW CARD ON TOP
         if (player) {
             const playerId = player.id || player.playerid || player.player_id;
-            const overall = player.ovr || player.overall || 0;
+            const overall = getSquadPlayerBoostedOVR(player);
             const position = player.position || 'NA';
             const playerName = player.name || 'Unknown';
 
@@ -3429,6 +3522,7 @@ function persistSquadCustomizationState(reason) {
     const playerKey = squadCustomizationState.playerId;
     if (!playerKey) return;
 
+    const player = squadCustomizationState.player || getSquadPlayerById(playerKey);
     const snapshot = {
         selectedRank: getSquadRankOvrBonus(squadCustomizationState.selectedRank),
         trainingLevel: parseInt(squadCustomizationState.trainingLevel || 0, 10),
@@ -3438,7 +3532,31 @@ function persistSquadCustomizationState(reason) {
     };
 
     squadCustomizationState.savedByPlayer[playerKey] = snapshot;
-    console.log('SQUAD CUSTOM: Persisted customization state', { playerId: playerKey, reason, snapshot });
+
+    const rawBaseOvr = Number.isFinite(squadCustomizationState.baseOvr)
+        ? parseInt(squadCustomizationState.baseOvr, 10)
+        : parseInt(player?.ovr || player?.overall || 0, 10);
+    const baseOvrValue = Number.isFinite(rawBaseOvr) ? rawBaseOvr : 0;
+    const boostedOvr = baseOvrValue > 0 ? baseOvrValue + snapshot.selectedRank : baseOvrValue;
+    const altPositions = getSquadPlayerAltPositions(player);
+
+    const updates = {
+        ...snapshot,
+        baseOvr: baseOvrValue,
+        boostedOvr
+    };
+
+    if (altPositions.length > 0) {
+        updates.altPositions = altPositions;
+    }
+
+    setSquadPlayerCustomization(playerKey, updates, reason);
+    console.log('SQUAD CUSTOM: Persisted customization state', {
+        playerId: playerKey,
+        reason,
+        snapshot,
+        boostedOvr
+    });
 }
 
 window.verifySquadCustomizationOVR = function(baseOvr = 80) {
@@ -3524,6 +3642,11 @@ function resetSquadPlayerRank() {
     renderSquadSkillsMessage('Select a rank to view skills');
     
     persistSquadCustomizationState('rank-reset');
+    if (squadCustomizationState.playerId) {
+        setSquadPlayerCustomization(squadCustomizationState.playerId, {
+            altPositionsUnlocked: []
+        }, 'rank-reset');
+    }
 
     if (typeof showToast === 'function') {
         showToast('Rank reset', 'info');
@@ -3707,8 +3830,23 @@ async function renderSquadPlayerSkills() {
 
     const allocationMap = {};
     userAllocations.forEach(a => {
-        allocationMap[a.skill_id] = a.skill_level;
+      allocationMap[a.skill_id] = a.skill_level;
     });
+
+    const playerKey = resolveSquadPlayerId(mergedPlayer);
+    const altPositions = getSquadPlayerAltPositions(mergedPlayer);
+    const hasAltUnlock = altPositions.length > 0 && Object.values(allocationMap).some(level => (level || 0) >= 2);
+    const unlockedAltPositions = hasAltUnlock ? altPositions : [];
+    if (playerKey) {
+        setSquadPlayerCustomization(playerKey, {
+            altPositions,
+            altPositionsUnlocked: unlockedAltPositions
+        }, 'alt-position-sync');
+        console.log('[SQUAD ALT] Alt position unlock state', {
+            playerId: playerKey,
+            unlocked: unlockedAltPositions
+        });
+    }
 
     const pointsSpent = userAllocations.reduce((sum, a) => sum + a.skill_level, 0);
     const pointsRemaining = availablePoints - pointsSpent;
@@ -3778,9 +3916,8 @@ function applySquadPlayerCustomization() {
     if (typeof showToast === 'function') {
         showToast(`Applied - Rank ${rank}, Training Level ${training}`, 'success');
     }
-    
+
     closePlayerCustomizationModal();
-    renderSquadBuilder();
 }
 
 function openPlayerCustomizationModal(playerId, slotId) {
@@ -3790,7 +3927,8 @@ function openPlayerCustomizationModal(playerId, slotId) {
 
   const resolvedPlayerId = playerId || squadState.lastAssignedPlayerId || squadState.dragging || null;
   const player = getPlayers().find(p => p.player_id === resolvedPlayerId || p.id === resolvedPlayerId);
-  const savedCustomization = resolvedPlayerId ? squadCustomizationState.savedByPlayer?.[resolvedPlayerId] : null;
+  const storedCustomization = resolvedPlayerId ? getSquadPlayerCustomization(resolvedPlayerId) : null;
+  const savedCustomization = storedCustomization || (resolvedPlayerId ? squadCustomizationState.savedByPlayer?.[resolvedPlayerId] : null);
   const fallbackRank = getSquadRankOvrBonus(player?.rank);
   const restoredRank = savedCustomization ? getSquadRankOvrBonus(savedCustomization.selectedRank) : fallbackRank;
   const restoredTraining = savedCustomization ? parseInt(savedCustomization.trainingLevel || 0, 10) : 0;
@@ -3822,7 +3960,12 @@ function openPlayerCustomizationModal(playerId, slotId) {
   }
 
   // Render mini card preview
-  squadCustomizationState.baseOvr = player?.ovr || player?.overall || 0;
+  const storedBaseOvr = Number.isFinite(savedCustomization?.baseOvr)
+      ? parseInt(savedCustomization.baseOvr, 10)
+      : null;
+  squadCustomizationState.baseOvr = Number.isFinite(storedBaseOvr)
+      ? storedBaseOvr
+      : (player?.ovr || player?.overall || 0);
   squadCustomizationState.basePosition = player?.position || 'N/A';
   squadCustomizationState.baseName = player?.name || 'Unknown Player';
   squadCustomizationState.baseColors = {
@@ -3881,6 +4024,9 @@ function closePlayerCustomizationModal() {
         closeSkillDetailModal();
     }
     closeSquadPlayerStatsView();
+    if (typeof renderSquadBuilder === 'function') {
+        renderSquadBuilder();
+    }
 }
 
 // ==================== NATION FILTER AUTOCOMPLETE ====================

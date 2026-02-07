@@ -3858,9 +3858,14 @@ async function loadDashboard() {
 
 
     // Load Latest and Trending
+    const latestPromise = loadLatestPlayers();
+    const trendingPromise = loadTrendingPlayers();
+    const recentEventsPromise = latestPromise.then(() => loadRecentEvents());
+
     await Promise.all([
-        loadLatestPlayers(),
-        loadTrendingPlayers()
+        latestPromise,
+        trendingPromise,
+        recentEventsPromise
     ]);
 
     // Search initialization moved to DOMContentLoaded (dropdown version)
@@ -3922,6 +3927,189 @@ function createDashboardPlayerCard(player) {
     return card;
 }
 
+let latestPlayersCache = [];
+const recentEventPlayersCache = new Map();
+const recentEventSortCache = new Map();
+
+function getEventNameFromPlayer(player) {
+    const raw = player?.event || player?.event_name || player?.eventName || '';
+    const name = String(raw || '').trim();
+    return name && name !== '0' ? name : '';
+}
+
+function getEventTitleFirstWord(eventName) {
+    const normalized = String(eventName || '').trim();
+    if (!normalized) return '';
+    return normalized.split(/\s+/)[0].toLowerCase();
+}
+
+function getGridColumnCount(element) {
+    if (!element) return 0;
+    const columns = getComputedStyle(element).gridTemplateColumns || '';
+    const minmaxMatches = columns.match(/minmax\([^)]*\)/g);
+    if (minmaxMatches?.length) return minmaxMatches.length;
+    return columns.split(' ').filter(token => token.trim().length > 0).length;
+}
+
+function getRecentEventNames(players, limit = 3) {
+    const names = [];
+    const seenEvents = new Set();
+    const seenFirstWords = new Set();
+    (players || []).forEach(player => {
+        const eventName = getEventNameFromPlayer(player);
+        if (!eventName) return;
+        const trimmedName = eventName.trim();
+        const eventKey = trimmedName.toLowerCase();
+        if (!eventKey || seenEvents.has(eventKey)) return;
+        const firstWord = getEventTitleFirstWord(trimmedName);
+        if (!firstWord || seenFirstWords.has(firstWord)) return;
+        seenEvents.add(eventKey);
+        seenFirstWords.add(firstWord);
+        names.push(trimmedName);
+    });
+    return names.slice(0, limit);
+}
+
+function getPrice0Value(price) {
+    if (price === null || price === undefined) return 0;
+    const normalized = typeof price === 'string' ? price.replace(/,/g, '') : price;
+    const numeric = Number(normalized);
+    return Number.isFinite(numeric) ? numeric : 0;
+}
+
+function getEventSortCacheKey(eventName, players) {
+    const sample = (players || []).slice(0, 5)
+        .map(p => `${p.player_id || p.id || 'na'}:${getPrice0Value(p.price0)}`)
+        .join('|');
+    return `${eventName}|${players?.length || 0}|${sample}`;
+}
+
+function getTopPlayersByPrice(players, eventName, limit = 7) {
+    const cacheKey = `${getEventSortCacheKey(eventName, players)}|${limit}`;
+    const cached = recentEventSortCache.get(cacheKey);
+    if (cached) return cached;
+    const topPlayers = (players || []).slice(0, limit);
+    recentEventSortCache.set(cacheKey, topPlayers);
+    return topPlayers;
+}
+
+async function fetchRecentEventPlayers(eventName) {
+    if (!eventName) return [];
+    const cacheKey = eventName.toLowerCase();
+    if (recentEventPlayersCache.has(cacheKey)) {
+        return recentEventPlayersCache.get(cacheKey);
+    }
+    const players = await loadPlayersFromAPI({
+        limit: 200,
+        rank: 0,
+        event: eventName
+    });
+    recentEventPlayersCache.set(cacheKey, players);
+    return players;
+}
+
+async function loadRecentEvents() {
+    const container = document.getElementById('recent-events-container');
+    if (!container) {
+        console.error('[EVENTS] Container #recent-events-container not found in DOM');
+        return;
+    }
+
+    const sourcePlayers = latestPlayersCache.length > 0
+        ? latestPlayersCache
+        : await loadPlayersFromAPI({ limit: 200, rank: 0 });
+    const sortedSource = [...(sourcePlayers || [])].sort((a, b) => {
+        const dateA = new Date(a.date_added || 0);
+        const dateB = new Date(b.date_added || 0);
+        return dateB - dateA;
+    });
+    let recentEvents = getRecentEventNames(sortedSource, 3);
+    if (recentEvents.length < 3) {
+        console.warn('[EVENTS] Insufficient unique event groups, expanding search', {
+            eventCount: recentEvents.length
+        });
+        const expandedPlayers = await loadPlayersFromAPI({ limit: 400, rank: 0 });
+        const expandedSorted = [...(expandedPlayers || [])].sort((a, b) => {
+            const dateA = new Date(a.date_added || 0);
+            const dateB = new Date(b.date_added || 0);
+            return dateB - dateA;
+        });
+        recentEvents = getRecentEventNames(expandedSorted, 3);
+    }
+    const recentFirstWords = recentEvents.map(getEventTitleFirstWord).filter(Boolean);
+    const uniqueFirstWords = new Set(recentFirstWords);
+
+    console.log('[EVENTS] Loading recent events', {
+        recentEvents,
+        expectedGroups: 3,
+        uniqueFirstWordCount: uniqueFirstWords.size
+    });
+    if (recentEvents.length !== 3 || uniqueFirstWords.size !== recentEvents.length) {
+        console.warn('[EVENTS] Recent event group validation failed', {
+            eventCount: recentEvents.length,
+            uniqueFirstWordCount: uniqueFirstWords.size
+        });
+    }
+
+    if (recentEvents.length === 0) {
+        container.innerHTML = '<div class="recent-events-empty">No recent events available</div>';
+        return;
+    }
+
+    container.innerHTML = '';
+
+    for (const eventName of recentEvents) {
+        const eventBlock = document.createElement('div');
+        eventBlock.className = 'recent-event-block';
+
+        const title = document.createElement('div');
+        title.className = 'recent-event-title';
+        title.textContent = eventName;
+
+        const row = document.createElement('div');
+        row.className = 'recent-event-row';
+
+        eventBlock.appendChild(title);
+        eventBlock.appendChild(row);
+        container.appendChild(eventBlock);
+
+        const eventPlayers = await fetchRecentEventPlayers(eventName);
+        if (!eventPlayers.length) {
+            row.innerHTML = '<div class="recent-events-empty">No players found for this event</div>';
+            console.log('[EVENTS] Event render count', { eventName, playerCount: 0, maxPlayers: 7 });
+            continue;
+        }
+
+        const topPlayers = getTopPlayersByPrice(eventPlayers, eventName, 7);
+        console.log('[EVENTS] Event render count', {
+            eventName,
+            playerCount: topPlayers.length,
+            maxPlayers: 7
+        });
+        topPlayers.forEach(player => {
+            const card = createDashboardPlayerCard(player);
+            row.appendChild(card);
+        });
+
+        if (window.matchMedia('(min-width: 1201px)').matches) {
+            const columns = getGridColumnCount(row);
+            console.log('[EVENTS] Recent event row columns', { eventName, columns });
+            if (columns !== 7) {
+                console.warn('[EVENTS] Recent event row columns mismatch', {
+                    eventName,
+                    expected: 7,
+                    actual: columns
+                });
+            }
+        }
+    }
+
+    console.log('[EVENTS] Recent events loaded', {
+        count: recentEvents.length,
+        uniqueFirstWordCount: uniqueFirstWords.size
+    });
+}
+
 
 // ========== LATEST PLAYERS ==========
 async function loadLatestPlayers() {
@@ -3945,6 +4133,8 @@ async function loadLatestPlayers() {
         const dateB = new Date(b.date_added || 0);
         return dateB - dateA;
     });
+
+    latestPlayersCache = sortedPlayers;
 
     // Don't filter by OVR - show all latest players
     const validPlayers = sortedPlayers.filter(p => p.name && p.ovr && p.ovr > 0);
@@ -4032,8 +4222,10 @@ async function searchDashboardPlayers(query) {
 
         const latestSection = document.querySelector('.dashboard-section:has(#latest-players-grid)');
         const trendingSection = document.querySelector('.dashboard-section:has(#trending-players-grid)');
+        const recentSection = document.getElementById('recent-events-section');
         if (latestSection) latestSection.style.display = 'none';
         if (trendingSection) trendingSection.style.display = 'none';
+        if (recentSection) recentSection.style.display = 'none';
     }
 
     searchTimeout = setTimeout(async () => {
@@ -4217,9 +4409,11 @@ function showNormalDashboard() {
     // Show Latest and Trending sections
     const latestSection = document.querySelector('.dashboard-section:has(#latest-players-grid)');
     const trendingSection = document.querySelector('.dashboard-section:has(#trending-players-grid)');
+    const recentSection = document.getElementById('recent-events-section');
 
     if (latestSection) latestSection.style.display = 'block';
     if (trendingSection) trendingSection.style.display = 'block';
+    if (recentSection) recentSection.style.display = 'block';
 
     // Hide search results
     const searchSection = document.getElementById('dashboard-search-results');
@@ -4402,6 +4596,7 @@ async function loadPlayersFromAPI(options = {}) {
         if (options.max_ovr) params.max_ovr = options.max_ovr;
         if (options.league) params.league = options.league;
         if (options.nation) params.nation = options.nation;
+        if (options.event) params.event = options.event;
 
         console.log('[API] Requesting players with params:', params);
 

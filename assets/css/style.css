@@ -7210,12 +7210,40 @@ watchlist-view .view-content {
 /* ========== DASHBOARD PLAYER CARDS (Vertical Style) ========== */
 
 #latest-players-grid,
-#trending-players-grid {
+#trending-players-grid,
+.recent-event-row {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 1.5rem;
     padding: 1rem 0;
     max-width: 100%;
+}
+
+#latest-players-grid,
+#trending-players-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+#recent-events-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.recent-event-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.recent-event-row {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.recent-events-empty {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    padding: 0.5rem 0;
 }
 
 .dashboard-player-card {
@@ -7340,7 +7368,8 @@ watchlist-view .view-content {
 /* Tablet & Small Desktop (max-width: 1200px) */
 @media (max-width: 1200px) {
     #latest-players-grid,
-    #trending-players-grid {
+    #trending-players-grid,
+    .recent-event-row {
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 1.2rem;
         padding: 0.8rem 0;
@@ -7388,7 +7417,8 @@ watchlist-view .view-content {
 /* Tablet Portrait (max-width: 768px) */
 @media (max-width: 768px) {
     #latest-players-grid,
-    #trending-players-grid {
+    #trending-players-grid,
+    .recent-event-row {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 1rem;
         padding: 0.6rem 0;
@@ -7451,7 +7481,8 @@ watchlist-view .view-content {
 /* Mobile (max-width: 511px) */
 @media (max-width: 512px) {
     #latest-players-grid,
-    #trending-players-grid {
+    #trending-players-grid,
+    .recent-event-row {
         grid-template-columns: repeat(3, 1fr);
         gap: 0.8rem;  /* Increased gap creates natural spacing */
         padding: 0.5rem 0.3rem;  /* Small side padding */
@@ -7517,7 +7548,8 @@ watchlist-view .view-content {
 /* Mobile (max-width: 480px) */
 @media (max-width: 480px) {
     #latest-players-grid,
-    #trending-players-grid {
+    #trending-players-grid,
+    .recent-event-row {
         grid-template-columns: repeat(3, 1fr);
         gap: 0.8rem;  /* Increased gap creates natural spacing */
         padding: 0.5rem 0.3rem;  /* Small side padding */

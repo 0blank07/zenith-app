@@ -76,6 +76,7 @@ function saveSquad() {
             starters: { ...squadState.starters },
             bench: [...squadState.bench],
             badges: { ...squadState.badges },
+            playerCustomizations: { ...(squadState.playerCustomizations || {}) },
             teamOVR: getFinalTeamOVR(),
             teamValue: calculateValue(),
             fieldTheme: localStorage.getItem('selectedFieldTheme') || 'stadium-blue'
@@ -128,6 +129,11 @@ function loadSquad() {
         squadState.starters = squadData.starters || {};
         squadState.bench = squadData.bench || [];
         squadState.badges = squadData.badges || { badge1: false, badge2: false, badge3: false };
+        squadState.playerCustomizations = squadData.playerCustomizations || {};
+
+        if (window.squadCustomizationState) {
+            window.squadCustomizationState.savedByPlayer = { ...squadState.playerCustomizations };
+        }
 
         // Restore field theme if saved
         if (squadData.fieldTheme) {
