@@ -593,7 +593,6 @@ function renderPlayerPicker() {
     // Click to Assign
     row.addEventListener('click', () => {
       if (!squadState.activeSlot) {
-        showToast('Select a position first', 'info');
         return;
       }
       
@@ -602,25 +601,21 @@ function renderPlayerPicker() {
       if (squadState.activeSlot.startsWith('BENCH_')) {
         const index = parseInt(squadState.activeSlot.split('_')[1], 10);
         if (isPlayerAlreadyInSquad(pid, null)) {
-          showToast(`${p.name} is already in the squad`, 'error');
           return;
         }
         removeIfAssigned(pid);
         squadState.bench[index] = pid;
         renderSquadBuilder();
-        showToast(`${p.name} added to bench`, 'success');
       } else {
         if (!validateAssignment(p, squadState.activeSlot)) {
           return;
         }
         if (isPlayerAlreadyInSquad(pid, squadState.activeSlot)) {
-          showToast(`${p.name} is already in the squad`, 'error');
           return;
         }
         removeIfAssigned(pid);
         squadState.starters[squadState.activeSlot] = pid;
         renderSquadBuilder();
-        showToast(`${p.name} assigned to ${squadState.activeSlot}`, 'success');
       }
     });
     
@@ -741,8 +736,6 @@ function clearSquadFilters() {
     
     // Re-fetch players with cleared filters
     applyFiltersToPickerPlayers();
-    
-    showToast('Filters cleared', 'success');
 }
 
 // ============ END OF SEARCH LOGIC ============
@@ -2671,7 +2664,6 @@ function handleSlotDrop(e, targetSlotId) {
 
     if (!draggedPlayer) {
         console.log('❌ ERROR: Player not found in cache!');
-        showToast('Player data not found. Try again.', 'error');
         clearDragState();
         return;
     }
@@ -2697,7 +2689,6 @@ function handleSlotDrop(e, targetSlotId) {
         // Check if player already exists somewhere in squad
         if (isPlayerAlreadyInSquad(draggedId, targetSlotId)) {
             console.log('⚠️ Player already in squad');
-            showToast('Player already in squad', 'error');
             clearDragState();
             return;
         }
@@ -2728,7 +2719,6 @@ function handleSlotDrop(e, targetSlotId) {
             
             if (targetPlayer && !validateAssignment(targetPlayer, sourceSlotId)) {
                 console.log('❌ Swap validation FAILED - bench player cannot go to that position');
-                showToast(`❌ ${targetPlayer.name} (${targetPlayer.position}) cannot be placed in that position`, 'error');
                 clearDragState();
                 return;
             }
@@ -2820,7 +2810,6 @@ function handleBenchDrop(e, targetBenchIndex) {
     );
 
     if (!draggedPlayer) {
-        showToast('Player data not found. Try again.', 'error');
         clearDragState();
         return;
     }
@@ -2835,7 +2824,6 @@ function handleBenchDrop(e, targetBenchIndex) {
 
         // Check if player already in squad
         if (isPlayerAlreadyInSquad(draggedId, null)) {
-            showToast('Player already in squad', 'error');
             clearDragState();
             return;
         }
@@ -2845,7 +2833,6 @@ function handleBenchDrop(e, targetBenchIndex) {
 
         // Assign to bench
         squadState.bench[targetBenchIndex] = draggedId;
-        showToast(`${draggedPlayer.name} added to bench`, 'success');
     }
     
     // ========================================
@@ -2860,7 +2847,6 @@ function handleBenchDrop(e, targetBenchIndex) {
             console.log('➡️ Moving from slot to empty bench - NO VALIDATION');
             squadState.bench[targetBenchIndex] = draggedId;
             delete squadState.starters[sourceSlotId]; // Remove from formation
-            showToast(`${draggedPlayer.name} moved to bench`, 'success');
         }
         // If target bench has a player - VALIDATE the swap (bench player going to formation)
         else {
@@ -2871,7 +2857,6 @@ function handleBenchDrop(e, targetBenchIndex) {
             // Validate if bench player can go to the formation slot
             if (targetPlayer && !validateAssignment(targetPlayer, sourceSlotId)) {
                 console.log('❌ Swap validation FAILED - bench player cannot go to that position');
-                showToast(`❌ ${targetPlayer.name} (${targetPlayer.position}) cannot be placed in ${sourceSlotId} position`, 'error');
                 clearDragState();
                 return;
             }
@@ -2882,8 +2867,6 @@ function handleBenchDrop(e, targetBenchIndex) {
             
             squadState.bench[targetBenchIndex] = draggedId;       // Slot player to bench
             squadState.starters[sourceSlotId] = targetPlayerId;   // Bench player to slot
-            
-            showToast(`Swapped ${draggedPlayer.name} ↔ ${targetPlayer?.name || 'player'}`, 'success');
             console.log('✅ SLOT ↔ BENCH SWAP COMPLETE');
         }
     }
@@ -3106,8 +3089,6 @@ function renderSlot(slot) {
             closeSquadBuilderModal();
             if(typeof switchView === 'function') switchView('database');
             if(typeof loadDatabase === 'function') loadDatabase();
-            
-            if(typeof showToast === 'function') showToast(`Filtered Database for ${slot.label}`, 'success');
         });
     }
 
@@ -3237,7 +3218,6 @@ function renderBench() {
                 squadState.pendingDatabaseAssign = true;
                 closeSquadBuilderModal();
                 if (typeof switchView === 'function') switchView('database');
-                if (typeof showToast === 'function') showToast('Select a player from Database', 'info');
             });
         }
 
@@ -3268,7 +3248,6 @@ function validateAssignment(player, slotId) {
     // Rule 1: Only GK can go to GK position
     if (slotLabel === 'GK') {
         if (playerPos !== 'GK') {
-            showToast('❌ Only Goalkeepers can be placed in GK position', 'error');
             console.log('❌ BLOCKED: Non-GK trying to go to GK position');
             return false;
         }
@@ -3278,7 +3257,6 @@ function validateAssignment(player, slotId) {
 
     // Rule 2: GK can ONLY go to GK position (not CB, ST, CM, etc.)
     if (playerPos === 'GK') {
-        showToast('❌ Goalkeepers can only be placed in GK position', 'error');
         console.log('❌ BLOCKED: GK trying to go to non-GK position');
         return false;
     }
@@ -3356,11 +3334,8 @@ function toggleBadge(badgeNumber) {
     // Update OVR display
     renderSquadBuilder();
     
-    // Show toast notification
     const status = squadState.badges[badgeKey] ? 'activated' : 'deactivated';
-    if (typeof showToast === 'function') {
-        showToast(`Badge ${badgeNumber} ${status}`, 'success');
-    }
+    console.log(`🏅 Badge ${badgeNumber} ${status}`);
 }
 
 function updateBadgeCards() {
@@ -3481,8 +3456,6 @@ function applySquadFilters() {
     // Close the panel
     const panel = document.getElementById('squad-filter-panel');
     if (panel) panel.style.display = 'none';
-    
-    if (typeof showToast === 'function') showToast('Filters applied', 'success');
     
     console.log('✅ [FILTER PANEL] Filters applied:', { position, ratingMin, ratingMax, event, league, club, nation, skill });
 }
@@ -3606,10 +3579,6 @@ async function selectSquadRank(rankNumber, options = {}) {
     renderSquadSkillsMessage('Loading skills...');
     await renderSquadPlayerSkills();
     
-    if (options.showToast !== false && typeof showToast === 'function') {
-        showToast(`Rank ${normalizedRank} selected - ${skillPoints} skill point${skillPoints !== 1 ? 's' : ''} available`, 'success');
-    }
-
     persistSquadCustomizationState('rank-change');
 }
 
@@ -3648,9 +3617,6 @@ function resetSquadPlayerRank() {
         }, 'rank-reset');
     }
 
-    if (typeof showToast === 'function') {
-        showToast('Rank reset', 'info');
-    }
 }
 
 
@@ -3661,10 +3627,6 @@ function updateSquadTraining(level) {
 
     persistSquadCustomizationState('training-change');
     
-    if (typeof showToast === 'function') {
-        const levelText = level === '0' ? 'None' : `Level ${level}`;
-        showToast(`Training ${levelText} selected`, 'success');
-    }
 }
 
 
@@ -3898,10 +3860,6 @@ function removeSquadPlayer() {
     
     renderSquadBuilder();
     closePlayerCustomizationModal();
-    
-    if (typeof showToast === 'function') {
-        showToast('Player removed from squad', 'success');
-    }
 }
 
 
@@ -3912,10 +3870,6 @@ function applySquadPlayerCustomization() {
     const rank = squadCustomizationState.selectedRank || 0;
     const training = squadCustomizationState.trainingLevel || 0;
     const skills = squadCustomizationState.selectedSkills || [];
-    
-    if (typeof showToast === 'function') {
-        showToast(`Applied - Rank ${rank}, Training Level ${training}`, 'success');
-    }
 
     closePlayerCustomizationModal();
 }

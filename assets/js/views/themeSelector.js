@@ -123,12 +123,6 @@ function applyTheme(themeId) {
   // Close modal
   closeThemeSelector();
 
-  // Show success message
-  if (typeof showToast !== 'undefined') {
-    showToast(`✅ Theme: ${theme.name}`, 'success');
-  }
-
-
 }
 
 // ===== LOAD SAVED THEME =====

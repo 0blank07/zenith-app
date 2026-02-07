@@ -154,8 +154,7 @@ function setupClearAllButton() {
     console.log('📞 [DEBUG] Calling clearWatchlistFilters()...');
     clearWatchlistFilters();
     
-    console.log('🎉 [DEBUG] Showing success toast...');
-    showToast('All filters cleared', 'success');
+    console.log('🎉 [DEBUG] Filters cleared');
   });
   
   console.log('✅ [DEBUG] Event listener attached successfully');
@@ -1166,13 +1165,11 @@ function removePlayerFromWatchlist(playerId) {
     // Update specific button
     updateWatchlistButton(playerId, false);
     
-    showToast('Player removed from watchlist', 'success');
     console.log('✅ [REMOVE] Removal complete!');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
   } catch (error) {
     console.error('❌ [REMOVE] Error:', error);
-    showToast('Failed to remove from watchlist', 'error');
   }
 }
 
@@ -1265,34 +1262,6 @@ function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
-}
-
-// Show toast notification
-function showToast(message, type = 'info') {
-  console.log(`🍞 [TOAST] ${type.toUpperCase()}:`, message);
-
-  // Create a simple toast notification
-  const toast = document.createElement('div');
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: ${type === 'success' ? '#00C2A8' : type === 'error' ? '#ef4444' : '#6366f1'};
-    color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    z-index: 10000;
-    animation: slideIn 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  `;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.style.animation = 'slideOut 0.3s ease';
-    setTimeout(() => toast.remove(), 300);
-  }, 2000);
 }
 
 // ==========================================

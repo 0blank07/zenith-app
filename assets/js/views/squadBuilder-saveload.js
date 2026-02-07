@@ -87,18 +87,9 @@ function saveSquad() {
         
         console.log('✅ Squad saved successfully:', squadData);
         
-        if (typeof showToast === 'function') {
-            showToast('✅ Squad saved successfully!', 'success');
-        }
-        
         return true;
     } catch (error) {
         console.error('❌ Error saving squad:', error);
-        
-        if (typeof showToast === 'function') {
-            showToast('❌ Failed to save squad', 'error');
-        }
-        
         return false;
     }
 }
@@ -112,9 +103,6 @@ function loadSquad() {
         const savedData = localStorage.getItem('savedSquad_main');
         
         if (!savedData) {
-            if (typeof showToast === 'function') {
-                showToast('⚠️ No saved squad found', 'info');
-            }
             return false;
         }
 
@@ -148,19 +136,9 @@ function loadSquad() {
         
         console.log('✅ Squad loaded successfully');
         
-        if (typeof showToast === 'function') {
-            const savedDate = new Date(squadData.timestamp).toLocaleString();
-            showToast(`✅ Squad loaded (Saved: ${savedDate})`, 'success');
-        }
-        
         return true;
     } catch (error) {
         console.error('❌ Error loading squad:', error);
-        
-        if (typeof showToast === 'function') {
-            showToast('❌ Failed to load squad', 'error');
-        }
-        
         return false;
     }
 }
@@ -179,11 +157,6 @@ function deleteSavedSquad() {
     try {
         localStorage.removeItem('savedSquad_main');
         console.log('🗑️ Saved squad deleted');
-        
-        if (typeof showToast === 'function') {
-            showToast('🗑️ Saved squad deleted', 'success');
-        }
-        
         return true;
     } catch (error) {
         console.error('❌ Error deleting saved squad:', error);

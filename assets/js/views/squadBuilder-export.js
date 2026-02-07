@@ -11,11 +11,6 @@ async function exportSquad() {
     try {
         console.log('📸 Starting squad export...');
         
-        // Show loading toast
-        if (typeof showToast === 'function') {
-            showToast('📸 Capturing squad...', 'info');
-        }
-
         if (typeof html2canvas === 'undefined') {
             throw new Error('html2canvas library not loaded. Please include the library.');
         }
@@ -89,17 +84,11 @@ async function exportSquad() {
 
             console.log('✅ Squad exported:', filename);
 
-            if (typeof showToast === 'function') {
-                showToast('✅ Squad exported successfully!', 'success');
-            }
         }, 'image/png');
         
     } catch (error) {
         console.error('❌ Error exporting squad:', error);
         
-        if (typeof showToast === 'function') {
-            showToast(`❌ Export failed: ${error.message}`, 'error');
-        }
     }
 }
 
@@ -416,10 +405,6 @@ async function exportSquadWithInfo() {
     try {
         console.log('📸 Starting advanced squad export...');
         
-        if (typeof showToast === 'function') {
-            showToast('📸 Capturing squad...', 'info');
-        }
-        
         const squadField = document.getElementById('squad-field');
         
         if (!squadField) {
@@ -484,17 +469,11 @@ async function exportSquadWithInfo() {
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
             
-            if (typeof showToast === 'function') {
-                showToast('✅ Squad exported with info!', 'success');
-            }
         }, 'image/png');
         
     } catch (error) {
         console.error('❌ Error exporting squad:', error);
         
-        if (typeof showToast === 'function') {
-            showToast(`❌ Export failed: ${error.message}`, 'error');
-        }
     }
 }
 

@@ -36,24 +36,20 @@ function calculateROIModal() {
 
   // Validation
   if (buyingPrice <= 0) {
-    showToast('⚠️ Buying price is required and must be greater than 0', 'error');
     document.getElementById('roi-buying-price').focus();
     return;
   }
 
   if (sellingPrice <= 0) {
-    showToast('⚠️ Selling price is required and must be greater than 0', 'error');
     document.getElementById('roi-selling-price').focus();
     return;
   }
 
   if (quantity <= 0) {
-    showToast('⚠️ Quantity must be at least 1', 'error');
     return;
   }
 
   if (taxRate < 0 || taxRate > 100) {
-    showToast('⚠️ Tax rate must be between 0 and 100%', 'error');
     return;
   }
 
@@ -96,7 +92,6 @@ function calculateROIModal() {
     roiElement.style.color = '#ffd700';
   }
 
-  showToast('✅ ROI calculated successfully!', 'success');
 }
 
 /**
@@ -114,7 +109,6 @@ function resetROIModal() {
   }
 
   document.getElementById('roi-buying-price').focus();
-  showToast('🔄 Calculator reset', 'success');
 }
 
 // Initialize event listeners when DOM is ready

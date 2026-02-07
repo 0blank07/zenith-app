@@ -167,12 +167,10 @@ function toggleLatestWatchlist(id, btn) {
       state.watchlist.push(id);
       btn.classList.add('active');
       btn.innerHTML = '♥';
-      showToast('Added to Watchlist', 'success');
     } else {
       state.watchlist.splice(idx, 1);
       btn.classList.remove('active');
       btn.innerHTML = '♡';
-      showToast('Removed from Watchlist', 'error');
     }
     // Save to localStorage
     localStorage.setItem('watchlist', JSON.stringify(state.watchlist));
@@ -192,12 +190,10 @@ function toggleTrendingWatchlist(id, btn) {
       state.watchlist.push(id);
       btn.classList.add('active');
       btn.innerHTML = '♥';
-      showToast('Added to Watchlist', 'success');
     } else {
       state.watchlist.splice(idx, 1);
       btn.classList.remove('active');
       btn.innerHTML = '♡';
-      showToast('Removed from Watchlist', 'error');
     }
     // Save to localStorage
     localStorage.setItem('watchlist', JSON.stringify(state.watchlist));

@@ -11092,3 +11092,29 @@ body.overflow-hidden {
     min-height: 300px;
   }
 }
+
+/* Global background coverage for Home/Database */
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--color-background);
+  background-image: url("../images/background/zenith_bg.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+#dashboard-view,
+#database-view {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+#database-view::before {
+  content: none !important;
+}

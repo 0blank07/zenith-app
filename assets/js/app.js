@@ -2072,11 +2072,6 @@ window.upgradeSkillLevel = async function(skillId, newLevel, playerId, rank) {
     
     console.log('[SKILLS] Upgrade success:', result);
     
-    // Show success message
-    if (typeof showToast === 'function') {
-      showToast(`✅ Skill upgraded to Level ${newLevel}!`, 'success');
-    }
-    
     // Re-fetch player data and re-render
     if (state.selectedPlayer) {
       const resp = await window.apiClient.getPlayerDetails(playerId, rank);
@@ -2123,11 +2118,7 @@ window.upgradeSkillLevel = async function(skillId, newLevel, playerId, rank) {
     
   } catch (error) {
     console.error('[SKILLS] Upgrade error:', error);
-    if (typeof showToast === 'function') {
-      showToast(`❌ ${error.message}`, 'error');
-    } else {
-      alert(`Error: ${error.message}`);
-    }
+    return;
   }
 };
 
@@ -2152,11 +2143,6 @@ window.resetPlayerSkills = async function(playerId, rank) {
     const result = await window.apiClient.resetSkills(CURRENT_USER_ID, playerId, rank);
     
     console.log('[SKILLS] Reset successful:', result);
-    
-    // Show success message
-    if (typeof showToast === 'function') {
-      showToast(`✅ Skills reset! ${rank} points available`, 'success');
-    }
     
     // Re-fetch player data and re-render
     if (state.selectedPlayer) {
@@ -2200,11 +2186,7 @@ window.resetPlayerSkills = async function(playerId, rank) {
     
   } catch (error) {
     console.error('[SKILLS] Reset error:', error);
-    if (typeof showToast === 'function') {
-      showToast(`❌ Reset failed: ${error.message}`, 'error');
-    } else {
-      alert(`Error resetting skills: ${error.message}`);
-    }
+    return;
   }
 };
 
@@ -2414,17 +2396,6 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
     
     console.log('[SKILLS] Level change success:', result);
     
-    // Show success message
-    if (typeof showToast === 'function') {
-      if (newLevel === 0) {
-        showToast(`✅ Skill removed!`, 'success');
-      } else if (newLevel > currentLevel) {
-        showToast(`✅ Skill upgraded to Level ${newLevel}!`, 'success');
-      } else if (newLevel < currentLevel) {
-        showToast(`✅ Skill changed to Level ${newLevel}`, 'success');
-      }
-    }
-    
     // Re-fetch player data
     if (state.selectedPlayer) {
       const resp = await window.apiClient.getPlayerDetails(playerId, rank);
@@ -2527,11 +2498,7 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
     
   } catch (error) {
     console.error('[SKILLS] Level change error:', error);
-    if (typeof showToast === 'function') {
-      showToast(`❌ ${error.message}`, 'error');
-    } else {
-      alert(`Error: ${error.message}`);
-    }
+    return;
   }
 };
 
@@ -3032,14 +2999,6 @@ window.selectPlayerRank = async function(playerId, rankNumber) {
           window.refreshPlayerPriceHistory(updatedPlayer, { range: window.state?.priceHistory?.range });
         }
       
-      // Show notification
-      if (typeof showToast === 'function') {
-        const message = isFirstVisit 
-          ? `📊 Rank ${rankNumber} - Fresh start` 
-          : `📊 Rank ${rankNumber} - Loaded saved skills`;
-        showToast(message, 'info');
-      }
-      
     } catch (error) {
       console.error('[RANK] Error switching rank:', error);
       state.selectedPlayer.rank = rankNumber;
@@ -3049,9 +3008,6 @@ window.selectPlayerRank = async function(playerId, rankNumber) {
         window.refreshPlayerPriceHistory(state.selectedPlayer, { range: window.state?.priceHistory?.range });
       }
       
-      if (typeof showToast === 'function') {
-        showToast(`❌ Error: ${error.message}`, 'error');
-      }
     }
   } else {
     console.error('[RANK] Player ID mismatch or no selected player');
@@ -3093,14 +3049,8 @@ window.resetPlayerRank = async function(playerId) {
     renderPlayerDetail(updatedPlayer);
 
     console.log('[RANK] Rank reset complete.');
-    if (typeof showToast === 'function') {
-      showToast('✅ Rank reset to base', 'success');
-    }
   } catch (error) {
     console.error('[RANK] Rank reset error:', error);
-    if (typeof showToast === 'function') {
-      showToast(`❌ ${error.message}`, 'error');
-    }
   }
 };
 
@@ -3168,17 +3118,6 @@ window.setPlayerTrainingLevel = async function(playerId, level) {
         renderPlayerDetail(state.selectedPlayer);
         
         console.log('[TRAINING] Updated to level', trainingLevel);
-        
-        // Show toast notification
-        if (typeof showToast === 'function') {
-            if (trainingLevel === 0) {
-                showToast('Training removed', 'info');
-            } else if (trainingLevel === 30) {
-                showToast('MAX Training Level achieved! 🎉', 'success');
-            } else {
-                showToast(`Training Level ${trainingLevel} selected`, 'success');
-            }
-        }
         
         // Optional: Save to backend
         if (window.apiClient && typeof window.apiClient.updatePlayerTraining === 'function') {
@@ -4529,9 +4468,6 @@ window.toggleWatchlist = function(uniqueId) {
         console.log('[TOGGLE] Player added to savedPlayers');
       }
       
-      if (typeof showToast === 'function') {
-        showToast('Added to watchlist');
-      }
     } else {
       console.error('[TOGGLE] Could not find player object for:', uniqueId);
     }
@@ -4542,9 +4478,6 @@ window.toggleWatchlist = function(uniqueId) {
     state.watchlist.splice(index, 1);
     savedPlayers = savedPlayers.filter(p => getPlayerUniqueId(p) !== uniqueId);
     
-    if (typeof showToast === 'function') {
-      showToast('Removed from watchlist');
-    }
   }
 
   // Save to localStorage
@@ -4902,26 +4835,22 @@ function createPlayerCard(player) {
                 const index = parseInt(slotId.replace('BENCH', ''), 10);
                 if (!Number.isNaN(index)) {
                     if (typeof isPlayerAlreadyInSquad === 'function' && isPlayerAlreadyInSquad(playerId, null)) {
-                        showToast(`${player.name} is already in the squad`, 'error');
                         return;
                     }
                     if (typeof removeIfAssigned === 'function') removeIfAssigned(playerId);
                     window.squadState.bench[index] = playerId;
                     if (typeof renderSquadBuilder === 'function') renderSquadBuilder();
-                    if (typeof showToast === 'function') showToast(`${player.name} added to bench`, 'success');
                 }
             } else {
                 if (typeof validateAssignment === 'function' && !validateAssignment(player, slotId)) {
                     return;
                 }
                 if (typeof isPlayerAlreadyInSquad === 'function' && isPlayerAlreadyInSquad(playerId, slotId)) {
-                    showToast(`${player.name} is already in the squad`, 'error');
                     return;
                 }
                 if (typeof removeIfAssigned === 'function') removeIfAssigned(playerId);
                 window.squadState.starters[slotId] = playerId;
                 if (typeof renderSquadBuilder === 'function') renderSquadBuilder();
-                if (typeof showToast === 'function') showToast(`${player.name} assigned to ${slotId}`, 'success');
             }
 
             if (window.squadState) {
@@ -5794,8 +5723,6 @@ function clearAllFilters() {
     if (state.currentView === 'watchlist') {
         loadWatchlist();
     }
-
-    showToast('Filters cleared', 'success');
 }
 
 
@@ -6516,7 +6443,6 @@ function applyMobileFilters() {
     }
 
     toggleMobileFilters();
-    showToast('Filters applied', 'success');
     return;
   }
 
@@ -6586,8 +6512,6 @@ function applyMobileFilters() {
   if (typeof loadDatabase === 'function') {
     loadDatabase();
   }
-
-  showToast('Filters applied', 'success');
 }
 
 function clearMobileFilters() {
@@ -6600,7 +6524,6 @@ function clearMobileFilters() {
       updateWatchlistFilterBadge();
     }
 
-    showToast('Filters cleared', 'success');
     return;
   }
 
@@ -6682,8 +6605,6 @@ function clearMobileFilters() {
   if (typeof loadDatabase === 'function') {
     loadDatabase();
   }
-
-  showToast('Filters cleared', 'success');
 }
 
 function updateFilterBadge() {
@@ -7343,13 +7264,11 @@ function updateCompareCustomizationModalLabels(isCompare) {
 function openCompareCustomization(player, index) {
   const playerId = resolveComparePlayerId(player);
   if (!playerId || typeof window.openPlayerCustomizationModal !== 'function') {
-    showToast?.('Customization unavailable', 'error');
     return;
   }
 
   const modal = document.getElementById('squad-player-customization-modal');
   if (!modal) {
-    showToast?.('Customization unavailable', 'error');
     return;
   }
 
@@ -7427,7 +7346,6 @@ async function recalculateComparePlayerStats(playerId, customization) {
       availableSkillPoints = resp.available_skill_points ?? null;
     } catch (error) {
       compareLog('Player details refresh failed', error);
-      showToast?.('Unable to refresh compare stats', 'error');
     }
   }
 
@@ -7635,11 +7553,9 @@ function createCompareSearchResultItem(player) {
 function selectPlayerForComparison(player) {
   const playerId = resolveComparePlayerId(player);
   if (!playerId) {
-    showToast?.('Player unavailable for comparison', 'error');
     return;
   }
   if (compareState.selectedPlayers.some(p => resolveComparePlayerId(p) === playerId)) {
-    showToast?.('This player is already in comparison', 'info');
     return;
   }
   const isGK = player.position === 'GK';
@@ -7647,11 +7563,9 @@ function selectPlayerForComparison(player) {
     compareState.positionMode = isGK ? 'gk' : 'outfield';
   } else {
     if (compareState.positionMode === 'gk' && !isGK) {
-      showToast?.('Cannot add outfield players with goalkeepers', 'error');
       return;
     }
     if (compareState.positionMode === 'outfield' && isGK) {
-      showToast?.('Cannot add goalkeepers with outfield players', 'error');
       return;
     }
   }
@@ -7927,16 +7841,12 @@ function openTool(toolName) {
       openCompareModal();
       break;
     case 'cardgen':
-      showToast('🎴 Card Generator coming soon', 'info');
       break;
     case 'programs':
-      showToast('📋 Squad Programs coming soon', 'info');
       break;
     case 'pricetracker':
-      showToast('📊 Price Tracker coming soon', 'info');
       break;
     case 'sync':
-      showToast('🔄 Marketplace Sync coming soon', 'info');
       break;
     case 'watchlist':
       switchView('watchlist');
@@ -8567,8 +8477,6 @@ function removeFromWatchlist(playerId) {
 
   filterWatchlistPlayers();
   renderWatchlistPlayers();
-
-  showToast('Player removed from watchlist', 'success');
 }
 
 function clearAllWatchlistFilters() {
