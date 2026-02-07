@@ -3882,50 +3882,74 @@ function createDashboardPlayerCard(player) {
 
     card.addEventListener('click', () => {
         if (typeof viewPlayerDetail === 'function') {
-            viewPlayerDetail(player.player_id, player);
+            // adjust field names if needed (player.playerid vs player.player_id)
+            viewPlayerDetail(player.player_id || player.playerid, player);
         } else {
-            console.log('Clicked player:', player.name, 'ID:', player.player_id);
+            console.log('Clicked player', player.name, 'ID:', player.player_id || player.playerid);
         }
     });
 
+    // Normalize untradable value to a boolean
+    const isUntradableText = String(player.is_untradable ?? player.isuntradable ?? '').toLowerCase();
+    const isUntradable =
+        isUntradableText === 'true' ||
+        isUntradableText === '1' ||
+        isUntradableText === 'yes';
+
     card.innerHTML = `
         <div class="card-container">
-            <img src="${player.card_background || 'https://via.placeholder.com/300x400'}"
+            <!-- Card background -->
+            <img src="${player.card_background || player.cardbackground || 'https://via.placeholder.com/300x400'}"
                  alt="Card Background"
                  class="card-background-img"
                  onerror="this.src='https://via.placeholder.com/300x400'">
 
-            <img src="${player.player_image || 'https://via.placeholder.com/200x300'}"
+            <!-- Player image -->
+            <img src="${player.player_image || player.playerimage || 'https://via.placeholder.com/200x300'}"
                  alt="${player.name}"
                  class="player-image-img"
                  onerror="this.src='https://via.placeholder.com/200x300'">
 
-            <div class="card-ovr" style="color: ${player.color_rating || '#FFFFFF'}">
-                ${player.ovr && player.ovr > 0 ? player.ovr : 'N/A'}
+            <!-- OVR -->
+            <div class="card-ovr" style="color: ${player.color_rating || player.colorrating || '#FFFFFF'}">
+                ${player.ovr && player.ovr > 0 ? player.ovr : 'NA'}
             </div>
 
-            <div class="card-position" style="color: ${player.color_position || '#FFFFFF'}">
-                ${player.position || 'N/A'}
+            <!-- Position -->
+            <div class="card-position" style="color: ${player.color_position || player.colorposition || '#FFFFFF'}">
+                ${player.position || 'NA'}
             </div>
 
-            <div class="card-player-name" style="color: ${player.color_name || '#FFFFFF'}">
+            <!-- Name -->
+            <div class="card-player-name" style="color: ${player.color_name || player.colorname || '#FFFFFF'}">
                 ${player.name}
             </div>
 
-            <img src="${player.nation_flag || ''}"
+            <!-- Nation / club -->
+            <img src="${player.nation_flag || player.nationflag || ''}"
                  alt="Nation"
                  class="card-nation-flag"
                  onerror="this.style.display='none'">
 
-            <img src="${player.club_flag || ''}"
+            <img src="${player.club_flag || player.clubflag || ''}"
                  alt="Club"
                  class="card-club-flag"
                  onerror="this.style.display='none'">
+
+            <!-- ✅ Untradable badge -->
+            ${
+                isUntradable
+                    ? `<div class="card-untradable-badge">
+                           <img src="assets/images/untradable_img.png" alt="Untradable">
+                       </div>`
+                    : ''
+            }
         </div>
     `;
 
     return card;
 }
+
 
 let latestPlayersCache = [];
 const recentEventPlayersCache = new Map();
@@ -4723,7 +4747,7 @@ function createPlayerCard(player) {
             .map(pos => pos.trim())
             .filter(pos => pos.length > 0);
     }
-    
+
     // Log for debugging
     console.log('[ALT POS]', player.name, '| Primary:', player.position, '| Alternates:', altPositionsArray);
 
@@ -4754,8 +4778,8 @@ function createPlayerCard(player) {
     }
 
 
-    
-    // 5. Build HTML Structure 
+
+    // 5. Build HTML Structure
     card.innerHTML = `
         <div class="player-card-scale">
             <div class="player-row-card">
@@ -4926,14 +4950,14 @@ function createPlayerCard(player) {
       watchBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         e.preventDefault();
-        
+
         // Get ID from data attribute OR closure variable
         const id = this.dataset.uniqueId || uniqueId;
         console.log('❤️ Watchlist clicked! ID:', id);
-        
+
         if (typeof window.toggleWatchlist === 'function') {
           window.toggleWatchlist(id);
-          
+
           // ✅ ADD THIS - Force update UI after toggle
           setTimeout(() => {
             updateAllWatchlistButtons();
