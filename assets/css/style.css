@@ -9821,6 +9821,7 @@ watchlist-view .view-content {
 #dashboard-view {
   position: relative !important;
   min-height: 100vh !important;
+  background-image: url("../images/background/zenith_bg.webp");
   background-size: cover !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;
@@ -9893,6 +9894,7 @@ watchlist-view .view-content {
 #database-view {
   position: relative !important;
   min-height: 100vh !important;
+  background-image: url("../images/background/zenith_bg.webp");
   background-size: cover !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;

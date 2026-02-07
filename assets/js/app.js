@@ -7077,15 +7077,35 @@ function createCompareSearchResultItem(player) {
   const item = document.createElement('div');
   item.className = 'compare-search-result-item';
   item.onclick = () => selectPlayerForComparison(player);
+  const cardBackground = player.card_background || player.cardBackground || player.cardbackground || 'https://via.placeholder.com/120x160';
+  const playerImage = player.player_image || player.playerImage || player.playerimage || player.playerimg || '';
+  const playerName = player.name || 'Unknown Player';
+  const playerOvr = player.ovr && player.ovr > 0 ? player.ovr : 'NA';
+  const playerPosition = player.position || 'NA';
+  const nationFlag = player.nation_flag || player.nationflag || player.nationFlag || '';
+  const clubFlag = player.club_flag || player.clubflag || player.clubFlag || '';
   item.innerHTML = `
     <div class="compare-search-result-image">
-      <img src="${player.player_image || 'https://via.placeholder.com/60x60'}" alt="${player.name}">
+      <div class="picker-card-mini">
+        <img src="${cardBackground}" alt="Card Background" class="picker-card-bg" onerror="this.src='https://via.placeholder.com/120x160'">
+        ${playerImage ? `
+          <img src="${playerImage}" alt="${playerName}" class="picker-card-player-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <span class="player-initials" style="display: none;">${getInitials(playerName)}</span>
+        ` : `
+          <span class="player-initials">${getInitials(playerName)}</span>
+        `}
+        <div class="picker-card-ovr" style="color: ${player.color_rating || '#FFB86B'}">${playerOvr}</div>
+        <div class="picker-card-position" style="color: ${player.color_position || '#FFFFFF'}">${playerPosition}</div>
+        <div class="picker-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
+        ${nationFlag ? `<img src="${nationFlag}" alt="Nation" class="picker-card-flag-nation" onerror="this.style.display='none'">` : ''}
+        ${clubFlag ? `<img src="${clubFlag}" alt="Club" class="picker-card-flag-club" onerror="this.style.display='none'">` : ''}
+      </div>
     </div>
     <div class="compare-search-result-info">
-      <h4>${player.name}</h4>
-      <p>${player.position} • ${player.team || 'N/A'}</p>
+      <h4>${playerName}</h4>
+      <p>${playerPosition} • ${player.team || 'N/A'}</p>
     </div>
-    <div class="compare-search-result-ovr">${player.ovr || 'NA'}</div>
+    <div class="compare-search-result-ovr">${playerOvr}</div>
   `;
   return item;
 }
