@@ -5602,36 +5602,37 @@ body.stats-open #squad-builder-modal {
 .compare-card-ovr {
   position: absolute;
   top: 12px;
-  left: 12px;
-  font-size: 20px;
+  left: 20px;
+  font-size: 25px;
   font-weight: 800;
   font-family: 'CruyffSans', sans-serif;
   z-index: 3;
-  letter-spacing: -1px;
+  letter-spacing: -2px;
+  line-height: 2;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Position Badge (below OVR) */
-.compare-card-position {
+.compare-card-pos {
   position: absolute;
-  top: 36px;
-  left: 16px;
-  font-size: 11px;
-  font-weight: 700;
+  top: 42px;
+  left: 29px;
+  font-size: 18px;
+  font-weight: 800;
   font-family: 'CruyffSans', sans-serif;
-  text-transform: uppercase;
   z-index: 3;
-  letter-spacing: -0.5px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  letter-spacing: -2px;
+  line-height: 2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Player Name (bottom center) */
 .compare-card-name {
   position: absolute;
-  bottom: 28px;
+  bottom: 65px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 11px;
+  font-size: 17px;
   font-weight: 800;
   font-family: 'CruyffSans', sans-serif;
   text-transform: uppercase;
@@ -5645,29 +5646,28 @@ body.stats-open #squad-builder-modal {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
-/* Nation Flag (bottom-left) */
-.compare-card-nation-flag {
+.compare-nation-flag {
   position: absolute;
-  bottom: 18px;
-  left: 30%;
-  width: 16px;
-  height: 12px;
+  margin-bottom: 26px;
+  left: 40px;
+  margin-left: 2px;
+  width: 15px;
+  height: 13px; 
   object-fit: cover;
-  border-radius: 2px;
-  z-index: 3;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  border-radius: 1px;
+  z-index: 10;
 }
 
-/* Club Badge (bottom-right) */
-.compare-card-club-flag {
+.compare-club-flag {
   position: absolute;
-  bottom: 18px;
-  right: 30%;
-  width: 16px;
-  height: 16px;
-  object-fit: contain;
-  z-index: 3;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  margin-bottom: 24px;
+  left: 100px;
+  margin-left: 2px;
+  width: 15px;
+  height: 13px; 
+  object-fit: cover;
+  border-radius: 1px;
+  z-index: 10;
 }
 
 /* Team Name Below Card */

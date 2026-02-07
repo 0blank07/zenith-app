@@ -6935,51 +6935,50 @@ function createFilledPlayerCard(player, index) {
         alt="Card Background" 
         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
         onerror="this.style.display='none'">
-` : ''}
+    ` : ''}
       
-      <!-- Player Image -->
-      <!-- Player Image (Smaller, centered) -->
-      ${player.player_image ? `
-          <img src="${player.player_image}" 
-              alt="${player.name}"
-              style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 130%; height: 130%; object-fit: contain;"
-              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-          <span class="player-initials" style="display:none">${getInitials(player.name)}</span>
-      ` : `
-          <span class="player-initials">${getInitials(player.name)}</span>
-      `}
+    <!-- Player Image -->
+    ${player.player_image ? `
+        <img src="${player.player_image}" 
+            alt="${player.name}"
+            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 130%; height: 130%; object-fit: contain;"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+        <span class="player-initials" style="display:none">${getInitials(player.name)}</span>
+    ` : `
+        <span class="player-initials">${getInitials(player.name)}</span>
+    `}
       
-      <!-- OVR (top-left) -->
-      <div class="compare-card-ovr" style="color: ${player.color_rating || '#FFB86B'}">
-        ${player.ovr && player.ovr > 0 ? player.ovr : 'NA'}
-      </div>
+    <!-- OVR -->
+    <div class="compare-card-ovr" style="color: ${player.color_rating || '#FFB86B'}">
+      ${player.ovr && player.ovr > 0 ? player.ovr : 'NA'}
+    </div>
       
-      <!-- Position (below OVR) -->
-      <div class="compare-card-pos" style="color: ${player.color_position || '#FFFFFF'}">
-        ${player.position || 'NA'}
-      </div>
+    <!-- Position -->
+    <div class="compare-card-pos" style="color: ${player.color_position || '#FFFFFF'}">
+      ${player.position || 'NA'}
+    </div>
       
-      <!-- Player Name (bottom center) -->
-      <div class="compare-card-name" style="color: ${player.color_name || '#FFFFFF'}">
-        ${player.name}
-      </div>
+    <!-- Player Name -->
+    <div class="compare-card-name" style="color: ${player.color_name || '#FFFFFF'}">
+      ${player.name}
+    </div>
       
-      <!-- Nation (Tiny flag, bottom-left) -->
-      ${player.nation_flag ? `
-          <img src="${player.nation_flag}" 
-              alt="Nation" 
-              style="position: absolute; bottom: 20px; left: 27px; width: 12px; height: 9px; object-fit: cover; border-radius: 1px; z-index: 10;"
-              onerror="this.style.display='none'">
-      ` : ''}
-      
-      <!-- Club (Tiny badge, bottom-right) -->
-      ${player.club_flag ? `
-          <img src="${player.club_flag}" 
-              alt="Club" 
-              style="position: absolute; top: 93px; left: 60px; width: 14px; height: 14px; object-fit: contain; border-radius: 2px; z-index: 10;"
-              onerror="this.style.display='none'">
-      ` : ''}
-    
+    <!-- Nation -->
+    ${player.nation_flag ? `
+      <img class="compare-nation-flag"
+           src="${player.nation_flag}"
+           alt="Nation"
+           onerror="this.style.display='none'">
+    ` : ''}
+
+    <!-- Club -->
+    ${player.club_flag ? `
+      <img class="compare-club-flag"
+           src="${player.club_flag}"
+           alt="Club"
+           onerror="this.style.display='none'">
+    ` : ''}
+
     <!-- Team Name Below -->
     <p class="compare-team-text">${player.team || 'N/A'}</p>
   `;
