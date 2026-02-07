@@ -4,6 +4,9 @@
 // squadBuilder.js - FIXED: API Search Error & Database Redirect
 // FC Market Pro - Squad Builder
 
+// ============ CONSTANTS ============
+const NON_AUCTIONABLE_IMAGE_URL = 'https://images-bucket.renderz.app/common_23_noauction';
+
 // ============ DEVICE DETECTION & RESPONSIVE FORMATIONS ============
 function isMobileDevice() {
   const isMobileWidth = window.innerWidth <= 480;
@@ -2844,6 +2847,24 @@ function clearDragState() {
 
 // ============ RENDER LOGIC ============
 
+// Helper function to generate price display HTML
+function getPlayerPriceHTML(player, cardType = 'preview') {
+    const hasPrice = (player.price || 0) > 0;
+    const className = `${cardType}-card-price`;
+    
+    if (hasPrice) {
+        return `<span class="${className}">
+            <img src="assets/images/background/fc coin img.webp" alt="coin" class="price-coin-icon">
+            <span class="price-value">${formatPrice(player.price)}</span>
+        </span>`;
+    } else {
+        return `<img src="${NON_AUCTIONABLE_IMAGE_URL}" 
+            alt="Non-auctionable" 
+            class="${className} non-auctionable-badge"
+            title="Non-auctionable">`;
+    }
+}
+
 function renderSquadBuilder() {
 
   console.log('🎨 RENDER SQUAD BUILDER CALLED');
@@ -2980,6 +3001,7 @@ function renderSlot(slot) {
                 <div class="preview-card-ovr" style="color: ${colorRating};">${adjustedOVR > 0 ? adjustedOVR : 'NA'}</div>
                 <div class="preview-card-position" style="color: ${colorPosition}">${position}</div>
                 <div class="preview-card-name" style="color: ${colorName}">${playerName}</div>
+                ${getPlayerPriceHTML(player, 'preview')}
                 ${player.nationflag || player.nation_flag ? 
                     `<img src="${player.nationflag || player.nation_flag}" alt="Nation" class="preview-card-flag-nation" onerror="this.style.display='none'">` 
                     : ''}
@@ -3119,6 +3141,7 @@ function renderBench() {
                     <div class="bench-card-ovr" style="color: ${colorRating}">${overall > 0 ? overall : 'NA'}</div>
                     <div class="bench-card-position" style="color: ${colorPosition}">${position}</div>
                     <div class="bench-card-name" style="color: ${colorName}">${playerName}</div>
+                    ${getPlayerPriceHTML(player, 'bench')}
                     ${player.nationflag || player.nation_flag ? 
                         `<img src="${player.nationflag || player.nation_flag}" alt="Nation" class="bench-card-flag-nation" onerror="this.style.display='none'">` 
                         : ''}
