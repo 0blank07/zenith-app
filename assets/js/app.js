@@ -4770,7 +4770,7 @@ function createPlayerCard(player) {
 
     } else {
         displayPriceHTML = `
-            <img src="https://images-bucket.renderz.app/common_23_noauction"
+            <img src="https://images.zenithfcm.com/unauctionable.png"
                 alt="Non-auctionable"
                 style="height: 18px; width: auto; vertical-align: middle; opacity: 0.9; margin-left: 6px;"
                 title="Non-auctionable">
