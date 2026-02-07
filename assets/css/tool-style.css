@@ -5924,7 +5924,7 @@ body.stats-open #squad-builder-modal {
 
 .preview-card-ovr {
     position: absolute;
-    top: 11px;
+    top: 10px;
     left: 20px;
     font-size: 18px;
     font-weight: 900;
@@ -5936,7 +5936,7 @@ body.stats-open #squad-builder-modal {
 .preview-card-position {
     position: absolute;
     top: 28px;
-    left: 24px;
+    left: 23px;
     font-size: 11px;
     font-weight: 850;
     z-index: 3;
@@ -6023,6 +6023,255 @@ body.stats-open #squad-builder-modal {
     transform: translate(-50%, -50%) scale(1.2);
     box-shadow: 0 0 20px rgba(0, 194, 168, 0.5);
 }
+
+
+
+
+@media (max-width: 1024px) {
+  .preview-card-inner {
+    position: relative;
+    /* Scaled down from 118x138 */
+    width: 95px;
+    height: 112px;
+    aspect-ratio: 4 / 5;
+    overflow: visible;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+    
+    /* Shield shape remains consistent via percentages */
+    clip-path: polygon(
+        15% 0%, 85% 0%, 100% 8%, 100% 25%, 95% 45%, 100% 75%, 
+        90% 92%, 50% 100%, 10% 92%, 0% 75%, 5% 45%, 0% 25%, 0% 8%
+    );
+  }
+
+  .preview-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  .preview-card-player-img {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%) scale(1.1);
+    /* Scaled from 120x125 */
+    width: 100px;
+    height: 105px;
+    object-fit: contain;
+    z-index: 2;
+  }
+
+  .preview-card-ovr {
+    position: absolute;
+    top: 8px;
+    left: 15px;
+    font-size: 15px; /* Scaled from 18px */
+    font-weight: 900;
+    z-index: 3;
+    font-family: var(--font-family-base, Arial, sans-serif);
+    letter-spacing: -0.5px;
+  }
+
+  .preview-card-position {
+    position: absolute;
+    top: 23px;
+    left: 17px;
+    font-size: 9px; /* Scaled from 11px */
+    font-weight: 850;
+    z-index: 3;
+    font-family: var(--font-family-base, Arial, sans-serif);
+  }
+
+  .preview-card-name {
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 9px; /* Scaled from 11px */
+    font-weight: 950;
+    z-index: 3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 6px;
+    font-family: var(--font-family-base, Arial, sans-serif);
+    text-transform: uppercase;
+    letter-spacing: -0.1px;
+  }
+
+  .preview-card-flag-nation {
+    position: absolute;
+    top: 82px; /* Adjusted for smaller height */
+    left: 32px;
+    width: 11px;
+    height: 9px;
+    object-fit: cover;
+    z-index: 3;
+  }
+
+  .preview-card-flag-club {
+    position: absolute;
+    top: 82px;
+    left: 52px;
+    width: 13px;
+    height: 11px;
+    object-fit: contain;
+    z-index: 3;
+    border-radius: 2px;
+  }
+
+  .preview-card-remove {
+    position: absolute;
+    top: 4%;
+    right: 1px;
+    width: 15px;
+    height: 15px;
+    border: 2px solid #fff;
+    font-size: 12px;
+    z-index: 20;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+  }
+
+  .player-preview-card:hover .preview-card-remove {
+    display: flex;
+  }
+
+  /* Drag states scaled */
+  .squad-slot.drag-over .position-dot {
+    box-shadow: 0 0 15px rgba(0, 194, 168, 0.5);
+  }
+}
+
+
+@media (max-width: 768px) {
+  .preview-card-inner {
+    position: relative;
+    /* Slightly smaller than 1024px (95px) to allow for more margin/gap */
+    width: 88px; 
+    height: 106px;
+    aspect-ratio: 4 / 5;
+    overflow: visible;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+    
+    /* Shield shape remains consistent */
+    clip-path: polygon(
+        15% 0%, 85% 0%, 100% 8%, 100% 25%, 95% 45%, 100% 75%, 
+        90% 92%, 50% 100%, 10% 92%, 0% 75%, 5% 45%, 0% 25%, 0% 8%
+    );
+    /* Increasing external spacing if not using a grid gap */
+    margin: 10px; 
+  }
+
+  .preview-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  .preview-card-player-img {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%) scale(1.1);
+    /* Scaled proportionally for 88px width */
+    width: 92px;
+    height: 98px;
+    object-fit: contain;
+    z-index: 2;
+  }
+
+  .preview-card-ovr {
+    position: absolute;
+    top: 7px;
+    left: 14px;
+    font-size: 14px; 
+    font-weight: 900;
+    z-index: 3;
+    font-family: var(--font-family-base, Arial, sans-serif);
+    letter-spacing: -0.5px;
+  }
+
+  .preview-card-position {
+    position: absolute;
+    top: 21px;
+    left: 16px;
+    font-size: 8px;
+    font-weight: 850;
+    z-index: 3;
+    font-family: var(--font-family-base, Arial, sans-serif);
+  }
+
+  .preview-card-name {
+    position: absolute;
+    bottom: 25px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 8.5px; 
+    font-weight: 950;
+    z-index: 3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 5px;
+    font-family: var(--font-family-base, Arial, sans-serif);
+    text-transform: uppercase;
+    letter-spacing: -0.1px;
+  }
+
+  .preview-card-flag-nation {
+    position: absolute;
+    top: 78px; 
+    left: 30px;
+    width: 10px;
+    height: 8px;
+    object-fit: cover;
+    z-index: 3;
+  }
+
+  .preview-card-flag-club {
+    position: absolute;
+    top: 78px;
+    left: 48px;
+    width: 12px;
+    height: 10px;
+    object-fit: contain;
+    z-index: 3;
+    border-radius: 1px;
+  }
+
+  .preview-card-remove {
+    position: absolute;
+    top: 3%;
+    right: 1px;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #fff;
+    font-size: 11px;
+    z-index: 20;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .player-preview-card:hover .preview-card-remove {
+    display: flex;
+  }
+}
+
 
 
 /* ============================================
