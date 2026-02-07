@@ -7207,7 +7207,7 @@ function createFilledPlayerCard(player, index) {
     ${player.player_image ? `
         <img src="${player.player_image}" 
             alt="${playerName}"
-            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 130%; height: 130%; object-fit: contain;"
+            style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); width: 130%; height: 130%; object-fit: contain;"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
         <span class="player-initials" style="display:none">${getInitials(playerName)}</span>
     ` : `
