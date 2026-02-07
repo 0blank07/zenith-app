@@ -6386,11 +6386,11 @@ body.stats-open #squad-builder-modal {
 
 .bench-card-player-img {
     position: absolute;
-    bottom: 22px;
+    bottom: 1px;
     left: 50%;
     transform: translateX(-50%);
-    width: 60px;
-    height: 65px;
+    width: 110px;
+    height: 115px;
     object-fit: contain;
     z-index: 2;
     filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.6));
@@ -6398,8 +6398,8 @@ body.stats-open #squad-builder-modal {
 
 .bench-card-ovr {
     position: absolute;
-    top: 7px;
-    left: 9px;
+    top: 9px;
+    left: 11px;
     font-size: 15px;
     font-weight: 900;
     z-index: 3;
@@ -6409,7 +6409,7 @@ body.stats-open #squad-builder-modal {
 .bench-card-position {
     position: absolute;
     top: 23px;
-    left: 12px;
+    left: 15px;
     font-size: 10px;
     font-weight: 800;
     z-index: 3;
@@ -6419,7 +6419,7 @@ body.stats-open #squad-builder-modal {
 
 .bench-card-name {
     position: absolute;
-    top:59px; 
+    top: 75px; 
     left: 20px;
     text-align: center;
     font-size: 9px;
@@ -6436,8 +6436,8 @@ body.stats-open #squad-builder-modal {
 
 .bench-card-flag-nation {
     position: absolute;
-    top: 77px;
-    left: 21px;
+    top: 92px;
+    left: 30px;
     width: 12px;
     height: 8px;
     object-fit: cover;
@@ -6448,8 +6448,8 @@ body.stats-open #squad-builder-modal {
 
 .bench-card-flag-club {
     position: absolute;
-    top: 76px;
-    left: 44px;
+    top: 89px;
+    left: 60px;
     width: 15px;
     height: 12px;
     object-fit: contain;
