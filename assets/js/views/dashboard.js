@@ -29,11 +29,16 @@ function loadDashboard() {
   // Load Trending Players Section
   loadTrendingPlayers();
 
-  // Recent updates
+  // Recent updates - ✅ FILTER UNTRADABLE PLAYERS
   const updatesContainer = document.getElementById('recent-updates');
   if (updatesContainer) {
     updatesContainer.innerHTML = '';
-    const recentPlayers = [...players]
+    
+    // ✅ Filter out untradable players first
+    const tradablePlayers = players.filter(player => isTradablePlayer(player));
+    console.log(`[HOMEPAGE] Recent Updates: ${tradablePlayers.length} tradable players (filtered from ${players.length} total)`);
+    
+    const recentPlayers = [...tradablePlayers]
       .sort((a, b) => Math.abs(b.priceChange) - Math.abs(a.priceChange))
       .slice(0, 5);
 
@@ -67,6 +72,24 @@ function loadDashboard() {
   }
 }
 
+/**
+ * ✅ NEW HELPER FUNCTION: Check if player is tradable/auctionable
+ * Returns true only if player is explicitly tradable
+ * Treats missing or null is_untradable as untradable (exclude)
+ * 
+ * @param {Object} player - Player object with is_untradable field
+ * @returns {boolean} - true if player is tradable
+ */
+function isTradablePlayer(player) {
+  if (!player) return false;
+  
+  // is_untradable can be: "True", "False", "", null, undefined
+  const untradableValue = player.is_untradable;
+  
+  // Only allow if explicitly tradable (empty string, "False", false, or missing)
+  // Exclude if "True" or true or any truthy non-empty string
+  return !untradableValue || untradableValue === '' || untradableValue === 'False' || untradableValue === false;
+}
 
 // Load Trending Players Section
 function loadTrendingPlayers() {
@@ -75,15 +98,17 @@ function loadTrendingPlayers() {
 
   grid.innerHTML = '';
 
+  // ✅ FILTER: Only tradable players
+  const tradablePlayers = players.filter(player => isTradablePlayer(player));
+  console.log(`[HOMEPAGE] Trending Players: ${tradablePlayers.length} tradable players (filtered from ${players.length} total)`);
+
   // Trending: top 6 most volatile (highest absolute price change)
-  const trendingPlayers = [...players]
+  const trendingPlayers = [...tradablePlayers]
     .sort((a, b) => Math.abs(b.priceChange) - Math.abs(a.priceChange))
     .slice(0, 6);    
 
-
-const sliderText = "Trade, Build, Dominate – Massive Rewards Await on Zenith!";
-document.querySelector(".slider span").textContent = sliderText;
-
+  const sliderText = "Trade, Build, Dominate – Massive Rewards Await on Zenith!";
+  document.querySelector(".slider span").textContent = sliderText;
 
   trendingPlayers.forEach((player, index) => {
     const card = document.createElement('div');
@@ -152,6 +177,9 @@ document.querySelector(".slider span").textContent = sliderText;
 
     grid.appendChild(card);
   });
+  
+  // ✅ DEBUG LOG: Show which players were filtered
+  console.log(`[HOMEPAGE] Trending section rendered ${trendingPlayers.length} cards`);
 }
 
 // Watchlist toggle function for latest players section
@@ -241,9 +269,12 @@ function searchAllPlayersOnHome(searchTerm) {
     return;
   }
 
-  // Filter ALL players by search term (case-insensitive)
+  // ✅ FILTER: Only search tradable players
+  const tradablePlayers = players.filter(player => isTradablePlayer(player));
+  
+  // Filter tradable players by search term (case-insensitive)
   const search = searchTerm.toLowerCase().trim();
-  const filteredPlayers = players.filter(player => {
+  const filteredPlayers = tradablePlayers.filter(player => {
     const name = (player.name || '').toLowerCase();
     const position = (player.position || '').toLowerCase();
     const club = (player.club || '').toLowerCase();
@@ -254,6 +285,8 @@ function searchAllPlayersOnHome(searchTerm) {
       club.includes(search) ||
       nation.includes(search);
   });
+  
+  console.log(`[HOMEPAGE] Search results: ${filteredPlayers.length} tradable players found for "${searchTerm}"`);
 
   // Clear both grids
   latestGrid.innerHTML = '';
@@ -275,7 +308,7 @@ function searchAllPlayersOnHome(searchTerm) {
     latestGrid.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
         <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 0.5rem;">
-          No players found for "${searchTerm}"
+          No tradable players found for "${searchTerm}"
         </p>
         <p style="color: var(--text-tertiary); font-size: 0.9rem;">
           Try searching by player name, position, club, or nation
@@ -375,9 +408,6 @@ function initBannerSlider() {
     }
   }
 
-
-
-
   // ===== NEW: ADD CLICK HANDLERS TO BANNERS =====
   slides.forEach((banner) => {
     banner.style.cursor = 'pointer';
@@ -468,7 +498,6 @@ function initBannerSlider() {
 document.addEventListener('DOMContentLoaded', () => {
   initBannerSlider();
 });
-
 
 // Initialize banner when dashboard loads
 document.addEventListener('DOMContentLoaded', () => {
