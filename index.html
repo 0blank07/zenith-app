@@ -5564,33 +5564,39 @@
       <button class="compare-close-btn" onclick="closeCompareModal()">✕</button>
     </div>
 
-    <!-- Player Cards Container -->
-    <div class="compare-cards-container">
-      <div id="compare-cards-grid" class="compare-cards-grid">
-        <!-- Cards will be dynamically inserted here -->
-      </div>
-    </div>
+    <div class="compare-body">
+      <div class="compare-stats-column">
+        <!-- Stats View Toggle -->
+        <div class="compare-view-toggle">
+          <button id="basic-stats-btn" class="compare-stats-btn active" onclick="switchCompareStatsView('basic')">
+            📊 Basic Stats
+          </button>
+          <button id="advanced-stats-btn" class="compare-stats-btn" onclick="switchCompareStatsView('advanced')">
+            🔧 Advanced Stats
+          </button>
+        </div>
 
-    <!-- Stats View Toggle -->
-    <div class="compare-view-toggle">
-      <button id="basic-stats-btn" class="compare-stats-btn active" onclick="switchCompareStatsView('basic')">
-        📊 Basic Stats
-      </button>
-      <button id="advanced-stats-btn" class="compare-stats-btn" onclick="switchCompareStatsView('advanced')">
-        🔧 Advanced Stats
-      </button>
-    </div>
+        <!-- Stats Comparison Grid -->
+        <div class="compare-stats-section">
+          <div class="compare-stats-header">
+            <h3 id="compare-stats-view-title">Major Stats Comparison</h3>
+            <p id="compare-stats-subtitle" class="compare-stats-subtitle">Add at least 2 players to see comparison</p>
+          </div>
 
-    <!-- Stats Comparison Grid -->
-    <div class="compare-stats-section">
-      <div class="compare-stats-header">
-        <h3 id="compare-stats-view-title">Major Stats Comparison</h3>
-        <p id="compare-stats-subtitle" class="compare-stats-subtitle">Add at least 2 players to see comparison</p>
+          <div id="compare-stats-grid" class="compare-stats-grid">
+            <!-- Stats rows will be inserted here dynamically -->
+          </div>
+        </div>
       </div>
 
-      <div id="compare-stats-grid" class="compare-stats-grid">
-        <!-- Stats rows will be inserted here dynamically -->
-      </div>
+      <!-- Player Cards Column -->
+      <aside class="compare-cards-column">
+        <div class="compare-cards-container">
+          <div id="compare-cards-grid" class="compare-cards-grid">
+            <!-- Cards will be dynamically inserted here -->
+          </div>
+        </div>
+      </aside>
     </div>
 
   </div>

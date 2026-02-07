@@ -6761,6 +6761,45 @@ const compareState = {
   currentSlot: null,
   isBasicView: true,
   positionMode: null, // 'outfield' or 'gk'
+  customizations: {},
+  recalcTokens: {}
+};
+
+const compareDebugEnabled = Boolean(
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.search.includes('debug=true')
+);
+
+const compareLog = (message, payload) => {
+  if (!compareDebugEnabled) return;
+  if (payload !== undefined) {
+    console.log(`[COMPARE] ${message}`, payload);
+  } else {
+    console.log(`[COMPARE] ${message}`);
+  }
+};
+
+const compareCustomizationContext = {
+  active: false,
+  playerId: null,
+  index: null,
+  backup: null,
+  requestId: 0,
+  modalLabels: {}
+};
+
+const resolveComparePlayerId = (playerOrId) => {
+  if (!playerOrId) return null;
+  if (typeof playerOrId === 'object') {
+    return playerOrId.player_id || playerOrId.id || playerOrId.playerid || null;
+  }
+  return playerOrId;
+};
+
+const resolveComparePlayerLabel = (player, index) => {
+  const name = player?.name || player?.player_name || '';
+  return name ? name : `Player ${index + 1}`;
 };
 
 // Stats Configuration
@@ -6854,6 +6893,215 @@ const STATS_CONFIG = {
   }
 };
 
+const normalizeCompareKey = (value) => String(value || '').toLowerCase().replace(/_/g, '');
+
+const getCompareCustomization = (playerId) => {
+  const resolvedId = resolveComparePlayerId(playerId);
+  if (!resolvedId) return null;
+  return compareState.customizations[resolvedId] || null;
+};
+
+const setCompareCustomization = (playerId, updates = {}) => {
+  const resolvedId = resolveComparePlayerId(playerId);
+  if (!resolvedId) return;
+  const current = compareState.customizations[resolvedId] || {};
+  compareState.customizations[resolvedId] = { ...current, ...updates };
+};
+
+const clearCompareCustomization = (playerId) => {
+  const resolvedId = resolveComparePlayerId(playerId);
+  if (!resolvedId) return;
+  delete compareState.customizations[resolvedId];
+  delete compareState.recalcTokens[resolvedId];
+};
+
+const getCompareBaseStat = (player, ...names) => {
+  if (typeof window.getStat === 'function') {
+    return window.getStat(player, ...names);
+  }
+  for (const name of names) {
+    if (player?.[name] !== undefined && player?.[name] !== null) return player[name];
+  }
+  return 0;
+};
+
+const getCompareBoostValue = (boosts, ...names) => {
+  if (!boosts) return 0;
+  const entries = Object.entries(boosts);
+  for (const name of names) {
+    const normalized = normalizeCompareKey(name);
+    const match = entries.find(([key]) => normalizeCompareKey(key) === normalized);
+    if (match) {
+      const value = Number(match[1]);
+      return Number.isFinite(value) ? value : 0;
+    }
+  }
+  return 0;
+};
+
+const getCompareBoostedStat = (player, boosts, ...names) => {
+  const base = Number(getCompareBaseStat(player, ...names)) || 0;
+  const boost = getCompareBoostValue(boosts, ...names);
+  const value = base + boost;
+  return Number.isFinite(value) ? value : 0;
+};
+
+const roundCompareValue = (val) => Math.floor(val + 0.5);
+
+const calculateComparePace = (player, boosts) => {
+  const acceleration = getCompareBoostedStat(player, boosts, 'acceleration');
+  const sprintSpeed = getCompareBoostedStat(player, boosts, 'sprint_speed');
+  const val = (
+    0.49299585008602 * acceleration +
+    0.50528383239125 * sprintSpeed +
+    -0.13701200270336
+  );
+  return roundCompareValue(val);
+};
+
+const calculateCompareShooting = (player, boosts) => {
+  const finishing = getCompareBoostedStat(player, boosts, 'finishing');
+  const longShot = getCompareBoostedStat(player, boosts, 'long_shot', 'long_shots');
+  const shotPower = getCompareBoostedStat(player, boosts, 'shot_power');
+  const positioning = getCompareBoostedStat(player, boosts, 'positioning');
+  const volley = getCompareBoostedStat(player, boosts, 'volley', 'volleys');
+  const penalties = getCompareBoostedStat(player, boosts, 'penalties');
+  const val = (
+    0.35066661652365 * finishing +
+    0.20012280256486 * longShot +
+    0.19946956407192 * shotPower +
+    0.15019769557113 * positioning +
+    0.04977322484935 * volley +
+    0.04962618730771 * penalties +
+    -0.46621901229077
+  );
+  return roundCompareValue(val);
+};
+
+const calculateComparePassing = (player, boosts) => {
+  const shortPassing = getCompareBoostedStat(player, boosts, 'short_passing');
+  const longPassing = getCompareBoostedStat(player, boosts, 'long_passing');
+  const vision = getCompareBoostedStat(player, boosts, 'vision');
+  const crossing = getCompareBoostedStat(player, boosts, 'crossing');
+  const curve = getCompareBoostedStat(player, boosts, 'curve');
+  const freeKick = getCompareBoostedStat(player, boosts, 'free_kick', 'fk_accuracy');
+  const val = (
+    0.30073301682698 * shortPassing +
+    0.19979430277541 * longPassing +
+    0.24897437527999 * vision +
+    0.15031023108744 * crossing +
+    0.05004649307871 * curve +
+    0.05012756181062 * freeKick +
+    -0.48084074176376
+  );
+  return roundCompareValue(val);
+};
+
+const calculateCompareDribbling = (player, boosts) => {
+  const dribbling = getCompareBoostedStat(player, boosts, 'dribbling');
+  const balance = getCompareBoostedStat(player, boosts, 'balance');
+  const agility = getCompareBoostedStat(player, boosts, 'agility');
+  const reactions = getCompareBoostedStat(player, boosts, 'reactions');
+  const ballControl = getCompareBoostedStat(player, boosts, 'ball_control');
+  const val = (
+    0.25044329239850 * dribbling +
+    0.10001066600723 * balance +
+    0.25025392646353 * agility +
+    0.15074674532686 * reactions +
+    0.24872793523704 * ballControl +
+    -0.48832284057254
+  );
+  return roundCompareValue(val);
+};
+
+const calculateCompareDefending = (player, boosts) => {
+  const marking = getCompareBoostedStat(player, boosts, 'marking');
+  const standingTackle = getCompareBoostedStat(player, boosts, 'standing_tackle');
+  const slidingTackle = getCompareBoostedStat(player, boosts, 'sliding_tackle');
+  const awareness = getCompareBoostedStat(player, boosts, 'awareness', 'interceptions');
+  const heading = getCompareBoostedStat(player, boosts, 'heading');
+  const val = (
+    0.25029448767320 * marking +
+    0.20107682619015 * standingTackle +
+    0.19924427638513 * slidingTackle +
+    0.19952899013166 * awareness +
+    0.15010172584902 * heading +
+    -0.49709228500345
+  );
+  return roundCompareValue(val);
+};
+
+const calculateComparePhysical = (player, boosts) => {
+  const strength = getCompareBoostedStat(player, boosts, 'strength');
+  const aggression = getCompareBoostedStat(player, boosts, 'aggression');
+  const jumping = getCompareBoostedStat(player, boosts, 'jumping');
+  const stamina = getCompareBoostedStat(player, boosts, 'stamina_stat', 'stamina');
+  const val = (
+    0.44955969076149 * strength +
+    0.29976663944687 * aggression +
+    0.25058507302003 * jumping +
+    0.00061181921524 * stamina +
+    -0.50936016832054
+  );
+  return roundCompareValue(val);
+};
+
+const calculateCompareGKPhysical = (player, boosts) => {
+  const reactions = getCompareBoostedStat(player, boosts, 'reactions');
+  const agility = getCompareBoostedStat(player, boosts, 'agility');
+  const sprintSpeed = getCompareBoostedStat(player, boosts, 'sprint_speed');
+  const strength = getCompareBoostedStat(player, boosts, 'strength');
+  const val = (
+    0.64960512284621 * reactions +
+    0.15093757174982 * agility +
+    0.09981357061375 * sprintSpeed +
+    0.09995255942967 * strength +
+    -0.48764601442207
+  );
+  return roundCompareValue(val);
+};
+
+const getCompareStatValue = (player, stat) => {
+  if (!player || !stat) return 0;
+  const boosts = player.compare_boosts || player.training_boosts || null;
+  switch (stat.apiField) {
+    case 'pace':
+      return calculateComparePace(player, boosts);
+    case 'shooting':
+      return calculateCompareShooting(player, boosts);
+    case 'passing':
+      return calculateComparePassing(player, boosts);
+    case 'dribbling':
+      return calculateCompareDribbling(player, boosts);
+    case 'defending':
+      return calculateCompareDefending(player, boosts);
+    case 'physical':
+      return compareState.positionMode === 'gk' || player.position === 'GK'
+        ? calculateCompareGKPhysical(player, boosts)
+        : calculateComparePhysical(player, boosts);
+    case 'gk_diving':
+      return getCompareBoostedStat(player, boosts, 'gk_diving', 'diving');
+    case 'gk_positioning':
+      return getCompareBoostedStat(player, boosts, 'gk_positioning', 'positioning');
+    case 'gk_handling':
+      return getCompareBoostedStat(player, boosts, 'gk_handling', 'handling');
+    case 'gk_reflexes':
+      return getCompareBoostedStat(player, boosts, 'gk_reflexes', 'reflexes');
+    case 'gk_kicking':
+      return getCompareBoostedStat(player, boosts, 'gk_kicking', 'kicking');
+    case 'long_shot':
+      return Math.round(getCompareBoostedStat(player, boosts, 'long_shot', 'long_shots'));
+    case 'free_kick':
+      return Math.round(getCompareBoostedStat(player, boosts, 'free_kick', 'fk_accuracy'));
+    case 'stamina_stat':
+      return Math.round(getCompareBoostedStat(player, boosts, 'stamina_stat', 'stamina'));
+    case 'awareness':
+      return Math.round(getCompareBoostedStat(player, boosts, 'awareness', 'interceptions'));
+    default:
+      return Math.round(getCompareBoostedStat(player, boosts, stat.apiField));
+  }
+};
+
 // Open Compare Modal
 function openCompareModal() {
   const modal = document.getElementById('compare-players-modal');
@@ -6864,10 +7112,22 @@ function openCompareModal() {
     compareState.selectedPlayers = [];
     compareState.isBasicView = true;
     compareState.positionMode = null;
+    compareState.customizations = {};
+    compareState.recalcTokens = {};
+    compareState.currentSlot = null;
+    compareCustomizationContext.active = false;
+    compareCustomizationContext.playerId = null;
+    compareCustomizationContext.index = null;
+    compareCustomizationContext.backup = null;
+    compareCustomizationContext.modalLabels = {};
+
+    document.getElementById('basic-stats-btn')?.classList.add('active');
+    document.getElementById('advanced-stats-btn')?.classList.remove('active');
 
     renderCompareCards();
     updateCompareCountBadge();
     generateCompareStatsGrid();
+    compareLog('Modal opened');
   }
 }
 
@@ -6875,6 +7135,9 @@ function openCompareModal() {
 function closeCompareModal() {
   const modal = document.getElementById('compare-players-modal');
   if (!modal) return;
+  if (compareCustomizationContext.active && typeof window.closePlayerCustomizationModal === 'function') {
+    window.closePlayerCustomizationModal();
+  }
   const content = modal.querySelector('.compare-modal');
   if (content) content.classList.add('closing');
   setTimeout(() => {
@@ -6923,11 +7186,14 @@ function createEmptyPlayerCard(slotIndex) {
 function createFilledPlayerCard(player, index) {
   const card = document.createElement('div');
   card.className = 'compare-player-card filled-state new-card';
-  card.dataset.playerId = player.player_id;
-  
+  const playerId = resolveComparePlayerId(player);
+  card.dataset.playerId = playerId || '';
+  card.addEventListener('click', () => openCompareCustomization(player, index));
+
+  const playerName = player?.name || 'Unknown Player';
   card.innerHTML = `
     <!-- Remove Button (X) -->
-    <button class="player-remove-btn" onclick="removeComparePlayer(${index})">×</button>
+    <button class="player-remove-btn" type="button">×</button>
     
     <!-- FIFA Card Container -->
     ${player.card_background ? `
@@ -6940,12 +7206,12 @@ function createFilledPlayerCard(player, index) {
     <!-- Player Image -->
     ${player.player_image ? `
         <img src="${player.player_image}" 
-            alt="${player.name}"
+            alt="${playerName}"
             style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 130%; height: 130%; object-fit: contain;"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-        <span class="player-initials" style="display:none">${getInitials(player.name)}</span>
+        <span class="player-initials" style="display:none">${getInitials(playerName)}</span>
     ` : `
-        <span class="player-initials">${getInitials(player.name)}</span>
+        <span class="player-initials">${getInitials(playerName)}</span>
     `}
       
     <!-- OVR -->
@@ -6960,7 +7226,7 @@ function createFilledPlayerCard(player, index) {
       
     <!-- Player Name -->
     <div class="compare-card-name" style="color: ${player.color_name || '#FFFFFF'}">
-      ${player.name}
+      ${playerName}
     </div>
       
     <!-- Nation -->
@@ -6982,12 +7248,24 @@ function createFilledPlayerCard(player, index) {
     <!-- Team Name Below -->
     <p class="compare-team-text">${player.team || 'N/A'}</p>
   `;
-  
+
+  const removeBtn = card.querySelector('.player-remove-btn');
+  if (removeBtn) {
+    removeBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      removeComparePlayer(index);
+    });
+  }
   return card;
 }
 
 function removeComparePlayer(index) {
   const cards = document.querySelectorAll('.compare-player-card.filled-state');
+  const removedPlayer = compareState.selectedPlayers[index];
+  const removedId = resolveComparePlayerId(removedPlayer);
+  if (removedId) {
+    clearCompareCustomization(removedId);
+  }
   if (cards[index]) {
     cards[index].classList.add('removing');
   }
@@ -6996,10 +7274,251 @@ function removeComparePlayer(index) {
     if (compareState.selectedPlayers.length === 0) {
       compareState.positionMode = null;
     }
+    if (removedId && compareCustomizationContext.active && compareCustomizationContext.playerId === removedId) {
+      window.closePlayerCustomizationModal?.();
+    }
     renderCompareCards();
     updateCompareCountBadge();
     generateCompareStatsGrid();
   }, 300);
+}
+
+function backupSquadCustomizationState() {
+  if (!window.squadCustomizationState) return null;
+  return {
+    playerId: window.squadCustomizationState.playerId,
+    slotId: window.squadCustomizationState.slotId,
+    selectedRank: window.squadCustomizationState.selectedRank,
+    trainingLevel: window.squadCustomizationState.trainingLevel,
+    selectedSkills: Array.isArray(window.squadCustomizationState.selectedSkills)
+      ? [...window.squadCustomizationState.selectedSkills]
+      : [],
+    baseOvr: window.squadCustomizationState.baseOvr,
+    basePosition: window.squadCustomizationState.basePosition,
+    baseName: window.squadCustomizationState.baseName,
+    baseColors: window.squadCustomizationState.baseColors
+      ? { ...window.squadCustomizationState.baseColors }
+      : null,
+    savedByPlayer: window.squadCustomizationState.savedByPlayer
+      ? { ...window.squadCustomizationState.savedByPlayer }
+      : {}
+  };
+}
+
+function restoreSquadCustomizationState(snapshot) {
+  if (!window.squadCustomizationState || !snapshot) return;
+  Object.assign(window.squadCustomizationState, snapshot);
+  if (snapshot.savedByPlayer) {
+    window.squadCustomizationState.savedByPlayer = { ...snapshot.savedByPlayer };
+  }
+}
+
+function updateCompareCustomizationModalLabels(isCompare) {
+  const removeBtn = document.getElementById('squad-remove-btn');
+  const applyBtn = document.getElementById('squad-apply-btn');
+  if (isCompare) {
+    compareCustomizationContext.modalLabels = compareCustomizationContext.modalLabels || {};
+    if (removeBtn && !compareCustomizationContext.modalLabels.remove) {
+      compareCustomizationContext.modalLabels.remove = removeBtn.innerHTML;
+    }
+    if (applyBtn && !compareCustomizationContext.modalLabels.apply) {
+      compareCustomizationContext.modalLabels.apply = applyBtn.innerHTML;
+    }
+    if (removeBtn) {
+      removeBtn.innerHTML = '<span>🗑️</span><span>Remove from Compare</span>';
+    }
+    if (applyBtn) {
+      applyBtn.innerHTML = '<span>✓</span><span>Apply to Compare</span>';
+    }
+  } else {
+    if (removeBtn && compareCustomizationContext.modalLabels?.remove) {
+      removeBtn.innerHTML = compareCustomizationContext.modalLabels.remove;
+    }
+    if (applyBtn && compareCustomizationContext.modalLabels?.apply) {
+      applyBtn.innerHTML = compareCustomizationContext.modalLabels.apply;
+    }
+  }
+}
+
+function openCompareCustomization(player, index) {
+  const playerId = resolveComparePlayerId(player);
+  if (!playerId || typeof window.openPlayerCustomizationModal !== 'function') {
+    showToast?.('Customization unavailable', 'error');
+    return;
+  }
+
+  const modal = document.getElementById('squad-player-customization-modal');
+  if (!modal) {
+    showToast?.('Customization unavailable', 'error');
+    return;
+  }
+
+  if (compareCustomizationContext.active) {
+    finalizeCompareCustomization();
+  }
+
+  if (typeof addPlayerToCache === 'function') {
+    addPlayerToCache(player);
+  }
+
+  compareCustomizationContext.active = true;
+  compareCustomizationContext.playerId = playerId;
+  compareCustomizationContext.index = index;
+  compareCustomizationContext.backup = backupSquadCustomizationState();
+  updateCompareCustomizationModalLabels(true);
+  compareLog('Customization modal opened', { playerId, index });
+
+  window.openPlayerCustomizationModal(playerId, null);
+}
+
+function getCompareCustomizationSnapshot() {
+  if (!window.squadCustomizationState) {
+    return { selectedRank: 0, trainingLevel: 0, selectedSkills: [] };
+  }
+  const rawRank = window.squadCustomizationState.selectedRank || 0;
+  const normalizedRank = typeof getSquadRankOvrBonus === 'function'
+    ? getSquadRankOvrBonus(rawRank)
+    : Math.min(Math.max(parseInt(rawRank || 0, 10), 0), 5);
+  return {
+    selectedRank: normalizedRank,
+    trainingLevel: parseInt(window.squadCustomizationState.trainingLevel || 0, 10),
+    selectedSkills: Array.isArray(window.squadCustomizationState.selectedSkills)
+      ? [...window.squadCustomizationState.selectedSkills]
+      : []
+  };
+}
+
+function removeComparePlayerById(playerId) {
+  const resolvedId = resolveComparePlayerId(playerId);
+  if (!resolvedId) return;
+  const index = compareState.selectedPlayers.findIndex(
+    player => resolveComparePlayerId(player) === resolvedId
+  );
+  if (index >= 0) {
+    removeComparePlayer(index);
+  }
+}
+
+async function recalculateComparePlayerStats(playerId, customization) {
+  const resolvedId = resolveComparePlayerId(playerId);
+  if (!resolvedId) return;
+  const token = `${Date.now()}-${Math.random()}`;
+  compareState.recalcTokens[resolvedId] = token;
+
+  const index = compareState.selectedPlayers.findIndex(
+    player => resolveComparePlayerId(player) === resolvedId
+  );
+  if (index < 0) return;
+
+  const currentPlayer = compareState.selectedPlayers[index];
+  const rank = Number(customization?.selectedRank || 0);
+  const trainingLevel = Number(customization?.trainingLevel || 0);
+
+  compareLog('Stat recalculation triggered', { playerId: resolvedId, rank, trainingLevel });
+
+  let detailsPlayer = {};
+  let skills = [];
+  let availableSkillPoints = null;
+  if (window.apiClient && typeof window.apiClient.getPlayerDetails === 'function') {
+    try {
+      const resp = await window.apiClient.getPlayerDetails(resolvedId, rank, { cache: false });
+      detailsPlayer = resp.player || {};
+      skills = resp.skills || [];
+      availableSkillPoints = resp.available_skill_points ?? null;
+    } catch (error) {
+      compareLog('Player details refresh failed', error);
+      showToast?.('Unable to refresh compare stats', 'error');
+    }
+  }
+
+  if (compareState.recalcTokens[resolvedId] !== token) return;
+
+  const mergedPlayer = {
+    ...currentPlayer,
+    ...detailsPlayer,
+    player_id: resolvedId,
+    rank,
+    skills: skills.length ? skills : currentPlayer.skills || [],
+    available_skill_points: availableSkillPoints ?? currentPlayer.available_skill_points
+  };
+  mergedPlayer.training_level = trainingLevel;
+
+  let skillBoosts = {};
+  const userId = typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null;
+  if (userId && window.apiClient?.getUserSkillAllocations && typeof calculateSkillBoosts === 'function') {
+    try {
+      const allocationsResp = await window.apiClient.getUserSkillAllocations(userId, resolvedId, rank);
+      skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
+    } catch (error) {
+      compareLog('Skill boosts refresh failed', error);
+    }
+  }
+
+  if (compareState.recalcTokens[resolvedId] !== token) return;
+
+  let trainingBoosts = null;
+  if (typeof getTrainingBoosts === 'function') {
+    try {
+      trainingBoosts = await getTrainingBoosts(mergedPlayer.position, trainingLevel);
+    } catch (error) {
+      compareLog('Training boosts refresh failed', error);
+    }
+  }
+
+  if (compareState.recalcTokens[resolvedId] !== token) return;
+
+  const combinedBoosts = typeof mergeBoosts === 'function'
+    ? mergeBoosts(trainingBoosts, skillBoosts)
+    : { ...(trainingBoosts || {}), ...(skillBoosts || {}) };
+
+  mergedPlayer.compare_boosts = combinedBoosts;
+  mergedPlayer.training_boosts = combinedBoosts;
+  mergedPlayer.skill_boosts = skillBoosts;
+
+  const baseOvr = Number(
+    mergedPlayer.base_ovr ||
+    mergedPlayer.ovr ||
+    mergedPlayer.overall ||
+    currentPlayer.ovr ||
+    currentPlayer.overall ||
+    0
+  );
+  const rankBonus = typeof getSquadRankOvrBonus === 'function' ? getSquadRankOvrBonus(rank) : rank;
+  const boostedOvr = baseOvr > 0 ? baseOvr + rankBonus : baseOvr;
+  mergedPlayer.ovr = boostedOvr;
+  mergedPlayer.overall = boostedOvr;
+
+  compareState.selectedPlayers[index] = mergedPlayer;
+  renderCompareCards();
+  updateCompareCountBadge();
+  generateCompareStatsGrid();
+}
+
+async function applyCompareCustomization() {
+  const playerId = compareCustomizationContext.playerId;
+  if (!playerId) {
+    window.closePlayerCustomizationModal?.();
+    return;
+  }
+  const snapshot = getCompareCustomizationSnapshot();
+  setCompareCustomization(playerId, snapshot);
+  compareLog('Customization applied', { playerId, snapshot });
+
+  window.closePlayerCustomizationModal?.();
+  await recalculateComparePlayerStats(playerId, snapshot);
+}
+
+function finalizeCompareCustomization() {
+  updateCompareCustomizationModalLabels(false);
+  restoreSquadCustomizationState(compareCustomizationContext.backup);
+  compareCustomizationContext.active = false;
+  compareCustomizationContext.playerId = null;
+  compareCustomizationContext.index = null;
+  compareCustomizationContext.backup = null;
+  const compareModal = document.getElementById('compare-players-modal');
+  if (compareModal && compareModal.style.display !== 'none') {
+    document.body.style.overflow = 'hidden';
+  }
 }
 
 function updateCompareCountBadge() {
@@ -7022,7 +7541,7 @@ function openCompareSearch(slotIndex) {
     input.focus();
   }
   if (results) {
-    results.innerHTML = `<p style="color:#A0AEC0;text-align:center;padding:20px;">Start typing to search players...</p>`;
+    results.innerHTML = `<p style="color:var(--color-text-secondary);text-align:center;padding:20px;">Start typing to search players...</p>`;
   }
 }
 
@@ -7042,7 +7561,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsDiv = document.getElementById('compare-search-results');
     if (!q || q.length < 2) {
       if (resultsDiv) {
-        resultsDiv.innerHTML = '<p style="color:#A0AEC0;text-align:center;padding:20px;">Type at least 2 characters...</p>';
+        resultsDiv.innerHTML = '<p style="color:var(--color-text-secondary);text-align:center;padding:20px;">Type at least 2 characters...</p>';
       }
       return;
     }
@@ -7055,21 +7574,24 @@ document.addEventListener('DOMContentLoaded', () => {
 async function searchComparePlayers(query) {
   const resultsDiv = document.getElementById('compare-search-results');
   if (!resultsDiv) return;
-  resultsDiv.innerHTML = '<p style="color:#3B82F6;text-align:center;padding:20px;">Searching...</p>';
+  resultsDiv.innerHTML = '<p style="color:var(--color-teal-500);text-align:center;padding:20px;">Searching...</p>';
 
   try {
-    if (!window.apiClient) throw new Error('API client not available');
+    if (!window.apiClient) {
+      resultsDiv.innerHTML = '<p style="color:var(--color-text-secondary);text-align:center;padding:20px;">Search unavailable.</p>';
+      return;
+    }
     const resp = await window.apiClient.searchPlayers({ q: query, limit: 50, rank: 0 });
     const players = resp.results || resp.players || [];
     if (!players.length) {
-      resultsDiv.innerHTML = `<p style="color:#A0AEC0;text-align:center;padding:20px;">No players found for "${query}"</p>`;
+      resultsDiv.innerHTML = `<p style="color:var(--color-text-secondary);text-align:center;padding:20px;">No players found for "${query}"</p>`;
       return;
     }
     resultsDiv.innerHTML = '';
     players.forEach(p => resultsDiv.appendChild(createCompareSearchResultItem(p)));
   } catch (err) {
-    console.error('[COMPARE] Search error', err);
-    resultsDiv.innerHTML = '<p style="color:#ef4444;text-align:center;padding:20px;">Search error. Please try again.</p>';
+    compareLog('Search error', err);
+    resultsDiv.innerHTML = '<p style="color:var(--color-status-error);text-align:center;padding:20px;">Search error. Please try again.</p>';
   }
 }
 
@@ -7111,7 +7633,12 @@ function createCompareSearchResultItem(player) {
 }
 
 function selectPlayerForComparison(player) {
-  if (compareState.selectedPlayers.some(p => p.player_id === player.player_id)) {
+  const playerId = resolveComparePlayerId(player);
+  if (!playerId) {
+    showToast?.('Player unavailable for comparison', 'error');
+    return;
+  }
+  if (compareState.selectedPlayers.some(p => resolveComparePlayerId(p) === playerId)) {
     showToast?.('This player is already in comparison', 'info');
     return;
   }
@@ -7128,7 +7655,7 @@ function selectPlayerForComparison(player) {
       return;
     }
   }
-  compareState.selectedPlayers.push(player);
+  compareState.selectedPlayers.push({ ...player, player_id: playerId });
   closeCompareSearch();
   renderCompareCards();
   updateCompareCountBadge();
@@ -7203,15 +7730,17 @@ function createStatRow(stat, isSub, idx) {
   nameCell.textContent = isSub ? `↳ ${stat.name}` : stat.name;
   row.appendChild(nameCell);
 
-  const values = compareState.selectedPlayers.map(p => Number(p[stat.apiField]) || 0);
+  const values = compareState.selectedPlayers.map(player => getCompareStatValue(player, stat));
   const colors = assignStatColors(values);
 
   compareState.selectedPlayers.forEach((player, i) => {
     const cell = document.createElement('div');
     cell.className = 'stat-value-cell';
+    cell.dataset.playerLabel = resolveComparePlayerLabel(player, i);
     const span = document.createElement('span');
     span.className = `stat-value ${colors[i]}`;
-    span.textContent = Number(player[stat.apiField]) || 0;
+    const value = Number.isFinite(values[i]) ? values[i] : 0;
+    span.textContent = value;
     cell.appendChild(span);
     row.appendChild(cell);
   });
@@ -7232,16 +7761,17 @@ function createTotalStatsRow() {
     const mode = compareState.positionMode || 'outfield';
     const config = STATS_CONFIG[mode];
     const stats = compareState.isBasicView ? config.basic : getAllStats(config);
-    return stats.reduce((sum, s) => sum + (Number(player[s.apiField]) || 0), 0);
+    return stats.reduce((sum, s) => sum + getCompareStatValue(player, s), 0);
   });
 
   const colors = assignStatColors(totals);
   totals.forEach((total, i) => {
     const cell = document.createElement('div');
     cell.className = 'stat-value-cell total-cell';
+    cell.dataset.playerLabel = resolveComparePlayerLabel(compareState.selectedPlayers[i], i);
     const span = document.createElement('span');
     span.className = `total-stats-value ${colors[i]}`;
-    span.textContent = total;
+    span.textContent = Number.isFinite(total) ? total : 0;
     cell.appendChild(span);
     row.appendChild(cell);
   });
@@ -7275,7 +7805,72 @@ function assignStatColors(values) {
   });
 }
 
-console.log('[COMPARE] Player Comparison Tool initialized ✅');
+let compareCustomizationHooksInitialized = false;
+
+function initializeCompareCustomizationHooks() {
+  if (compareCustomizationHooksInitialized) return;
+  compareCustomizationHooksInitialized = true;
+
+  const originalGetSquadPlayerCustomization = window.getSquadPlayerCustomization;
+  if (typeof originalGetSquadPlayerCustomization === 'function') {
+    window.getSquadPlayerCustomization = function(playerId) {
+      if (compareCustomizationContext.active) {
+        return getCompareCustomization(playerId) || {};
+      }
+      return originalGetSquadPlayerCustomization(playerId);
+    };
+  }
+
+  const originalSetSquadPlayerCustomization = window.setSquadPlayerCustomization;
+  if (typeof originalSetSquadPlayerCustomization === 'function') {
+    window.setSquadPlayerCustomization = function(playerId, updates = {}, reason = 'update') {
+      if (compareCustomizationContext.active) {
+        return;
+      }
+      return originalSetSquadPlayerCustomization(playerId, updates, reason);
+    };
+  }
+
+  const originalApplySquadPlayerCustomization = window.applySquadPlayerCustomization;
+  if (typeof originalApplySquadPlayerCustomization === 'function') {
+    window.applySquadPlayerCustomization = function() {
+      if (compareCustomizationContext.active) {
+        applyCompareCustomization();
+        return;
+      }
+      return originalApplySquadPlayerCustomization();
+    };
+  }
+
+  const originalRemoveSquadPlayer = window.removeSquadPlayer;
+  if (typeof originalRemoveSquadPlayer === 'function') {
+    window.removeSquadPlayer = function() {
+      if (compareCustomizationContext.active) {
+        removeComparePlayerById(compareCustomizationContext.playerId);
+        if (compareCustomizationContext.active) {
+          window.closePlayerCustomizationModal?.();
+        }
+        return;
+      }
+      return originalRemoveSquadPlayer();
+    };
+  }
+
+  const originalClosePlayerCustomizationModal = window.closePlayerCustomizationModal;
+  if (typeof originalClosePlayerCustomizationModal === 'function') {
+    window.closePlayerCustomizationModal = function() {
+      const wasCompare = compareCustomizationContext.active;
+      const result = originalClosePlayerCustomizationModal();
+      if (wasCompare) {
+        finalizeCompareCustomization();
+      }
+      return result;
+    };
+  }
+}
+
+initializeCompareCustomizationHooks();
+compareLog('Player Comparison Tool initialized');
 
 
 
