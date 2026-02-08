@@ -7261,14 +7261,20 @@ watchlist-view .view-content {
     box-shadow: 0 12px 30px rgba(0, 255, 170, 0.3);
 }
 
-/* Untradable badge on player cards */
 .card-untradable-badge {
     position: absolute;
-    top: 4px;
-    right: 4px;
+    top: 2px;
+    right: -1px;
     width: 24px;
     height: 24px;
     z-index: 5;
+
+    /* Visibility Enhancements */
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.7))
+            drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+    border-radius: 50%;
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    background-clip: padding-box;
 }
 
 .card-untradable-badge img {
