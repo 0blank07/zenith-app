@@ -6784,6 +6784,219 @@ body.stats-open #squad-builder-modal {
     opacity: 0.5;
 }
 
+
+
+@media (max-width: 1024px) {
+    /* Empty Bench Slot Scaling */
+    .bench-empty-slot {
+        width: 63px;  /* Scaled from 66px */
+        height: 81px; /* Scaled from 85px */
+        transform: translate(-50%, -50%); /* Simplified centering */
+    }
+
+    .bench-slot-label {
+        font-size: 9px;
+    }
+
+    /* Bench Preview Card Scaling (Matching your Player Card logic) */
+    .bench-card-inner {
+        width: 95px;
+        height: 112px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+    }
+
+    .bench-card-player-img {
+        bottom: 4px;
+        width: 100px;
+        height: 105px;
+        transform: translateX(-50%) scale(1.1);
+    }
+
+    .bench-card-ovr {
+        top: 8px;
+        left: 15px;
+        font-size: 15px;
+        letter-spacing: -0.5px;
+    }
+
+    .bench-card-position {
+        top: 23px;
+        left: 17px;
+        font-size: 9px;
+    }
+
+    .bench-card-name {
+        top: auto;   /* Overriding the fixed top from desktop */
+        bottom: 28px;
+        font-size: 9px;
+        padding: 0 6px;
+        letter-spacing: -0.1px;
+    }
+
+    .bench-card-flag-nation {
+        top: 82px;
+        left: 32px;
+        width: 11px;
+        height: 9px;
+    }
+
+    .bench-card-flag-club {
+        top: 82px;
+        left: 52px;
+        width: 13px;
+        height: 11px;
+    }
+
+    .bench-card-remove {
+        top: 4%;
+        right: 1px;
+        width: 15px;
+        height: 15px;
+        font-size: 12px;
+    }
+}
+
+
+
+@media (max-width: 768px) {
+    /* Empty Bench Slot Scaling */
+    .bench-empty-slot {
+        width: 50px;  /* Scaled from 63px */
+        height: 65px; /* Scaled from 81px */
+        transform: translate(-50%, -50%);
+    }
+
+    .bench-slot-label {
+        font-size: 8px;
+    }
+
+    /* Bench Preview Card Scaling */
+    .bench-card-inner {
+        width: 76px;  /* Scaled from 95px */
+        height: 90px; /* Scaled from 112px */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+    }
+
+    .bench-card-player-img {
+        bottom: 3px;
+        width: 80px;  /* Scaled from 100px */
+        height: 84px; /* Scaled from 105px */
+        transform: translateX(-50%) scale(1.1);
+    }
+
+    .bench-card-ovr {
+        top: 6px;
+        left: 12px;
+        font-size: 12px; /* Scaled from 15px */
+        letter-spacing: -0.4px;
+    }
+
+    .bench-card-position {
+        top: 18px;
+        left: 14px;
+        font-size: 7px; /* Scaled from 9px */
+    }
+
+    .bench-card-name {
+        bottom: 22px;   /* Adjusted for smaller height */
+        font-size: 7.5px;
+        padding: 0 4px;
+        letter-spacing: -0.1px;
+    }
+
+    .bench-card-flag-nation {
+        top: 66px;     /* Adjusted for smaller height */
+        left: 25px;
+        width: 9px;
+        height: 7px;
+    }
+
+    .bench-card-flag-club {
+        top: 66px;
+        left: 42px;
+        width: 10px;
+        height: 9px;
+    }
+
+    .bench-card-remove {
+        top: 3%;
+        right: 0px;
+        width: 13px;
+        height: 13px;
+        font-size: 10px;
+    }
+}
+
+
+@media (max-width: 480px) {
+    /* Empty Bench Slot Scaling */
+    .bench-empty-slot {
+        width: 40px;  /* Scaled from 50px */
+        height: 52px; /* Scaled from 65px */
+        transform: translate(-50%, -50%);
+    }
+
+    .bench-slot-label {
+        font-size: 7px;
+    }
+
+    /* Bench Preview Card Scaling */
+    .bench-card-inner {
+        width: 60px;  /* Scaled from 76px */
+        height: 72px; /* Scaled from 90px */
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+    }
+
+    .bench-card-player-img {
+        bottom: 2px;
+        width: 64px;  /* Scaled from 80px */
+        height: 67px; /* Scaled from 84px */
+        transform: translateX(-50%) scale(1.1);
+    }
+
+    .bench-card-ovr {
+        top: 4px;
+        left: 10px;
+        font-size: 10px; /* Scaled from 12px */
+        letter-spacing: -0.3px;
+    }
+
+    .bench-card-position {
+        top: 14px;
+        left: 11px;
+        font-size: 6px; /* Minimum legible size */
+    }
+
+    .bench-card-name {
+        bottom: 18px;
+        font-size: 6.5px;
+        padding: 0 2px;
+        letter-spacing: -0.1px;
+    }
+
+    .bench-card-flag-nation {
+        top: 53px;     /* Adjusted for 72px height */
+        left: 20px;
+        width: 7px;
+        height: 5px;
+    }
+
+    .bench-card-flag-club {
+        top: 53px;
+        left: 33px;
+        width: 8px;
+        height: 7px;
+    }
+
+    .bench-card-remove {
+        top: 2%;
+        right: -1px;
+        width: 11px;
+        height: 11px;
+        font-size: 8px;
+    }
+}
+
 /* ============================================
    BADGES BUTTON & MODAL
    ============================================ */

@@ -3241,7 +3241,7 @@ function renderBench() {
 
         // ALWAYS CREATE THE EMPTY SLOT (background layer)
         const emptySlot = document.createElement('div');
-        emptySlot.className = 'bench-empty-slot';
+        emptySlot.className = 'bench-empty-slot'; 
         emptySlot.innerHTML = `<span class="bench-slot-label">SUB ${i + 1}</span>`;
         cell.appendChild(emptySlot);
 
