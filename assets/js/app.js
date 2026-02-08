@@ -7218,8 +7218,26 @@ function updateCompareCardForPlayer(playerId) {
   }
   const ovrEl = card.querySelector('.compare-card-ovr');
   if (ovrEl) {
-    ovrEl.textContent = player.ovr && player.ovr > 0 ? player.ovr : 'NA';
-    if (player.color_rating) ovrEl.style.color = player.color_rating;
+    const customization = getCompareCustomization(resolvedId);
+    const baseColor = customization?.baseColors?.color_rating || player.color_rating || '#FFB86B';
+    const customizationBaseOvr = Number.parseInt(customization?.baseOvr, 10);
+    const fallbackBaseOvr = Number.parseInt(player.base_ovr, 10);
+    const baseOvr = Number.isFinite(customizationBaseOvr)
+      ? customizationBaseOvr
+      : (Number.isFinite(fallbackBaseOvr) ? fallbackBaseOvr : Number.parseInt(player.ovr, 10) || 0);
+    const parsedRank = Number.parseInt(customization?.selectedRank, 10);
+    const fallbackRank = Number.parseInt(player.rank || 0, 10);
+    const rawRank = Number.isFinite(parsedRank) ? parsedRank : (Number.isFinite(fallbackRank) ? fallbackRank : 0);
+    const rankBonus = typeof getSquadRankOvrBonus === 'function'
+      ? getSquadRankOvrBonus(rawRank)
+      : rawRank;
+    const finalOvr = Number(player.ovr || player.overall || 0);
+    console.log('[ComparePlayers] Base OVR:', baseOvr);
+    console.log('[ComparePlayers] Rank Bonus:', rankBonus);
+    console.log('[ComparePlayers] Final OVR Rendered:', finalOvr);
+    ovrEl.textContent = finalOvr > 0 ? finalOvr : 'NA';
+    ovrEl.style.color = baseColor;
+    console.log('[ComparePlayers] OVR color locked to base card color');
   }
 }
 
@@ -7259,6 +7277,8 @@ function createFilledPlayerCard(player, index) {
   const card = document.createElement('div');
   card.className = 'compare-player-card filled-state new-card';
   const playerId = resolveComparePlayerId(player);
+  const customization = getCompareCustomization(playerId);
+  const baseOvrColor = customization?.baseColors?.color_rating || player.color_rating || '#FFB86B';
   card.dataset.playerId = playerId || '';
   card.addEventListener('click', () => openCompareCustomization(player, index));
 
@@ -7287,7 +7307,7 @@ function createFilledPlayerCard(player, index) {
     `}
       
     <!-- OVR -->
-    <div class="compare-card-ovr" style="color: ${player.color_rating || '#FFB86B'}">
+    <div class="compare-card-ovr" style="color: ${baseOvrColor}">
       ${player.ovr && player.ovr > 0 ? player.ovr : 'NA'}
     </div>
       
@@ -7855,11 +7875,13 @@ async function openCompareCustomization(player, index) {
   compareCustomizationState.baseOvr = normalizedBaseOvr;
   compareCustomizationState.basePosition = player?.position || 'N/A';
   compareCustomizationState.baseName = player?.name || 'Unknown Player';
-  compareCustomizationState.baseColors = {
-    color_rating: player?.color_rating || '#FFFFFF',
-    color_position: player?.color_position || '#FFFFFF',
-    color_name: player?.color_name || '#FFFFFF'
-  };
+  compareCustomizationState.baseColors = storedCustomization?.baseColors
+    ? { ...storedCustomization.baseColors }
+    : {
+        color_rating: player?.color_rating || '#FFFFFF',
+        color_position: player?.color_position || '#FFFFFF',
+        color_name: player?.color_name || '#FFFFFF'
+      };
 
   compareSelectedRank = compareCustomizationState.selectedRank;
   compareTrainingLevel = compareCustomizationState.trainingLevel;
@@ -7925,7 +7947,10 @@ function getCompareCustomizationSnapshot() {
       : [],
     baseOvr: Number.isFinite(compareCustomizationState.baseOvr)
       ? compareCustomizationState.baseOvr
-      : 0
+      : 0,
+    baseColors: compareCustomizationState.baseColors
+      ? { ...compareCustomizationState.baseColors }
+      : null
   };
 }
 
@@ -8037,16 +8062,24 @@ async function recalculateComparePlayerStats(playerId, customization, options = 
   mergedPlayer.training_boosts = combinedBoosts;
   mergedPlayer.skill_boosts = skillBoosts;
 
-  const baseOvr = Number(
-    mergedPlayer.base_ovr ||
+  const customizationBaseOvr = Number.parseInt(customization?.baseOvr, 10);
+  const playerBaseOvr = Number.parseInt(mergedPlayer.base_ovr || currentPlayer.base_ovr, 10);
+  const fallbackOvr = Number.parseInt(
     mergedPlayer.ovr ||
     mergedPlayer.overall ||
     currentPlayer.ovr ||
     currentPlayer.overall ||
-    0
+    0,
+    10
   );
+  const baseOvr = Number.isFinite(customizationBaseOvr)
+    ? customizationBaseOvr
+    : (Number.isFinite(playerBaseOvr) ? playerBaseOvr : (Number.isFinite(fallbackOvr) ? fallbackOvr : 0));
   const rankBonus = typeof getSquadRankOvrBonus === 'function' ? getSquadRankOvrBonus(rank) : rank;
   const boostedOvr = baseOvr > 0 ? baseOvr + rankBonus : baseOvr;
+  if (Number.isFinite(baseOvr)) {
+    mergedPlayer.base_ovr = baseOvr;
+  }
   mergedPlayer.ovr = boostedOvr;
   mergedPlayer.overall = boostedOvr;
 
