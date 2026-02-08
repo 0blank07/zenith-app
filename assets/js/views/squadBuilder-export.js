@@ -38,18 +38,23 @@ async function exportSquad() {
         document.body.appendChild(exportRoot);
 
         await Promise.all([
-            waitForImages(exportRoot),
+            ensureExportImagesReady(exportRoot),
             preloadBackgroundImage(backgroundUrl)
         ]);
 
+        const renderedCardCount = countExportCards(exportRoot);
+        console.info('[EXPORT] Player cards rendered:', renderedCardCount);
+
+        const captureWidth = exportRoot.scrollWidth || exportRoot.offsetWidth;
+        const captureHeight = exportRoot.scrollHeight || exportRoot.offsetHeight;
         const captureOptions = {
             backgroundColor: '#0a1628',
             scale: 2,
             logging: false,
             useCORS: true,
             allowTaint: true,
-            width: exportRoot.offsetWidth,
-            height: exportRoot.offsetHeight,
+            width: captureWidth,
+            height: captureHeight,
             x: 0,
             y: 0
         };
@@ -199,6 +204,7 @@ function buildExportSlot(slot) {
     const positionDot = document.createElement('div');
     positionDot.className = 'position-dot';
     positionDot.innerHTML = `<span class="position-label">${slot.label}</span>`;
+    positionDot.style.zIndex = '1';
     container.appendChild(positionDot);
 
     const assignedId = squadState.starters[slot.id] || null;
@@ -232,6 +238,7 @@ function buildExportSlot(slot) {
 
     const previewCard = document.createElement('div');
     previewCard.className = 'player-preview-card squad-export-player-card';
+    previewCard.style.zIndex = '2';
     previewCard.innerHTML = `
         <div class="preview-card-inner">
             <img src="${cardBg}" alt="Card" class="preview-card-bg" crossorigin="anonymous"
@@ -291,6 +298,7 @@ function buildExportBench() {
 
             const benchCard = document.createElement('div');
             benchCard.className = 'bench-preview-card squad-export-bench-card';
+            benchCard.style.zIndex = '2';
             benchCard.innerHTML = `
                 <div class="bench-card-inner">
                     <img src="${cardBg}" alt="Card" class="bench-card-bg" crossorigin="anonymous"
@@ -370,6 +378,45 @@ function escapeHtml(value) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+}
+
+function countExportCards(container) {
+    return container.querySelectorAll('.squad-export-player-card, .squad-export-bench-card').length;
+}
+
+function getExportCardImages(container) {
+    return Array.from(container.querySelectorAll(
+        '.preview-card-bg, .preview-card-player-img, .bench-card-bg, .bench-card-player-img'
+    ));
+}
+
+function getMissingImages(images) {
+    return images.filter(img => !(img.complete && img.naturalWidth > 0));
+}
+
+async function retryMissingImages(images) {
+    if (!images.length) return;
+    const retryStamp = Date.now();
+
+    await Promise.all(images.map(img => {
+        const src = img.getAttribute('src');
+        if (!src) return Promise.resolve();
+        const separator = src.includes('?') ? '&' : '?';
+        img.src = `${src}${separator}retry=${retryStamp}`;
+        return new Promise(resolve => {
+            img.addEventListener('load', resolve, { once: true });
+            img.addEventListener('error', resolve, { once: true });
+        });
+    }));
+}
+
+async function ensureExportImagesReady(container) {
+    await waitForImages(container);
+    const cardImages = getExportCardImages(container);
+    const missing = getMissingImages(cardImages);
+    if (missing.length) {
+        await retryMissingImages(missing);
+    }
 }
 
 function waitForImages(container) {

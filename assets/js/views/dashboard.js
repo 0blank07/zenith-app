@@ -294,6 +294,11 @@ function initBannerSlider() {
   const slider = document.querySelector('.hero-banner-slider');
   if (!slider) return;
 
+  if (window.innerWidth < 1024 && !window.__zenithBannerResponsiveLogged) {
+    console.info('[BANNER] Responsive scaling applied for mobile/tablet');
+    window.__zenithBannerResponsiveLogged = true;
+  }
+
   const slides = document.querySelectorAll('.banner-slide');
   const dots = document.querySelectorAll('.banner-dot');
   const prevBtn = document.querySelector('.banner-prev');

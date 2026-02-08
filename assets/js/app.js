@@ -5774,6 +5774,17 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   console.log('[APP] Initializing Zenith App...');
 
+  const logoImg = document.querySelector('.logo-image');
+  if (logoImg) {
+    const logoPath = logoImg.getAttribute('src');
+    const logLogoLoaded = () => console.info('[LOGO] Logo loaded successfully:', logoPath);
+    if (logoImg.complete && logoImg.naturalWidth > 0) {
+      logLogoLoaded();
+    } else {
+      logoImg.addEventListener('load', logLogoLoaded, { once: true });
+    }
+  }
+
   // ===== API INITIALIZATION =====
   if (typeof apiClient !== 'undefined') {
     window.apiClient = apiClient;

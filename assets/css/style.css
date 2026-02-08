@@ -765,11 +765,29 @@ select.form-control {
   color: var(--color-text-primary);
   /* Replaced gradient with solid text or simple Teal accent if desired */
   white-space: nowrap;
+  line-height: 1;
+}
+
+/* Responsive logo image */
+.logo-image {
+  --logo-size: clamp(1.8rem, 3vw, 2.6rem);
+  width: var(--logo-size);
+  height: var(--logo-size);
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(14, 17, 20, 0.85);
+  border: 1px solid rgba(0, 194, 168, 0.35);
+  padding: clamp(0.12rem, 0.3vw, 0.24rem);
+  box-sizing: border-box;
 }
 
 /* Optional: If you want the logo to pop with Teal */
-.logo span {
-    color: var(--color-teal-500);
+.logo-text {
+  color: var(--color-teal-500);
 }
 
 .nav-desktop {
@@ -7117,6 +7135,20 @@ watchlist-view .view-content {
   }
 }
 
+/* Mobile & Tablet - show full banner image */
+@media (max-width: 1023px) {
+  .hero-banner-slider {
+    height: auto;
+    aspect-ratio: 2 / 1;
+    min-height: clamp(180px, 40vw, 260px);
+    background: #0E1114;
+  }
+
+  .banner-image {
+    object-fit: contain;
+  }
+}
+
 /* Mobile - Use aspect ratio */
 @media (max-width: 768px) {
   .hero-banner-section {
@@ -10284,22 +10316,17 @@ body.overflow-hidden {
 }
 
 .zenith-footer-logo {
-  font-weight: 900;
-  font-size: 15px;
-  color: #00C2A8;                               /* ðŸ”¥ Original teal - not too bright */
-  letter-spacing: 0.8px;
-  text-shadow:
-    0 0 12px rgba(0,194,168,0.35),              /* ðŸ”¥ Moderate glow */
-    0 2px 4px rgba(0,0,0,0.2);
-  transition: all 0.2s ease;
+  height: clamp(1.1rem, 2vw, 1.6rem);
+  width: auto;
+  max-width: 100%;
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(0, 194, 168, 0.35));
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
 .zenith-footer-logo:hover {
-  color: #00D4B8;                               /* ðŸ”¥ Slightly brighter on hover */
-  text-shadow:
-    0 0 16px rgba(0,194,168,0.5),
-    0 0 28px rgba(0,194,168,0.25);
   transform: translateY(-2px);
+  filter: drop-shadow(0 0 16px rgba(0, 194, 168, 0.5));
 }
 
 .zenith-footer-tag {
