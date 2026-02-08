@@ -587,6 +587,10 @@ function renderPlayerPicker() {
         ensurePlayerInGlobalList(p, pid, overall);
     });
 
+    row.addEventListener('pointerdown', (e) => {
+        queuePointerDrag(e, pid, 'picker', null, () => ensurePlayerInGlobalList(p, pid, overall));
+    });
+
     
     row.addEventListener('dragend', clearDragState);
     
@@ -2574,6 +2578,155 @@ function handleCardDragStart(e, playerId, sourceType, sourceId) {
   e.dataTransfer.effectAllowed = 'move';
 }
 
+const POINTER_DRAG_THRESHOLD = 6;
+const pointerDragState = {
+  pending: null,
+  active: null
+};
+
+function queuePointerDrag(e, playerId, sourceType, sourceId, onStart) {
+  if (!e || e.pointerType === 'mouse') return;
+  if (pointerDragState.pending || pointerDragState.active) return;
+
+  const element = e.target.closest('.player-preview-card, .bench-preview-card, .picker-row');
+  if (!element) return;
+
+  pointerDragState.pending = {
+    pointerId: e.pointerId,
+    startX: e.clientX,
+    startY: e.clientY,
+    playerId,
+    sourceType,
+    sourceId,
+    element,
+    onStart
+  };
+
+  document.addEventListener('pointermove', handlePointerDragMove);
+  document.addEventListener('pointerup', handlePointerDragEnd);
+  document.addEventListener('pointercancel', handlePointerDragCancel);
+}
+
+function beginPointerDrag(pending) {
+  pointerDragState.pending = null;
+  pointerDragState.active = {
+    pointerId: pending.pointerId,
+    lastHover: null
+  };
+
+  squadState.dragging = pending.playerId;
+  squadState.dragSource = { type: pending.sourceType, id: pending.sourceId };
+
+  if (pending.element) {
+    pending.element.classList.add('dragging');
+    if (pending.element.setPointerCapture) {
+      pending.element.setPointerCapture(pending.pointerId);
+    }
+  }
+
+  if (typeof pending.onStart === 'function') {
+    pending.onStart();
+  }
+}
+
+function handlePointerDragMove(e) {
+  const pending = pointerDragState.pending;
+  if (pending && pending.pointerId === e.pointerId) {
+    const deltaX = e.clientX - pending.startX;
+    const deltaY = e.clientY - pending.startY;
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+    if (pending.sourceType === 'picker' && absX < absY) {
+      return;
+    }
+    if (Math.hypot(deltaX, deltaY) >= POINTER_DRAG_THRESHOLD) {
+      beginPointerDrag(pending);
+    } else {
+      return;
+    }
+  }
+
+  const active = pointerDragState.active;
+  if (!active || active.pointerId !== e.pointerId) return;
+
+  e.preventDefault();
+
+  const target = document.elementFromPoint(e.clientX, e.clientY);
+  const slot = target ? target.closest('.squad-slot') : null;
+  const benchCell = target ? target.closest('.bench-cell') : null;
+  const nextHover = slot || benchCell;
+
+  if (active.lastHover && active.lastHover !== nextHover) {
+    active.lastHover.classList.remove('drag-over');
+  }
+
+  if (nextHover && nextHover !== active.lastHover) {
+    nextHover.classList.add('drag-over');
+  }
+
+  active.lastHover = nextHover;
+}
+
+function handlePointerDragEnd(e) {
+  const pending = pointerDragState.pending;
+  if (pending && pending.pointerId === e.pointerId) {
+    pointerDragState.pending = null;
+    cleanupPointerDragListeners();
+    return;
+  }
+
+  const active = pointerDragState.active;
+  if (!active || active.pointerId !== e.pointerId) return;
+
+  e.preventDefault();
+
+  const target = document.elementFromPoint(e.clientX, e.clientY);
+  const slot = target ? target.closest('.squad-slot') : null;
+  const benchCell = target ? target.closest('.bench-cell') : null;
+
+  if (slot && slot.dataset.slotId) {
+    handleSlotDrop(createPointerDropEvent(), slot.dataset.slotId);
+  } else if (benchCell) {
+    const benchIndex = parseInt(benchCell.dataset.benchIndex, 10);
+    if (Number.isFinite(benchIndex)) {
+      handleBenchDrop(createPointerDropEvent(), benchIndex);
+    } else {
+      clearDragState();
+    }
+  } else {
+    clearDragState();
+  }
+
+  pointerDragState.active = null;
+  cleanupPointerDragListeners();
+}
+
+function handlePointerDragCancel(e) {
+  if (pointerDragState.pending && pointerDragState.pending.pointerId === e.pointerId) {
+    pointerDragState.pending = null;
+  }
+
+  if (pointerDragState.active && pointerDragState.active.pointerId === e.pointerId) {
+    clearDragState();
+    pointerDragState.active = null;
+  }
+
+  cleanupPointerDragListeners();
+}
+
+function cleanupPointerDragListeners() {
+  document.removeEventListener('pointermove', handlePointerDragMove);
+  document.removeEventListener('pointerup', handlePointerDragEnd);
+  document.removeEventListener('pointercancel', handlePointerDragCancel);
+}
+
+function createPointerDropEvent() {
+  return {
+    preventDefault: () => {},
+    stopPropagation: () => {}
+  };
+}
+
 function handleSlotDragOver(e) {
   e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
@@ -2971,6 +3124,10 @@ function renderSlot(slot) {
         previewCard.className = 'player-preview-card';
         console.log('🎨 DEBUG: Creating preview card for slot:', slot.id, 'player:', assignedId);
         previewCard.setAttribute('draggable', 'true');
+
+        previewCard.addEventListener('pointerdown', (e) => {
+            queuePointerDrag(e, assignedId, 'slot', slot.id);
+        });
         
         previewCard.addEventListener('dragstart', (e) => {
             handleCardDragStart(e, assignedId, 'slot', slot.id);
@@ -3112,6 +3269,10 @@ function renderBench() {
             benchCard.className = 'bench-preview-card';
             console.log('🪑 DEBUG: Creating bench card at index:', i, 'player:', playerId);
             benchCard.setAttribute('draggable', 'true');
+
+            benchCard.addEventListener('pointerdown', (e) => {
+                queuePointerDrag(e, playerId, 'bench', i);
+            });
 
             benchCard.addEventListener('dragstart', (e) => {
                 handleCardDragStart(e, playerId, 'bench', i);

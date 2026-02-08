@@ -457,6 +457,7 @@
     transition: all 180ms ease;
     font-size: 17px;
     cursor: grab;
+    touch-action: pan-y;
 }
 
 /* ===== MINI PLAYER CARD IN PICKER ROW ===== */
@@ -1463,6 +1464,35 @@
     margin-top: 12px !important;
   }
 
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .squad-body {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 0.45fr);
+  }
+
+  .squad-field-container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    min-width: 0;
+  }
+
+  .squad-picker {
+    display: flex !important;
+    visibility: visible !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0;
+  }
+
+  .squad-picker-header {
+    display: grid !important;
+  }
+
+  .squad-player-list {
+    display: block !important;
+  }
 }
 
 /* ===== EXTRA SMALL PHONES (max 480px) ===== */
@@ -6007,6 +6037,7 @@ body.stats-open #squad-builder-modal {
     z-index: 10;
     cursor: grab;
     transition: transform 0.2s ease;
+    touch-action: none;
 }
 
 .player-preview-card:active {
@@ -6604,6 +6635,7 @@ body.stats-open #squad-builder-modal {
     transition: transform 0.2s ease;
     transition: transform 0.2s ease-out;
     overflow: visible;
+    touch-action: none;
 }
 
 .bench-preview-card:active {
@@ -6751,8 +6783,6 @@ body.stats-open #squad-builder-modal {
 .bench-preview-card.dragging {
     opacity: 0.5;
 }
-
-
 
 /* ============================================
    BADGES BUTTON & MODAL
