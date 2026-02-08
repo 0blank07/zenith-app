@@ -111,6 +111,34 @@ function setSquadPlayerCustomization(playerId, updates = {}, reason = 'update') 
   console.log('[SQUAD CUSTOM] Synced to squad state', { playerId, reason, updates: Object.keys(updates) });
 }
 
+function getSquadPlayerSelectedRank(playerId, playerFallback) {
+  const customization = getSquadPlayerCustomization(playerId);
+  if (customization && customization.selectedRank !== undefined && customization.selectedRank !== null) {
+    const normalized = parseInt(customization.selectedRank, 10);
+    return Number.isFinite(normalized) ? normalized : 0;
+  }
+  const fallbackRank = parseInt(playerFallback?.rank ?? 0, 10);
+  return Number.isFinite(fallbackRank) ? fallbackRank : 0;
+}
+
+function updateSquadCardRankOverlay(playerId, rankValue) {
+  if (typeof applyRankOverlay !== 'function') return;
+  const resolvedId = resolveSquadPlayerId(playerId);
+  if (!resolvedId) return;
+  const previewTarget = document.querySelector(
+    `.player-preview-card[data-player-id="${resolvedId}"] .preview-card-inner`
+  );
+  const benchTarget = document.querySelector(
+    `.bench-preview-card[data-player-id="${resolvedId}"] .bench-card-inner`
+  );
+  const target = previewTarget || benchTarget;
+  if (!target) return;
+  applyRankOverlay(target, rankValue, {
+    scope: 'squad-builder',
+    modifierClass: 'rank-overlay--squad-builder'
+  });
+}
+
 function parseAlternatePositions(player) {
   const raw = player?.alternate_position || player?.alternatePosition || player?.alternate_positions || '';
   if (!raw) return [];
@@ -3193,6 +3221,7 @@ function renderSlot(slot) {
 
         const previewCard = document.createElement('div');
         previewCard.className = 'player-preview-card';
+        previewCard.dataset.playerId = playerId || '';
         console.log('🎨 DEBUG: Creating preview card for slot:', slot.id, 'player:', assignedId);
         previewCard.setAttribute('draggable', 'true');
 
@@ -3231,6 +3260,13 @@ function renderSlot(slot) {
         console.log('✅ DEBUG: Click listener attached to preview card');
 
         previewCard.innerHTML = buildSquadPreviewCardMarkup(player, slot.label || '', slot.id);
+        if (typeof applyRankOverlay === 'function') {
+            const rankValue = getSquadPlayerSelectedRank(playerId, player);
+            applyRankOverlay(previewCard.querySelector('.preview-card-inner'), rankValue, {
+                scope: 'squad-builder',
+                modifierClass: 'rank-overlay--squad-builder'
+            });
+        }
 
         // Append preview card AFTER position dot (so it appears on top)
         container.appendChild(previewCard);
@@ -3301,6 +3337,7 @@ function renderBench() {
             // Create bench preview card
             const benchCard = document.createElement('div');
             benchCard.className = 'bench-preview-card';
+            benchCard.dataset.playerId = playerId || '';
             console.log('🪑 DEBUG: Creating bench card at index:', i, 'player:', playerId);
             benchCard.setAttribute('draggable', 'true');
 
@@ -3336,6 +3373,13 @@ function renderBench() {
             });
 
             benchCard.innerHTML = buildSquadBenchCardMarkup(player, i);
+            if (typeof applyRankOverlay === 'function') {
+                const rankValue = getSquadPlayerSelectedRank(playerId, player);
+                applyRankOverlay(benchCard.querySelector('.bench-card-inner'), rankValue, {
+                    scope: 'squad-builder',
+                    modifierClass: 'rank-overlay--squad-builder'
+                });
+            }
 
             cell.appendChild(benchCard);
         }
@@ -3676,11 +3720,13 @@ async function selectSquadRank(rankNumber, options = {}) {
     console.log('SQUAD CUSTOM: Selecting rank:', normalizedRank);
     
     squadCustomizationState.selectedRank = normalizedRank;
+    console.log('[RankOverlay] SquadBuilder:', squadCustomizationState.playerId, normalizedRank);
     if (!options.preserveSkills) {
         squadCustomizationState.selectedSkills = [];
     }
 
     updateSquadCustomizationMiniCard();
+    updateSquadCardRankOverlay(squadCustomizationState.playerId, normalizedRank);
     
     document.querySelectorAll('.squad-rank-box').forEach(box => {
         const rank = parseInt(box.dataset.rank);
@@ -3718,6 +3764,7 @@ function resetSquadPlayerRank() {
     squadCustomizationState.selectedRank = 0;
     squadCustomizationState.selectedSkills = [];
     squadCustomizationState.trainingLevel = 0;
+    console.log('[RankOverlay] SquadBuilder:', squadCustomizationState.playerId, 0);
     
     document.querySelectorAll('.squad-rank-box').forEach(box => {
         box.classList.remove('selected');
@@ -3736,6 +3783,7 @@ function resetSquadPlayerRank() {
     }
 
     updateSquadCustomizationMiniCard();
+    updateSquadCardRankOverlay(squadCustomizationState.playerId, 0);
     
     renderSquadSkillsMessage('Select a rank to view skills');
     
@@ -4320,6 +4368,13 @@ function renderCustomizationMiniCard(player) {
       <div class="squad-custom-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
     </div>
   `;
+  if (typeof applyRankOverlay === 'function') {
+    const rankValue = squadCustomizationState.selectedRank || player?.rank || 0;
+    applyRankOverlay(container.querySelector('.squad-custom-mini-card'), rankValue, {
+      scope: 'squad-builder',
+      modifierClass: 'rank-overlay--squad-builder'
+    });
+  }
 }
 
 function updateSquadCustomizationMiniCard() {
@@ -4348,6 +4403,12 @@ function updateSquadCustomizationMiniCard() {
   if (colors.color_rating) ovrEl.style.color = colors.color_rating;
   if (colors.color_position) positionEl.style.color = colors.color_position;
   if (colors.color_name) nameEl.style.color = colors.color_name;
+  if (typeof applyRankOverlay === 'function') {
+    applyRankOverlay(container.querySelector('.squad-custom-mini-card'), squadCustomizationState.selectedRank || 0, {
+      scope: 'squad-builder',
+      modifierClass: 'rank-overlay--squad-builder'
+    });
+  }
 }
 
 /**

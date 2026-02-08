@@ -907,7 +907,7 @@ async function renderPlayerDetail(player) {
                         ">
                        
 
-                            <div style="
+                            <div class="player-detail-mini-card" style="
                                 width: 260px;
                                 height: 260px;
                                 margin: 0 auto 24px;
@@ -1498,6 +1498,14 @@ async function renderPlayerDetail(player) {
 
         </style>
     `;
+
+    const detailCard = container.querySelector('.player-detail-mini-card');
+    if (typeof applyRankOverlay === 'function') {
+        applyRankOverlay(detailCard, player.rank || 0, {
+            scope: 'player-detail',
+            modifierClass: 'rank-overlay--player-detail'
+        });
+    }
 
     setTimeout(() => {
         renderPlayerSkills(player);
@@ -2975,6 +2983,7 @@ const visitedRanks = new Set();
 
 window.selectPlayerRank = async function(playerId, rankNumber) {
   console.log('[RANK] Selecting rank', rankNumber, 'for player', playerId);
+  console.log('[RankOverlay] PlayerDetail:', rankNumber);
   
   if (state.selectedPlayer && String(state.selectedPlayer.player_id) === String(playerId)) {
     const previousRank = state.selectedPlayer.rank || 0;
@@ -3053,6 +3062,7 @@ window.selectPlayerRank = async function(playerId, rankNumber) {
 
 window.resetPlayerRank = async function(playerId) {
   console.log('[RANK] Resetting rank to base for player', playerId);
+  console.log('[RankOverlay] PlayerDetail:', 0);
 
   if (!state.selectedPlayer || String(state.selectedPlayer.player_id) !== String(playerId)) {
     console.warn('[RANK] Reset rank aborted - player mismatch.');
@@ -7213,6 +7223,20 @@ function updateCompareCardForPlayer(playerId) {
   }
 }
 
+function updateCompareCardRankOverlay(playerId, rankValue) {
+  if (typeof applyRankOverlay !== 'function') return;
+  const resolvedId = resolveComparePlayerId(playerId);
+  if (!resolvedId) return;
+  const card = document.querySelector(
+    `.compare-player-card.filled-state[data-player-id="${resolvedId}"]`
+  );
+  if (!card) return;
+  applyRankOverlay(card, rankValue, {
+    scope: 'compare',
+    modifierClass: 'rank-overlay--compare'
+  });
+}
+
 function createEmptyPlayerCard(slotIndex) {
   const card = document.createElement('div');
   card.className = 'compare-player-card empty-state';
@@ -7302,6 +7326,14 @@ function createFilledPlayerCard(player, index) {
     removeBtn.addEventListener('click', (event) => {
       event.stopPropagation();
       removeComparePlayer(index);
+    });
+  }
+  if (typeof applyRankOverlay === 'function') {
+    const customization = getCompareCustomization(playerId);
+    const rankValue = customization?.selectedRank ?? player?.rank ?? 0;
+    applyRankOverlay(card, rankValue, {
+      scope: 'compare',
+      modifierClass: 'rank-overlay--compare'
     });
   }
   return card;
@@ -7457,6 +7489,13 @@ function renderCompareCustomizationMiniCard(player) {
       <div class="squad-custom-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
     </div>
   `;
+  if (typeof applyRankOverlay === 'function') {
+    const rankValue = compareCustomizationState.selectedRank || player?.rank || 0;
+    applyRankOverlay(container.querySelector('.squad-custom-mini-card'), rankValue, {
+      scope: 'compare',
+      modifierClass: 'rank-overlay--compare'
+    });
+  }
 }
 
 function updateCompareCustomizationMiniCard() {
@@ -7487,6 +7526,12 @@ function updateCompareCustomizationMiniCard() {
   if (colors.color_rating) ovrEl.style.color = colors.color_rating;
   if (colors.color_position) positionEl.style.color = colors.color_position;
   if (colors.color_name) nameEl.style.color = colors.color_name;
+  if (typeof applyRankOverlay === 'function') {
+    applyRankOverlay(container.querySelector('.squad-custom-mini-card'), compareCustomizationState.selectedRank || 0, {
+      scope: 'compare',
+      modifierClass: 'rank-overlay--compare'
+    });
+  }
 }
 
 async function renderComparePlayerSkills() {
@@ -7603,6 +7648,7 @@ async function compareSelectRank(rankNumber, options = {}) {
     : Math.min(Math.max(parseInt(rankNumber || 0, 10), 0), 5);
   compareCustomizationState.selectedRank = normalizedRank;
   compareSelectedRank = normalizedRank;
+  console.log('[RankOverlay] ComparePlayers:', compareCustomizationState.playerId, normalizedRank);
   compareLog('Rank selected', {
     playerId: compareCustomizationState.playerId,
     rank: normalizedRank
@@ -7613,6 +7659,7 @@ async function compareSelectRank(rankNumber, options = {}) {
 
   updateCompareCustomizationMiniCard();
   updateCompareRankBoxes(normalizedRank);
+  updateCompareCardRankOverlay(compareCustomizationState.playerId, normalizedRank);
 
   const skillPoints = normalizedRank;
   const pointsDisplay = document.getElementById('squad-skill-points-display');
@@ -7655,6 +7702,7 @@ function compareResetRank() {
   compareSelectedRank = 0;
   compareTrainingLevel = 0;
   compareSkillBoost = {};
+  console.log('[RankOverlay] ComparePlayers:', compareCustomizationState.playerId, 0);
   compareLog('Rank reset', { playerId: compareCustomizationState.playerId });
 
   updateCompareRankBoxes(0);
@@ -7670,6 +7718,7 @@ function compareResetRank() {
   }
 
   updateCompareCustomizationMiniCard();
+  updateCompareCardRankOverlay(compareCustomizationState.playerId, 0);
   renderCompareSkillsMessage('Select a rank to view skills');
 
   persistCompareCustomizationState('rank-reset');
