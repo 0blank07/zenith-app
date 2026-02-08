@@ -5938,7 +5938,7 @@ body.stats-open #squad-builder-modal {
     cursor: pointer;
 }
 
-/* Position Dot - ALWAYS VISIBLE (background layer) */
+
 /* Position Dot - FC MOBILE CARD SHAPE (30% smaller than preview card) */
 .position-dot {
     position: absolute;
@@ -6415,7 +6415,123 @@ body.stats-open #squad-builder-modal {
 }
 
 
+@media (max-width: 480px) {
+  .preview-card-inner {
+    position: relative;
+    /* Reduced size for small mobile screens (approx 75% of previous) */
+    width: 66px;
+    height: 80px;
+    aspect-ratio: 4 / 5;
+    overflow: visible;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
 
+    clip-path: polygon(
+        15% 0%, 85% 0%, 100% 8%, 100% 25%, 95% 45%, 100% 75%,
+        90% 92%, 50% 100%, 10% 92%, 0% 75%, 5% 45%, 0% 25%, 0% 8%
+    );
+    margin: 6px;
+  }
+
+  .preview-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  .preview-card-player-img {
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    transform: translateX(-50%) scale(1.1);
+    /* Scaled for 66px width */
+    width: 69px;
+    height: 74px;
+    object-fit: contain;
+    z-index: 2;
+  }
+
+  .preview-card-ovr {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    font-size: 11px; /* Smaller OVR */
+    font-weight: 900;
+    z-index: 3;
+    font-family: var(--font-family-base, Arial, sans-serif);
+    letter-spacing: -0.5px;
+  }
+
+  .preview-card-position {
+    position: absolute;
+    top: 15px;
+    left: 11px;
+    font-size: 6.5px; /* Tiny but legible */
+    font-weight: 850;
+    z-index: 3;
+    font-family: var(--font-family-base, Arial, sans-serif);
+  }
+
+  .preview-card-name {
+    position: absolute;
+    bottom: 18px; /* Adjusted for smaller height */
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 6.5px;
+    font-weight: 950;
+    z-index: 3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 4px;
+    font-family: var(--font-family-base, Arial, sans-serif);
+    text-transform: uppercase;
+    letter-spacing: -0.1px;
+  }
+
+  .preview-card-flag-nation {
+    position: absolute;
+    top: 58px; /* Lifted up for smaller card */
+    left: 23px;
+    width: 8px;
+    height: 6px;
+    object-fit: cover;
+    z-index: 3;
+  }
+
+  .preview-card-flag-club {
+    position: absolute;
+    top: 58px;
+    left: 36px;
+    width: 9px;
+    height: 8px;
+    object-fit: contain;
+    z-index: 3;
+    border-radius: 1px;
+  }
+
+  .preview-card-remove {
+    position: absolute;
+    top: 2%;
+    right: 0px;
+    width: 12px;
+    height: 12px;
+    border: 1px solid #fff;
+    font-size: 9px;
+    z-index: 20;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .player-preview-card:hover .preview-card-remove {
+    display: flex;
+  }
+}
 /* ============================================
    BENCH SLOTS - FC MOBILE CARD STYLE
    ============================================ */
