@@ -2135,7 +2135,9 @@ window.resetPlayerSkills = async function(playerId, rank) {
   console.log('[SKILLS] Resetting all skills for player', playerId, 'at rank', rank);
   
   try {
-    if (state.selectedPlayer) {
+    const isSelectedPlayer = state.selectedPlayer &&
+      String(state.selectedPlayer.player_id) === String(playerId);
+    if (isSelectedPlayer) {
       console.log('[SKILLS] Pre-reset skills:', state.selectedPlayer.skill_boosts);
       console.log('[SKILLS] Pre-reset stats snapshot:', {
         pace: state.selectedPlayer.pace,
@@ -2153,7 +2155,7 @@ window.resetPlayerSkills = async function(playerId, rank) {
     console.log('[SKILLS] Reset successful:', result);
     
     // Re-fetch player data and re-render
-    if (state.selectedPlayer) {
+    if (isSelectedPlayer) {
       const resp = await window.apiClient.getPlayerDetails(playerId, rank);
       const allocationsResp = await window.apiClient.getUserSkillAllocations(
         CURRENT_USER_ID,
@@ -2195,6 +2197,38 @@ window.resetPlayerSkills = async function(playerId, rank) {
   } catch (error) {
     console.error('[SKILLS] Reset error:', error);
     return;
+  }
+};
+
+window.resetSquadCustomizationSkills = async function() {
+  const isCompare = compareCustomizationContext?.active;
+  const playerId = isCompare
+    ? compareCustomizationState.playerId
+    : window.squadCustomizationState?.playerId;
+  const rank = isCompare
+    ? compareCustomizationState.selectedRank
+    : window.squadCustomizationState?.selectedRank;
+
+  console.log("[Skills] Reset triggered from Squad Customization modal");
+
+  if (!playerId) {
+    console.warn('[SKILLS] Reset skipped: no player selected');
+    return;
+  }
+
+  const resolvedRank = Number.isFinite(Number(rank)) ? Number(rank) : 0;
+  await resetPlayerSkills(playerId, resolvedRank);
+
+  if (isCompare) {
+    await renderComparePlayerSkills();
+    handleCompareCustomizationChange('skill-reset');
+    return;
+  }
+
+  if (window.squadCustomizationState &&
+      String(window.squadCustomizationState.playerId) === String(playerId) &&
+      typeof renderSquadPlayerSkills === 'function') {
+    await renderSquadPlayerSkills();
   }
 };
 
@@ -2390,16 +2424,13 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
   console.log('[SKILLS] Selecting level:', targetLevel, 'Current:', currentLevel);
   
   try {
-    // FIX: Simplified logic - just set to the target level directly
-    // If clicking the same level that's already selected, deselect it (set to 0)
-    let newLevel = targetLevel;
-    if (currentLevel === targetLevel && targetLevel > 0) {
-      newLevel = 0; // Deselect completely
-      console.log('[SKILLS] Deselecting level, setting to:', newLevel);
-    }
+    const normalizedCurrent = Number(currentLevel) || 0;
+    const normalizedTarget = Number(targetLevel) || 0;
+    const newLevel = normalizedTarget === normalizedCurrent ? 0 : normalizedTarget;
+    console.log("[Skills] Skill toggled:", skillId, "New Level:", newLevel);
     
     // If same as current, no change needed
-    if (newLevel === currentLevel) {
+    if (newLevel === normalizedCurrent) {
       console.log('[SKILLS] No change needed');
       return;
     }
@@ -7190,8 +7221,8 @@ function renderCompareCards() {
 
   grid.innerHTML = '';
 
-  compareState.selectedPlayers.forEach((player, index) => {
-    const card = createFilledPlayerCard(player, index);
+  compareState.selectedPlayers.forEach((player) => {
+    const card = createFilledPlayerCard(player);
     grid.appendChild(card);
   });
 
@@ -7199,6 +7230,31 @@ function renderCompareCards() {
     const emptyCard = createEmptyPlayerCard(compareState.selectedPlayers.length);
     grid.appendChild(emptyCard);
   }
+}
+
+function refreshCompareEmptyCard() {
+  const grid = document.getElementById('compare-cards-grid');
+  if (!grid) return;
+
+  grid.querySelectorAll('.compare-player-card.empty-state').forEach(card => card.remove());
+
+  if (compareState.selectedPlayers.length < 5) {
+    const emptyCard = createEmptyPlayerCard(compareState.selectedPlayers.length);
+    grid.appendChild(emptyCard);
+  }
+}
+
+function appendComparePlayerCard(player) {
+  const grid = document.getElementById('compare-cards-grid');
+  if (!grid) return;
+
+  const card = createFilledPlayerCard(player);
+  grid.appendChild(card);
+  refreshCompareEmptyCard();
+
+  const playerId = resolveComparePlayerId(player);
+  console.log("[ComparePlayers] Rendering card:", playerId);
+  console.log("[ComparePlayers] Existing cards unchanged");
 }
 
 function updateCompareCardForPlayer(playerId) {
@@ -7273,14 +7329,24 @@ function createEmptyPlayerCard(slotIndex) {
   return card;
 }
 
-function createFilledPlayerCard(player, index) {
+function openCompareCustomizationById(playerId) {
+  const resolvedId = resolveComparePlayerId(playerId);
+  if (!resolvedId) return;
+  const index = compareState.selectedPlayers.findIndex(
+    player => resolveComparePlayerId(player) === resolvedId
+  );
+  if (index < 0) return;
+  openCompareCustomization(compareState.selectedPlayers[index], index);
+}
+
+function createFilledPlayerCard(player) {
   const card = document.createElement('div');
   card.className = 'compare-player-card filled-state new-card';
   const playerId = resolveComparePlayerId(player);
   const customization = getCompareCustomization(playerId);
   const baseOvrColor = customization?.baseColors?.color_rating || player.color_rating || '#FFB86B';
   card.dataset.playerId = playerId || '';
-  card.addEventListener('click', () => openCompareCustomization(player, index));
+  card.addEventListener('click', () => openCompareCustomizationById(playerId));
 
   const playerName = player?.name || 'Unknown Player';
   card.innerHTML = `
@@ -7345,7 +7411,7 @@ function createFilledPlayerCard(player, index) {
   if (removeBtn) {
     removeBtn.addEventListener('click', (event) => {
       event.stopPropagation();
-      removeComparePlayer(index);
+      removeComparePlayerById(playerId);
     });
   }
   if (typeof applyRankOverlay === 'function') {
@@ -7360,14 +7426,16 @@ function createFilledPlayerCard(player, index) {
 }
 
 function removeComparePlayer(index) {
-  const cards = document.querySelectorAll('.compare-player-card.filled-state');
   const removedPlayer = compareState.selectedPlayers[index];
   const removedId = resolveComparePlayerId(removedPlayer);
   if (removedId) {
     clearCompareCustomization(removedId);
   }
-  if (cards[index]) {
-    cards[index].classList.add('removing');
+  const removedCard = removedId
+    ? document.querySelector(`.compare-player-card.filled-state[data-player-id="${removedId}"]`)
+    : document.querySelectorAll('.compare-player-card.filled-state')[index];
+  if (removedCard) {
+    removedCard.classList.add('removing');
   }
   setTimeout(() => {
     compareState.selectedPlayers.splice(index, 1);
@@ -7377,7 +7445,10 @@ function removeComparePlayer(index) {
     if (removedId && compareCustomizationContext.active && compareCustomizationContext.playerId === removedId) {
       window.closePlayerCustomizationModal?.();
     }
-    renderCompareCards();
+    if (removedCard && removedCard.parentElement) {
+      removedCard.remove();
+    }
+    refreshCompareEmptyCard();
     updateCompareCountBadge();
     generateCompareStatsGrid();
   }, 300);
@@ -8313,7 +8384,7 @@ function selectPlayerForComparison(player) {
   }
   compareState.selectedPlayers.push({ ...player, player_id: playerId });
   closeCompareSearch();
-  renderCompareCards();
+  appendComparePlayerCard(player);
   updateCompareCountBadge();
   generateCompareStatsGrid();
 }
