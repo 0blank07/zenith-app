@@ -9,6 +9,7 @@
  */
 async function exportSquad() {
     try {
+        console.info('EXPORT_START', { formationId: squadState?.formationId });
         console.log('📸 Starting squad export...');
         
         if (typeof html2canvas === 'undefined') {
@@ -31,11 +32,25 @@ async function exportSquad() {
             throw new Error('Formation data not found');
         }
 
+        const loadState = await waitForExportLoadState();
+        const playersLoaded = loadState.playersLoaded;
+        const subsLoaded = loadState.subsLoaded;
+
+        if (!playersLoaded || !subsLoaded) {
+            console.warn('[EXPORT] Export blocked: squad data not ready', loadState);
+            return;
+        }
+
+        console.info('EXPORT_PLAYERS_LOADED', { starters: loadState.starterCount });
+        console.info('EXPORT_SUBS_LOADED', { subs: loadState.benchCount });
+
         const exportPayload = buildExportSquadLayout(currentFormation);
         const exportRoot = exportPayload.root;
         const backgroundUrl = exportPayload.backgroundUrl;
 
         document.body.appendChild(exportRoot);
+
+        await waitForExportRenderCycle();
 
         await Promise.all([
             ensureExportImagesReady(exportRoot),
@@ -43,7 +58,7 @@ async function exportSquad() {
         ]);
 
         const renderedCardCount = countExportCards(exportRoot);
-        console.info('[EXPORT] Player cards rendered:', renderedCardCount);
+        console.info('EXPORT_RENDER_COMPLETE', { cards: renderedCardCount });
 
         const captureWidth = exportRoot.scrollWidth || exportRoot.offsetWidth;
         const captureHeight = exportRoot.scrollHeight || exportRoot.offsetHeight;
@@ -97,6 +112,62 @@ async function exportSquad() {
     }
 }
 
+function getExportLoadState() {
+    const starters = Object.entries(squadState?.starters || {});
+    const bench = Array.isArray(squadState?.bench) ? squadState.bench : [];
+    const missingStarters = [];
+    const missingBench = [];
+    let starterCount = 0;
+    let benchCount = 0;
+
+    starters.forEach(([, pid]) => {
+        if (!pid) return;
+        starterCount += 1;
+        const player = typeof getSquadPlayerById === 'function'
+            ? getSquadPlayerById(pid)
+            : getPlayers().find(p => p.id === pid || p.playerid === pid || p.player_id === pid);
+        if (!player) missingStarters.push(pid);
+    });
+
+    bench.forEach(pid => {
+        if (!pid) return;
+        benchCount += 1;
+        const player = typeof getSquadPlayerById === 'function'
+            ? getSquadPlayerById(pid)
+            : getPlayers().find(p => p.id === pid || p.playerid === pid || p.player_id === pid);
+        if (!player) missingBench.push(pid);
+    });
+
+    return {
+        playersLoaded: missingStarters.length === 0,
+        subsLoaded: missingBench.length === 0,
+        missingStarters,
+        missingBench,
+        starterCount,
+        benchCount
+    };
+}
+
+async function waitForExportLoadState(options = {}) {
+    const timeoutMs = Number.isFinite(options.timeoutMs) ? options.timeoutMs : 2000;
+    const intervalMs = Number.isFinite(options.intervalMs) ? options.intervalMs : 120;
+    const start = Date.now();
+    let state = getExportLoadState();
+
+    while ((!state.playersLoaded || !state.subsLoaded) && (Date.now() - start < timeoutMs)) {
+        await new Promise(resolve => setTimeout(resolve, intervalMs));
+        state = getExportLoadState();
+    }
+
+    return state;
+}
+
+function waitForExportRenderCycle() {
+    return new Promise(resolve => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+    });
+}
+
 function buildExportSquadLayout(currentFormation) {
     const exportRoot = document.createElement('div');
     exportRoot.id = 'squad-export-root';
@@ -147,10 +218,13 @@ function buildExportSquadLayout(currentFormation) {
 
     const rightCol = document.createElement('div');
     rightCol.className = 'squad-export-right';
+    const rawValue = calculateValue() || 0;
+    const squadValue = Number.isFinite(rawValue) ? rawValue : 0;
+    console.info('EXPORT_VALUE_CALCULATED', { value: squadValue });
     rightCol.innerHTML = `
         <div class="squad-export-card-section">
             <div class="squad-export-card-title">Squad Value</div>
-            <div class="squad-export-card-value">${formatPrice(calculateValue() || 0)} Coins</div>
+            <div class="squad-export-card-value">${formatPrice(squadValue)} Coins</div>
         </div>
         <div class="squad-export-card-section">
             <div class="squad-export-card-title">OVR</div>
@@ -212,50 +286,17 @@ function buildExportSlot(slot) {
         return container;
     }
 
-    const player = getPlayers().find(p => p.id === assignedId || p.playerid === assignedId || p.player_id === assignedId);
+    const player = typeof getSquadPlayerById === 'function'
+        ? getSquadPlayerById(assignedId)
+        : getPlayers().find(p => p.id === assignedId || p.playerid === assignedId || p.player_id === assignedId);
     if (!player) {
         return container;
     }
 
-    const playerId = player.id || player.playerid || player.player_id;
-    const overall = player.ovr || player.overall || 0;
-    const position = player.position || 'NA';
-    const playerName = player.name || 'Unknown';
-    const slotPosition = slot.label.toLowerCase();
-    const adjustedOVR = typeof getPositionAdjustedOVR === 'function'
-        ? getPositionAdjustedOVR(player, slotPosition)
-        : overall;
-
-    const cardBg = player.cardbackground || player.card_background || player.cardBackground ||
-        `https://cdn.futbin.com/content/fifa25/img/cards/e_${playerId}.png`;
-    const playerImg = player.playerimage || player.player_image || player.playerImage ||
-        player.playerimg || player.playerImg || player.image ||
-        `https://cdn.futbin.com/content/fifa25/img/players/${playerId}.png`;
-
-    const colorRating = player.colorrating || player.color_rating || player.colorRating || '#FFFFFF';
-    const colorPosition = player.colorposition || player.color_position || player.colorPosition || '#FFFFFF';
-    const colorName = player.colorname || player.color_name || player.colorName || '#FFFFFF';
-
     const previewCard = document.createElement('div');
     previewCard.className = 'player-preview-card squad-export-player-card';
     previewCard.style.zIndex = '2';
-    previewCard.innerHTML = `
-        <div class="preview-card-inner">
-            <img src="${cardBg}" alt="Card" class="preview-card-bg" crossorigin="anonymous"
-                onerror="this.style.background='linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%)'; this.style.opacity='0.3';">
-            <img src="${playerImg}" alt="${escapeHtml(playerName)}" class="preview-card-player-img" crossorigin="anonymous"
-                onerror="this.style.display='none';">
-            <div class="preview-card-ovr" style="color: ${colorRating};">${adjustedOVR > 0 ? adjustedOVR : 'NA'}</div>
-            <div class="preview-card-position" style="color: ${colorPosition}">${escapeHtml(position)}</div>
-            <div class="preview-card-name" style="color: ${colorName}">${escapeHtml(playerName)}</div>
-            ${player.nationflag || player.nation_flag ?
-                `<img src="${player.nationflag || player.nation_flag}" alt="Nation" class="preview-card-flag-nation" crossorigin="anonymous" onerror="this.style.display='none'">`
-                : ''}
-            ${player.clubflag || player.club_flag ?
-                `<img src="${player.clubflag || player.club_flag}" alt="Club" class="preview-card-flag-club" crossorigin="anonymous" onerror="this.style.display='none'">`
-                : ''}
-        </div>
-    `;
+    previewCard.innerHTML = buildSquadPreviewCardMarkup(player, slot.label || '', slot.id, { includeCrossOrigin: true });
 
     container.appendChild(previewCard);
     return container;
@@ -268,9 +309,15 @@ function buildExportBench() {
     const benchGrid = document.createElement('div');
     benchGrid.className = 'squad-bench squad-export-bench-grid';
 
+    const benchSlots = Array.from({ length: 7 }, (_, i) => squadState.bench?.[i] || null);
+
     for (let i = 0; i < 7; i++) {
-        const pid = squadState.bench[i] || null;
-        const player = pid ? getPlayers().find(p => p.id === pid || p.playerid === pid || p.player_id === pid) : null;
+        const pid = benchSlots[i];
+        const player = pid
+            ? (typeof getSquadPlayerById === 'function'
+                ? getSquadPlayerById(pid)
+                : getPlayers().find(p => p.id === pid || p.playerid === pid || p.player_id === pid))
+            : null;
 
         const cell = document.createElement('div');
         cell.className = 'bench-cell';
@@ -281,41 +328,10 @@ function buildExportBench() {
         cell.appendChild(emptySlot);
 
         if (player) {
-            const playerId = player.id || player.playerid || player.player_id;
-            const overall = player.ovr || player.overall || 0;
-            const position = player.position || 'NA';
-            const playerName = player.name || 'Unknown';
-
-            const cardBg = player.cardbackground || player.card_background || player.cardBackground ||
-                `https://cdn.futbin.com/content/fifa25/img/cards/e_${playerId}.png`;
-            const playerImg = player.playerimage || player.player_image || player.playerImage ||
-                player.playerimg || player.playerImg || player.image ||
-                `https://cdn.futbin.com/content/fifa25/img/players/${playerId}.png`;
-
-            const colorRating = player.colorrating || player.color_rating || player.colorRating || '#FFFFFF';
-            const colorPosition = player.colorposition || player.color_position || player.colorPosition || '#FFFFFF';
-            const colorName = player.colorname || player.color_name || player.colorName || '#FFFFFF';
-
             const benchCard = document.createElement('div');
             benchCard.className = 'bench-preview-card squad-export-bench-card';
             benchCard.style.zIndex = '2';
-            benchCard.innerHTML = `
-                <div class="bench-card-inner">
-                    <img src="${cardBg}" alt="Card" class="bench-card-bg" crossorigin="anonymous"
-                        onerror="this.style.background='linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%)'; this.style.opacity='0.3';">
-                    <img src="${playerImg}" alt="${escapeHtml(playerName)}" class="bench-card-player-img" crossorigin="anonymous"
-                        onerror="this.style.display='none';">
-                    <div class="bench-card-ovr" style="color: ${colorRating}">${overall > 0 ? overall : 'NA'}</div>
-                    <div class="bench-card-position" style="color: ${colorPosition}">${escapeHtml(position)}</div>
-                    <div class="bench-card-name" style="color: ${colorName}">${escapeHtml(playerName)}</div>
-                    ${player.nationflag || player.nation_flag ?
-                        `<img src="${player.nationflag || player.nation_flag}" alt="Nation" class="bench-card-flag-nation" crossorigin="anonymous" onerror="this.style.display='none'">`
-                        : ''}
-                    ${player.clubflag || player.club_flag ?
-                        `<img src="${player.clubflag || player.club_flag}" alt="Club" class="bench-card-flag-club" crossorigin="anonymous" onerror="this.style.display='none'">`
-                        : ''}
-                </div>
-            `;
+            benchCard.innerHTML = buildSquadBenchCardMarkup(player, i, { includeCrossOrigin: true });
             cell.appendChild(benchCard);
         }
 

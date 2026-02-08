@@ -3070,6 +3070,97 @@ function renderSquadBuilder() {
   renderPlayerPicker(); // This now calls the API-based renderer
 }
 
+function resolveSquadCardImages(player) {
+    const playerId = resolveSquadPlayerId(player);
+    const fallbackCard = playerId
+        ? `https://cdn.futbin.com/content/fifa25/img/cards/e_${playerId}.png`
+        : 'https://via.placeholder.com/300x400';
+    const fallbackPlayer = playerId
+        ? `https://cdn.futbin.com/content/fifa25/img/players/${playerId}.png`
+        : 'https://via.placeholder.com/200x300';
+
+    return {
+        playerId,
+        cardBg: player.cardbackground || player.card_background || player.cardBackground || fallbackCard,
+        playerImg: player.playerimage || player.player_image || player.playerImage ||
+            player.playerimg || player.playerImg || player.image || fallbackPlayer
+    };
+}
+
+function buildSquadPreviewCardMarkup(player, slotLabel, slotId, options = {}) {
+    if (!player) return '';
+
+    const { cardBg, playerImg } = resolveSquadCardImages(player);
+    const playerName = player.name || 'Unknown';
+    const position = player.position || 'NA';
+    const adjustedOVR = getPositionAdjustedOVR(player, slotLabel || '', { useSquadOverrides: true });
+    const colorRating = player.colorrating || player.color_rating || player.colorRating || '#FFFFFF';
+    const colorPosition = player.colorposition || player.color_position || player.colorPosition || '#FFFFFF';
+    const colorName = player.colorname || player.color_name || player.colorName || '#FFFFFF';
+    const crossOriginAttr = options.includeCrossOrigin ? ' crossorigin="anonymous"' : '';
+    const includeRemoveButton = options.includeRemoveButton !== false;
+
+    return `
+            <div class="preview-card-inner">
+                <img src="${cardBg}"
+                     alt="Card"
+                     class="preview-card-bg"${crossOriginAttr}
+                     onerror="this.style.background='linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%)'; this.style.opacity='0.3';">
+                <img src="${playerImg}"
+                     alt="${playerName}"
+                     class="preview-card-player-img"${crossOriginAttr}
+                     onerror="this.style.display='none';">
+                <div class="preview-card-ovr" style="color: ${colorRating};">${adjustedOVR > 0 ? adjustedOVR : 'NA'}</div>
+                <div class="preview-card-position" style="color: ${colorPosition}">${position}</div>
+                <div class="preview-card-name" style="color: ${colorName}">${playerName}</div>
+                ${player.nationflag || player.nation_flag ?
+                    `<img src="${player.nationflag || player.nation_flag}" alt="Nation" class="preview-card-flag-nation"${crossOriginAttr} onerror="this.style.display='none'">`
+                    : ''}
+                ${player.clubflag || player.club_flag ?
+                    `<img src="${player.clubflag || player.club_flag}" alt="Club" class="preview-card-flag-club"${crossOriginAttr} onerror="this.style.display='none'">`
+                    : ''}
+                ${includeRemoveButton ? `<button class="preview-card-remove" onclick="event.stopPropagation(); delete squadState.starters['${slotId}']; renderSquadBuilder();">×</button>` : ''}
+            </div>
+        `;
+}
+
+function buildSquadBenchCardMarkup(player, benchIndex, options = {}) {
+    if (!player) return '';
+
+    const { cardBg, playerImg } = resolveSquadCardImages(player);
+    const overall = getSquadPlayerBoostedOVR(player);
+    const position = player.position || 'NA';
+    const playerName = player.name || 'Unknown';
+    const colorRating = player.colorrating || player.color_rating || player.colorRating || '#FFFFFF';
+    const colorPosition = player.colorposition || player.color_position || player.colorPosition || '#FFFFFF';
+    const colorName = player.colorname || player.color_name || player.colorName || '#FFFFFF';
+    const crossOriginAttr = options.includeCrossOrigin ? ' crossorigin="anonymous"' : '';
+    const includeRemoveButton = options.includeRemoveButton !== false;
+
+    return `
+                <div class="bench-card-inner">
+                    <img src="${cardBg}"
+                         alt="Card"
+                         class="bench-card-bg"${crossOriginAttr}
+                         onerror="this.style.background='linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%)'; this.style.opacity='0.3';">
+                    <img src="${playerImg}"
+                         alt="${playerName}"
+                         class="bench-card-player-img"${crossOriginAttr}
+                         onerror="this.style.display='none';">
+                    <div class="bench-card-ovr" style="color: ${colorRating}">${overall > 0 ? overall : 'NA'}</div>
+                    <div class="bench-card-position" style="color: ${colorPosition}">${position}</div>
+                    <div class="bench-card-name" style="color: ${colorName}">${playerName}</div>
+                    ${player.nationflag || player.nation_flag ?
+                        `<img src="${player.nationflag || player.nation_flag}" alt="Nation" class="bench-card-flag-nation"${crossOriginAttr} onerror="this.style.display='none'">`
+                        : ''}
+                    ${player.clubflag || player.club_flag ?
+                        `<img src="${player.clubflag || player.club_flag}" alt="Club" class="bench-card-flag-club"${crossOriginAttr} onerror="this.style.display='none'">`
+                        : ''}
+                    ${includeRemoveButton ? `<button class="bench-card-remove" onclick="event.stopPropagation(); squadState.bench.splice(${benchIndex}, 1); renderSquadBuilder();">×</button>` : ''}
+                </div>
+            `;
+}
+
 // ============ UPDATED: REDIRECT ON CLICK ============
 function renderSlot(slot) {
     const container = document.createElement('div');
@@ -3098,27 +3189,7 @@ function renderSlot(slot) {
     if (player) {
         console.log('🎨 Rendering player card:', player);
         
-        const playerId = player.id || player.playerid || player.player_id;
-        const overall = getSquadPlayerBoostedOVR(player);
-        const position = player.position || 'NA';
-        const playerName = player.name || 'Unknown';
-        
-        // Image URLs with fallbacks
-        const cardBg = player.cardbackground || player.card_background || player.cardBackground || 
-                       `https://cdn.futbin.com/content/fifa25/img/cards/e_${playerId}.png`;
-        
-        const playerImg = player.playerimage || player.player_image || player.playerImage || 
-                         player.playerimg || player.playerImg || player.image ||
-                         `https://cdn.futbin.com/content/fifa25/img/players/${playerId}.png`;
-        
-        // Colors with fallbacks
-        const colorRating = player.colorrating || player.color_rating || player.colorRating || '#FFFFFF';
-        const colorPosition = player.colorposition || player.color_position || player.colorPosition || '#FFFFFF';
-        const colorName = player.colorname || player.color_name || player.colorName || '#FFFFFF';
-        // ✅ NEW: Get position-adjusted OVR
-        const slotPosition = slot.label || '';
-        const adjustedOVR = getPositionAdjustedOVR(player, slotPosition, { useSquadOverrides: true });
-
+        const playerId = resolveSquadPlayerId(player) || assignedId;
 
         const previewCard = document.createElement('div');
         previewCard.className = 'player-preview-card';
@@ -3159,29 +3230,7 @@ function renderSlot(slot) {
         
         console.log('✅ DEBUG: Click listener attached to preview card');
 
-
-        previewCard.innerHTML = `
-            <div class="preview-card-inner">
-                <img src="${cardBg}" 
-                     alt="Card" 
-                     class="preview-card-bg" 
-                     onerror="this.style.background='linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%)'; this.style.opacity='0.3';">
-                <img src="${playerImg}" 
-                     alt="${playerName}" 
-                     class="preview-card-player-img" 
-                     onerror="this.style.display='none';">
-                <div class="preview-card-ovr" style="color: ${colorRating};">${adjustedOVR > 0 ? adjustedOVR : 'NA'}</div>
-                <div class="preview-card-position" style="color: ${colorPosition}">${position}</div>
-                <div class="preview-card-name" style="color: ${colorName}">${playerName}</div>
-                ${player.nationflag || player.nation_flag ? 
-                    `<img src="${player.nationflag || player.nation_flag}" alt="Nation" class="preview-card-flag-nation" onerror="this.style.display='none'">` 
-                    : ''}
-                ${player.clubflag || player.club_flag ? 
-                    `<img src="${player.clubflag || player.club_flag}" alt="Club" class="preview-card-flag-club" onerror="this.style.display='none'">` 
-                    : ''}
-                <button class="preview-card-remove" onclick="event.stopPropagation(); delete squadState.starters['${slot.id}']; renderSquadBuilder();">×</button>
-            </div>
-        `;
+        previewCard.innerHTML = buildSquadPreviewCardMarkup(player, slot.label || '', slot.id);
 
         // Append preview card AFTER position dot (so it appears on top)
         container.appendChild(previewCard);
@@ -3247,22 +3296,7 @@ function renderBench() {
 
         // If player assigned, create PREVIEW CARD ON TOP
         if (player) {
-            const playerId = player.id || player.playerid || player.player_id;
-            const overall = getSquadPlayerBoostedOVR(player);
-            const position = player.position || 'NA';
-            const playerName = player.name || 'Unknown';
-
-            // Image URLs
-            const cardBg = player.cardbackground || player.card_background || player.cardBackground || 
-                           `https://cdn.futbin.com/content/fifa25/img/cards/e_${playerId}.png`;
-            const playerImg = player.playerimage || player.player_image || player.playerImage || 
-                             player.playerimg || player.playerImg || player.image ||
-                             `https://cdn.futbin.com/content/fifa25/img/players/${playerId}.png`;
-
-            // Colors
-            const colorRating = player.colorrating || player.color_rating || player.colorRating || '#FFFFFF';
-            const colorPosition = player.colorposition || player.color_position || player.colorPosition || '#FFFFFF';
-            const colorName = player.colorname || player.color_name || player.colorName || '#FFFFFF';
+            const playerId = resolveSquadPlayerId(player) || pid;
 
             // Create bench preview card
             const benchCard = document.createElement('div');
@@ -3301,28 +3335,7 @@ function renderBench() {
 
             });
 
-            benchCard.innerHTML = `
-                <div class="bench-card-inner">
-                    <img src="${cardBg}" 
-                         alt="Card" 
-                         class="bench-card-bg" 
-                         onerror="this.style.background='linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%)'; this.style.opacity='0.3';">
-                    <img src="${playerImg}" 
-                         alt="${playerName}" 
-                         class="bench-card-player-img" 
-                         onerror="this.style.display='none';">
-                    <div class="bench-card-ovr" style="color: ${colorRating}">${overall > 0 ? overall : 'NA'}</div>
-                    <div class="bench-card-position" style="color: ${colorPosition}">${position}</div>
-                    <div class="bench-card-name" style="color: ${colorName}">${playerName}</div>
-                    ${player.nationflag || player.nation_flag ? 
-                        `<img src="${player.nationflag || player.nation_flag}" alt="Nation" class="bench-card-flag-nation" onerror="this.style.display='none'">` 
-                        : ''}
-                    ${player.clubflag || player.club_flag ? 
-                        `<img src="${player.clubflag || player.club_flag}" alt="Club" class="bench-card-flag-club" onerror="this.style.display='none'">` 
-                        : ''}
-                    <button class="bench-card-remove" onclick="event.stopPropagation(); squadState.bench.splice(${i}, 1); renderSquadBuilder();">×</button>
-                </div>
-            `;
+            benchCard.innerHTML = buildSquadBenchCardMarkup(player, i);
 
             cell.appendChild(benchCard);
         }
