@@ -9058,7 +9058,7 @@ watchlist-view .view-content {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.85);
-  z-index: 10000;
+  z-index: 23000 !important;
   display: none;
   align-items: center;
   justify-content: center;

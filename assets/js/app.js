@@ -2193,6 +2193,13 @@ window.resetPlayerSkills = async function(playerId, rank) {
 
 
 // ==================== SKILL DETAIL MODAL ====================
+function getSkillModalPlayerContext() {
+  if (compareCustomizationContext?.active && compareCustomizationState?.player) {
+    return { player: compareCustomizationState.player, mode: 'compare' };
+  }
+  return { player: state.selectedPlayer, mode: 'default' };
+}
+
 window.openSkillDetailModal = async function(skillId, skillName) {
   console.log('[SKILLS] Opening modal for skill:', skillId);
   
@@ -2220,11 +2227,15 @@ window.openSkillDetailModal = async function(skillId, skillName) {
   
   try {
     // Get current player data
-    if (!state.selectedPlayer) {
+    const context = getSkillModalPlayerContext();
+    if (!context.player) {
       throw new Error('No player selected');
     }
-    
-    const player = state.selectedPlayer;
+
+    const playerRank = Number.isFinite(context.player.rank)
+      ? context.player.rank
+      : (compareCustomizationContext?.active ? compareCustomizationState.selectedRank : 0);
+    const player = { ...context.player, rank: playerRank };
     
     // Fetch skill boosts
     const boostsData = await window.apiClient.getSkillBoosts(skillId);
@@ -2234,7 +2245,7 @@ window.openSkillDetailModal = async function(skillId, skillName) {
     const allocationsResp = await window.apiClient.getUserSkillAllocations(
       CURRENT_USER_ID,
       player.player_id,
-      player.rank
+      playerRank
     );
     const userAllocations = allocationsResp.allocations || [];
     
@@ -2264,7 +2275,7 @@ window.openSkillDetailModal = async function(skillId, skillName) {
     }
     
     // Calculate points remaining
-    const availablePoints = player.available_skill_points || player.rank || 0;
+    const availablePoints = player.available_skill_points || playerRank || 0;
     const pointsSpent = userAllocations.reduce((sum, a) => sum + a.skill_level, 0);
     const pointsRemaining = availablePoints - pointsSpent;
     
@@ -2396,38 +2407,59 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
     
     console.log('[SKILLS] Level change success:', result);
     
-    // Re-fetch player data
-    if (state.selectedPlayer) {
-      const resp = await window.apiClient.getPlayerDetails(playerId, rank);
-      
-      // Fetch user's skill allocations
-      const allocationsResp = await window.apiClient.getUserSkillAllocations(
-        CURRENT_USER_ID,
-        playerId,
-        rank
-      );
-      
-      // Calculate skill boosts from allocations
-      const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
-      
-      // Merge training boosts with skill boosts
-      const combinedBoosts = mergeBoosts(resp.player.training_boosts, skillBoosts);
-      
-      const updatedPlayer = {
-        ...state.selectedPlayer,
-        ...resp.player,
-        skills: resp.skills,
-        available_skill_points: resp.available_skill_points,
-        training_boosts: combinedBoosts,
-        skill_boosts: skillBoosts
-      };
-      
+    const isCompare = compareCustomizationContext.active &&
+      String(compareCustomizationContext.playerId) === String(playerId);
+    const basePlayer = isCompare
+      ? (compareCustomizationState.player ||
+        compareState.selectedPlayers.find(p => resolveComparePlayerId(p) === resolveComparePlayerId(playerId)) || {})
+      : state.selectedPlayer;
+
+    if (!basePlayer) {
+      console.warn('[SKILLS] No player context found for skill update');
+      return;
+    }
+
+    const resp = await window.apiClient.getPlayerDetails(playerId, rank);
+
+    // Fetch user's skill allocations
+    const allocationsResp = await window.apiClient.getUserSkillAllocations(
+      CURRENT_USER_ID,
+      playerId,
+      rank
+    );
+
+    // Calculate skill boosts from allocations
+    const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
+
+    // Merge training boosts with skill boosts
+    const combinedBoosts = mergeBoosts(resp.player.training_boosts, skillBoosts);
+
+    const updatedPlayer = {
+      ...basePlayer,
+      ...resp.player,
+      rank,
+      skills: resp.skills,
+      available_skill_points: resp.available_skill_points,
+      training_boosts: combinedBoosts,
+      skill_boosts: skillBoosts
+    };
+
+    console.log('[SKILLS] Updated player boosts after level change:', {
+      training: updatedPlayer.training_boosts,
+      skills: updatedPlayer.skill_boosts
+    });
+
+    if (isCompare) {
+      compareCustomizationState.player = updatedPlayer;
+      compareCustomizationState.selectedSkills = (allocationsResp.allocations || []).map(a => ({
+        skill_id: a.skill_id,
+        skill_level: a.skill_level
+      }));
+      compareSkillBoost = skillBoosts || {};
+      await renderComparePlayerSkills();
+    } else if (state.selectedPlayer) {
       state.selectedPlayer = updatedPlayer;
-      console.log('[SKILLS] Updated player boosts after level change:', {
-        training: updatedPlayer.training_boosts,
-        skills: updatedPlayer.skill_boosts
-      });
-      
+
       // Re-render skills grid
       await renderPlayerSkills(updatedPlayer);
 
@@ -2437,63 +2469,68 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
       } else {
         renderPlayerDetail(updatedPlayer);
       }
-      
-      // FIX: Update modal content in-place (keep modal open, no flicker)
-      const modal = document.getElementById('skill-detail-modal');
-      if (modal && modal.style.display !== 'none') {
-        // Get updated allocation info
-        const allocations = allocationsResp.allocations || [];
-        const allocationMap = {};
-        allocations.forEach(a => {
-          allocationMap[a.skill_id] = a.skill_level;
-        });
-        
-        // Calculate updated points remaining
-        const totalPoints = updatedPlayer.available_skill_points || updatedPlayer.rank || 0;
-        const usedPoints = allocations.reduce((sum, a) => sum + (a.skill_level || 0), 0);
-        const pointsRemaining = totalPoints - usedPoints;
-        
-        // Get current skill's updated level
-        const updatedCurrentLevel = allocationMap[skillId] || 0;
-        
-        // Fetch boosts data (should be cached)
-        const boostsData = await window.apiClient.getSkillBoosts(skillId);
-        const boosts = boostsData.boosts || [];
-        
-        // Re-render modal content directly (no loading state, no flicker)
-        const updatedAllocMap = {};
-        allocations.forEach(a => {
-          updatedAllocMap[a.skill_id] = a.skill_level;
-        });
-        const updatedSkills = updatedPlayer.skills || [];
-        const updatedSkillEntry = updatedSkills.find(s => s.skill_id === skillId);
-        const updatedUnlocked = updatedSkillEntry ? checkIfSkillUnlocked(updatedSkillEntry, updatedAllocMap, updatedSkills) : true;
-        const updatedUnlockMessage = updatedUnlocked ? '' : getSkillUnlockMessage(updatedSkillEntry);
+    }
 
-        renderSkillDetailModal(
-          modal.dataset.skillName, 
-          boosts, 
-          updatedCurrentLevel, 
-          pointsRemaining, 
-          skillId, 
-          updatedPlayer,
-          {
-            isUnlocked: updatedUnlocked,
-            unlockMessage: updatedUnlockMessage
-          }
-        );
-        
-        // FIX: Ensure modal stays visible
-        modal.style.display = 'flex';
-      }
+    // FIX: Update modal content in-place (keep modal open, no flicker)
+    const modal = document.getElementById('skill-detail-modal');
+    if (modal && modal.style.display !== 'none') {
+      // Get updated allocation info
+      const allocations = allocationsResp.allocations || [];
+      const allocationMap = {};
+      allocations.forEach(a => {
+        allocationMap[a.skill_id] = a.skill_level;
+      });
 
-      // Update squad builder skills if customization modal is open
-      if (typeof renderSquadPlayerSkills === 'function' &&
-          window.squadCustomizationState &&
-          String(window.squadCustomizationState.playerId) === String(playerId)) {
-        window.squadCustomizationState.selectedRank = rank;
-        await renderSquadPlayerSkills();
-      }
+      // Calculate updated points remaining
+      const totalPoints = updatedPlayer.available_skill_points || updatedPlayer.rank || 0;
+      const usedPoints = allocations.reduce((sum, a) => sum + (a.skill_level || 0), 0);
+      const pointsRemaining = totalPoints - usedPoints;
+
+      // Get current skill's updated level
+      const updatedCurrentLevel = allocationMap[skillId] || 0;
+
+      // Fetch boosts data (should be cached)
+      const boostsData = await window.apiClient.getSkillBoosts(skillId);
+      const boosts = boostsData.boosts || [];
+
+      // Re-render modal content directly (no loading state, no flicker)
+      const updatedAllocMap = {};
+      allocations.forEach(a => {
+        updatedAllocMap[a.skill_id] = a.skill_level;
+      });
+      const updatedSkills = updatedPlayer.skills || [];
+      const updatedSkillEntry = updatedSkills.find(s => s.skill_id === skillId);
+      const updatedUnlocked = updatedSkillEntry ? checkIfSkillUnlocked(updatedSkillEntry, updatedAllocMap, updatedSkills) : true;
+      const updatedUnlockMessage = updatedUnlocked ? '' : getSkillUnlockMessage(updatedSkillEntry);
+
+      renderSkillDetailModal(
+        modal.dataset.skillName,
+        boosts,
+        updatedCurrentLevel,
+        pointsRemaining,
+        skillId,
+        updatedPlayer,
+        {
+          isUnlocked: updatedUnlocked,
+          unlockMessage: updatedUnlockMessage
+        }
+      );
+
+      // FIX: Ensure modal stays visible
+      modal.style.display = 'flex';
+    }
+
+    // Update squad builder skills if customization modal is open
+    if (!isCompare &&
+        typeof renderSquadPlayerSkills === 'function' &&
+        window.squadCustomizationState &&
+        String(window.squadCustomizationState.playerId) === String(playerId)) {
+      window.squadCustomizationState.selectedRank = rank;
+      await renderSquadPlayerSkills();
+    }
+
+    if (isCompare) {
+      handleCompareCustomizationChange('skill-change');
     }
     
   } catch (error) {
@@ -6677,13 +6714,18 @@ function handleSearch(value) {
 // ==================== PLAYER COMPARISON TOOL ====================
 
 // Comparison State
+const ComparePlayersCustomizationState = {
+  byPlayer: {},
+  recalcTokens: {}
+};
+
 const compareState = {
   selectedPlayers: [],
   currentSlot: null,
   isBasicView: true,
   positionMode: null, // 'outfield' or 'gk'
-  customizations: {},
-  recalcTokens: {}
+  customizations: ComparePlayersCustomizationState.byPlayer,
+  recalcTokens: ComparePlayersCustomizationState.recalcTokens
 };
 
 const compareDebugEnabled = Boolean(
@@ -6707,8 +6749,56 @@ const compareCustomizationContext = {
   index: null,
   backup: null,
   requestId: 0,
-  modalLabels: {}
+  modalLabels: {},
+  applied: false,
+  hasPreview: false,
+  skipRestore: false,
+  initialPlayer: null,
+  lastSnapshot: null
 };
+
+let compareSelectedRank = 0;
+let compareTrainingLevel = 0;
+let compareSkillBoost = {};
+
+const compareCustomizationState = {
+  playerId: null,
+  selectedRank: 0,
+  trainingLevel: 0,
+  selectedSkills: [],
+  baseOvr: null,
+  basePosition: null,
+  baseName: null,
+  baseColors: null,
+  player: null
+};
+
+function resetCompareCustomizationState() {
+  ComparePlayersCustomizationState.byPlayer = {};
+  ComparePlayersCustomizationState.recalcTokens = {};
+  compareState.customizations = ComparePlayersCustomizationState.byPlayer;
+  compareState.recalcTokens = ComparePlayersCustomizationState.recalcTokens;
+  compareCustomizationState.playerId = null;
+  compareCustomizationState.selectedRank = 0;
+  compareCustomizationState.trainingLevel = 0;
+  compareCustomizationState.selectedSkills = [];
+  compareCustomizationState.baseOvr = null;
+  compareCustomizationState.basePosition = null;
+  compareCustomizationState.baseName = null;
+  compareCustomizationState.baseColors = null;
+  compareCustomizationState.player = null;
+  compareSelectedRank = 0;
+  compareTrainingLevel = 0;
+  compareSkillBoost = {};
+}
+
+function ensureCompareCustomizationModalRoot() {
+  const modal = document.getElementById('squad-player-customization-modal');
+  if (!modal) return;
+  if (modal.parentElement !== document.body) {
+    document.body.appendChild(modal);
+  }
+}
 
 const resolveComparePlayerId = (playerOrId) => {
   if (!playerOrId) return null;
@@ -7033,14 +7123,18 @@ function openCompareModal() {
     compareState.selectedPlayers = [];
     compareState.isBasicView = true;
     compareState.positionMode = null;
-    compareState.customizations = {};
-    compareState.recalcTokens = {};
+    resetCompareCustomizationState();
     compareState.currentSlot = null;
     compareCustomizationContext.active = false;
     compareCustomizationContext.playerId = null;
     compareCustomizationContext.index = null;
     compareCustomizationContext.backup = null;
     compareCustomizationContext.modalLabels = {};
+    compareCustomizationContext.applied = false;
+    compareCustomizationContext.hasPreview = false;
+    compareCustomizationContext.skipRestore = false;
+    compareCustomizationContext.initialPlayer = null;
+    compareCustomizationContext.lastSnapshot = null;
 
     document.getElementById('basic-stats-btn')?.classList.add('active');
     document.getElementById('advanced-stats-btn')?.classList.remove('active');
@@ -7083,6 +7177,28 @@ function renderCompareCards() {
   if (compareState.selectedPlayers.length < 5) {
     const emptyCard = createEmptyPlayerCard(compareState.selectedPlayers.length);
     grid.appendChild(emptyCard);
+  }
+}
+
+function updateCompareCardForPlayer(playerId) {
+  const resolvedId = resolveComparePlayerId(playerId);
+  if (!resolvedId) return;
+  const index = compareState.selectedPlayers.findIndex(
+    player => resolveComparePlayerId(player) === resolvedId
+  );
+  if (index < 0) return;
+  const player = compareState.selectedPlayers[index];
+  const card = document.querySelector(
+    `.compare-player-card.filled-state[data-player-id="${resolvedId}"]`
+  );
+  if (!card) {
+    renderCompareCards();
+    return;
+  }
+  const ovrEl = card.querySelector('.compare-card-ovr');
+  if (ovrEl) {
+    ovrEl.textContent = player.ovr && player.ovr > 0 ? player.ovr : 'NA';
+    if (player.color_rating) ovrEl.style.color = player.color_rating;
   }
 }
 
@@ -7261,9 +7377,369 @@ function updateCompareCustomizationModalLabels(isCompare) {
   }
 }
 
-function openCompareCustomization(player, index) {
+function persistCompareCustomizationState(reason = 'update') {
+  const playerId = compareCustomizationState.playerId;
+  if (!playerId) return null;
+  const resolvedId = resolveComparePlayerId(playerId);
+  const stillSelected = compareState.selectedPlayers.some(
+    player => resolveComparePlayerId(player) === resolvedId
+  );
+  if (!stillSelected) return null;
+  const snapshot = getCompareCustomizationSnapshot();
+  setCompareCustomization(playerId, snapshot);
+  compareCustomizationContext.lastSnapshot = snapshot;
+  compareLog('Customization persisted', { playerId, reason, snapshot });
+  return snapshot;
+}
+
+function updateCompareRankBoxes(selectedRank) {
+  document.querySelectorAll('.squad-rank-box').forEach(box => {
+    const rank = parseInt(box.dataset.rank, 10);
+    if (rank === selectedRank) {
+      box.classList.add('selected');
+      box.style.borderColor = selectedRank === 1 ? 'rgba(59,214,113,0.6)' :
+                             selectedRank === 2 ? 'rgba(99,102,241,0.6)' :
+                             selectedRank === 3 ? 'rgba(139,92,246,0.6)' :
+                             selectedRank === 4 ? 'rgba(255,184,107,0.6)' :
+                             'rgba(255,107,107,0.6)';
+      box.style.boxShadow = `0 0 12px ${selectedRank === 1 ? '#3BD671' : selectedRank === 2 ? '#6366F1' : selectedRank === 3 ? '#8B5CF6' : selectedRank === 4 ? '#FFB86B' : '#FF6B6B'}50`;
+    } else {
+      box.classList.remove('selected');
+      box.style.borderColor = 'rgba(255,255,255,0.1)';
+      box.style.boxShadow = 'none';
+    }
+  });
+}
+
+function renderCompareSkillsMessage(message) {
+  const container = document.getElementById('squad-custom-skills');
+  if (!container) return;
+  container.innerHTML = `<p style="color: #98A0A6; text-align: center;">${message}</p>`;
+}
+
+function renderCompareCustomizationMiniCard(player) {
+  const container = document.getElementById('squad-custom-player-card');
+  if (!container) return;
+
+  if (!player) {
+    container.innerHTML = '<p style="color: #888;">Player not found</p>';
+    return;
+  }
+
+  const cardBg = player.card_background || player.cardBackground || player.cardbackground || 'https://via.placeholder.com/180x240';
+  const playerImg = player.player_image || player.playerImage || player.playerimage || player.playerimg || 'https://via.placeholder.com/120x120';
+  const playerName = player.name || 'Unknown Player';
+  const position = player.position || 'N/A';
+  const nationFlag = player.nation_flag || player.nationFlag || player.nationflag || '';
+  const clubFlag = player.club_flag || player.clubFlag || player.clubflag || '';
+
+  container.innerHTML = `
+    <div class="squad-custom-mini-card">
+      <img src="${cardBg}" alt="Card Background" class="squad-custom-card-bg" onerror="this.src='https://via.placeholder.com/180x240'">
+      <img src="${playerImg}" alt="${playerName}" class="squad-custom-card-player-img" onerror="this.style.display='none'">
+      <div class="squad-custom-card-ovr" style="color: ${player.color_rating || '#FFFFFF'}">${player.ovr && player.ovr > 0 ? player.ovr : 'N/A'}</div>
+      <div class="squad-custom-card-position" style="color: ${player.color_position || '#FFFFFF'}">${position}</div>
+      <div class="squad-custom-card-flags">
+        ${nationFlag ? `<img src="${nationFlag}" alt="Nation" class="squad-custom-card-flag" onerror="this.style.display='none'">` : ''}
+        ${clubFlag ? `<img src="${clubFlag}" alt="Club" class="squad-custom-card-club" onerror="this.style.display='none'">` : ''}
+      </div>
+      <div class="squad-custom-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
+    </div>
+  `;
+}
+
+function updateCompareCustomizationMiniCard() {
+  const container = document.getElementById('squad-custom-player-card');
+  if (!container) return;
+
+  const ovrEl = container.querySelector('.squad-custom-card-ovr');
+  const positionEl = container.querySelector('.squad-custom-card-position');
+  const nameEl = container.querySelector('.squad-custom-card-name');
+
+  if (!ovrEl || !positionEl || !nameEl) return;
+
+  const baseOvr = compareCustomizationState.baseOvr ?? 0;
+  const basePosition = compareCustomizationState.basePosition || 'N/A';
+  const baseName = compareCustomizationState.baseName || 'Unknown Player';
+  const colors = compareCustomizationState.baseColors || {};
+
+  const rankBonus = typeof getSquadRankOvrBonus === 'function'
+    ? getSquadRankOvrBonus(compareCustomizationState.selectedRank)
+    : compareCustomizationState.selectedRank;
+  const updatedOvr = baseOvr > 0 ? baseOvr + rankBonus : baseOvr;
+  compareLog('Customization OVR recalculated', { baseOvr, rankBonus, updatedOvr });
+
+  ovrEl.textContent = updatedOvr > 0 ? updatedOvr : 'N/A';
+  positionEl.textContent = basePosition;
+  nameEl.textContent = baseName;
+
+  if (colors.color_rating) ovrEl.style.color = colors.color_rating;
+  if (colors.color_position) positionEl.style.color = colors.color_position;
+  if (colors.color_name) nameEl.style.color = colors.color_name;
+}
+
+async function renderComparePlayerSkills() {
+  const container = document.getElementById('squad-custom-skills');
+  if (!container) return;
+
+  const playerId = compareCustomizationState.playerId;
+  const rank = compareCustomizationState.selectedRank || 0;
+
+  if (!playerId || !rank) {
+    renderCompareSkillsMessage('Select a rank to view skills');
+    return;
+  }
+
+  if (!window.apiClient || typeof window.apiClient.getPlayerDetails !== 'function') {
+    renderCompareSkillsMessage('Skills unavailable');
+    return;
+  }
+
+  let detailsResponse;
+  try {
+    detailsResponse = await window.apiClient.getPlayerDetails(playerId, rank, { cache: false });
+  } catch (error) {
+    console.error('[COMPARE SKILLS] Error loading skills:', error);
+    renderCompareSkillsMessage('Failed to load skills');
+    return;
+  }
+
+  const basePlayer = compareCustomizationState.player ||
+    compareState.selectedPlayers.find(p => resolveComparePlayerId(p) === resolveComparePlayerId(playerId)) || {};
+  const mergedPlayer = {
+    ...basePlayer,
+    ...(detailsResponse.player || {}),
+    player_id: basePlayer.player_id || basePlayer.id || detailsResponse.player?.player_id || playerId,
+    rank: rank,
+    skills: detailsResponse.skills || [],
+    available_skill_points: detailsResponse.available_skill_points
+  };
+
+  compareCustomizationState.player = mergedPlayer;
+
+  const availableSkills = mergedPlayer.skills || [];
+  compareCustomizationState.selectedSkills = [];
+
+  const availablePoints = mergedPlayer.available_skill_points || rank || 0;
+  const pointsDisplay = document.getElementById('squad-skill-points-display');
+  if (pointsDisplay) {
+    pointsDisplay.textContent = `${availablePoints} Point${availablePoints !== 1 ? 's' : ''}`;
+  }
+
+  if (availableSkills.length === 0) {
+    renderCompareSkillsMessage('No skills available');
+    return;
+  }
+
+  let userAllocations = [];
+  const userId = typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null;
+  if (userId && typeof window.apiClient.getUserSkillAllocations === 'function') {
+    try {
+      const response = await window.apiClient.getUserSkillAllocations(
+        userId,
+        mergedPlayer.player_id,
+        rank
+      );
+      userAllocations = response.allocations || [];
+    } catch (error) {
+      console.error('[COMPARE SKILLS] Error fetching allocations:', error);
+    }
+  }
+
+  const allocationMap = {};
+  userAllocations.forEach(a => {
+    allocationMap[a.skill_id] = a.skill_level;
+  });
+
+  compareCustomizationState.selectedSkills = userAllocations.map(a => ({
+    skill_id: a.skill_id,
+    skill_level: a.skill_level
+  }));
+
+  const pointsSpent = userAllocations.reduce((sum, a) => sum + a.skill_level, 0);
+  const pointsRemaining = availablePoints - pointsSpent;
+
+  const maxLevels = typeof calculateMaxLevels === 'function'
+    ? calculateMaxLevels(availableSkills)
+    : {};
+
+  container.style.display = 'grid';
+  container.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+  container.style.gap = '12px';
+  container.innerHTML = '';
+  availableSkills.forEach(skill => {
+    const currentLevel = allocationMap[skill.skill_id] || 0;
+    const isUnlocked = typeof checkIfSkillUnlocked === 'function'
+      ? checkIfSkillUnlocked(skill, allocationMap, availableSkills)
+      : true;
+    if (typeof createSkillCard === 'function') {
+      const card = createSkillCard(skill, currentLevel, isUnlocked, pointsRemaining, mergedPlayer, maxLevels);
+      card.style.minHeight = '120px';
+      card.style.pointerEvents = isUnlocked ? 'auto' : 'none';
+      container.appendChild(card);
+    } else {
+      const fallbackCard = document.createElement('div');
+      fallbackCard.className = `skill-card ${!isUnlocked ? 'locked' : ''}`;
+      fallbackCard.textContent = skill.skill_name || 'Skill';
+      container.appendChild(fallbackCard);
+    }
+  });
+}
+
+async function compareSelectRank(rankNumber, options = {}) {
+  const normalizedRank = typeof getSquadRankOvrBonus === 'function'
+    ? getSquadRankOvrBonus(rankNumber)
+    : Math.min(Math.max(parseInt(rankNumber || 0, 10), 0), 5);
+  compareCustomizationState.selectedRank = normalizedRank;
+  compareSelectedRank = normalizedRank;
+  compareLog('Rank selected', {
+    playerId: compareCustomizationState.playerId,
+    rank: normalizedRank
+  });
+  if (!options.preserveSkills) {
+    compareCustomizationState.selectedSkills = [];
+  }
+
+  updateCompareCustomizationMiniCard();
+  updateCompareRankBoxes(normalizedRank);
+
+  const skillPoints = normalizedRank;
+  const pointsDisplay = document.getElementById('squad-skill-points-display');
+  if (pointsDisplay) {
+    pointsDisplay.textContent = `${skillPoints} Point${skillPoints !== 1 ? 's' : ''}`;
+  }
+
+  if (!options.skipSkillRender) {
+    renderCompareSkillsMessage('Loading skills...');
+    await renderComparePlayerSkills();
+  } else if (!normalizedRank) {
+    renderCompareSkillsMessage('Select a rank to view skills');
+  }
+
+  if (!options.skipPersist) {
+    persistCompareCustomizationState('rank-change');
+  }
+
+  if (!options.skipRecalc) {
+    handleCompareCustomizationChange('rank-change');
+  }
+}
+
+function compareUpdateTraining(level) {
+  const parsedLevel = parseInt(level, 10);
+  compareCustomizationState.trainingLevel = Number.isFinite(parsedLevel) ? parsedLevel : 0;
+  compareTrainingLevel = compareCustomizationState.trainingLevel;
+  compareLog('Training updated', {
+    playerId: compareCustomizationState.playerId,
+    trainingLevel: compareCustomizationState.trainingLevel
+  });
+  persistCompareCustomizationState('training-change');
+  handleCompareCustomizationChange('training-change');
+}
+
+function compareResetRank() {
+  compareCustomizationState.selectedRank = 0;
+  compareCustomizationState.selectedSkills = [];
+  compareCustomizationState.trainingLevel = 0;
+  compareSelectedRank = 0;
+  compareTrainingLevel = 0;
+  compareSkillBoost = {};
+  compareLog('Rank reset', { playerId: compareCustomizationState.playerId });
+
+  updateCompareRankBoxes(0);
+
+  const trainingSelect = document.getElementById('squad-training-level');
+  if (trainingSelect) {
+    trainingSelect.value = '0';
+  }
+
+  const pointsDisplay = document.getElementById('squad-skill-points-display');
+  if (pointsDisplay) {
+    pointsDisplay.textContent = '0 Points';
+  }
+
+  updateCompareCustomizationMiniCard();
+  renderCompareSkillsMessage('Select a rank to view skills');
+
+  persistCompareCustomizationState('rank-reset');
+  handleCompareCustomizationChange('rank-reset');
+}
+
+async function openComparePlayerStatsView() {
+  const modal = document.getElementById('squad-player-customization-modal');
+  const statsView = document.getElementById('squad-stats-view');
+  const statsContent = document.getElementById('squad-stats-content');
+  if (!modal || !statsView || !statsContent) return;
+
+  modal.classList.add('stats-mode');
+  statsView.style.display = 'block';
+  statsContent.innerHTML = '<div style="color: #98A0A6; text-align: center; padding: 20px;">Loading stats...</div>';
+
+  const playerId = compareCustomizationState.playerId;
+  const rank = compareCustomizationState.selectedRank || 0;
+  const trainingLevel = compareCustomizationState.trainingLevel || 0;
+
+  if (!playerId || !rank || !window.apiClient) {
+    statsContent.innerHTML = '<div style="color: #FF6B6B; text-align: center;">Stats unavailable</div>';
+    return;
+  }
+
+  try {
+    const detailsResponse = await window.apiClient.getPlayerDetails(playerId, rank, { cache: false });
+    const basePlayer = compareCustomizationState.player ||
+      compareState.selectedPlayers.find(p => resolveComparePlayerId(p) === resolveComparePlayerId(playerId)) || {};
+    const mergedPlayer = {
+      ...basePlayer,
+      ...(detailsResponse.player || {}),
+      player_id: basePlayer.player_id || basePlayer.id || detailsResponse.player?.player_id || playerId,
+      rank: rank,
+      skills: detailsResponse.skills || [],
+      available_skill_points: detailsResponse.available_skill_points
+    };
+
+    let userAllocations = [];
+    const userId = typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null;
+    if (userId && typeof window.apiClient.getUserSkillAllocations === 'function') {
+      const response = await window.apiClient.getUserSkillAllocations(userId, mergedPlayer.player_id, rank);
+      userAllocations = response.allocations || [];
+    }
+
+    const skillBoosts = typeof calculateSkillBoosts === 'function'
+      ? await calculateSkillBoosts(userAllocations)
+      : {};
+
+    const trainingBoosts = typeof getTrainingBoosts === 'function'
+      ? await getTrainingBoosts(mergedPlayer.position, trainingLevel)
+      : null;
+
+    mergedPlayer.training_level = trainingLevel;
+    mergedPlayer.training_boosts = typeof mergeBoosts === 'function'
+      ? mergeBoosts(trainingBoosts, skillBoosts)
+      : (trainingBoosts || {});
+
+    compareCustomizationState.player = mergedPlayer;
+
+    if (typeof window.renderPlayerStatsSection === 'function') {
+      statsContent.innerHTML = window.renderPlayerStatsSection(mergedPlayer);
+    } else {
+      statsContent.innerHTML = '<div style="color: #FF6B6B; text-align: center;">Stats renderer unavailable</div>';
+    }
+  } catch (error) {
+    console.error('[COMPARE STATS] Error loading stats:', error);
+    statsContent.innerHTML = '<div style="color: #FF6B6B; text-align: center;">Failed to load stats</div>';
+  }
+}
+
+function closeComparePlayerStatsView() {
+  const modal = document.getElementById('squad-player-customization-modal');
+  const statsView = document.getElementById('squad-stats-view');
+  if (statsView) statsView.style.display = 'none';
+  if (modal) modal.classList.remove('stats-mode');
+}
+
+async function openCompareCustomization(player, index) {
   const playerId = resolveComparePlayerId(player);
-  if (!playerId || typeof window.openPlayerCustomizationModal !== 'function') {
+  if (!playerId) {
     return;
   }
 
@@ -7271,6 +7747,8 @@ function openCompareCustomization(player, index) {
   if (!modal) {
     return;
   }
+
+  ensureCompareCustomizationModalRoot();
 
   if (compareCustomizationContext.active) {
     finalizeCompareCustomization();
@@ -7280,31 +7758,129 @@ function openCompareCustomization(player, index) {
     addPlayerToCache(player);
   }
 
+  const storedCustomization = getCompareCustomization(playerId);
+  const fallbackRank = typeof getSquadRankOvrBonus === 'function'
+    ? getSquadRankOvrBonus(player?.rank)
+    : Math.min(Math.max(parseInt(player?.rank || 0, 10), 0), 5);
+  const restoredRank = storedCustomization
+    ? (typeof getSquadRankOvrBonus === 'function'
+      ? getSquadRankOvrBonus(storedCustomization.selectedRank)
+      : Math.min(Math.max(parseInt(storedCustomization.selectedRank || 0, 10), 0), 5))
+    : fallbackRank;
+  const restoredTraining = storedCustomization
+    ? parseInt(storedCustomization.trainingLevel || 0, 10)
+    : parseInt(player?.training_level || 0, 10);
+  const restoredSkills = storedCustomization && Array.isArray(storedCustomization.selectedSkills)
+    ? [...storedCustomization.selectedSkills]
+    : [];
+
+  compareCustomizationState.playerId = playerId;
+  compareCustomizationState.selectedRank = Number.isFinite(restoredRank) ? restoredRank : 0;
+  compareCustomizationState.trainingLevel = Number.isFinite(restoredTraining) ? restoredTraining : 0;
+  compareCustomizationState.selectedSkills = restoredSkills;
+  compareCustomizationState.player = player || null;
+
+  const storedBaseOvr = Number.isFinite(parseInt(storedCustomization?.baseOvr, 10))
+    ? parseInt(storedCustomization.baseOvr, 10)
+    : null;
+  const baseRankBonus = typeof getSquadRankOvrBonus === 'function'
+    ? getSquadRankOvrBonus(compareCustomizationState.selectedRank)
+    : compareCustomizationState.selectedRank;
+  const rawBaseOvr = Number.isFinite(parseInt(player?.base_ovr, 10))
+    ? parseInt(player.base_ovr, 10)
+    : (Number.isFinite(storedBaseOvr)
+      ? storedBaseOvr
+      : parseInt(player?.ovr || player?.overall || 0, 10) - baseRankBonus);
+  const normalizedBaseOvr = Number.isFinite(rawBaseOvr) ? Math.max(rawBaseOvr, 0) : 0;
+  compareCustomizationState.baseOvr = normalizedBaseOvr;
+  compareCustomizationState.basePosition = player?.position || 'N/A';
+  compareCustomizationState.baseName = player?.name || 'Unknown Player';
+  compareCustomizationState.baseColors = {
+    color_rating: player?.color_rating || '#FFFFFF',
+    color_position: player?.color_position || '#FFFFFF',
+    color_name: player?.color_name || '#FFFFFF'
+  };
+
+  compareSelectedRank = compareCustomizationState.selectedRank;
+  compareTrainingLevel = compareCustomizationState.trainingLevel;
+
   compareCustomizationContext.active = true;
   compareCustomizationContext.playerId = playerId;
   compareCustomizationContext.index = index;
-  compareCustomizationContext.backup = backupSquadCustomizationState();
+  compareCustomizationContext.applied = false;
+  compareCustomizationContext.hasPreview = false;
+  compareCustomizationContext.skipRestore = false;
+  compareCustomizationContext.initialPlayer = compareState.selectedPlayers[index] || null;
+  compareCustomizationContext.lastSnapshot = null;
+  compareCustomizationContext.backup = null;
   updateCompareCustomizationModalLabels(true);
-  compareLog('Customization modal opened', { playerId, index });
+  compareLog('Customization modal opened', {
+    playerId,
+    index,
+    snapshot: storedCustomization
+  });
 
-  window.openPlayerCustomizationModal(playerId, null);
+  renderCompareCustomizationMiniCard(player);
+  updateCompareCustomizationMiniCard();
+
+  const trainingSelect = document.getElementById('squad-training-level');
+  if (trainingSelect) {
+    trainingSelect.value = `${compareCustomizationState.trainingLevel || 0}`;
+  }
+
+  closeComparePlayerStatsView();
+
+  modal.classList.remove('is-visible');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => {
+    modal.classList.add('is-visible');
+  });
+
+  updateCompareRankBoxes(compareCustomizationState.selectedRank);
+  if (compareCustomizationState.selectedRank > 0) {
+    renderCompareSkillsMessage('Loading skills...');
+    renderComparePlayerSkills();
+  } else {
+    const pointsDisplay = document.getElementById('squad-skill-points-display');
+    if (pointsDisplay) {
+      pointsDisplay.textContent = '0 Points';
+    }
+    renderCompareSkillsMessage('Select a rank to view skills');
+  }
+
+  persistCompareCustomizationState('open');
 }
 
 function getCompareCustomizationSnapshot() {
-  if (!window.squadCustomizationState) {
-    return { selectedRank: 0, trainingLevel: 0, selectedSkills: [] };
-  }
-  const rawRank = window.squadCustomizationState.selectedRank || 0;
+  const rawRank = compareCustomizationState.selectedRank || 0;
   const normalizedRank = typeof getSquadRankOvrBonus === 'function'
     ? getSquadRankOvrBonus(rawRank)
     : Math.min(Math.max(parseInt(rawRank || 0, 10), 0), 5);
   return {
     selectedRank: normalizedRank,
-    trainingLevel: parseInt(window.squadCustomizationState.trainingLevel || 0, 10),
-    selectedSkills: Array.isArray(window.squadCustomizationState.selectedSkills)
-      ? [...window.squadCustomizationState.selectedSkills]
-      : []
+    trainingLevel: parseInt(compareCustomizationState.trainingLevel || 0, 10),
+    selectedSkills: Array.isArray(compareCustomizationState.selectedSkills)
+      ? [...compareCustomizationState.selectedSkills]
+      : [],
+    baseOvr: Number.isFinite(compareCustomizationState.baseOvr)
+      ? compareCustomizationState.baseOvr
+      : 0
   };
+}
+
+function handleCompareCustomizationChange(reason = 'change') {
+  if (!compareCustomizationContext.active) return;
+  const playerId = compareCustomizationContext.playerId;
+  if (!playerId) return;
+  if (!compareCustomizationContext.initialPlayer && compareCustomizationContext.index !== null) {
+    compareCustomizationContext.initialPlayer = compareState.selectedPlayers[compareCustomizationContext.index] || null;
+  }
+  const snapshot = persistCompareCustomizationState(reason) || getCompareCustomizationSnapshot();
+  compareCustomizationContext.hasPreview = true;
+  compareCustomizationContext.lastSnapshot = snapshot;
+  compareLog('Customization change detected', { playerId, reason, snapshot });
+  recalculateComparePlayerStats(playerId, snapshot, { reason, preview: false });
 }
 
 function removeComparePlayerById(playerId) {
@@ -7318,9 +7894,10 @@ function removeComparePlayerById(playerId) {
   }
 }
 
-async function recalculateComparePlayerStats(playerId, customization) {
+async function recalculateComparePlayerStats(playerId, customization, options = {}) {
   const resolvedId = resolveComparePlayerId(playerId);
   if (!resolvedId) return;
+  const { reason = 'update', preview = false } = options;
   const token = `${Date.now()}-${Math.random()}`;
   compareState.recalcTokens[resolvedId] = token;
 
@@ -7330,10 +7907,17 @@ async function recalculateComparePlayerStats(playerId, customization) {
   if (index < 0) return;
 
   const currentPlayer = compareState.selectedPlayers[index];
+  const previousOvr = Number(currentPlayer?.ovr || currentPlayer?.overall || 0);
   const rank = Number(customization?.selectedRank || 0);
   const trainingLevel = Number(customization?.trainingLevel || 0);
 
-  compareLog('Stat recalculation triggered', { playerId: resolvedId, rank, trainingLevel });
+  compareLog('Stat recalculation triggered', {
+    playerId: resolvedId,
+    rank,
+    trainingLevel,
+    reason,
+    preview
+  });
 
   let detailsPlayer = {};
   let skills = [];
@@ -7406,10 +7990,36 @@ async function recalculateComparePlayerStats(playerId, customization) {
   mergedPlayer.ovr = boostedOvr;
   mergedPlayer.overall = boostedOvr;
 
+  if (compareDebugEnabled) {
+    const ovrDelta = boostedOvr - previousOvr;
+    compareLog('OVR delta check', {
+      playerId: resolvedId,
+      previousOvr,
+      boostedOvr,
+      delta: ovrDelta
+    });
+    if (rank === 0 && trainingLevel === 0 && (!skillBoosts || !Object.keys(skillBoosts).length) && baseOvr > 0 && boostedOvr !== baseOvr) {
+      compareLog('Reset check failed', { playerId: resolvedId, expected: baseOvr, actual: boostedOvr });
+    }
+  }
+
+  if (compareState.recalcTokens[resolvedId] !== token) return;
+
+  compareSkillBoost = skillBoosts || {};
+  if (compareCustomizationContext.active && String(compareCustomizationContext.playerId) === String(resolvedId)) {
+    compareCustomizationState.player = mergedPlayer;
+  }
+
   compareState.selectedPlayers[index] = mergedPlayer;
-  renderCompareCards();
-  updateCompareCountBadge();
-  generateCompareStatsGrid();
+  compareLog('Stat recalculation complete', {
+    playerId: resolvedId,
+    rank,
+    trainingLevel,
+    ovr: boostedOvr,
+    boosts: combinedBoosts
+  });
+  updateCompareCardForPlayer(resolvedId);
+  updateCompareStatsGridForPlayer(resolvedId);
 }
 
 async function applyCompareCustomization() {
@@ -7418,21 +8028,60 @@ async function applyCompareCustomization() {
     window.closePlayerCustomizationModal?.();
     return;
   }
-  const snapshot = getCompareCustomizationSnapshot();
-  setCompareCustomization(playerId, snapshot);
+  const snapshot = persistCompareCustomizationState('apply') || getCompareCustomizationSnapshot();
+  compareCustomizationContext.applied = true;
+  compareCustomizationContext.lastSnapshot = snapshot;
   compareLog('Customization applied', { playerId, snapshot });
 
   window.closePlayerCustomizationModal?.();
-  await recalculateComparePlayerStats(playerId, snapshot);
+  await recalculateComparePlayerStats(playerId, snapshot, { reason: 'apply' });
+}
+
+function closeCompareCustomizationModal() {
+  const modal = document.getElementById('squad-player-customization-modal');
+  if (modal) {
+    modal.classList.remove('is-visible');
+    modal.style.display = 'none';
+  }
+  if (typeof closeSkillDetailModal === 'function') {
+    closeSkillDetailModal();
+  }
+  closeComparePlayerStatsView();
+  finalizeCompareCustomization();
+  const compareModal = document.getElementById('compare-players-modal');
+  document.body.style.overflow = compareModal && compareModal.style.display !== 'none' ? 'hidden' : 'auto';
 }
 
 function finalizeCompareCustomization() {
   updateCompareCustomizationModalLabels(false);
-  restoreSquadCustomizationState(compareCustomizationContext.backup);
+  const resolvedId = resolveComparePlayerId(compareCustomizationContext.playerId);
+  if (resolvedId) {
+    delete compareState.recalcTokens[resolvedId];
+  }
+  if (compareCustomizationContext.active) {
+    persistCompareCustomizationState('finalize');
+  }
   compareCustomizationContext.active = false;
   compareCustomizationContext.playerId = null;
   compareCustomizationContext.index = null;
   compareCustomizationContext.backup = null;
+  compareCustomizationContext.applied = false;
+  compareCustomizationContext.hasPreview = false;
+  compareCustomizationContext.skipRestore = false;
+  compareCustomizationContext.initialPlayer = null;
+  compareCustomizationContext.lastSnapshot = null;
+  compareCustomizationState.playerId = null;
+  compareCustomizationState.selectedRank = 0;
+  compareCustomizationState.trainingLevel = 0;
+  compareCustomizationState.selectedSkills = [];
+  compareCustomizationState.baseOvr = null;
+  compareCustomizationState.basePosition = null;
+  compareCustomizationState.baseName = null;
+  compareCustomizationState.baseColors = null;
+  compareCustomizationState.player = null;
+  compareSelectedRank = 0;
+  compareTrainingLevel = 0;
+  compareSkillBoost = {};
   const compareModal = document.getElementById('compare-players-modal');
   if (compareModal && compareModal.style.display !== 'none') {
     document.body.style.overflow = 'hidden';
@@ -7638,6 +8287,7 @@ function createStatRow(stat, isSub, idx) {
   const row = document.createElement('div');
   row.className = 'stat-row' + (isSub ? ' subcategory-row' : '');
   row.style.animationDelay = `${idx * 30}ms`;
+  row.dataset.statField = stat.apiField;
 
   const nameCell = document.createElement('div');
   nameCell.className = 'stat-name-cell';
@@ -7651,6 +8301,7 @@ function createStatRow(stat, isSub, idx) {
     const cell = document.createElement('div');
     cell.className = 'stat-value-cell';
     cell.dataset.playerLabel = resolveComparePlayerLabel(player, i);
+    cell.dataset.playerId = resolveComparePlayerId(player) || '';
     const span = document.createElement('span');
     span.className = `stat-value ${colors[i]}`;
     const value = Number.isFinite(values[i]) ? values[i] : 0;
@@ -7665,6 +8316,7 @@ function createStatRow(stat, isSub, idx) {
 function createTotalStatsRow() {
   const row = document.createElement('div');
   row.className = 'stat-row total-row';
+  row.dataset.totalRow = 'true';
 
   const nameCell = document.createElement('div');
   nameCell.className = 'stat-name-cell';
@@ -7683,6 +8335,7 @@ function createTotalStatsRow() {
     const cell = document.createElement('div');
     cell.className = 'stat-value-cell total-cell';
     cell.dataset.playerLabel = resolveComparePlayerLabel(compareState.selectedPlayers[i], i);
+    cell.dataset.playerId = resolveComparePlayerId(compareState.selectedPlayers[i]) || '';
     const span = document.createElement('span');
     span.className = `total-stats-value ${colors[i]}`;
     span.textContent = Number.isFinite(total) ? total : 0;
@@ -7717,6 +8370,81 @@ function assignStatColors(values) {
     if (v === min) return 'red';
     return 'yellow';
   });
+}
+
+function updateCompareStatsGridForPlayer(playerId) {
+  const grid = document.getElementById('compare-stats-grid');
+  if (!grid) return;
+  const resolvedId = resolveComparePlayerId(playerId);
+  if (!resolvedId) return;
+  const index = compareState.selectedPlayers.findIndex(
+    player => resolveComparePlayerId(player) === resolvedId
+  );
+  if (index < 0) return;
+
+  const rows = grid.querySelectorAll('.stat-row');
+  if (!rows.length) {
+    generateCompareStatsGrid();
+    return;
+  }
+
+  const expectedCells = compareState.selectedPlayers.length;
+  const needsRebuild = Array.from(rows).some(
+    row => row.querySelectorAll('.stat-value-cell').length !== expectedCells
+  );
+  if (needsRebuild) {
+    generateCompareStatsGrid();
+    return;
+  }
+
+  const mode = compareState.positionMode || 'outfield';
+  const config = STATS_CONFIG[mode];
+  const totalStats = compareState.isBasicView ? config.basic : getAllStats(config);
+  const colorClasses = ['green', 'red', 'yellow', 'neutral'];
+
+  rows.forEach(row => {
+    let values = [];
+    if (row.dataset.totalRow === 'true') {
+      values = compareState.selectedPlayers.map(player => {
+        return totalStats.reduce((sum, stat) => sum + getCompareStatValue(player, stat), 0);
+      });
+    } else {
+      const statField = row.dataset.statField;
+      if (!statField) return;
+      values = compareState.selectedPlayers.map(player =>
+        getCompareStatValue(player, { apiField: statField })
+      );
+    }
+    const colors = assignStatColors(values);
+    const cells = row.querySelectorAll('.stat-value-cell');
+    cells.forEach((cell, i) => {
+      const span = cell.querySelector('span');
+      if (!span) return;
+      const value = Number.isFinite(values[i]) ? values[i] : 0;
+      if (i === index) {
+        span.textContent = value;
+      }
+      colorClasses.forEach(cls => span.classList.remove(cls));
+      span.classList.add(colors[i] || 'neutral');
+    });
+  });
+
+  compareLog('Stats grid updated', { playerId: resolvedId, index });
+}
+
+function restoreComparePreviewState() {
+  const playerId = compareCustomizationContext.playerId;
+  const initialPlayer = compareCustomizationContext.initialPlayer;
+  if (!playerId || !initialPlayer) return;
+  const resolvedId = resolveComparePlayerId(playerId);
+  const index = compareState.selectedPlayers.findIndex(
+    player => resolveComparePlayerId(player) === resolvedId
+  );
+  if (index < 0) return;
+  compareState.selectedPlayers[index] = initialPlayer;
+  compareLog('Customization preview reverted', { playerId: resolvedId });
+  updateCompareCardForPlayer(resolvedId);
+  updateCompareStatsGridForPlayer(resolvedId);
 }
 
 let compareCustomizationHooksInitialized = false;
@@ -7756,6 +8484,28 @@ function initializeCompareCustomizationHooks() {
     };
   }
 
+  const originalOpenSquadPlayerStatsView = window.openSquadPlayerStatsView;
+  if (typeof originalOpenSquadPlayerStatsView === 'function') {
+    window.openSquadPlayerStatsView = function() {
+      if (compareCustomizationContext.active) {
+        openComparePlayerStatsView();
+        return;
+      }
+      return originalOpenSquadPlayerStatsView();
+    };
+  }
+
+  const originalCloseSquadPlayerStatsView = window.closeSquadPlayerStatsView;
+  if (typeof originalCloseSquadPlayerStatsView === 'function') {
+    window.closeSquadPlayerStatsView = function() {
+      if (compareCustomizationContext.active) {
+        closeComparePlayerStatsView();
+        return;
+      }
+      return originalCloseSquadPlayerStatsView();
+    };
+  }
+
   const originalRemoveSquadPlayer = window.removeSquadPlayer;
   if (typeof originalRemoveSquadPlayer === 'function') {
     window.removeSquadPlayer = function() {
@@ -7773,12 +8523,41 @@ function initializeCompareCustomizationHooks() {
   const originalClosePlayerCustomizationModal = window.closePlayerCustomizationModal;
   if (typeof originalClosePlayerCustomizationModal === 'function') {
     window.closePlayerCustomizationModal = function() {
-      const wasCompare = compareCustomizationContext.active;
-      const result = originalClosePlayerCustomizationModal();
-      if (wasCompare) {
-        finalizeCompareCustomization();
+      if (compareCustomizationContext.active) {
+        closeCompareCustomizationModal();
+        return;
       }
-      return result;
+      return originalClosePlayerCustomizationModal();
+    };
+  }
+
+  const originalSelectSquadRank = window.selectSquadRank;
+  if (typeof originalSelectSquadRank === 'function') {
+    window.selectSquadRank = async function(rankNumber, options = {}) {
+      if (compareCustomizationContext.active) {
+        return compareSelectRank(rankNumber, options);
+      }
+      return originalSelectSquadRank.call(this, rankNumber, options);
+    };
+  }
+
+  const originalUpdateSquadTraining = window.updateSquadTraining;
+  if (typeof originalUpdateSquadTraining === 'function') {
+    window.updateSquadTraining = function(level) {
+      if (compareCustomizationContext.active) {
+        return compareUpdateTraining(level);
+      }
+      return originalUpdateSquadTraining.call(this, level);
+    };
+  }
+
+  const originalResetSquadPlayerRank = window.resetSquadPlayerRank;
+  if (typeof originalResetSquadPlayerRank === 'function') {
+    window.resetSquadPlayerRank = function() {
+      if (compareCustomizationContext.active) {
+        return compareResetRank();
+      }
+      return originalResetSquadPlayerRank.call(this);
     };
   }
 }

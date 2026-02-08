@@ -7749,7 +7749,7 @@ body.stats-open #squad-builder-modal {
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
-    z-index: 10000 !important;
+    z-index: 22000 !important;
     max-height: 90vh;
     overflow-y: auto;
 }
