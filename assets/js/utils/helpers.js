@@ -111,33 +111,6 @@ function getRankOverlaySrc(rank) {
   return RANK_OVERLAY_IMAGE_MAP[normalized] || '';
 }
 
-const RANK_OVERLAY_CONFIG = {
-  'player-detail': {
-    width: '14%',
-    height: '14%',
-    bottom: '6%',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    zIndex: 6
-  },
-  'squad-builder': {
-    width: '20%',
-    height: '20%',
-    bottom: '4%',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    zIndex: 6
-  },
-  compare: {
-    width: '18%',
-    height: '18%',
-    bottom: '6%',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    zIndex: 6
-  }
-};
-
 const DEV_LOGGING_ENABLED = window.location.protocol === 'file:' ||
   ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
@@ -150,17 +123,11 @@ function devLog(label, details) {
   console.log(label);
 }
 
-function normalizeOverlayValue(value, fallback) {
-  if (value === undefined || value === null || value === '') return fallback;
-  return typeof value === 'number' ? `${value}px` : value;
-}
-
 function applyRankOverlay(container, rank, options = {}) {
   if (!container) return;
   const src = getRankOverlaySrc(rank);
   const modifierClass = options.modifierClass || '';
   const scope = options.scope || 'squad-builder';
-  const config = { ...(RANK_OVERLAY_CONFIG[scope] || {}), ...(options.style || {}) };
   let overlay = container.querySelector('.rank-diamond-overlay');
 
   if (!src) {
@@ -173,25 +140,6 @@ function applyRankOverlay(container, rank, options = {}) {
     container.appendChild(overlay);
   }
 
-  const width = normalizeOverlayValue(config.width, '20px');
-  const height = normalizeOverlayValue(config.height || config.width, width);
-
-  overlay.className = ['rank-diamond-overlay', modifierClass].filter(Boolean).join(' ');
-  overlay.src = src;
-  overlay.alt = 'Rank';
-  overlay.setAttribute('aria-hidden', 'true');
-  overlay.dataset.rank = String(rank);
-  overlay.style.position = 'absolute';
-  overlay.style.left = normalizeOverlayValue(config.left, '50%');
-  overlay.style.bottom = normalizeOverlayValue(config.bottom, '0');
-  overlay.style.width = width;
-  overlay.style.height = height;
-  overlay.style.transform = config.transform || 'translateX(-50%)';
-  overlay.style.pointerEvents = 'none';
-  overlay.style.userSelect = 'none';
-  overlay.style.objectFit = 'contain';
-  overlay.style.zIndex = config.zIndex !== undefined ? String(config.zIndex) : '6';
-
   devLog('RANK_OVERLAY_APPLIED', {
     scope,
     modifierClass,
@@ -200,9 +148,14 @@ function applyRankOverlay(container, rank, options = {}) {
     targetClass: container.className || '',
     playerId: container.dataset ? container.dataset.playerId || '' : ''
   });
+
+  overlay.className = ['rank-diamond-overlay', modifierClass].filter(Boolean).join(' ');
+  overlay.src = src;
+  overlay.alt = 'Rank';
+  overlay.dataset.rank = String(rank);
+  overlay.setAttribute('aria-hidden', 'true');
 }
 
 window.getRankOverlaySrc = getRankOverlaySrc;
 window.applyRankOverlay = applyRankOverlay;
-window.rankOverlayConfig = RANK_OVERLAY_CONFIG;
 window.devLog = devLog;

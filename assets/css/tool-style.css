@@ -8343,24 +8343,53 @@ body.stats-open #squad-builder-modal {
   border-color: rgba(var(--color-teal-rgb), 0.4);
 }
 
-/* Adjust rank overlay for compare view */
+/* Rank overlay base */
+.rank-diamond-overlay {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  object-fit: contain;
+  transform: translateX(-50%);
+}
+
+/* Player details */
+.rank-overlay--player-detail {
+  left: 50%;
+  bottom: 0 !important;
+  width: 40px;
+  height: 40px;
+  z-index: 6;
+}
+
+
+/* Squad builder field cards */
+.rank-overlay--squad-field,
+.rank-overlay--squad-builder,
+.rank-overlay--squad-applied {
+  left: 50%;
+  bottom: 0;
+  width: 64px;
+  height: 64px;
+  z-index: 6;
+}
+
+/* Squad customization modal */
+.rank-overlay--squad-customization,
+.rank-overlay--squad-modal {
+  left: 50%;
+  bottom: 0;
+  width: 96px;
+  height: 96px;
+  z-index: 6;
+}
+
+/* Compare cards */
 .rank-overlay--compare,
 .rank-overlay--compare-modal,
 .rank-overlay--compare-applied {
-  bottom: 5px !important;
-  margin-right: 6px !important;
+  left: 50%;
+  bottom: 5px;
+  width: 18%;
+  height: 18%;
+  z-index: 6;
 }
-
-
-/* Adjust rank overlay for squad builder */
-.rank-overlay--squad-builder,
-.rank-overlay--squad-modal,
-.rank-overlay--squad-applied {
-  bottom: 4px !important;
-  margin-top: 5px;
-}
-
-.rank-overlay--squad-modal { }
-.rank-overlay--squad-applied { }
-.rank-overlay--compare-modal { }
-.rank-overlay--compare-applied { }
