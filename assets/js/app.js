@@ -6582,6 +6582,17 @@ updateAllWatchlistButtons();
 
 
 // MOBILE FILTER FUNCTIONS
+function getActiveViewName() {
+  const activeView = document.querySelector('.view.active');
+  if (activeView && activeView.id) {
+    return activeView.id.replace('-view', '');
+  }
+  if (typeof state !== 'undefined' && state.currentView) {
+    return state.currentView;
+  }
+  return '';
+}
+
 function toggleMobileFilters() {
   const modal = document.getElementById('mobile-filter-modal');
   if (modal) {
@@ -6589,7 +6600,8 @@ function toggleMobileFilters() {
 
     if (modal.classList.contains('active')) {
       document.body.style.overflow = 'hidden';
-      if (typeof state !== 'undefined' && state.currentView === 'database') {
+      const activeView = getActiveViewName();
+      if (activeView === 'database') {
         syncMobileClubFilterOptions();
       }
     } else {
@@ -6634,7 +6646,8 @@ function applyMobileFilters() {
   const team = teamElement ? teamElement.value : null;
   const auctionableStatus = document.getElementById('mobile-filter-auctionable')?.value || '';
 
-  if (typeof state !== 'undefined' && state.currentView === 'watchlist') {
+  const activeView = getActiveViewName();
+  if (activeView === 'watchlist') {
     if (typeof watchlistFilters !== 'undefined') {
       watchlistFilters.position = position;
       watchlistFilters.league = league;
@@ -6756,7 +6769,8 @@ function applyMobileFilters() {
 }
 
 function clearMobileFilters() {
-  if (typeof state !== 'undefined' && state.currentView === 'watchlist') {
+  const activeView = getActiveViewName();
+  if (activeView === 'watchlist') {
     if (typeof clearWatchlistFilters === 'function') {
       clearWatchlistFilters();
     }
