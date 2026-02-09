@@ -5135,7 +5135,7 @@ function loadWatchlist() {
 async function loadDatabase() {
     const activeSearchTerm = (state.searchQuery || '').trim();
     if (activeSearchTerm.length >= 2 && typeof window.runDatabaseSearch === 'function') {
-        window.runDatabaseSearch(activeSearchTerm, state.currentOffset > 0);
+        window.runDatabaseSearch(activeSearchTerm, false);
         return;
     }
 
@@ -5913,12 +5913,14 @@ document.addEventListener('DOMContentLoaded', async function () {
   let currentPlayerSearchQuery = '';
   let playerSearchOffset = 0;
   let playerSearchTotal = 0;
+  let playerSearchRequestId = 0;
 
   const playerSearch = document.getElementById('player-search');
   if (playerSearch) {
     playerSearch.addEventListener('input', (e) => {
       const searchTerm = e.target.value.trim();
       state.searchQuery = searchTerm;
+      state.currentOffset = 0;
 
       clearTimeout(playerSearchTimeout);
 
@@ -5974,6 +5976,108 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   window.runDatabaseSearch = runDatabaseSearch;
 
+  function getActiveDatabaseFilters() {
+    const filters = state.filters || {};
+    const activeFilters = {};
+
+    if (filters.position) activeFilters.position = filters.position;
+    if (filters.league) activeFilters.league = filters.league;
+    if (filters.club) activeFilters.club = filters.club;
+    if (filters.nation) activeFilters.nation = filters.nation;
+    if (filters.skillMoves) activeFilters.skillMoves = filters.skillMoves;
+    if (filters.event) activeFilters.event = filters.event;
+    if (filters.auctionable) activeFilters.auctionable = filters.auctionable;
+
+    const ratingMin = Number.isFinite(filters.ratingMin) ? filters.ratingMin : 40;
+    const ratingMax = Number.isFinite(filters.ratingMax) ? filters.ratingMax : 150;
+    if (ratingMin !== 40 || ratingMax !== 150) {
+      activeFilters.rating = { min: ratingMin, max: ratingMax };
+    }
+
+    if (filters.priceMin !== null && filters.priceMin !== '' && !Number.isNaN(filters.priceMin)) {
+      activeFilters.priceMin = Number(filters.priceMin);
+    }
+
+    if (filters.priceMax !== null && filters.priceMax !== '' && !Number.isNaN(filters.priceMax)) {
+      activeFilters.priceMax = Number(filters.priceMax);
+    }
+
+    return activeFilters;
+  }
+
+  function applyDatabaseSearchAndFilters(players, query) {
+    const normalizedQuery = (query || '').trim().toLowerCase();
+    let filtered = players;
+
+    if (normalizedQuery) {
+      filtered = filtered.filter(player => {
+        const name = (player.name || '').toLowerCase();
+        const position = (player.position || '').toLowerCase();
+        const club = (player.team || player.club || '').toLowerCase();
+        const league = (player.league || '').toLowerCase();
+        const nation = (player.nation || player.nation_region || player.nationality || '').toLowerCase();
+
+        return name.includes(normalizedQuery) ||
+          position.includes(normalizedQuery) ||
+          club.includes(normalizedQuery) ||
+          league.includes(normalizedQuery) ||
+          nation.includes(normalizedQuery);
+      });
+    }
+
+    const filters = state.filters || {};
+    const ratingMin = Number.isFinite(filters.ratingMin) ? filters.ratingMin : 40;
+    const ratingMax = Number.isFinite(filters.ratingMax) ? filters.ratingMax : 150;
+    const shouldFilterRating = ratingMin !== 40 || ratingMax !== 150;
+    const shouldFilterPriceMin = filters.priceMin !== null && filters.priceMin !== '' && !Number.isNaN(filters.priceMin);
+    const shouldFilterPriceMax = filters.priceMax !== null && filters.priceMax !== '' && !Number.isNaN(filters.priceMax);
+
+    return filtered.filter(player => {
+      if (filters.position && player.position !== filters.position) return false;
+
+      if (shouldFilterRating) {
+        const rating = Number.parseInt(player.ovr || player.overall || player.overall_rating || 0, 10) || 0;
+        if (rating < ratingMin || rating > ratingMax) return false;
+      }
+
+      if (filters.league && player.league !== filters.league) return false;
+
+      if (filters.club) {
+        const clubValue = player.team || player.club || '';
+        if (clubValue !== filters.club) return false;
+      }
+
+      if (filters.nation) {
+        const nationValue = player.nation || player.nation_region || player.nationality || '';
+        if (nationValue !== filters.nation) return false;
+      }
+
+      if (filters.skillMoves) {
+        const skillValue = Number.parseInt(player.skill_moves || player.skillMoves || player.skillmoves || 0, 10) || 0;
+        if (skillValue !== Number.parseInt(filters.skillMoves, 10)) return false;
+      }
+
+      if (filters.event && player.event !== filters.event) return false;
+
+      if (shouldFilterPriceMin || shouldFilterPriceMax) {
+        const priceValue = Number(player.price);
+        if (!Number.isFinite(priceValue)) return false;
+        if (shouldFilterPriceMin && priceValue < Number(filters.priceMin)) return false;
+        if (shouldFilterPriceMax && priceValue > Number(filters.priceMax)) return false;
+      }
+
+      if (filters.auctionable) {
+        const isUntradable = String(player.is_untradable || '').toLowerCase() === 'true' ||
+          player.is_untradable === 1 ||
+          player.is_untradable === '1';
+        if (filters.auctionable === 'auctionable' && isUntradable) return false;
+        if (filters.auctionable === 'unauctionable' && !isUntradable) return false;
+      }
+
+      return true;
+    });
+  }
+
   async function searchPlayersInDatabase(query, append = false) {
     if (!window.apiClient) {
       console.error('[SEARCH] API client not available');
@@ -5981,6 +6085,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     try {
+      const requestId = ++playerSearchRequestId;
       console.log('[SEARCH] Searching players:', query, 'with filters');
 
       const params = {
@@ -6005,6 +6110,10 @@ document.addEventListener('DOMContentLoaded', async function () {
       let players = response.results || [];
       const total = response.total || 0;
 
+      if (requestId !== playerSearchRequestId || query !== currentPlayerSearchQuery) {
+        return;
+      }
+
       console.log('[SEARCH] Found', players.length, 'players, total:', total);
 
       // 🔥 Sync prices with Supabase (same as regular database view)
@@ -6013,13 +6122,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         players = await window.supabaseProvider.syncPrices(players);
       }
 
+      const activeFilters = getActiveDatabaseFilters();
+      const filteredPlayers = applyDatabaseSearchAndFilters(players, query);
+
       if (!append) {
         playerSearchOffset = 0;
         playerSearchTotal = total;
       }
       playerSearchOffset += players.length;
 
-      displayPlayerSearchResults(players, query, total, append);
+      displayPlayerSearchResults(filteredPlayers, query, total, append, activeFilters);
 
     } catch (error) {
       console.error('[SEARCH] Error:', error);
@@ -6027,7 +6139,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   }
 
-  function displayPlayerSearchResults(players, query, total, append = false) {
+  function displayPlayerSearchResults(players, query, total, append = false, activeFilters = {}) {
     const container = document.getElementById('database-players-container') ||
       document.querySelector('#database-view .players-grid') ||
       document.querySelector('#database-view');
@@ -6050,23 +6162,25 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     if (!append && players.length === 0) {
-      container.innerHTML = `
-        <div class="no-results" style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
-            <svg style="width: 64px; height: 64px; margin: 0 auto 16px; opacity: 0.3;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-            </svg>
-            <p style="color: var(--text-primary); font-size: 16px; margin-bottom: 8px;">No players found matching "${query}"</p>
-            <p style="color: var(--text-tertiary); font-size: 14px;">Try adjusting your search or filters</p>
-        </div>
+      const hasActiveFilters = Object.keys(activeFilters || {}).length > 0;
+      const emptyState = document.createElement('div');
+      emptyState.className = 'no-results';
+      emptyState.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 60px 20px;';
+      emptyState.innerHTML = `
+        <svg style="width: 64px; height: 64px; margin: 0 auto 16px; opacity: 0.3;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <p style="color: var(--text-primary); font-size: 16px; margin-bottom: 8px;">No players found matching "${query}"</p>
+        <p style="color: var(--text-tertiary); font-size: 14px;">${hasActiveFilters ? 'Try adjusting your filters' : 'Try adjusting your search'}</p>
       `;
-      return;
+      container.appendChild(emptyState);
+    } else {
+      players.forEach(player => {
+        const card = createPlayerCard(player);
+        container.appendChild(card);
+      });
     }
-
-    players.forEach(player => {
-      const card = createPlayerCard(player);
-      container.appendChild(card);
-    });
 
     updateAllWatchlistButtons();
 
@@ -6795,6 +6909,7 @@ function updateWatchlistFilterBadge() {
 function handleSearch(value) {
   const searchTerm = (value || '').trim();
   state.searchQuery = searchTerm;
+  state.currentOffset = 0;
   if (typeof loadDatabase === 'function') {
     loadDatabase();
   }
