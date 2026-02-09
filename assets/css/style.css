@@ -11168,8 +11168,3 @@ body {
 #database-view::before {
   content: none !important;
 }
-
-/* Move rank overlay 5px lower */
-.rank-overlay--player-detail {
-  bottom: 10px !important; /* Changed from 15px to 10px (moved down 5px) */
-}

@@ -5757,8 +5757,8 @@ body.stats-open #squad-builder-modal {
   margin-top: 15px;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 150%;
-  height: 150%;
+  width: 80%;
+  height: 80%;
   object-fit: contain;
   z-index: 2;
 }
@@ -5766,7 +5766,7 @@ body.stats-open #squad-builder-modal {
 /* OVR Rating (top-left) */
 .compare-card-ovr {
   position: absolute;
-  top: 10px;
+  top: 23px;
   left: 14px;
   margin-left: 26px;
   font-size: clamp(16px, 2vw, 22px);
@@ -5781,8 +5781,8 @@ body.stats-open #squad-builder-modal {
 /* Position Badge (below OVR) */
 .compare-card-pos {
   position: absolute;
-  top: 34px;
-  left:46px;
+  top: 47px;
+  left:48px;
   font-size: clamp(12px, 1.6vw, 16px);
   font-weight: 800;
   font-family: 'CruyffSans', sans-serif;
@@ -5795,10 +5795,10 @@ body.stats-open #squad-builder-modal {
 /* Player Name (bottom center) */
 .compare-card-name {
   position: absolute;
-  bottom: 52px;
+  bottom: 50px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: clamp(11px, 1.5vw, 14px);
+  font-size: 17px;
   font-weight: 800;
   font-family: 'CruyffSans', sans-serif;
   text-transform: uppercase;
@@ -5814,7 +5814,7 @@ body.stats-open #squad-builder-modal {
 
 .compare-nation-flag {
   position: absolute;
-  bottom: 28px;
+  bottom: 24px;
   left: 36%;
   width: clamp(12px, 1.6vw, 16px);
   height: clamp(10px, 1.4vw, 14px);
@@ -7897,10 +7897,10 @@ body.stats-open #squad-builder-modal {
 /* Nation Flag (bottom-left) */
 .compare-nation-flag {
   position: absolute;
-  bottom: 28px;
+  bottom: 35px;
   left: 36%;
-  width: clamp(12px, 1.6vw, 16px);
-  height: clamp(10px, 1.4vw, 14px);
+  width: 15px;
+  height: 15px;
   object-fit: cover;
   border-radius: 1px;
   z-index: 3;
@@ -7910,10 +7910,10 @@ body.stats-open #squad-builder-modal {
 /* Club Badge (bottom-right) */
 .compare-club-flag {
   position: absolute;
-  bottom: 28px;
+  bottom: 35px;
   right: 36%;
-  width: clamp(12px, 1.6vw, 16px);
-  height: clamp(12px, 1.6vw, 16px);
+  width: 15px;
+  height: 15px;
   object-fit: contain;
   z-index: 3;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -8058,10 +8058,7 @@ body.stats-open #squad-builder-modal {
     margin-bottom: 20px;
 }
 
-#squad-player-customization-modal #squad-custom-player-card img {
-    width: 160px;
-    height: 210px;
-}
+
 
 #squad-player-customization-modal #squad-custom-skills {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -8089,10 +8086,7 @@ body.stats-open #squad-builder-modal {
         padding: 18px;
     }
 
-    #squad-player-customization-modal #squad-custom-player-card img {
-        width: 140px;
-        height: 190px;
-    }
+   
 
     #squad-player-customization-modal .squad-rank-boxes-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -8363,33 +8357,40 @@ body.stats-open #squad-builder-modal {
 
 
 /* Squad builder field cards */
-.rank-overlay--squad-field,
-.rank-overlay--squad-builder,
-.rank-overlay--squad-applied {
+.rank-overlay--squad-field {
   left: 50%;
   bottom: 0;
-  width: 64px;
-  height: 64px;
+  width: 22px;
+  height: 22px;
   z-index: 6;
+  margin-top: 10px;
 }
 
 /* Squad customization modal */
-.rank-overlay--squad-customization,
-.rank-overlay--squad-modal {
+.rank-overlay--squad-customization{
   left: 50%;
-  bottom: 0;
-  width: 96px;
-  height: 96px;
+  top: 82%;
+  width: 29px;
+  height: 36px;
   z-index: 6;
 }
 
 /* Compare cards */
-.rank-overlay--compare,
-.rank-overlay--compare-modal,
+.rank-overlay--compare-modal{
+  left: 50%;
+  bottom: -5px;
+  width: 20%;
+  height: 20%;
+  z-index: 8;
+  scale: -4px;
+}
+
+
 .rank-overlay--compare-applied {
   left: 50%;
-  bottom: 5px;
-  width: 18%;
-  height: 18%;
+  bottom: 2px;
+  width: 23%;
+  height: 17%;
   z-index: 6;
 }
+
