@@ -138,6 +138,18 @@ const RANK_OVERLAY_CONFIG = {
   }
 };
 
+const DEV_LOGGING_ENABLED = window.location.protocol === 'file:' ||
+  ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+function devLog(label, details) {
+  if (!DEV_LOGGING_ENABLED) return;
+  if (details !== undefined) {
+    console.log(label, details);
+    return;
+  }
+  console.log(label);
+}
+
 function normalizeOverlayValue(value, fallback) {
   if (value === undefined || value === null || value === '') return fallback;
   return typeof value === 'number' ? `${value}px` : value;
@@ -179,8 +191,18 @@ function applyRankOverlay(container, rank, options = {}) {
   overlay.style.userSelect = 'none';
   overlay.style.objectFit = 'contain';
   overlay.style.zIndex = config.zIndex !== undefined ? String(config.zIndex) : '6';
+
+  devLog('RANK_OVERLAY_APPLIED', {
+    scope,
+    modifierClass,
+    rank,
+    targetId: container.id || '',
+    targetClass: container.className || '',
+    playerId: container.dataset ? container.dataset.playerId || '' : ''
+  });
 }
 
 window.getRankOverlaySrc = getRankOverlaySrc;
 window.applyRankOverlay = applyRankOverlay;
 window.rankOverlayConfig = RANK_OVERLAY_CONFIG;
+window.devLog = devLog;

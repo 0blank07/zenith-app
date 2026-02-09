@@ -8344,14 +8344,23 @@ body.stats-open #squad-builder-modal {
 }
 
 /* Adjust rank overlay for compare view */
-.rank-overlay--compare {
+.rank-overlay--compare,
+.rank-overlay--compare-modal,
+.rank-overlay--compare-applied {
   bottom: 5px !important;
   margin-right: 6px !important;
 }
 
 
 /* Adjust rank overlay for squad builder */
-.rank-overlay--squad-builder {
+.rank-overlay--squad-builder,
+.rank-overlay--squad-modal,
+.rank-overlay--squad-applied {
   bottom: 4px !important;
   margin-top: 5px;
 }
+
+.rank-overlay--squad-modal { }
+.rank-overlay--squad-applied { }
+.rank-overlay--compare-modal { }
+.rank-overlay--compare-applied { }

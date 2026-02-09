@@ -167,7 +167,7 @@ class ZenithAPIClient {
    * Upgrade a skill for a user's player
    */
   async upgradeSkill(userId, playerId, rank, skillId, newLevel, opts = {}) {
-    if (!userId || !playerId || rank === undefined || !skillId || !newLevel) {
+    if (!userId || !playerId || rank === undefined || skillId === undefined || skillId === null || newLevel === undefined || newLevel === null) {
       throw new Error('userId, playerId, rank, skillId, and newLevel are required');
     }
     

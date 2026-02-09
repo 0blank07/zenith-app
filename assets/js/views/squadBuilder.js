@@ -135,7 +135,7 @@ function updateSquadCardRankOverlay(playerId, rankValue) {
   if (!target) return;
   applyRankOverlay(target, rankValue, {
     scope: 'squad-builder',
-    modifierClass: 'rank-overlay--squad-builder'
+    modifierClass: 'rank-overlay--squad-applied'
   });
 }
 
@@ -3264,7 +3264,7 @@ function renderSlot(slot) {
             const rankValue = getSquadPlayerSelectedRank(playerId, player);
             applyRankOverlay(previewCard.querySelector('.preview-card-inner'), rankValue, {
                 scope: 'squad-builder',
-                modifierClass: 'rank-overlay--squad-builder'
+                modifierClass: 'rank-overlay--squad-applied'
             });
         }
 
@@ -3377,7 +3377,7 @@ function renderBench() {
                 const rankValue = getSquadPlayerSelectedRank(playerId, player);
                 applyRankOverlay(benchCard.querySelector('.bench-card-inner'), rankValue, {
                     scope: 'squad-builder',
-                    modifierClass: 'rank-overlay--squad-builder'
+                    modifierClass: 'rank-overlay--squad-applied'
                 });
             }
 
@@ -4372,7 +4372,7 @@ function renderCustomizationMiniCard(player) {
     const rankValue = squadCustomizationState.selectedRank || player?.rank || 0;
     applyRankOverlay(container.querySelector('.squad-custom-mini-card'), rankValue, {
       scope: 'squad-builder',
-      modifierClass: 'rank-overlay--squad-builder'
+      modifierClass: 'rank-overlay--squad-modal'
     });
   }
 }
@@ -4406,7 +4406,7 @@ function updateSquadCustomizationMiniCard() {
   if (typeof applyRankOverlay === 'function') {
     applyRankOverlay(container.querySelector('.squad-custom-mini-card'), squadCustomizationState.selectedRank || 0, {
       scope: 'squad-builder',
-      modifierClass: 'rank-overlay--squad-builder'
+      modifierClass: 'rank-overlay--squad-modal'
     });
   }
 }

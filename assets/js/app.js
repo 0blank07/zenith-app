@@ -2426,7 +2426,13 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
   try {
     const normalizedCurrent = Number(currentLevel) || 0;
     const normalizedTarget = Number(targetLevel) || 0;
-    const newLevel = normalizedTarget === normalizedCurrent ? 0 : normalizedTarget;
+    const isToggleOff = normalizedTarget === normalizedCurrent && normalizedCurrent > 0;
+    const isSwitch = normalizedCurrent > 0 && normalizedTarget > 0 && normalizedTarget !== normalizedCurrent;
+    const isApplied = normalizedCurrent === 0 && normalizedTarget > 0;
+    const newLevel = isToggleOff ? 0 : normalizedTarget;
+    const logEvent = isToggleOff
+      ? 'SKILL_LEVEL_REMOVED'
+      : (isSwitch ? 'SKILL_LEVEL_SWITCHED' : (isApplied ? 'SKILL_LEVEL_APPLIED' : ''));
     console.log("[Skills] Skill toggled:", skillId, "New Level:", newLevel);
     
     // If same as current, no change needed
@@ -2445,6 +2451,15 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
     );
     
     console.log('[SKILLS] Level change success:', result);
+    if (logEvent && typeof window.devLog === 'function') {
+      window.devLog(logEvent, {
+        skillId,
+        fromLevel: normalizedCurrent,
+        toLevel: newLevel,
+        playerId,
+        rank
+      });
+    }
     
     const isCompare = compareCustomizationContext.active &&
       String(compareCustomizationContext.playerId) === String(playerId);
@@ -5118,6 +5133,12 @@ function loadWatchlist() {
 
 // ========== LOAD DATABASE FROM API ==========
 async function loadDatabase() {
+    const activeSearchTerm = (state.searchQuery || '').trim();
+    if (activeSearchTerm.length >= 2 && typeof window.runDatabaseSearch === 'function') {
+        window.runDatabaseSearch(activeSearchTerm, state.currentOffset > 0);
+        return;
+    }
+
     if (state.isLoadingAPI) {
         console.log('[DATABASE] Already loading...');
         return;
@@ -5897,12 +5918,15 @@ document.addEventListener('DOMContentLoaded', async function () {
   if (playerSearch) {
     playerSearch.addEventListener('input', (e) => {
       const searchTerm = e.target.value.trim();
+      state.searchQuery = searchTerm;
 
       clearTimeout(playerSearchTimeout);
 
       // If empty, restore normal DB view
       if (searchTerm.length === 0) {
         currentPlayerSearchQuery = '';
+        playerSearchOffset = 0;
+        playerSearchTotal = 0;
         if (typeof loadDatabase === 'function') loadDatabase();
         return;
       }
@@ -5914,9 +5938,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       showPlayerSearchLoading();
 
       playerSearchTimeout = setTimeout(() => {
-        currentPlayerSearchQuery = searchTerm;
-        playerSearchOffset = 0;
-        searchPlayersInDatabase(searchTerm, false);
+        runDatabaseSearch(searchTerm, false);
       }, 300);
     });
   }
@@ -5935,6 +5957,22 @@ document.addEventListener('DOMContentLoaded', async function () {
       `;
     }
   }
+
+  function runDatabaseSearch(query, append = false) {
+    const normalizedQuery = (query || '').trim();
+    if (normalizedQuery.length < 2) {
+      return;
+    }
+
+    if (!append) {
+      currentPlayerSearchQuery = normalizedQuery;
+      playerSearchOffset = 0;
+    }
+
+    searchPlayersInDatabase(normalizedQuery, append);
+  }
+
+  window.runDatabaseSearch = runDatabaseSearch;
 
   async function searchPlayersInDatabase(query, append = false) {
     if (!window.apiClient) {
@@ -6755,7 +6793,8 @@ function updateWatchlistFilterBadge() {
 }
 
 function handleSearch(value) {
-  state.searchQuery = value.toLowerCase();
+  const searchTerm = (value || '').trim();
+  state.searchQuery = searchTerm;
   if (typeof loadDatabase === 'function') {
     loadDatabase();
   }
@@ -7307,7 +7346,7 @@ function updateCompareCardRankOverlay(playerId, rankValue) {
   if (!card) return;
   applyRankOverlay(card, rankValue, {
     scope: 'compare',
-    modifierClass: 'rank-overlay--compare'
+    modifierClass: 'rank-overlay--compare-applied'
   });
 }
 
@@ -7419,7 +7458,7 @@ function createFilledPlayerCard(player) {
     const rankValue = customization?.selectedRank ?? player?.rank ?? 0;
     applyRankOverlay(card, rankValue, {
       scope: 'compare',
-      modifierClass: 'rank-overlay--compare'
+      modifierClass: 'rank-overlay--compare-applied'
     });
   }
   return card;
@@ -7584,7 +7623,7 @@ function renderCompareCustomizationMiniCard(player) {
     const rankValue = compareCustomizationState.selectedRank || player?.rank || 0;
     applyRankOverlay(container.querySelector('.squad-custom-mini-card'), rankValue, {
       scope: 'compare',
-      modifierClass: 'rank-overlay--compare'
+      modifierClass: 'rank-overlay--compare-modal'
     });
   }
 }
@@ -7620,7 +7659,7 @@ function updateCompareCustomizationMiniCard() {
   if (typeof applyRankOverlay === 'function') {
     applyRankOverlay(container.querySelector('.squad-custom-mini-card'), compareCustomizationState.selectedRank || 0, {
       scope: 'compare',
-      modifierClass: 'rank-overlay--compare'
+      modifierClass: 'rank-overlay--compare-modal'
     });
   }
 }
