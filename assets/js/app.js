@@ -408,6 +408,9 @@ window.renderPlayerStatsSection = function(player) {
     });
 
     const isGoalkeeper = player.position === 'GK';
+    const trainingBoosts = player.training_boosts || null;
+    const skillBoosts = player.skill_boosts || null;
+    const hasSkillBoosts = skillBoosts && Object.keys(skillBoosts).length > 0;
 
     const getBaseColor = (value) => {
         if (value >= 90) return '#3BD671';
@@ -416,30 +419,96 @@ window.renderPlayerStatsSection = function(player) {
         return '#98A0A6';
     };
 
-    const getStatWithBoost = (player, boosts, ...names) => {
-        let baseStat = getStat(player, ...names);
-        if (!boosts) return baseStat;
+    const normalizeStatKey = (value) => String(value || '').toLowerCase().replace(/_/g, '');
 
+    const getBoostValue = (boosts, ...names) => {
+        if (!boosts) return 0;
+        const entries = Object.entries(boosts);
         for (const name of names) {
-            const normalizedName = name.toLowerCase().replace(/_/g, '');
-            for (const boostKey in boosts) {
-                const normalizedBoostKey = boostKey.toLowerCase().replace(/_/g, '');
-                if (normalizedBoostKey === normalizedName) {
-                    const boost = parseInt(boosts[boostKey]) || 0;
-                    console.log(`[TRAINING] Applying boost to ${name}: ${baseStat} + ${boost} = ${baseStat + boost}`);
-                    return baseStat + boost;
-                }
+            const normalizedName = normalizeStatKey(name);
+            const match = entries.find(([boostKey]) => normalizeStatKey(boostKey) === normalizedName);
+            if (match) {
+                const boost = parseInt(match[1], 10) || 0;
+                return boost;
             }
         }
-
-        return baseStat;
+        return 0;
     };
+
+    const getStatWithBoost = (stats, boosts, ...names) => {
+        const baseStat = getStat(stats, ...names);
+        if (!boosts) return baseStat;
+        const boost = getBoostValue(boosts, ...names);
+        if (boost) {
+            console.log(`[TRAINING] Applying boost to ${names[0]}: ${baseStat} + ${boost} = ${baseStat + boost}`);
+        }
+        return baseStat + boost;
+    };
+
+    const getBoostedStat = (...names) => getStatWithBoost(player, trainingBoosts, ...names);
+    const getFinalStat = (...names) => {
+        const boostedStat = getBoostedStat(...names);
+        if (!hasSkillBoosts) return boostedStat;
+        const skillBoost = getBoostValue(skillBoosts, ...names);
+        return boostedStat + skillBoost;
+    };
+
+    if (typeof window.devLog === 'function') {
+        const statSnapshots = [
+            ['acceleration'],
+            ['sprint_speed'],
+            ['finishing'],
+            ['long_shot', 'long_shots'],
+            ['shot_power'],
+            ['positioning'],
+            ['volley', 'volleys'],
+            ['penalties'],
+            ['short_passing'],
+            ['long_passing'],
+            ['vision'],
+            ['crossing'],
+            ['curve'],
+            ['free_kick', 'fk_accuracy'],
+            ['dribbling'],
+            ['balance'],
+            ['agility'],
+            ['reactions'],
+            ['ball_control'],
+            ['marking'],
+            ['standing_tackle'],
+            ['sliding_tackle'],
+            ['awareness', 'interceptions'],
+            ['heading'],
+            ['strength'],
+            ['aggression'],
+            ['jumping'],
+            ['stamina_stat', 'stamina'],
+            ['gk_diving', 'diving'],
+            ['gk_positioning', 'positioning'],
+            ['gk_handling', 'handling'],
+            ['gk_reflexes', 'reflexes'],
+            ['gk_kicking', 'kicking']
+        ];
+        const baseStats = {};
+        const boostedStats = {};
+        const finalStats = {};
+        statSnapshots.forEach((names) => {
+            const key = names[0];
+            const baseStat = getStat(player, ...names);
+            const boostedStat = baseStat + getBoostValue(trainingBoosts, ...names);
+            const finalStat = boostedStat + (hasSkillBoosts ? getBoostValue(skillBoosts, ...names) : 0);
+            baseStats[key] = baseStat;
+            boostedStats[key] = boostedStat;
+            finalStats[key] = finalStat;
+        });
+        window.devLog('[STATS PIPELINE]', { baseStats, boostedStats, finalStats });
+    }
 
     const roundHalfUp = (val) => Math.floor(val + 0.5);
 
     const calculatePaceWithBoosts = (player, boosts) => {
-        const acceleration = getStatWithBoost(player, boosts, 'acceleration');
-        const sprint_speed = getStatWithBoost(player, boosts, 'sprint_speed');
+        const acceleration = getFinalStat('acceleration');
+        const sprint_speed = getFinalStat('sprint_speed');
         const val = (
             0.49299585008602 * acceleration +
             0.50528383239125 * sprint_speed +
@@ -449,12 +518,12 @@ window.renderPlayerStatsSection = function(player) {
     };
 
     const calculateShootingWithBoosts = (player, boosts) => {
-        const finishing = getStatWithBoost(player, boosts, 'finishing');
-        const long_shot = getStatWithBoost(player, boosts, 'long_shot', 'longshots');
-        const shot_power = getStatWithBoost(player, boosts, 'shot_power');
-        const positioning = getStatWithBoost(player, boosts, 'positioning');
-        const volley = getStatWithBoost(player, boosts, 'volley', 'volleys');
-        const penalties = getStatWithBoost(player, boosts, 'penalties');
+        const finishing = getFinalStat('finishing');
+        const long_shot = getFinalStat('long_shot', 'longshots');
+        const shot_power = getFinalStat('shot_power');
+        const positioning = getFinalStat('positioning');
+        const volley = getFinalStat('volley', 'volleys');
+        const penalties = getFinalStat('penalties');
         const val = (
             0.35066661652365 * finishing +
             0.20012280256486 * long_shot +
@@ -468,12 +537,12 @@ window.renderPlayerStatsSection = function(player) {
     };
 
     const calculatePassingWithBoosts = (player, boosts) => {
-        const short_passing = getStatWithBoost(player, boosts, 'short_passing');
-        const long_passing = getStatWithBoost(player, boosts, 'long_passing');
-        const vision = getStatWithBoost(player, boosts, 'vision');
-        const crossing = getStatWithBoost(player, boosts, 'crossing');
-        const curve = getStatWithBoost(player, boosts, 'curve');
-        const free_kick = getStatWithBoost(player, boosts, 'free_kick', 'fk_accuracy');
+        const short_passing = getFinalStat('short_passing');
+        const long_passing = getFinalStat('long_passing');
+        const vision = getFinalStat('vision');
+        const crossing = getFinalStat('crossing');
+        const curve = getFinalStat('curve');
+        const free_kick = getFinalStat('free_kick', 'fk_accuracy');
         const val = (
             0.30073301682698 * short_passing +
             0.19979430277541 * long_passing +
@@ -487,11 +556,11 @@ window.renderPlayerStatsSection = function(player) {
     };
 
     const calculateDribblingWithBoosts = (player, boosts) => {
-        const dribbling = getStatWithBoost(player, boosts, 'dribbling');
-        const balance = getStatWithBoost(player, boosts, 'balance');
-        const agility = getStatWithBoost(player, boosts, 'agility');
-        const reactions = getStatWithBoost(player, boosts, 'reactions');
-        const ball_control = getStatWithBoost(player, boosts, 'ball_control');
+        const dribbling = getFinalStat('dribbling');
+        const balance = getFinalStat('balance');
+        const agility = getFinalStat('agility');
+        const reactions = getFinalStat('reactions');
+        const ball_control = getFinalStat('ball_control');
         const val = (
             0.25044329239850 * dribbling +
             0.10001066600723 * balance +
@@ -504,11 +573,11 @@ window.renderPlayerStatsSection = function(player) {
     };
 
     const calculateDefendingWithBoosts = (player, boosts) => {
-        const marking = getStatWithBoost(player, boosts, 'marking');
-        const standing_tackle = getStatWithBoost(player, boosts, 'standing_tackle');
-        const sliding_tackle = getStatWithBoost(player, boosts, 'sliding_tackle');
-        const awareness = getStatWithBoost(player, boosts, 'awareness', 'interceptions');
-        const heading = getStatWithBoost(player, boosts, 'heading');
+        const marking = getFinalStat('marking');
+        const standing_tackle = getFinalStat('standing_tackle');
+        const sliding_tackle = getFinalStat('sliding_tackle');
+        const awareness = getFinalStat('awareness', 'interceptions');
+        const heading = getFinalStat('heading');
         const val = (
             0.25029448767320 * marking +
             0.20107682619015 * standing_tackle +
@@ -521,10 +590,10 @@ window.renderPlayerStatsSection = function(player) {
     };
 
     const calculatePhysicalWithBoosts = (player, boosts) => {
-        const strength = getStatWithBoost(player, boosts, 'strength');
-        const aggression = getStatWithBoost(player, boosts, 'aggression');
-        const jumping = getStatWithBoost(player, boosts, 'jumping');
-        const stamina = getStatWithBoost(player, boosts, 'stamina_stat', 'stamina');
+        const strength = getFinalStat('strength');
+        const aggression = getFinalStat('aggression');
+        const jumping = getFinalStat('jumping');
+        const stamina = getFinalStat('stamina_stat', 'stamina');
         const val = (
             0.44955969076149 * strength +
             0.29976663944687 * aggression +
@@ -536,10 +605,10 @@ window.renderPlayerStatsSection = function(player) {
     };
 
     const calculateGKPhysicalWithBoosts = (player, boosts) => {
-        const reactions = getStatWithBoost(player, boosts, 'reactions');
-        const agility = getStatWithBoost(player, boosts, 'agility');
-        const sprint_speed = getStatWithBoost(player, boosts, 'sprint_speed');
-        const strength = getStatWithBoost(player, boosts, 'strength');
+        const reactions = getFinalStat('reactions');
+        const agility = getFinalStat('agility');
+        const sprint_speed = getFinalStat('sprint_speed');
+        const strength = getFinalStat('strength');
         const val = (
             0.64960512284621 * reactions +
             0.15093757174982 * agility +
@@ -556,43 +625,43 @@ window.renderPlayerStatsSection = function(player) {
             {
                 name: 'Diving',
                 key: 'diving',
-                mainValue: getStatWithBoost(player, player.training_boosts, 'diving'),
+                mainValue: getFinalStat('diving'),
                 substats: [
-                    { label: 'GK Diving', value: getStatWithBoost(player, player.training_boosts, 'gk_diving', 'diving') }
+                    { label: 'GK Diving', value: getFinalStat('gk_diving', 'diving') }
                 ]
             },
             {
                 name: 'Positioning',
                 key: 'gk_positioning',
-                mainValue: getStatWithBoost(player, player.training_boosts, 'gk_positioning', 'positioning'),
+                mainValue: getFinalStat('gk_positioning', 'positioning'),
                 substats: [
-                    { label: 'GK Positioning', value: getStatWithBoost(player, player.training_boosts, 'gk_positioning', 'positioning') }
+                    { label: 'GK Positioning', value: getFinalStat('gk_positioning', 'positioning') }
                 ]
             },
             {
                 name: 'Handling',
                 key: 'handling',
-                mainValue: getStatWithBoost(player, player.training_boosts, 'handling'),
+                mainValue: getFinalStat('handling'),
                 substats: [
-                    { label: 'GK Handling', value: getStatWithBoost(player, player.training_boosts, 'gk_handling', 'handling') }
+                    { label: 'GK Handling', value: getFinalStat('gk_handling', 'handling') }
                 ]
             },
             {
                 name: 'Reflexes',
                 key: 'reflexes',
-                mainValue: getStatWithBoost(player, player.training_boosts, 'reflexes'),
+                mainValue: getFinalStat('reflexes'),
                 substats: [
-                    { label: 'GK Reflexes', value: getStatWithBoost(player, player.training_boosts, 'gk_reflexes', 'reflexes') },
-                    { label: 'Jumping', value: getStatWithBoost(player, player.training_boosts, 'jumping') }
+                    { label: 'GK Reflexes', value: getFinalStat('gk_reflexes', 'reflexes') },
+                    { label: 'Jumping', value: getFinalStat('jumping') }
                 ]
             },
             {
                 name: 'Kicking',
                 key: 'kicking',
-                mainValue: getStatWithBoost(player, player.training_boosts, 'kicking'),
+                mainValue: getFinalStat('kicking'),
                 substats: [
-                    { label: 'GK Kicking', value: getStatWithBoost(player, player.training_boosts, 'gk_kicking', 'kicking') },
-                    { label: 'Long Passing', value: getStatWithBoost(player, player.training_boosts, 'long_passing') }
+                    { label: 'GK Kicking', value: getFinalStat('gk_kicking', 'kicking') },
+                    { label: 'Long Passing', value: getFinalStat('long_passing') }
                 ]
             },
             {
@@ -600,10 +669,10 @@ window.renderPlayerStatsSection = function(player) {
                 key: 'physical',
                 mainValue: calculateGKPhysicalWithBoosts(player, player.training_boosts),
                 substats: [
-                    { label: 'Reactions', value: getStatWithBoost(player, player.training_boosts, 'reactions') },
-                    { label: 'Agility', value: getStatWithBoost(player, player.training_boosts, 'agility') },
-                    { label: 'Sprint Speed', value: getStatWithBoost(player, player.training_boosts, 'sprint_speed') },
-                    { label: 'Strength', value: getStatWithBoost(player, player.training_boosts, 'strength') }
+                    { label: 'Reactions', value: getFinalStat('reactions') },
+                    { label: 'Agility', value: getFinalStat('agility') },
+                    { label: 'Sprint Speed', value: getFinalStat('sprint_speed') },
+                    { label: 'Strength', value: getFinalStat('strength') }
                 ]
             }
         ];
@@ -614,8 +683,8 @@ window.renderPlayerStatsSection = function(player) {
                 key: 'pace',
                 mainValue: calculatePaceWithBoosts(player, player.training_boosts),
                 substats: [
-                    { label: 'Acceleration', value: getStatWithBoost(player, player.training_boosts, 'acceleration') },
-                    { label: 'Sprint Speed', value: getStatWithBoost(player, player.training_boosts, 'sprint_speed') }
+                    { label: 'Acceleration', value: getFinalStat('acceleration') },
+                    { label: 'Sprint Speed', value: getFinalStat('sprint_speed') }
                 ]
             },
             {
@@ -623,12 +692,12 @@ window.renderPlayerStatsSection = function(player) {
                 key: 'shooting',
                 mainValue: calculateShootingWithBoosts(player, player.training_boosts),
                 substats: [
-                    { label: 'Finishing', value: getStatWithBoost(player, player.training_boosts, 'finishing') },
-                    { label: 'Long Shot', value: getStatWithBoost(player, player.training_boosts, 'long_shot', 'long_shots') },
-                    { label: 'Shot Power', value: getStatWithBoost(player, player.training_boosts, 'shot_power') },
-                    { label: 'Positioning', value: getStatWithBoost(player, player.training_boosts, 'positioning') },
-                    { label: 'Volley', value: getStatWithBoost(player, player.training_boosts, 'volley', 'volleys') },
-                    { label: 'Penalties', value: getStatWithBoost(player, player.training_boosts, 'penalties') }
+                    { label: 'Finishing', value: getFinalStat('finishing') },
+                    { label: 'Long Shot', value: getFinalStat('long_shot', 'long_shots') },
+                    { label: 'Shot Power', value: getFinalStat('shot_power') },
+                    { label: 'Positioning', value: getFinalStat('positioning') },
+                    { label: 'Volley', value: getFinalStat('volley', 'volleys') },
+                    { label: 'Penalties', value: getFinalStat('penalties') }
                 ]
             },
             {
@@ -636,12 +705,12 @@ window.renderPlayerStatsSection = function(player) {
                 key: 'passing',
                 mainValue: calculatePassingWithBoosts(player, player.training_boosts),
                 substats: [
-                    { label: 'Short Passing', value: getStatWithBoost(player, player.training_boosts, 'short_passing') },
-                    { label: 'Long Passing', value: getStatWithBoost(player, player.training_boosts, 'long_passing') },
-                    { label: 'Vision', value: getStatWithBoost(player, player.training_boosts, 'vision') },
-                    { label: 'Crossing', value: getStatWithBoost(player, player.training_boosts, 'crossing') },
-                    { label: 'Curve', value: getStatWithBoost(player, player.training_boosts, 'curve') },
-                    { label: 'Free Kick', value: getStatWithBoost(player, player.training_boosts, 'free_kick', 'fk_accuracy') }
+                    { label: 'Short Passing', value: getFinalStat('short_passing') },
+                    { label: 'Long Passing', value: getFinalStat('long_passing') },
+                    { label: 'Vision', value: getFinalStat('vision') },
+                    { label: 'Crossing', value: getFinalStat('crossing') },
+                    { label: 'Curve', value: getFinalStat('curve') },
+                    { label: 'Free Kick', value: getFinalStat('free_kick', 'fk_accuracy') }
                 ]
             },
             {
@@ -649,11 +718,11 @@ window.renderPlayerStatsSection = function(player) {
                 key: 'dribbling',
                 mainValue: calculateDribblingWithBoosts(player, player.training_boosts),
                 substats: [
-                    { label: 'Dribbling', value: getStatWithBoost(player, player.training_boosts, 'dribbling') },
-                    { label: 'Balance', value: getStatWithBoost(player, player.training_boosts, 'balance') },
-                    { label: 'Agility', value: getStatWithBoost(player, player.training_boosts, 'agility') },
-                    { label: 'Reactions', value: getStatWithBoost(player, player.training_boosts, 'reactions') },
-                    { label: 'Ball Control', value: getStatWithBoost(player, player.training_boosts, 'ball_control') }
+                    { label: 'Dribbling', value: getFinalStat('dribbling') },
+                    { label: 'Balance', value: getFinalStat('balance') },
+                    { label: 'Agility', value: getFinalStat('agility') },
+                    { label: 'Reactions', value: getFinalStat('reactions') },
+                    { label: 'Ball Control', value: getFinalStat('ball_control') }
                 ]
             },
             {
@@ -661,11 +730,11 @@ window.renderPlayerStatsSection = function(player) {
                 key: 'defending',
                 mainValue: calculateDefendingWithBoosts(player, player.training_boosts),
                 substats: [
-                    { label: 'Marking', value: getStatWithBoost(player, player.training_boosts, 'marking') },
-                    { label: 'Standing Tackle', value: getStatWithBoost(player, player.training_boosts, 'standing_tackle') },
-                    { label: 'Sliding Tackle', value: getStatWithBoost(player, player.training_boosts, 'sliding_tackle') },
-                    { label: 'Awareness', value: getStatWithBoost(player, player.training_boosts, 'awareness', 'interceptions') },
-                    { label: 'Heading', value: getStatWithBoost(player, player.training_boosts, 'heading') }
+                    { label: 'Marking', value: getFinalStat('marking') },
+                    { label: 'Standing Tackle', value: getFinalStat('standing_tackle') },
+                    { label: 'Sliding Tackle', value: getFinalStat('sliding_tackle') },
+                    { label: 'Awareness', value: getFinalStat('awareness', 'interceptions') },
+                    { label: 'Heading', value: getFinalStat('heading') }
                 ]
             },
             {
@@ -673,10 +742,10 @@ window.renderPlayerStatsSection = function(player) {
                 key: 'physical',
                 mainValue: calculatePhysicalWithBoosts(player, player.training_boosts),
                 substats: [
-                    { label: 'Strength', value: getStatWithBoost(player, player.training_boosts, 'strength') },
-                    { label: 'Aggression', value: getStatWithBoost(player, player.training_boosts, 'aggression') },
-                    { label: 'Jumping', value: getStatWithBoost(player, player.training_boosts, 'jumping') },
-                    { label: 'Stamina', value: getStatWithBoost(player, player.training_boosts, 'stamina_stat', 'stamina') }
+                    { label: 'Strength', value: getFinalStat('strength') },
+                    { label: 'Aggression', value: getFinalStat('aggression') },
+                    { label: 'Jumping', value: getFinalStat('jumping') },
+                    { label: 'Stamina', value: getFinalStat('stamina_stat', 'stamina') }
                 ]
             }
         ];
@@ -2088,16 +2157,15 @@ window.upgradeSkillLevel = async function(skillId, newLevel, playerId, rank) {
       // Calculate skill boosts from allocations
       const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
       
-      // Merge training boosts with skill boosts
-      const combinedBoosts = mergeBoosts(resp.player.training_boosts, skillBoosts);
+      const trainingBoosts = state.selectedPlayer?.training_boosts || null;
       
       const updatedPlayer = {
         ...state.selectedPlayer,
         ...resp.player,
         skills: resp.skills,
         available_skill_points: resp.available_skill_points,
-        training_boosts: combinedBoosts,  // Use combined boosts
-        skill_boosts: skillBoosts          // Store separately for reference
+        training_boosts: trainingBoosts,
+        skill_boosts: skillBoosts
       };
       
       state.selectedPlayer = updatedPlayer;
@@ -2157,14 +2225,14 @@ window.resetPlayerSkills = async function(playerId, rank) {
         rank
       );
       const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
-      const combinedBoosts = mergeBoosts(resp.player.training_boosts, skillBoosts);
+      const trainingBoosts = state.selectedPlayer?.training_boosts || null;
 
       const updatedPlayer = {
         ...state.selectedPlayer,
         ...resp.player,
         skills: resp.skills,
         available_skill_points: resp.available_skill_points,
-        training_boosts: combinedBoosts,
+        training_boosts: trainingBoosts,
         skill_boosts: skillBoosts
       };
       
@@ -2478,9 +2546,8 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
 
     // Calculate skill boosts from allocations
     const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
-
-    // Merge training boosts with skill boosts
-    const combinedBoosts = mergeBoosts(resp.player.training_boosts, skillBoosts);
+    const trainingBoosts = basePlayer?.training_boosts || null;
+    const combinedBoosts = isCompare ? mergeBoosts(trainingBoosts, skillBoosts) : trainingBoosts;
 
     const updatedPlayer = {
       ...basePlayer,
@@ -3117,7 +3184,7 @@ window.resetPlayerRank = async function(playerId) {
       0
     );
     const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
-    const combinedBoosts = mergeBoosts(resp.player.training_boosts, skillBoosts);
+    const trainingBoosts = state.selectedPlayer?.training_boosts || null;
 
     const updatedPlayer = {
       ...state.selectedPlayer,
@@ -3125,7 +3192,7 @@ window.resetPlayerRank = async function(playerId) {
       rank: 0,
       skills: resp.skills,
       available_skill_points: resp.available_skill_points,
-      training_boosts: combinedBoosts,
+      training_boosts: trainingBoosts,
       skill_boosts: skillBoosts,
       color_rating: resp.player?.color_rating || state.selectedPlayer?.color_rating,
       color_position: resp.player?.color_position || state.selectedPlayer?.color_position,
