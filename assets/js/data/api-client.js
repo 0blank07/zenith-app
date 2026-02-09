@@ -154,13 +154,25 @@ class ZenithAPIClient {
     if (userId === undefined || userId === null) throw new Error('userId is required');
     if (playerId === undefined || playerId === null) throw new Error('playerId is required');
     
+    const { allowLocalOverride = true, updateCache = true, ...requestOpts } = opts;
+    if (allowLocalOverride && typeof window !== 'undefined' && typeof window.getSkillAllocationsCacheEntry === 'function') {
+      const cachedEntry = window.getSkillAllocationsCacheEntry(userId, playerId, rank);
+      if (cachedEntry && cachedEntry.source === 'local') {
+        return { allocations: cachedEntry.allocations || [], source: 'local', cached: true };
+      }
+    }
+
     const endpoint = `skills/allocations/${encodeURIComponent(userId)}/${encodeURIComponent(playerId)}?rank=${encodeURIComponent(rank)}`;
     
     // Don't cache allocations - they change frequently
-    return this.fetchWithCache(endpoint, { 
+    const response = await this.fetchWithCache(endpoint, { 
       cache: false,  // Always fetch fresh
-      ...opts 
+      ...requestOpts 
     });
+    if (updateCache && typeof window !== 'undefined' && typeof window.setSkillAllocationsCacheEntry === 'function' && response?.allocations) {
+      window.setSkillAllocationsCacheEntry(userId, playerId, rank, response.allocations, 'server');
+    }
+    return response;
   }
 
   /**

@@ -1912,9 +1912,63 @@ function calculateMaxLevels(skills) {
   return maxLevels;
 }
 
+const SKILL_ALLOCATIONS_STORAGE_KEY = 'zenith_skill_allocations_cache';
+let skillAllocationsCache = null;
+
+function loadSkillAllocationsCache() {
+  if (skillAllocationsCache) return;
+  skillAllocationsCache = {};
+  try {
+    const raw = localStorage.getItem(SKILL_ALLOCATIONS_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        skillAllocationsCache = parsed;
+      }
+    }
+  } catch (error) {
+    console.warn('[SKILLS] Failed to load skill cache:', error);
+    skillAllocationsCache = {};
+  }
+}
+
+function persistSkillAllocationsCache() {
+  if (!skillAllocationsCache) return;
+  try {
+    localStorage.setItem(SKILL_ALLOCATIONS_STORAGE_KEY, JSON.stringify(skillAllocationsCache));
+  } catch (error) {
+    console.warn('[SKILLS] Failed to save skill cache:', error);
+  }
+}
+
+function getSkillAllocationsCacheKey(userId, playerId, rank) {
+  return `${String(userId)}:${String(playerId)}:${String(rank || 0)}`;
+}
+
+function getSkillAllocationsCacheEntry(userId, playerId, rank) {
+  loadSkillAllocationsCache();
+  const key = getSkillAllocationsCacheKey(userId, playerId, rank);
+  return skillAllocationsCache[key] || null;
+}
+
+function setSkillAllocationsCacheEntry(userId, playerId, rank, allocations, source = 'local') {
+  loadSkillAllocationsCache();
+  const key = getSkillAllocationsCacheKey(userId, playerId, rank);
+  skillAllocationsCache[key] = {
+    allocations: Array.isArray(allocations) ? allocations : [],
+    source,
+    updatedAt: Date.now()
+  };
+  persistSkillAllocationsCache();
+  return skillAllocationsCache[key];
+}
+
+window.getSkillAllocationsCacheEntry = getSkillAllocationsCacheEntry;
+window.setSkillAllocationsCacheEntry = setSkillAllocationsCacheEntry;
+
 
 // ==================== RENDER PLAYER SKILLS ====================
-async function renderPlayerSkills(player) {
+async function renderPlayerSkills(player, options = {}) {
   console.log('[SKILLS] Rendering skills for player:', player.player_id, 'Rank:', player.rank);
   
   const skillsGrid = document.getElementById('player-skills-grid');
@@ -1935,17 +1989,25 @@ async function renderPlayerSkills(player) {
   const maxLevels = calculateMaxLevels(skills);
 
   // Fetch user's current allocations
-  let userAllocations = [];
-  try {
-    const response = await window.apiClient.getUserSkillAllocations(
-      CURRENT_USER_ID, 
-      player.player_id, 
-      currentRank
-    );
-    userAllocations = response.allocations || [];
-    console.log('[SKILLS] User allocations:', userAllocations);
-  } catch (error) {
-    console.error('[SKILLS] Error fetching allocations:', error);
+  const hasProvidedAllocations = Array.isArray(options.allocations);
+  let userAllocations = hasProvidedAllocations ? options.allocations : [];
+  if (!hasProvidedAllocations) {
+    try {
+      const response = await window.apiClient.getUserSkillAllocations(
+        CURRENT_USER_ID, 
+        player.player_id, 
+        currentRank
+      );
+      userAllocations = response.allocations || [];
+      if (typeof window.setSkillAllocationsCacheEntry === 'function') {
+        window.setSkillAllocationsCacheEntry(CURRENT_USER_ID, player.player_id, currentRank, userAllocations, response.source || 'server');
+      }
+      console.log('[SKILLS] User allocations:', userAllocations);
+    } catch (error) {
+      console.error('[SKILLS] Error fetching allocations:', error);
+    }
+  } else if (typeof window.setSkillAllocationsCacheEntry === 'function') {
+    window.setSkillAllocationsCacheEntry(CURRENT_USER_ID, player.player_id, currentRank, userAllocations, options.source || 'local');
   }
 
   // Build a map of skill_id -> current level
@@ -2151,7 +2213,8 @@ window.upgradeSkillLevel = async function(skillId, newLevel, playerId, rank) {
       const allocationsResp = await window.apiClient.getUserSkillAllocations(
         CURRENT_USER_ID,
         playerId,
-        rank
+        rank,
+        { allowLocalOverride: false }
       );
       
       // Calculate skill boosts from allocations
@@ -2222,7 +2285,8 @@ window.resetPlayerSkills = async function(playerId, rank) {
       const allocationsResp = await window.apiClient.getUserSkillAllocations(
         CURRENT_USER_ID,
         playerId,
-        rank
+        rank,
+        { allowLocalOverride: false }
       );
       const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
       const trainingBoosts = state.selectedPlayer?.training_boosts || null;
@@ -2496,33 +2560,14 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
       ? 'SKILL_LEVEL_REMOVED'
       : (isSwitch ? 'SKILL_LEVEL_SWITCHED' : (isApplied ? 'SKILL_LEVEL_APPLIED' : ''));
     console.log("[Skills] Skill toggled:", skillId, "New Level:", newLevel);
+    const isDeselect = newLevel === 0 && normalizedCurrent > 0;
     
     // If same as current, no change needed
     if (newLevel === normalizedCurrent) {
       console.log('[SKILLS] No change needed');
       return;
     }
-    
-    // Call upgradeSkill API with new level
-    const result = await window.apiClient.upgradeSkill(
-      CURRENT_USER_ID,
-      playerId,
-      rank,
-      skillId,
-      newLevel
-    );
-    
-    console.log('[SKILLS] Level change success:', result);
-    if (logEvent && typeof window.devLog === 'function') {
-      window.devLog(logEvent, {
-        skillId,
-        fromLevel: normalizedCurrent,
-        toLevel: newLevel,
-        playerId,
-        rank
-      });
-    }
-    
+
     const isCompare = compareCustomizationContext.active &&
       String(compareCustomizationContext.playerId) === String(playerId);
     const basePlayer = isCompare
@@ -2535,26 +2580,120 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
       return;
     }
 
-    const resp = await window.apiClient.getPlayerDetails(playerId, rank);
+    const cachedEntry = typeof window.getSkillAllocationsCacheEntry === 'function'
+      ? window.getSkillAllocationsCacheEntry(CURRENT_USER_ID, playerId, rank)
+      : null;
+    const hasLocalOverride = cachedEntry && cachedEntry.source === 'local';
+    let serverSkillLevel = normalizedCurrent;
+    if (newLevel > normalizedCurrent && hasLocalOverride) {
+      try {
+        const serverAllocationsResp = await window.apiClient.getUserSkillAllocations(
+          CURRENT_USER_ID,
+          playerId,
+          rank,
+          { allowLocalOverride: false, updateCache: false }
+        );
+        const serverAllocation = (serverAllocationsResp.allocations || []).find(a => String(a.skill_id) === String(skillId));
+        serverSkillLevel = Number(serverAllocation?.skill_level) || 0;
+        console.log('[SKILLS] Server level check:', {
+          skillId,
+          serverSkillLevel,
+          localLevel: normalizedCurrent,
+          targetLevel: newLevel
+        });
+      } catch (error) {
+        console.warn('[SKILLS] Server level check failed, using local level', error);
+      }
+    }
 
-    // Fetch user's skill allocations
-    const allocationsResp = await window.apiClient.getUserSkillAllocations(
-      CURRENT_USER_ID,
-      playerId,
-      rank
-    );
-
-    // Calculate skill boosts from allocations
-    const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
+    const isUpgrade = newLevel > serverSkillLevel;
+    
+    if (logEvent && typeof window.devLog === 'function') {
+      window.devLog(logEvent, {
+        skillId,
+        fromLevel: normalizedCurrent,
+        toLevel: newLevel,
+        playerId,
+        rank
+      });
+    }
+    
     const trainingBoosts = basePlayer?.training_boosts || null;
+    let allocations = [];
+    let allocationsSource = 'local';
+    let resp = null;
+
+    if (isUpgrade) {
+      const result = await window.apiClient.upgradeSkill(
+        CURRENT_USER_ID,
+        playerId,
+        rank,
+        skillId,
+        newLevel
+      );
+      console.log('[SKILLS] Level change success:', result);
+
+      resp = await window.apiClient.getPlayerDetails(playerId, rank);
+
+      const allocationsResp = await window.apiClient.getUserSkillAllocations(
+        CURRENT_USER_ID,
+        playerId,
+        rank,
+        { allowLocalOverride: false }
+      );
+      allocations = allocationsResp.allocations || [];
+      allocationsSource = 'server';
+    } else {
+      const localActionLabel = isDeselect
+        ? '[SKILLS] Deselected skill locally'
+        : (newLevel < normalizedCurrent ? '[SKILLS] Downgraded skill locally' : '[SKILLS] Applied skill locally');
+      console.log(localActionLabel, {
+        skillId,
+        fromLevel: normalizedCurrent,
+        toLevel: newLevel,
+        playerId,
+        rank
+      });
+
+      const hasCachedAllocations = cachedEntry && Array.isArray(cachedEntry.allocations);
+      allocations = hasCachedAllocations ? [...cachedEntry.allocations] : [];
+
+      if (!hasCachedAllocations) {
+        const allocationsResp = await window.apiClient.getUserSkillAllocations(
+          CURRENT_USER_ID,
+          playerId,
+          rank
+        );
+        allocations = allocationsResp.allocations || [];
+      }
+
+      const normalizedSkillId = Number(skillId);
+      const updatedAllocations = allocations.filter(a => String(a.skill_id) !== String(normalizedSkillId));
+      if (newLevel > 0) {
+        const existing = allocations.find(a => String(a.skill_id) === String(normalizedSkillId)) || {};
+        updatedAllocations.push({
+          ...existing,
+          skill_id: normalizedSkillId,
+          skill_level: newLevel
+        });
+      }
+      allocations = updatedAllocations;
+      allocationsSource = 'local';
+
+      if (typeof window.setSkillAllocationsCacheEntry === 'function') {
+        window.setSkillAllocationsCacheEntry(CURRENT_USER_ID, playerId, rank, allocations, 'local');
+      }
+    }
+
+    const skillBoosts = await calculateSkillBoosts(allocations || []);
     const combinedBoosts = isCompare ? mergeBoosts(trainingBoosts, skillBoosts) : trainingBoosts;
 
     const updatedPlayer = {
       ...basePlayer,
-      ...resp.player,
+      ...(resp?.player || {}),
       rank,
-      skills: resp.skills,
-      available_skill_points: resp.available_skill_points,
+      skills: resp?.skills || basePlayer.skills || [],
+      available_skill_points: resp?.available_skill_points ?? basePlayer.available_skill_points,
       training_boosts: combinedBoosts,
       skill_boosts: skillBoosts
     };
@@ -2564,19 +2703,25 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
       skills: updatedPlayer.skill_boosts
     });
 
+    const selectedSkills = (allocations || []).map(a => ({
+      skill_id: a.skill_id,
+      skill_level: a.skill_level
+    }));
+
     if (isCompare) {
       compareCustomizationState.player = updatedPlayer;
-      compareCustomizationState.selectedSkills = (allocationsResp.allocations || []).map(a => ({
-        skill_id: a.skill_id,
-        skill_level: a.skill_level
-      }));
+      compareCustomizationState.selectedSkills = selectedSkills;
       compareSkillBoost = skillBoosts || {};
-      await renderComparePlayerSkills();
+      await renderComparePlayerSkills({ player: updatedPlayer, allocations, source: allocationsSource });
     } else if (state.selectedPlayer) {
       state.selectedPlayer = updatedPlayer;
+      if (window.squadCustomizationState &&
+          String(window.squadCustomizationState.playerId) === String(playerId)) {
+        window.squadCustomizationState.selectedSkills = selectedSkills;
+      }
 
       // Re-render skills grid
-      await renderPlayerSkills(updatedPlayer);
+      await renderPlayerSkills(updatedPlayer, { allocations, source: allocationsSource });
 
       // Re-render stats section to show updated skill boosts
       if (typeof window.updatePlayerStatsSection === 'function') {
@@ -2590,15 +2735,15 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
     const modal = document.getElementById('skill-detail-modal');
     if (modal && modal.style.display !== 'none') {
       // Get updated allocation info
-      const allocations = allocationsResp.allocations || [];
+      const allocationRows = allocations || [];
       const allocationMap = {};
-      allocations.forEach(a => {
+      allocationRows.forEach(a => {
         allocationMap[a.skill_id] = a.skill_level;
       });
 
       // Calculate updated points remaining
       const totalPoints = updatedPlayer.available_skill_points || updatedPlayer.rank || 0;
-      const usedPoints = allocations.reduce((sum, a) => sum + (a.skill_level || 0), 0);
+      const usedPoints = allocationRows.reduce((sum, a) => sum + (a.skill_level || 0), 0);
       const pointsRemaining = totalPoints - usedPoints;
 
       // Get current skill's updated level
@@ -2610,7 +2755,7 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
 
       // Re-render modal content directly (no loading state, no flicker)
       const updatedAllocMap = {};
-      allocations.forEach(a => {
+      allocationRows.forEach(a => {
         updatedAllocMap[a.skill_id] = a.skill_level;
       });
       const updatedSkills = updatedPlayer.skills || [];
@@ -3181,7 +3326,8 @@ window.resetPlayerRank = async function(playerId) {
     const allocationsResp = await window.apiClient.getUserSkillAllocations(
       CURRENT_USER_ID,
       playerId,
-      0
+      0,
+      { allowLocalOverride: false }
     );
     const skillBoosts = await calculateSkillBoosts(allocationsResp.allocations || []);
     const trainingBoosts = state.selectedPlayer?.training_boosts || null;
@@ -7854,12 +8000,13 @@ function updateCompareCustomizationMiniCard() {
   }
 }
 
-async function renderComparePlayerSkills() {
+async function renderComparePlayerSkills(options = {}) {
   const container = document.getElementById('squad-custom-skills');
   if (!container) return;
 
-  const playerId = compareCustomizationState.playerId;
-  const rank = compareCustomizationState.selectedRank || 0;
+  const resolvedPlayerId = options.player ? resolveComparePlayerId(options.player) : null;
+  const playerId = compareCustomizationState.playerId || resolvedPlayerId;
+  const rank = compareCustomizationState.selectedRank || options.player?.rank || 0;
 
   if (!playerId || !rank) {
     renderCompareSkillsMessage('Select a rank to view skills');
@@ -7871,25 +8018,39 @@ async function renderComparePlayerSkills() {
     return;
   }
 
-  let detailsResponse;
-  try {
-    detailsResponse = await window.apiClient.getPlayerDetails(playerId, rank, { cache: false });
-  } catch (error) {
-    console.error('[COMPARE SKILLS] Error loading skills:', error);
-    renderCompareSkillsMessage('Failed to load skills');
-    return;
-  }
-
-  const basePlayer = compareCustomizationState.player ||
+  const basePlayer = options.player ||
+    compareCustomizationState.player ||
     compareState.selectedPlayers.find(p => resolveComparePlayerId(p) === resolveComparePlayerId(playerId)) || {};
-  const mergedPlayer = {
-    ...basePlayer,
-    ...(detailsResponse.player || {}),
-    player_id: basePlayer.player_id || basePlayer.id || detailsResponse.player?.player_id || playerId,
-    rank: rank,
-    skills: detailsResponse.skills || [],
-    available_skill_points: detailsResponse.available_skill_points
-  };
+
+  let mergedPlayer = null;
+  if (options.player) {
+    mergedPlayer = {
+      ...basePlayer,
+      ...options.player,
+      player_id: basePlayer.player_id || basePlayer.id || options.player?.player_id || playerId,
+      rank: rank,
+      skills: options.player?.skills || basePlayer.skills || [],
+      available_skill_points: options.player?.available_skill_points ?? basePlayer.available_skill_points
+    };
+  } else {
+    let detailsResponse;
+    try {
+      detailsResponse = await window.apiClient.getPlayerDetails(playerId, rank, { cache: false });
+    } catch (error) {
+      console.error('[COMPARE SKILLS] Error loading skills:', error);
+      renderCompareSkillsMessage('Failed to load skills');
+      return;
+    }
+
+    mergedPlayer = {
+      ...basePlayer,
+      ...(detailsResponse.player || {}),
+      player_id: basePlayer.player_id || basePlayer.id || detailsResponse.player?.player_id || playerId,
+      rank: rank,
+      skills: detailsResponse.skills || [],
+      available_skill_points: detailsResponse.available_skill_points
+    };
+  }
 
   compareCustomizationState.player = mergedPlayer;
 
@@ -7907,9 +8068,10 @@ async function renderComparePlayerSkills() {
     return;
   }
 
-  let userAllocations = [];
+  const hasProvidedAllocations = Array.isArray(options.allocations);
+  let userAllocations = hasProvidedAllocations ? options.allocations : [];
   const userId = typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null;
-  if (userId && typeof window.apiClient.getUserSkillAllocations === 'function') {
+  if (!hasProvidedAllocations && userId && typeof window.apiClient.getUserSkillAllocations === 'function') {
     try {
       const response = await window.apiClient.getUserSkillAllocations(
         userId,
@@ -7920,6 +8082,8 @@ async function renderComparePlayerSkills() {
     } catch (error) {
       console.error('[COMPARE SKILLS] Error fetching allocations:', error);
     }
+  } else if (userId && typeof window.setSkillAllocationsCacheEntry === 'function') {
+    window.setSkillAllocationsCacheEntry(userId, mergedPlayer.player_id, rank, userAllocations, options.source || 'local');
   }
 
   const allocationMap = {};
