@@ -88,17 +88,17 @@ function animateNumber(elementId, target) {
 }
 
 const RANK_OVERLAY_IMAGE_MAP = {
-  1: 'assets/images/rank_simple/green_rank_simple.png',
-  2: 'assets/images/rank_simple/blue_rank_simple.png',
-  3: 'assets/images/rank_simple/purple_rank_simple.png',
-  4: 'assets/images/rank_simple/red_rank_simple.png',
-  5: 'assets/images/rank_simple/orange_gold_simple.png',
-  green: 'assets/images/rank_simple/green_rank_simple.png',
-  blue: 'assets/images/rank_simple/blue_rank_simple.png',
-  purple: 'assets/images/rank_simple/purple_rank_simple.png',
-  red: 'assets/images/rank_simple/red_rank_simple.png',
-  gold: 'assets/images/rank_simple/orange_gold_simple.png',
-  orange: 'assets/images/rank_simple/orange_gold_simple.png'
+  1: 'assets/images/rank_single_frame/single_green_rank.png',
+  2: 'assets/images/rank_single_frame/single_blue_rank.png',
+  3: 'assets/images/rank_single_frame/single_purple_rank.png',
+  4: 'assets/images/rank_single_frame/single_red_rank.png',
+  5: 'assets/images/rank_single_frame/single_gold_rank.png',
+  green: 'assets/images/rank_single_frame/single_green_rank.png',
+  blue: 'assets/images/rank_single_frame/single_blue_rank.png',
+  purple: 'assets/images/rank_single_frame/single_purple_rank.png',
+  red: 'assets/images/rank_single_frame/single_red_rank.png',
+  gold: 'assets/images/rank_single_frame/single_gold_rank.png',
+  orange: 'assets/images/rank_single_frame/single_gold_rank.png',
 };
 
 function getRankOverlaySrc(rank) {

@@ -8209,6 +8209,7 @@ body.stats-open #squad-builder-modal {
   border-radius: 3px;
   z-index: 3;
   transform: scale(0.1);
+  margin-left: 8px;
 }
 
 
@@ -8340,4 +8341,17 @@ body.stats-open #squad-builder-modal {
 .squad-close:hover {
   background: rgba(var(--color-teal-rgb), 0.1);
   border-color: rgba(var(--color-teal-rgb), 0.4);
+}
+
+/* Adjust rank overlay for compare view */
+.rank-overlay--compare {
+  bottom: 5px !important;
+  margin-right: 6px !important;
+}
+
+
+/* Adjust rank overlay for squad builder */
+.rank-overlay--squad-builder {
+  bottom: 4px !important;
+  margin-top: 5px;
 }
