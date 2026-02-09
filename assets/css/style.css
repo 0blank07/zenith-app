@@ -9542,6 +9542,7 @@ watchlist-view .view-content {
   }
 }
 
+
 /* Extra Small: max-width 360px - 2 rows: 3 + 3 */
 @media (max-width: 360px) {
   .skills-grid {
@@ -9593,6 +9594,8 @@ watchlist-view .view-content {
     object-fit: cover;
     z-index: 1;
 }
+
+
 
 .player-image-img-inside {
     position: absolute;
