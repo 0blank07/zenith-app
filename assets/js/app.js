@@ -1298,12 +1298,6 @@ async function renderPlayerDetail(player) {
                     font-size: 13px !important;
                 }
                 
-                /* Reduce player image size */
-                .player-top-section img[alt]:first-of-type {
-                    width: 42px !important;
-                    height: 42px !important;
-                }
-                
                 /* Reduce OVR badge */
                 .player-top-section > div:first-child > div:first-child > div:first-child > div:first-child {
                     width: 54px !important;
