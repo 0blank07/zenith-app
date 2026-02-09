@@ -2606,7 +2606,17 @@ window.selectSkillLevel = async function(skillId, targetLevel, currentLevel, pla
       }
     }
 
-    const isUpgrade = newLevel > serverSkillLevel;
+    if (hasLocalOverride && newLevel > normalizedCurrent) {
+      console.log('[SKILLS] Local overrides active - applying upgrade locally', {
+        skillId,
+        fromLevel: normalizedCurrent,
+        toLevel: newLevel,
+        playerId,
+        rank
+      });
+    }
+
+    const isUpgrade = newLevel > serverSkillLevel && !hasLocalOverride;
     
     if (logEvent && typeof window.devLog === 'function') {
       window.devLog(logEvent, {
