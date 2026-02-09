@@ -6993,6 +6993,12 @@ watchlist-view .view-content {
   pointer-events: all;
 }
 
+.banner-slide picture {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .banner-image {
   width: 100%;
   height: 100%;
@@ -11162,5 +11168,5 @@ body {
 
 /* Move rank overlay 5px lower */
 .rank-overlay--player-detail {
-  bottom: 10px !important;  /* Changed from 15px to 10px (moved down 5px) */
+  bottom: 10px !important; /* Changed from 15px to 10px (moved down 5px) */
 }
