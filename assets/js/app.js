@@ -6263,6 +6263,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (!normalizedSelectedEvent) return true;
     const playerEventValue = getDatabasePlayerEventValue(player);
     if (!playerEventValue) return false;
+    const selectedEventKey = normalizedSelectedEvent.replace(/[^a-z0-9]/g, '');
+    const playerEventKey = playerEventValue.replace(/[^a-z0-9]/g, '');
+    if (selectedEventKey && playerEventKey) {
+      return playerEventKey === selectedEventKey;
+    }
     return playerEventValue === normalizedSelectedEvent;
   }
 
