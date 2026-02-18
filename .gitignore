@@ -19,3 +19,5 @@ database_full_schema.txt
 database_schema.json
 zenith_full_schema.sql
 prompt_for_opus.md
+.idea/
+tests/
