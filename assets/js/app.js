@@ -5382,7 +5382,7 @@ async function loadDatabase() {
             rank: state.apiRank
         };
 
-        // Add position filter
+        // Add position filters
         if (state.filters.position) {
             filters.position = state.filters.position;
         }
