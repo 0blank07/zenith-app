@@ -461,8 +461,13 @@
     transform: scaleY(1);
 }
 
-/* Nation Flag */
-.player-row-nation {
+/* ==========================================
+   HERO / ICON PLAYER CARD FLAGS
+   (rank > 0) — no league image
+   ========================================== */
+
+/* Hero/Icon: Nation Flag */
+.player-row-nation--special {
     position: absolute;
     bottom: 18px;
     left: 26px;
@@ -474,8 +479,8 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-/* Club Badge */
-.player-row-club {
+/* Hero/Icon: Club Badge */
+.player-row-club--special {
     position: absolute;
     bottom: 16px;
     right: 25px;
@@ -486,6 +491,52 @@
     z-index: 10;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
+
+/* ==========================================
+   NORMAL PLAYER CARD FLAGS
+   (rank = 0) — includes league image
+   ========================================== */
+
+/* Normal: Nation Flag */
+.player-row-nation--normal {
+    position: absolute;
+    bottom: 18px;
+    left: 26px;
+    width: 12px;
+    height: 10px;
+    object-fit: cover;
+    border-radius: 1px;
+    z-index: 10;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Normal: League Image */
+.player-row-league--normal {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
+    border-radius: 1px;
+    z-index: 10;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Normal: Club Badge */
+.player-row-club--normal {
+    position: absolute;
+    bottom: 16px;
+    right: 25px;
+    width: 15px;
+    height: 12px;
+    object-fit: contain;
+    border-radius: 2px;
+    z-index: 10;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
 /* ==========================================
    OTHER DEVICES FROM HERE
    ========================================== */
@@ -550,15 +601,35 @@
         letter-spacing: -0.8px;
         line-height: 1.1;
     }
-    
-    .player-row-nation {
+
+    /* Hero/Icon flags - 1024px */
+    .player-row-nation--special {
         width: 10px;
         height: 10px;
         bottom: 6px;
         left: 40px;
     }
-    
-    .player-row-club {
+    .player-row-club--special {
+        width: 13px;
+        height: 8px;
+        bottom: 7px;
+        left: 68px;
+    }
+
+    /* Normal player flags - 1024px */
+    .player-row-nation--normal {
+        width: 10px;
+        height: 10px;
+        bottom: 6px;
+        left: 40px;
+    }
+    .player-row-league--normal {
+        width: 10px;
+        height: 10px;
+        bottom: 6px;
+        left: 54px;
+    }
+    .player-row-club--normal {
         width: 13px;
         height: 8px;
         bottom: 7px;
@@ -632,8 +703,9 @@
         letter-spacing: -0.8px;
         line-height: 1.1;
     }
-    
-    .player-row-nation {
+
+    /* Hero/Icon flags - 968px */
+    .player-row-nation--special {
         position: absolute;
         top: 85px;
         left: 37px;
@@ -643,11 +715,42 @@
         z-index: 10;
         object-fit: cover;
     }
-    
-    .player-row-club {
+    .player-row-club--special {
         position: absolute;
         top: 83px;
         left: 70px;
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        z-index: 10;
+        object-fit: contain;
+    }
+
+    /* Normal player flags - 968px */
+    .player-row-nation--normal {
+        position: absolute;
+        top: 85px;
+        left: 37px;
+        width: 10px;
+        height: 7px;
+        border-radius: 1px;
+        z-index: 10;
+        object-fit: cover;
+    }
+    .player-row-league--normal {
+        position: absolute;
+        top: 83px;
+        left: 53px;
+        width: 10px;
+        height: 10px;
+        border-radius: 1px;
+        z-index: 10;
+        object-fit: contain;
+    }
+    .player-row-club--normal {
+        position: absolute;
+        top: 83px;
+        left: 68px;
         width: 12px;
         height: 12px;
         border-radius: 2px;
@@ -718,16 +821,39 @@
         letter-spacing: -0.8px;
         line-height: 1.1;
     }
-    
-    .player-row-nation {
+
+    /* Hero/Icon flags - 768px */
+    .player-row-nation--special {
         width: 10px;
         height: 10px;
         bottom: 14px;
         left: 32px;
         top: 95px;
     }
-    
-    .player-row-club {
+    .player-row-club--special {
+        width: 13px;
+        height: 10px;
+        bottom: 14px;
+        left: 64px;
+        top: 96px;
+    }
+
+    /* Normal player flags - 768px */
+    .player-row-nation--normal {
+        width: 10px;
+        height: 10px;
+        bottom: 14px;
+        left: 32px;
+        top: 95px;
+    }
+    .player-row-league--normal {
+        width: 10px;
+        height: 10px;
+        bottom: 14px;
+        left: 49px;
+        top: 95px;
+    }
+    .player-row-club--normal {
         width: 13px;
         height: 10px;
         bottom: 14px;
@@ -810,8 +936,9 @@
         letter-spacing: -0.8px;
         line-height: 1.1;
     }
-    
-    .player-row-nation {
+
+    /* Hero/Icon flags - 480px */
+    .player-row-nation--special {
         position: absolute; 
         left: 33px;
         width: 12px;
@@ -821,11 +948,38 @@
         object-fit: cover;
         top: 105px;
     }
-    
-    .player-row-club {
+    .player-row-club--special {
         width: 13px;
         height: 10px;
         left: 70px;
+        top: 105px;
+    }
+
+    /* Normal player flags - 480px */
+    .player-row-nation--normal {
+        position: absolute; 
+        left: 33px;
+        width: 12px;
+        height: 9px;
+        border-radius: 1px;
+        z-index: 10;
+        object-fit: cover;
+        top: 105px;
+    }
+    .player-row-league--normal {
+        position: absolute;
+        left: 50px;
+        width: 11px;
+        height: 11px;
+        border-radius: 1px;
+        z-index: 10;
+        object-fit: contain;
+        top: 104px;
+    }
+    .player-row-club--normal {
+        width: 13px;
+        height: 10px;
+        left: 66px;
         top: 105px;
     }
 
