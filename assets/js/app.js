@@ -6266,7 +6266,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const selectedEventKey = normalizedSelectedEvent.replace(/[^a-z0-9]/g, '');
     const playerEventKey = playerEventValue.replace(/[^a-z0-9]/g, '');
     if (selectedEventKey && playerEventKey) {
-      return playerEventKey === selectedEventKey;
+      return playerEventKey === selectedEventKey || playerEventKey.startsWith(selectedEventKey);
     }
     return playerEventValue === normalizedSelectedEvent;
   }
