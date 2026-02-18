@@ -6364,9 +6364,12 @@ document.addEventListener('DOMContentLoaded', async function () {
       const hasActiveFilters = Object.keys(activeFilters).length > 0;
 
       const applyFilterParams = (params) => {
+        const apiRatingMax = 120;
+        const ratingMin = Number(state.filters.ratingMin);
+        const ratingMax = Number(state.filters.ratingMax);
         if (state.filters.position) params.position = state.filters.position;
-        if (state.filters.ratingMin) params.min_ovr = state.filters.ratingMin;
-        if (state.filters.ratingMax) params.max_ovr = state.filters.ratingMax;
+        if (Number.isFinite(ratingMin) && ratingMin > 40) params.min_ovr = Math.min(ratingMin, apiRatingMax);
+        if (Number.isFinite(ratingMax) && ratingMax < 150) params.max_ovr = Math.min(ratingMax, apiRatingMax);
         if (state.filters.league) params.league = state.filters.league;
         if (state.filters.nation) params.nation = state.filters.nation;
         if (state.filters.skillMoves) params.skill_moves = state.filters.skillMoves;
