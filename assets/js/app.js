@@ -6249,26 +6249,25 @@ document.addEventListener('DOMContentLoaded', async function () {
     return getDatabasePlayerAltPositions(player).includes(normalizedSelectedPosition);
   }
 
+  function normalizeDatabaseEventValue(value) {
+    if (value === null || value === undefined) return '';
+    return String(value).replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  function getDatabasePlayerEventValue(player) {
+    return normalizeDatabaseEventValue(player.event || player.event_name || player.eventName);
+  }
+
+  function matchesDatabaseEventFilter(player, selectedEvent) {
+    const normalizedSelectedEvent = normalizeDatabaseEventValue(selectedEvent);
+    if (!normalizedSelectedEvent) return true;
+    const playerEventValue = getDatabasePlayerEventValue(player);
+    if (!playerEventValue) return false;
+    return playerEventValue === normalizedSelectedEvent;
+  }
+
   function applyDatabaseSearchAndFilters(players, query) {
     const normalizedQuery = (query || '').trim().toLowerCase();
-    let filtered = players;
-
-    if (normalizedQuery) {
-      filtered = filtered.filter(player => {
-        const name = (player.name || '').toLowerCase();
-        const position = (player.position || '').toLowerCase();
-        const club = (player.team || player.club || '').toLowerCase();
-        const league = (player.league || '').toLowerCase();
-        const nation = (player.nation || player.nation_region || player.nationality || '').toLowerCase();
-
-        return name.includes(normalizedQuery) ||
-          position.includes(normalizedQuery) ||
-          club.includes(normalizedQuery) ||
-          league.includes(normalizedQuery) ||
-          nation.includes(normalizedQuery);
-      });
-    }
-
     const filters = state.filters || {};
     const ratingMin = Number.isFinite(filters.ratingMin) ? filters.ratingMin : 40;
     const ratingMax = Number.isFinite(filters.ratingMax) ? filters.ratingMax : 150;
@@ -6276,8 +6275,24 @@ document.addEventListener('DOMContentLoaded', async function () {
     const shouldFilterPriceMin = filters.priceMin !== null && filters.priceMin !== '' && !Number.isNaN(filters.priceMin);
     const shouldFilterPriceMax = filters.priceMax !== null && filters.priceMax !== '' && !Number.isNaN(filters.priceMax);
     const selectedPosition = normalizeDatabasePositionValue(filters.position);
+    const selectedEvent = normalizeDatabaseEventValue(filters.event);
+    const selectedSkillMoves = Number.parseInt(filters.skillMoves, 10);
 
-    return filtered.filter(player => {
+    const combinedFilteredPlayers = players.filter(player => {
+      if (normalizedQuery) {
+        const name = (player.name || '').toLowerCase();
+        const position = (player.position || '').toLowerCase();
+        const club = (player.team || player.club || '').toLowerCase();
+        const league = (player.league || '').toLowerCase();
+        const nation = (player.nation || player.nation_region || player.nationality || '').toLowerCase();
+        const matchesSearch = name.includes(normalizedQuery) ||
+          position.includes(normalizedQuery) ||
+          club.includes(normalizedQuery) ||
+          league.includes(normalizedQuery) ||
+          nation.includes(normalizedQuery);
+        if (!matchesSearch) return false;
+      }
+
       if (selectedPosition && !matchesDatabasePositionFilter(player, selectedPosition)) return false;
 
       if (shouldFilterRating) {
@@ -6297,12 +6312,15 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (nationValue !== filters.nation) return false;
       }
 
-      if (filters.skillMoves) {
-        const skillValue = Number.parseInt(player.skill_moves || player.skillMoves || player.skillmoves || 0, 10) || 0;
-        if (skillValue !== Number.parseInt(filters.skillMoves, 10)) return false;
+      if (Number.isFinite(selectedSkillMoves)) {
+        const skillValue = Number.parseInt(
+          player.skill_moves ?? player.skillMoves ?? player.skillmoves ?? player.skill_moves_stars ?? 0,
+          10
+        ) || 0;
+        if (skillValue !== selectedSkillMoves) return false;
       }
 
-      if (filters.event && player.event !== filters.event) return false;
+      if (selectedEvent && !matchesDatabaseEventFilter(player, selectedEvent)) return false;
 
       if (shouldFilterPriceMin || shouldFilterPriceMax) {
         const priceValue = Number(player.price);
@@ -6321,6 +6339,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
       return true;
     });
+
+    return combinedFilteredPlayers;
   }
 
   async function searchPlayersInDatabase(query, append = false) {
