@@ -715,6 +715,7 @@ function loadWatchlistData() {
           cardbackground: player.cardbackground || player.card_background || '',
           nationflag: player.nationflag || player.nation_flag || player.nationflagurl || '',
           clubflag: player.clubflag || player.club_flag || player.clublogourl || '',
+          leagueimage: player.leagueimage || player.league_image || player.leaguelogourl || '',
           
           // Colors
           colorname: player.colorname || player.color_name || '#FFFFFF',
@@ -828,6 +829,9 @@ function createPlayerCardHTML(player) {
   const altPositionsArray = alternatePosition ? alternatePosition.split(',').map(p => p.trim()) : [];
   const hasAltPositions = altPositionsArray.filter(pos => pos && pos !== '0' && pos !== 0).length > 0;
 
+  // ✅ Determine if this is a Hero/Icon player (rank > 0)
+  const isSpecialCard = (player.rank || 0) > 0;
+
   // Create a container div to set CSS custom properties
   const playerRow = document.createElement('div');
   playerRow.className = 'player-row';
@@ -889,21 +893,47 @@ function createPlayerCardHTML(player) {
           ${player.position || '?'}
         </div>
 
-        <!-- Nation Flag -->
-        ${player.nationflag || player.nation_flag ? `
-          <img src="${player.nationflag || player.nation_flag}" 
-               alt="Nation" 
-               class="player-row-nation"
-               onerror="this.style.display='none'">
-        ` : ''}
+        ${isSpecialCard ? `
+          <!-- Hero/Icon: Nation Flag (no league image) -->
+          ${player.nationflag || player.nation_flag ? `
+            <img src="${player.nationflag || player.nation_flag}" 
+                 alt="Nation" 
+                 class="player-row-nation--special"
+                 onerror="this.style.display='none'">
+          ` : ''}
 
-        <!-- Club Badge -->
-        ${player.clubflag || player.club_flag ? `
-          <img src="${player.clubflag || player.club_flag}" 
-               alt="Club" 
-               class="player-row-club"
-               onerror="this.style.display='none'">
-        ` : ''}
+          <!-- Hero/Icon: Club Badge -->
+          ${player.clubflag || player.club_flag ? `
+            <img src="${player.clubflag || player.club_flag}" 
+                 alt="Club" 
+                 class="player-row-club--special"
+                 onerror="this.style.display='none'">
+          ` : ''}
+        ` : `
+          <!-- Normal Player: Nation Flag -->
+          ${player.nationflag || player.nation_flag ? `
+            <img src="${player.nationflag || player.nation_flag}" 
+                 alt="Nation" 
+                 class="player-row-nation--normal"
+                 onerror="this.style.display='none'">
+          ` : ''}
+
+          <!-- Normal Player: League Image -->
+          ${player.leagueimage || player.league_image ? `
+            <img src="${player.leagueimage || player.league_image}" 
+                 alt="League" 
+                 class="player-row-league--normal"
+                 onerror="this.style.display='none'">
+          ` : ''}
+
+          <!-- Normal Player: Club Badge -->
+          ${player.clubflag || player.club_flag ? `
+            <img src="${player.clubflag || player.club_flag}" 
+                 alt="Club" 
+                 class="player-row-club--normal"
+                 onerror="this.style.display='none'">
+          ` : ''}
+        `}
 
       </div>
     </div>
