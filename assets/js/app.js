@@ -6222,6 +6222,33 @@ document.addEventListener('DOMContentLoaded', async function () {
     return activeFilters;
   }
 
+  function normalizeDatabasePositionValue(value) {
+    if (value === null || value === undefined) return '';
+    return String(value).trim().toUpperCase();
+  }
+
+  function getDatabasePlayerPrimaryPosition(player) {
+    return normalizeDatabasePositionValue(player.primary_position || player.position);
+  }
+
+  function getDatabasePlayerAltPositions(player) {
+    const rawAltPositions = player.alt_positions ?? player.alternate_positions ?? player.alternate_position ?? '';
+    const altPositionsArray = Array.isArray(rawAltPositions)
+      ? rawAltPositions
+      : String(rawAltPositions).split(',');
+
+    return altPositionsArray
+      .map(position => normalizeDatabasePositionValue(position))
+      .filter(Boolean);
+  }
+
+  function matchesDatabasePositionFilter(player, selectedPosition) {
+    const normalizedSelectedPosition = normalizeDatabasePositionValue(selectedPosition);
+    if (!normalizedSelectedPosition) return true;
+    if (getDatabasePlayerPrimaryPosition(player) === normalizedSelectedPosition) return true;
+    return getDatabasePlayerAltPositions(player).includes(normalizedSelectedPosition);
+  }
+
   function applyDatabaseSearchAndFilters(players, query) {
     const normalizedQuery = (query || '').trim().toLowerCase();
     let filtered = players;
@@ -6248,9 +6275,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     const shouldFilterRating = ratingMin !== 40 || ratingMax !== 150;
     const shouldFilterPriceMin = filters.priceMin !== null && filters.priceMin !== '' && !Number.isNaN(filters.priceMin);
     const shouldFilterPriceMax = filters.priceMax !== null && filters.priceMax !== '' && !Number.isNaN(filters.priceMax);
+    const selectedPosition = normalizeDatabasePositionValue(filters.position);
 
     return filtered.filter(player => {
-      if (filters.position && player.position !== filters.position) return false;
+      if (selectedPosition && !matchesDatabasePositionFilter(player, selectedPosition)) return false;
 
       if (shouldFilterRating) {
         const rating = Number.parseInt(player.ovr || player.overall || player.overall_rating || 0, 10) || 0;
