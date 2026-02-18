@@ -6278,21 +6278,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     const selectedEvent = normalizeDatabaseEventValue(filters.event);
     const selectedSkillMoves = Number.parseInt(filters.skillMoves, 10);
 
-    const combinedFilteredPlayers = players.filter(player => {
-      if (normalizedQuery) {
-        const name = (player.name || '').toLowerCase();
-        const position = (player.position || '').toLowerCase();
-        const club = (player.team || player.club || '').toLowerCase();
-        const league = (player.league || '').toLowerCase();
-        const nation = (player.nation || player.nation_region || player.nationality || '').toLowerCase();
-        const matchesSearch = name.includes(normalizedQuery) ||
-          position.includes(normalizedQuery) ||
-          club.includes(normalizedQuery) ||
-          league.includes(normalizedQuery) ||
-          nation.includes(normalizedQuery);
-        if (!matchesSearch) return false;
-      }
-
+    const filteredPlayers = players.filter(player => {
+      if (selectedEvent && !matchesDatabaseEventFilter(player, selectedEvent)) return false;
       if (selectedPosition && !matchesDatabasePositionFilter(player, selectedPosition)) return false;
 
       if (shouldFilterRating) {
@@ -6320,8 +6307,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (skillValue !== selectedSkillMoves) return false;
       }
 
-      if (selectedEvent && !matchesDatabaseEventFilter(player, selectedEvent)) return false;
-
       if (shouldFilterPriceMin || shouldFilterPriceMax) {
         const priceValue = Number(player.price);
         if (!Number.isFinite(priceValue)) return false;
@@ -6340,7 +6325,24 @@ document.addEventListener('DOMContentLoaded', async function () {
       return true;
     });
 
-    return combinedFilteredPlayers;
+    if (!normalizedQuery) {
+      return filteredPlayers;
+    }
+
+    const searchedPlayers = filteredPlayers.filter(player => {
+      const name = (player.name || '').toLowerCase();
+      const position = (player.position || '').toLowerCase();
+      const club = (player.team || player.club || '').toLowerCase();
+      const league = (player.league || '').toLowerCase();
+      const nation = (player.nation || player.nation_region || player.nationality || '').toLowerCase();
+      return name.includes(normalizedQuery) ||
+        position.includes(normalizedQuery) ||
+        club.includes(normalizedQuery) ||
+        league.includes(normalizedQuery) ||
+        nation.includes(normalizedQuery);
+    });
+
+    return searchedPlayers;
   }
 
   async function searchPlayersInDatabase(query, append = false) {
@@ -6353,27 +6355,50 @@ document.addEventListener('DOMContentLoaded', async function () {
       const requestId = ++playerSearchRequestId;
       console.log('[SEARCH] Searching players:', query, 'with filters');
 
-      const params = {
-        q: query,
-        limit: 20,
-        offset: append ? playerSearchOffset : 0,
-        rank: 0
+      const activeFilters = getActiveDatabaseFilters();
+      const hasActiveFilters = Object.keys(activeFilters).length > 0;
+
+      const applyFilterParams = (params) => {
+        if (state.filters.position) params.position = state.filters.position;
+        if (state.filters.ratingMin) params.min_ovr = state.filters.ratingMin;
+        if (state.filters.ratingMax) params.max_ovr = state.filters.ratingMax;
+        if (state.filters.league) params.league = state.filters.league;
+        if (state.filters.nation) params.nation = state.filters.nation;
+        if (state.filters.skillMoves) params.skill_moves = state.filters.skillMoves;
+        if (state.filters.event) params.event = state.filters.event;
+        if (state.filters.club) params.team = state.filters.club;
+        if (state.filters.priceMin) params.min_price = state.filters.priceMin;
+        if (state.filters.priceMax) params.max_price = state.filters.priceMax;
+        if (state.filters.auctionable === 'auctionable') params.is_untradable = 0;
+        if (state.filters.auctionable === 'unauctionable') params.is_untradable = 1;
       };
 
-      // Apply active filters from state
-      if (state.filters.position) params.position = state.filters.position;
-      if (state.filters.ratingMin) params.min_ovr = state.filters.ratingMin;
-      if (state.filters.ratingMax) params.max_ovr = state.filters.ratingMax;
-      if (state.filters.league) params.league = state.filters.league;
-      if (state.filters.nation) params.nation = state.filters.nation;
-      if (state.filters.skillMoves) params.skill_moves = state.filters.skillMoves;
-      if (state.filters.club) params.team = state.filters.club;
-      if (state.filters.priceMin) params.min_price = state.filters.priceMin;
-      if (state.filters.priceMax) params.max_price = state.filters.priceMax;
+      let players = [];
+      let total = 0;
+      if (hasActiveFilters) {
+        const params = {
+          limit: 1000,
+          offset: 0,
+          rank: 0
+        };
+        applyFilterParams(params);
 
-      const response = await window.apiClient.searchPlayers(params);
-      let players = response.results || [];
-      const total = response.total || 0;
+        const response = await window.apiClient.getPlayers(params);
+        players = response.players || [];
+        total = response.total || players.length;
+      } else {
+        const params = {
+          q: query,
+          limit: 20,
+          offset: append ? playerSearchOffset : 0,
+          rank: 0
+        };
+        applyFilterParams(params);
+
+        const response = await window.apiClient.searchPlayers(params);
+        players = response.results || [];
+        total = response.total || 0;
+      }
 
       if (requestId !== playerSearchRequestId || query !== currentPlayerSearchQuery) {
         return;
@@ -6387,16 +6412,22 @@ document.addEventListener('DOMContentLoaded', async function () {
         players = await window.supabaseProvider.syncPrices(players);
       }
 
-      const activeFilters = getActiveDatabaseFilters();
       const filteredPlayers = applyDatabaseSearchAndFilters(players, query);
+      let playersToDisplay = filteredPlayers;
+      if (hasActiveFilters) {
+        const pageSize = state.limitPerPage || 20;
+        const pageOffset = append ? playerSearchOffset : 0;
+        playersToDisplay = filteredPlayers.slice(pageOffset, pageOffset + pageSize);
+        total = filteredPlayers.length;
+      }
 
       if (!append) {
         playerSearchOffset = 0;
         playerSearchTotal = total;
       }
-      playerSearchOffset += players.length;
+      playerSearchOffset += playersToDisplay.length;
 
-      displayPlayerSearchResults(filteredPlayers, query, total, append, activeFilters);
+      displayPlayerSearchResults(playersToDisplay, query, total, append, activeFilters);
 
     } catch (error) {
       console.error('[SEARCH] Error:', error);
