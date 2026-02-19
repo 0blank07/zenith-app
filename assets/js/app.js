@@ -181,11 +181,11 @@ const RANK_CONFIG = {
     columns: 6,         // ✅ 6 columns per row
     rows: 6,            // ✅ 6 rows total
     ranks: {
-        1: 'assets/images/ranks/green_rank.png',
-        2: 'assets/images/ranks/blue_rank.png',
-        3: 'assets/images/ranks/purple_rank.png',
-        4: 'assets/images/ranks/red_rank.png',
-        5: 'assets/images/ranks/gold_rank.png',
+        1: 'assets/images/ranks/green_rank_enhanced_main.webp',
+        2: 'assets/images/ranks/blue_rank_enhanced_main.webp',
+        3: 'assets/images/ranks/purple_rank_enhanced_main.webp',
+        4: 'assets/images/ranks/red_rank_enhanced_main.webp',
+        5: 'assets/images/ranks/gold_rank_enhanced_main.webp',
     },
     skillPoints: {
         0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5
