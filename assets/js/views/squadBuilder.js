@@ -3138,10 +3138,11 @@ function buildSquadPreviewCardMarkup(player, slotLabel, slotId, options = {}) {
     const isUntradableText = String(player.is_untradable ?? player.isuntradable ?? '').toLowerCase();
     const isUntradable = isUntradableText === 'true' || isUntradableText === '1' || isUntradableText === 'yes';
     const untradableBadgeHTML = isUntradable
-        ? `<div class="card-untradable-badge" style="right: ${includeRemoveButton ? '22px' : '-1px'}; pointer-events: none;">
-               <img src="assets/images/untradable_img.png" alt="Untradable">
-           </div>`
-        : '';
+          ? `<div class="card-untradable-badge ${includeRemoveButton ? 'with-remove' : 'no-remove'}">
+              <img src="assets/images/untradable_img.png" alt="Untradable">
+            </div>`
+          : '';
+
 
     return `
             <div class="preview-card-inner">
