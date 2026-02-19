@@ -493,26 +493,27 @@
 
 .picker-card-ovr {
     position: absolute;
-    top: 7%;
-    left: 12%;
-    font-size: 0.9rem;
+    top: 8%;
+    left: 15%;
+    font-size: 0.8rem;
     font-weight: 750;
     z-index: 3;
     font-family: "CruyffSans", sans-serif;
-    letter-spacing: -0.2px;
+    letter-spacing: 0.5px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .picker-card-position {
     position: absolute;
     top: 22%;
-    left: 19%;
+    left: 16%;
     font-size: 0.54rem;
     font-weight: 600;
     z-index: 3;
     text-transform: uppercase;
     font-family: "CruyffSans", sans-serif;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.5px;
 }
 
 .picker-card-name {
@@ -5877,6 +5878,264 @@ body.stats-open #squad-builder-modal {
 }
 
 
+@media (max-width: 1024px){
+.compare-player-img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.50); /* stronger zoom */
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* important */
+  z-index: 2;
+}
+
+
+/* OVR Rating (top-left) */
+.compare-card-ovr {
+  position: absolute;
+  top: 23px;
+  left: 2px;
+  margin-left: 26px;
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 800;
+  font-family: 'CruyffSans', sans-serif;
+  z-index: 3;
+  letter-spacing: -1px;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Position Badge (below OVR) */
+.compare-card-pos {
+  position: absolute;
+  top: 44px;
+  left:30px;
+  font-size: clamp(12px, 1.6vw, 16px);
+  font-weight: 800;
+  font-family: 'CruyffSans', sans-serif;
+  z-index: 3;
+  letter-spacing: -1px;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Player Name (bottom center) */
+.compare-card-name {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 17px;
+  font-weight: 800;
+  font-family: 'CruyffSans', sans-serif;
+  text-transform: uppercase;
+  text-align: center;
+  z-index: 3;
+  max-width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.5px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+}
+
+
+@media (max-width: 768px){
+  .compare-player-img {
+    position: absolute;
+    top: 50%;
+    margin-top: 12px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 92%;
+    height: 92%;
+    object-fit: contain;
+    z-index: 2;
+  }
+
+  /* OVR Rating (top-left) */
+  .compare-card-ovr {
+    position: absolute;
+    top: 22px;
+    left: 3px;
+    font-size: clamp(14px, 3vw, 20px);
+    font-weight: 800;
+    font-family: 'CruyffSans', sans-serif;
+    z-index: 3;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Position Badge (below OVR) */
+  .compare-card-pos {
+    position: absolute;
+    top: 43px;
+    left: 32px;
+    font-size: clamp(11px, 2.5vw, 14px);
+    font-weight: 800;
+    font-family: 'CruyffSans', sans-serif;
+    z-index: 3;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Player Name (bottom center) */
+  .compare-card-name {
+    position: absolute;
+    bottom: 46px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(13px, 3vw, 16px);
+    font-weight: 800;
+    font-family: 'CruyffSans', sans-serif;
+    text-transform: uppercase;
+    text-align: center;
+    z-index: 3;
+    max-width: 92%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.5px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+}
+
+
+
+@media (max-width: 548px){
+  .compare-player-img {
+    position: absolute;
+    top: 50%;
+    margin-top: 12px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 92%;
+    height: 92%;
+    object-fit: contain;
+    z-index: 2;
+  }
+
+  /* OVR Rating (top-left) */
+  .compare-card-ovr {
+    position: absolute;
+    top: 22px;
+    left: 8px;
+    font-size: clamp(14px, 3vw, 20px);
+    font-weight: 800;
+    font-family: 'CruyffSans', sans-serif;
+    z-index: 3;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    transform: scaleY(1.2);
+  }
+
+  /* Position Badge (below OVR) */
+  .compare-card-pos {
+    position: absolute;
+    top: 41px;
+    left: 36px;
+    font-size: clamp(11px, 2.5vw, 14px);
+    font-weight: 800;
+    font-family: 'CruyffSans', sans-serif;
+    z-index: 3;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Player Name (bottom center) */
+  .compare-card-name {
+    position: absolute;
+    bottom: 34px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(13px, 3vw, 16px);
+    font-weight: 800;
+    font-family: 'CruyffSans', sans-serif;
+    text-transform: uppercase;
+    text-align: center;
+    z-index: 3;
+    max-width: 92%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.5px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+}
+
+
+
+@media (max-width: 480px){
+  .compare-player-img {
+    position: absolute;
+    top: 50%;
+    margin-top: 12px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 92%;
+    height: 92%;
+    object-fit: contain;
+    z-index: 2;
+  }
+
+  /* OVR Rating (top-left) */
+  .compare-card-ovr {
+    position: absolute;
+    top: 22px;
+    left: 1px;
+    font-size: clamp(14px, 3vw, 20px);
+    font-weight: 800;
+    font-family: 'CruyffSans', sans-serif;
+    z-index: 3;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    transform: scaleY(1.2);
+  }
+
+  /* Position Badge (below OVR) */
+  .compare-card-pos {
+    position: absolute;
+    top: 39px;
+    left: 29px;
+    font-size: clamp(11px, 2.5vw, 14px);
+    font-weight: 800;
+    font-family: 'CruyffSans', sans-serif;
+    z-index: 3;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Player Name (bottom center) */
+  .compare-card-name {
+    position: absolute;
+    bottom: 34px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(13px, 3vw, 16px);
+    font-weight: 800;
+    font-family: 'CruyffSans', sans-serif;
+    text-transform: uppercase;
+    text-align: center;
+    z-index: 3;
+    max-width: 92%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.5px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+}
+
+
+
 /* ============ MOBILE RESPONSIVE SQUAD BUILDER ============ */
 @media (max-width: 768px) {
   .squad-pitch {
@@ -6121,7 +6380,7 @@ body.stats-open #squad-builder-modal {
 
 .preview-card-name {
     position: absolute;
-    bottom: 37px;
+    bottom: 34px;
     left: 0;
     right: 0;
     text-align: center;
@@ -6270,7 +6529,7 @@ body.stats-open #squad-builder-modal {
     left: 0;
     right: 0;
     text-align: center;
-    font-size: 9px; /* Scaled from 11px */
+    font-size: 0.5625rem;
     font-weight: 950;
     z-index: 3;
     white-space: nowrap;
@@ -6372,39 +6631,47 @@ body.stats-open #squad-builder-modal {
 
   .preview-card-ovr {
     position: absolute;
-    top: 7px;
-    left: 14px;
-    font-size: 14px; 
+    top: 8px;
+    left: 15px;
+    font-size: 0.875rem;
     font-weight: 900;
     z-index: 3;
-    font-family: var(--font-family-base, Arial, sans-serif);
+    font-family: var(--font-family-base, CruyffSans, sans-serif);
     letter-spacing: -0.5px;
+
+    transform: scaleY(1);      /* increases height only */
+    transform-origin: top;        /* prevents downward shift */
+
   }
 
   .preview-card-position {
     position: absolute;
     top: 21px;
     left: 16px;
-    font-size: 8px;
+    font-size: 0.5rem;
     font-weight: 850;
     z-index: 3;
-    font-family: var(--font-family-base, Arial, sans-serif);
+    font-family: var(--font-family-base, CruyffSans, sans-serif);
+
+    transform: scaleY(1.15);   /* increase height only */
+    transform-origin: top;     /* prevents downward shifting */
+
   }
 
   .preview-card-name {
     position: absolute;
-    bottom: 25px;
+    bottom: 27px;
     left: 0;
     right: 0;
     text-align: center;
-    font-size: 8.5px; 
+    font-size: 0.53125rem;
     font-weight: 950;
     z-index: 3;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 0 5px;
-    font-family: var(--font-family-base, Arial, sans-serif);
+    font-family: var(--font-family-base, CruyffSans, sans-serif);
     text-transform: uppercase;
     letter-spacing: -0.1px;
   }
@@ -6454,8 +6721,8 @@ body.stats-open #squad-builder-modal {
   .preview-card-inner {
     position: relative;
     /* Reduced size for small mobile screens (approx 75% of previous) */
-    width: 66px;
-    height: 80px;
+    width: 75px;
+    height: 89px;
     aspect-ratio: 4 / 5;
     overflow: visible;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
@@ -6483,17 +6750,17 @@ body.stats-open #squad-builder-modal {
     left: 50%;
     transform: translateX(-50%) scale(1.1);
     /* Scaled for 66px width */
-    width: 69px;
-    height: 74px;
+    width: 78px;
+    height: 83px;
     object-fit: contain;
     z-index: 2;
   }
 
   .preview-card-ovr {
     position: absolute;
-    top: 5px;
-    left: 10px;
-    font-size: 11px; /* Smaller OVR */
+    top: 8.4px;
+    left: 12.4px;
+    font-size: 0.7875rem;
     font-weight: 900;
     z-index: 3;
     font-family: var(--font-family-base, Arial, sans-serif);
@@ -6502,9 +6769,9 @@ body.stats-open #squad-builder-modal {
 
   .preview-card-position {
     position: absolute;
-    top: 15px;
-    left: 11px;
-    font-size: 6.5px; /* Tiny but legible */
+    top: 20.2px;
+    left: 13.5px;
+    font-size: 0.50625rem;
     font-weight: 850;
     z-index: 3;
     font-family: var(--font-family-base, Arial, sans-serif);
@@ -8444,7 +8711,37 @@ body.stats-open #squad-builder-modal {
 .card-untradable-badge {
     position: absolute;
     pointer-events: none;
+    margin-right: 1px;
+    margin-bottom: 4px;
+    z-index: 10;
+    width: 20px;
+    height: 20px;
+}
+
+
+@media (max-width: 768px){
+  .card-untradable-badge {
+    position: absolute;
+    pointer-events: none;
     margin-right: 5px;
     margin-bottom: 4px;
     z-index: 10;
+    width: 15px;
+    height: 15px;
+}
+}
+
+@media (max-width: 480px) {
+  .card-untradable-badge {
+    position: absolute;
+    pointer-events: none;
+
+    top: -1px;        /* push it above */
+    right: 9px;       /* adjust horizontal if needed */
+
+    width: 7px;       /* slightly smaller */
+    height: 7px;
+
+    z-index: 10;
+  }
 }

@@ -3115,15 +3115,15 @@ h1, h3, h4, h5, h6 {
 /* Player Name */
 .player-card-name {
     position: absolute;
-    top: 86px;
+    top: 89px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 11.4px;
+    font-size: 0.71rem;
     font-weight: 800;
     font-family: 'CruyffSans', sans-serif;
     text-transform: uppercase;
     z-index: 10;
-    letter-spacing: -0.8px;
+    letter-spacing: -0.2px;
     line-height: 1;
     white-space: nowrap;
     overflow: hidden;
@@ -3136,26 +3136,27 @@ h1, h3, h4, h5, h6 {
 .player-card-ovr {
     position: absolute;
     top: 13px;
-    left: 11px;
-    font-size: 18px;
+    left: 14px;
+    font-size: 0.999rem;
     font-weight: 800;
     font-family: 'CruyffSans', sans-serif;
     z-index: 10;
-    letter-spacing: -2.5px;
-    line-height: 1.1;
+    letter-spacing: -0.1px;
+    transform: scaleY(1.2);
 }
 
 /* Position Badge */
 .player-card-position {
     position: absolute;
     top: 29px;
-    left: 18px;
-    font-size: 20px;
+    left: 100px;
+    font-size: 1.25rem;
     font-weight: 800;
     font-family: 'CruyffSans', sans-serif;
     z-index: 10;
     letter-spacing: 1px;
     line-height: 1.1;
+    margin-right: 15px;
 }
 
 /* Nation Flag */
@@ -7362,25 +7363,51 @@ watchlist-view .view-content {
 
 .card-untradable-badge {
     position: absolute;
-    top: 2px;
-    right: -1px;
-    width: 24px;
-    height: 24px;
-    z-index: 5;
-
-    /* Visibility Enhancements */
-    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.7))
-            drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
-    border-radius: 50%;
-    outline: 2px solid rgba(255, 255, 255, 0.8);
-    background-clip: padding-box;
+    top: -2px;
+    right: 7px;
+    width: 16px;
+    height: 16px;
+    z-index: 5; 
 }
 
-.card-untradable-badge img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    pointer-events: none;
+
+@media (max-width: 768px) {
+  .card-untradable-badge {
+    position: absolute;
+    top: -2px;
+    right: 11px;
+
+    width: 10px !important;
+    height: 10px !important;
+
+    max-width: 10px !important;
+    max-height: 10px !important;
+
+    transform: scale(0.9);
+    transform-origin: top right;
+
+    z-index: 5;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .card-untradable-badge {
+    position: absolute;
+    top: 2px;
+    right: 9px;
+
+    width: 10px !important;
+    height: 10px !important;
+
+    max-width: 10px !important;
+    max-height: 10px !important;
+
+    transform: scale(0.7);
+    transform-origin: top right;
+
+    z-index: 5;
+  }
 }
 
 
@@ -11287,3 +11314,5 @@ body {
 #database-view::before {
   content: none !important;
 }
+
+

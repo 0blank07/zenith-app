@@ -882,3 +882,28 @@
     box-shadow: 0 0 18px rgba(var(--color-teal-rgb), 0.45);
     transform: translateY(-1px) scale(1.03);
 }
+
+
+@media (max-width: 768px){
+  .card-untradable-badge {
+    position: absolute;
+    pointer-events: none;
+    margin-right: 5px;
+    margin-bottom: 4px;
+    z-index: 10;
+    width: 15px;
+    height: 15px;
+}
+}
+
+@media (max-width: 480px){
+    .card-untradable-badge {
+      position: absolute;
+      pointer-events: none;
+      margin-right: 5px;
+      margin-bottom: 4px;
+      z-index: 10;
+      width: 10px;
+      height: 10px;
+}
+}
