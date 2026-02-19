@@ -6870,10 +6870,16 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   // ----------------------------
-  // Restore the previous view on page load
+  // Resolve initial view on page load
   // ----------------------------
-  const savedView = localStorage.getItem('currentView') || state.currentView || 'dashboard';
-  switchView(savedView);
+  const isRootPath = window.location.pathname === '/' || window.location.pathname === '/index.html';
+  const hasNoHash = !window.location.hash;
+  if (isRootPath && hasNoHash) {
+    switchView('dashboard');
+  } else {
+    const savedView = localStorage.getItem('currentView') || state.currentView || 'dashboard';
+    switchView(savedView);
+  }
 
   // ----------------------------
   // Real-time simulation (safe guard: use state.filteredPlayers)
