@@ -4979,6 +4979,13 @@ function createPlayerCard(player) {
     // 2. Create Unique ID for Watchlist (handles ranks and tradability)
     const uniqueId = `${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}`;
     const isWatchlisted = state.watchlist && state.watchlist.includes(uniqueId);
+    const isUntradableText = String(player.is_untradable ?? player.isuntradable ?? '').toLowerCase();
+    const isUntradable = isUntradableText === 'true' || isUntradableText === '1' || isUntradableText === 'yes';
+    const untradableBadgeHTML = isUntradable
+        ? `<div class="card-untradable-badge" style="pointer-events: none;">
+               <img src="assets/images/untradable_img.png" alt="Untradable">
+           </div>`
+        : '';
 
     // 3. Handle Secondary Positions mapping
     // ✅ NEW: Parse alternate_position from API (supports multiple positions)
@@ -5074,6 +5081,8 @@ function createPlayerCard(player) {
                             alt="Club"
                             class="player-card-club-flag">
                     ` : ''}
+
+                    ${untradableBadgeHTML}
 
                 </div>
             </div>
@@ -7817,6 +7826,13 @@ function createFilledPlayerCard(player) {
   const playerId = resolveComparePlayerId(player);
   const customization = getCompareCustomization(playerId);
   const baseOvrColor = customization?.baseColors?.color_rating || player.color_rating || '#FFB86B';
+  const isUntradableText = String(player.is_untradable ?? player.isuntradable ?? '').toLowerCase();
+  const isUntradable = isUntradableText === 'true' || isUntradableText === '1' || isUntradableText === 'yes';
+  const untradableBadgeHTML = isUntradable
+    ? `<div class="card-untradable-badge" style="right: 40px; pointer-events: none;">
+         <img src="assets/images/untradable_img.png" alt="Untradable">
+       </div>`
+    : '';
   card.dataset.playerId = playerId || '';
   card.addEventListener('click', () => openCompareCustomizationById(playerId));
 
@@ -7874,6 +7890,8 @@ function createFilledPlayerCard(player) {
            alt="Club"
            onerror="this.style.display='none'">
     ` : ''}
+
+    ${untradableBadgeHTML}
 
     <!-- Team Name Below -->
     <p class="compare-team-text">${player.team || 'N/A'}</p>
@@ -8038,6 +8056,13 @@ function renderCompareCustomizationMiniCard(player) {
   const position = player.position || 'N/A';
   const nationFlag = player.nation_flag || player.nationFlag || player.nationflag || '';
   const clubFlag = player.club_flag || player.clubFlag || player.clubflag || '';
+  const isUntradableText = String(player.is_untradable ?? player.isuntradable ?? '').toLowerCase();
+  const isUntradable = isUntradableText === 'true' || isUntradableText === '1' || isUntradableText === 'yes';
+  const untradableBadgeHTML = isUntradable
+    ? `<div class="card-untradable-badge" style="pointer-events: none;">
+         <img src="assets/images/untradable_img.png" alt="Untradable">
+       </div>`
+    : '';
 
   container.innerHTML = `
     <div class="squad-custom-mini-card">
@@ -8050,6 +8075,7 @@ function renderCompareCustomizationMiniCard(player) {
         ${clubFlag ? `<img src="${clubFlag}" alt="Club" class="squad-custom-card-club" onerror="this.style.display='none'">` : ''}
       </div>
       <div class="squad-custom-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
+      ${untradableBadgeHTML}
     </div>
   `;
   if (typeof applyRankOverlay === 'function') {
@@ -8827,6 +8853,13 @@ function createCompareSearchResultItem(player) {
   const playerPosition = player.position || 'NA';
   const nationFlag = player.nation_flag || player.nationflag || player.nationFlag || '';
   const clubFlag = player.club_flag || player.clubflag || player.clubFlag || '';
+  const isUntradableText = String(player.is_untradable ?? player.isuntradable ?? '').toLowerCase();
+  const isUntradable = isUntradableText === 'true' || isUntradableText === '1' || isUntradableText === 'yes';
+  const untradableBadgeHTML = isUntradable
+    ? `<div class="card-untradable-badge" style="pointer-events: none;">
+         <img src="assets/images/untradable_img.png" alt="Untradable">
+       </div>`
+    : '';
   item.innerHTML = `
     <div class="compare-search-result-image">
       <div class="picker-card-mini">
@@ -8842,6 +8875,7 @@ function createCompareSearchResultItem(player) {
         <div class="picker-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
         ${nationFlag ? `<img src="${nationFlag}" alt="Nation" class="picker-card-flag-nation" onerror="this.style.display='none'">` : ''}
         ${clubFlag ? `<img src="${clubFlag}" alt="Club" class="picker-card-flag-club" onerror="this.style.display='none'">` : ''}
+        ${untradableBadgeHTML}
       </div>
     </div>
     <div class="compare-search-result-info">

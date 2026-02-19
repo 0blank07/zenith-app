@@ -822,6 +822,13 @@ function renderWatchlist() {
 function createPlayerCardHTML(player) {
   const initials = getPlayerInitials(player.name || 'Unknown');
   const hasImage = player.imageurl && player.imageurl !== '';
+  const isUntradableText = String(player.is_untradable ?? player.isuntradable ?? '').toLowerCase();
+  const isUntradable = isUntradableText === 'true' || isUntradableText === '1' || isUntradableText === 'yes';
+  const untradableBadgeHTML = isUntradable
+    ? `<div class="card-untradable-badge" style="pointer-events: none;">
+         <img src="assets/images/untradable_img.png" alt="Untradable">
+       </div>`
+    : '';
   
   // Process alternate positions
   const alternatePosition = player.alternate_position || player.alternateposition || '';
@@ -904,6 +911,8 @@ function createPlayerCardHTML(player) {
                class="player-row-club"
                onerror="this.style.display='none'">
         ` : ''}
+
+        ${untradableBadgeHTML}
 
       </div>
     </div>

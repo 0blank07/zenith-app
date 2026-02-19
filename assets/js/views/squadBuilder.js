@@ -539,6 +539,13 @@ function renderPlayerPicker() {
     const position = p.position || 'N/A';
     const price = p.price || 0;
     const club = p.club || p.team || 'Unknown Club';
+    const isUntradableText = String(p.is_untradable ?? p.isuntradable ?? '').toLowerCase();
+    const isUntradable = isUntradableText === 'true' || isUntradableText === '1' || isUntradableText === 'yes';
+    const untradableBadgeHTML = isUntradable
+      ? `<div class="card-untradable-badge" style="pointer-events: none;">
+           <img src="assets/images/untradable_img.png" alt="Untradable">
+         </div>`
+      : '';
 
     row.innerHTML = `
         <div class="picker-card-mini">
@@ -573,6 +580,7 @@ function renderPlayerPicker() {
                 alt="Club"
                 class="picker-card-flag-club"
                 onerror="this.style.display='none'">
+            ${untradableBadgeHTML}
         </div>
 
         <div class="picker-main">
@@ -3127,6 +3135,13 @@ function buildSquadPreviewCardMarkup(player, slotLabel, slotId, options = {}) {
     const colorName = player.colorname || player.color_name || player.colorName || '#FFFFFF';
     const crossOriginAttr = options.includeCrossOrigin ? ' crossorigin="anonymous"' : '';
     const includeRemoveButton = options.includeRemoveButton !== false;
+    const isUntradableText = String(player.is_untradable ?? player.isuntradable ?? '').toLowerCase();
+    const isUntradable = isUntradableText === 'true' || isUntradableText === '1' || isUntradableText === 'yes';
+    const untradableBadgeHTML = isUntradable
+        ? `<div class="card-untradable-badge" style="right: ${includeRemoveButton ? '22px' : '-1px'}; pointer-events: none;">
+               <img src="assets/images/untradable_img.png" alt="Untradable">
+           </div>`
+        : '';
 
     return `
             <div class="preview-card-inner">
@@ -3147,6 +3162,7 @@ function buildSquadPreviewCardMarkup(player, slotLabel, slotId, options = {}) {
                 ${player.clubflag || player.club_flag ?
                     `<img src="${player.clubflag || player.club_flag}" alt="Club" class="preview-card-flag-club"${crossOriginAttr} onerror="this.style.display='none'">`
                     : ''}
+                ${untradableBadgeHTML}
                 ${includeRemoveButton ? `<button class="preview-card-remove" onclick="event.stopPropagation(); delete squadState.starters['${slotId}']; renderSquadBuilder();">×</button>` : ''}
             </div>
         `;
@@ -3164,6 +3180,13 @@ function buildSquadBenchCardMarkup(player, benchIndex, options = {}) {
     const colorName = player.colorname || player.color_name || player.colorName || '#FFFFFF';
     const crossOriginAttr = options.includeCrossOrigin ? ' crossorigin="anonymous"' : '';
     const includeRemoveButton = options.includeRemoveButton !== false;
+    const isUntradableText = String(player.is_untradable ?? player.isuntradable ?? '').toLowerCase();
+    const isUntradable = isUntradableText === 'true' || isUntradableText === '1' || isUntradableText === 'yes';
+    const untradableBadgeHTML = isUntradable
+        ? `<div class="card-untradable-badge" style="right: ${includeRemoveButton ? '18px' : '-1px'}; pointer-events: none;">
+               <img src="assets/images/untradable_img.png" alt="Untradable">
+           </div>`
+        : '';
 
     return `
                 <div class="bench-card-inner">
@@ -3184,6 +3207,7 @@ function buildSquadBenchCardMarkup(player, benchIndex, options = {}) {
                     ${player.clubflag || player.club_flag ?
                         `<img src="${player.clubflag || player.club_flag}" alt="Club" class="bench-card-flag-club"${crossOriginAttr} onerror="this.style.display='none'">`
                         : ''}
+                    ${untradableBadgeHTML}
                     ${includeRemoveButton ? `<button class="bench-card-remove" onclick="event.stopPropagation(); squadState.bench.splice(${benchIndex}, 1); renderSquadBuilder();">×</button>` : ''}
                 </div>
             `;
@@ -4347,6 +4371,13 @@ function renderCustomizationMiniCard(player) {
   const position = player.position || 'N/A';
   const nationFlag = player.nation_flag || player.nationFlag || player.nationflag || '';
   const clubFlag = player.club_flag || player.clubFlag || player.clubflag || '';
+  const isUntradableText = String(player.is_untradable ?? player.isuntradable ?? '').toLowerCase();
+  const isUntradable = isUntradableText === 'true' || isUntradableText === '1' || isUntradableText === 'yes';
+  const untradableBadgeHTML = isUntradable
+    ? `<div class="card-untradable-badge" style="pointer-events: none;">
+         <img src="assets/images/untradable_img.png" alt="Untradable">
+       </div>`
+    : '';
 
   // OVR color based on rating
   let ovrColor = '#FFFFFF';
@@ -4366,6 +4397,7 @@ function renderCustomizationMiniCard(player) {
         ${clubFlag ? `<img src="${clubFlag}" alt="Club" class="squad-custom-card-club" onerror="this.style.display='none'">` : ''}
       </div>
       <div class="squad-custom-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
+      ${untradableBadgeHTML}
     </div>
   `;
   if (typeof applyRankOverlay === 'function') {
