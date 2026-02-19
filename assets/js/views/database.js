@@ -1,6 +1,53 @@
 // FC Market Pro - Database View
 // Handles player database, filtering, and sorting
 
+async function fetchPlayersSortedByPrice(order = 'desc', limit = 20, offset = 0) {
+    console.log('[DB] Fetching top priced players from Supabase...');
+
+    const rank = state.currentRank || 0;
+    const priceColumn = `price${rank}`;
+
+    const { data: priceData, error } = await window.supabaseClient
+        .from('price_snapshots')
+        .select(`asset_id, ${priceColumn}`)
+        .not(priceColumn, 'is', null)
+        .gt(priceColumn, 0)
+        .order(priceColumn, { ascending: order === 'asc' })
+        .range(offset, offset + limit - 1);
+
+    if (error) {
+        console.error('[DB] Supabase price fetch failed:', error);
+        return [];
+    }
+
+    console.log('[DB] Supabase returned:', priceData.length, 'entries');
+    if (priceData.length === 0) return [];
+
+    const ids = priceData.map(p => p.asset_id).join(',');
+
+    const response = await apiClient.fetchWithCache(
+        `/players/by-ids?ids=${ids}&rank=${rank}`,
+        { cache: false }
+    );
+
+    const players = response.players || [];
+
+    // Merge price onto each player
+    players.forEach(player => {
+        const priceEntry = priceData.find(p => String(p.asset_id) === String(player.player_id));
+        if (priceEntry) player.price = priceEntry[priceColumn];
+    });
+
+    // Re-sort by price (backend returns in DB order)
+    players.sort((a, b) =>
+        order === 'desc' ? (b.price || 0) - (a.price || 0) : (a.price || 0) - (b.price || 0)
+    );
+
+    console.log('[DB] Final merged players:', players.length);
+    return players;
+}
+
+
 function loadDatabase() {
     renderPlayers();
 }
@@ -78,26 +125,58 @@ function renderSortHeader() {
 
 function setSortBy(stat) {
     state.sortBy = stat;
+    state.sortDirection = 'desc';
+    if (state.pagination) state.pagination.page = 1;
     renderPlayers();
     renderSortHeader();
 }
 
-function renderPlayers() {
-  const grid = document.getElementById('players-grid');
-  if (!grid) return;
 
-  const filteredPlayers = getSortedAndFilteredPlayers();
+async function renderPlayers() {
+    const grid = document.getElementById('players-grid');
+    if (!grid) return;
 
-  if (filteredPlayers.length === 0) {
-    grid.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">No players found. Try adjusting your filters or search query</div>';
-    return;
-  }
+    grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">Loading...</div>';
 
-  grid.innerHTML = '';
-  filteredPlayers.forEach(player => {
-    grid.appendChild(createPlayerCard(player));
-  });
+    let players;
+
+    try {
+        if (state.sortBy === 'price') {
+            const limit = state.pagination?.limit || 20;
+            const offset = ((state.pagination?.page || 1) - 1) * limit;
+            players = await fetchPlayersSortedByPrice(
+                state.sortDirection || 'desc',
+                limit,
+                offset
+            );
+        } else {
+            players = await fetchPlayersFromBackend();
+
+            // Frontend sort for stat columns only
+            const statSorts = ['pace', 'shooting', 'passing', 'dribbling', 'defending', 'physical'];
+            if (statSorts.includes(state.sortBy)) {
+                players.sort((a, b) => {
+                    const aVal = a[state.sortBy] || 0;
+                    const bVal = b[state.sortBy] || 0;
+                    return state.sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+                });
+            }
+        }
+    } catch (err) {
+        console.error('[DB] renderPlayers error:', err);
+        players = [];
+    }
+
+    if (!players || players.length === 0) {
+        grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">No players found.</div>';
+        return;
+    }
+
+    grid.innerHTML = '';
+    players.forEach(player => grid.appendChild(createPlayerCard(player)));
+    renderSortHeader();
 }
+
 
 function filterPlayers() {
     return players.filter(player => {
@@ -151,133 +230,3 @@ function filterPlayers() {
     });
 }
 
-function sortPlayers(playersList) {
-    const sorted = [...playersList];
-
-    switch (state.sortBy) {
-        case 'name':
-            sorted.sort((a, b) => a.name.localeCompare(b.name));
-            break;
-        case 'overall':
-            sorted.sort((a, b) => b.overall - a.overall);
-            break;
-        case 'price':
-            sorted.sort((a, b) => b.price - a.price);
-            break;
-        case 'priceChange':
-            sorted.sort((a, b) => b.priceChange - a.priceChange);
-            break;
-        case 'pace':
-            sorted.sort((a, b) => b.pace - a.pace);
-            break;
-        case 'shooting':
-            sorted.sort((a, b) => b.shooting - a.shooting);
-            break;
-        case 'passing':
-            sorted.sort((a, b) => b.passing - a.passing);
-            break;
-        case 'dribbling':
-            sorted.sort((a, b) => b.dribbling - a.dribbling);
-            break;
-        case 'defending':
-            sorted.sort((a, b) => b.defending - a.defending);
-            break;
-        case 'physical':
-            sorted.sort((a, b) => b.physical - a.physical);
-            break;
-    }
-
-    return sorted;
-}
-
-function getSortedAndFilteredPlayers() {
-  let filtered = players.filter(player => {
-    // Search filter
-    if (state.searchQuery) {
-      const query = state.searchQuery.toLowerCase();
-      if (!player.name.toLowerCase().includes(query) &&
-          !player.position.toLowerCase().includes(query) &&
-          !player.club.toLowerCase().includes(query)) {
-        return false;
-      }
-    }
-
-    // Overall rating filter
-    if (player.overall < state.filters.ratingMin || player.overall > state.filters.ratingMax) {
-      return false;
-    }
-
-    // Position filter
-    if (state.filters.position && player.position !== state.filters.position) {
-      return false;
-    }
-
-    // Price filter
-    if (state.filters.priceMin && player.price < state.filters.priceMin) {
-      return false;
-    }
-    if (state.filters.priceMax && player.price > state.filters.priceMax) {
-      return false;
-    }
-
-    // League filter
-    if (state.filters.league && player.league !== state.filters.league) {
-      return false;
-    }
-
-    // Nation filter
-    if (state.filters.nation && player.nation !== state.filters.nation) {
-      return false;
-    }
-
-    // Skill moves filter
-    if (state.filters.skillMoves && player.skillMoves !== parseInt(state.filters.skillMoves)) {
-      return false;
-    }
-
-    return true;
-  });
-
-  // Sort logic with direction toggle
-  filtered.sort((a, b) => {
-    let aValue, bValue;
-
-    const statMap = {
-      'shooting': 'shooting',
-      'pace': 'pace',
-      'passing': 'passing',
-      'dribbling': 'dribbling',
-      'defense': 'defending',
-      'defending': 'defending',
-      'physical': 'physical',
-      'overall': 'overall',
-      'price': 'price',
-      'name': 'name'
-    };
-
-    const sortKey = statMap[state.sortBy] || state.sortBy;
-    aValue = a[sortKey];
-    bValue = b[sortKey];
-
-    // Handle string comparisons
-    if (typeof aValue === 'string') {
-      aValue = aValue.toLowerCase();
-      bValue = bValue.toLowerCase();
-      
-      if (state.sortDirection === 'desc') {
-        return bValue.localeCompare(aValue);
-      } else {
-        return aValue.localeCompare(bValue);
-      }
-    }
-
-    // Handle numeric comparisons
-    if (state.sortDirection === 'desc') {
-      return bValue - aValue;
-    } else {
-      return aValue - bValue;
-    }
-  });
-
-  return filtered;
-}

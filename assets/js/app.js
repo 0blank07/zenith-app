@@ -5539,14 +5539,53 @@ async function loadDatabase() {
                     return (b.ovr || 0) - (a.ovr || 0);
                 });
                 console.log('[SORT] Sorted by rating (high to low)');
-            } 
-            else if (state.sortBy === 'price') {
-                // Sort by price highest to lowest
-                sortedPlayers.sort((a, b) => {
-                    return (b.price || 0) - (a.price || 0);
-                });
-                console.log('[SORT] Sorted by price (high to low)');
+            } else if (state.sortBy === 'price') {
+                try {
+                    const rank = state.apiRank || 0;
+                    const priceCol = `price${rank}`;
+                    console.log('[PRICE SORT] Querying latest_prices view...');
+
+                    const { data, error } = await window.supabaseClient
+                        .from('latest_prices')
+                        .select(`asset_id, ${priceCol}`)
+                        .not(priceCol, 'is', null)
+                        .gt(priceCol, 0)
+                        .order(priceCol, { ascending: state.sortDirection === 'asc' })
+                        .range(state.currentOffset, state.currentOffset + state.limitPerPage - 1);
+
+                    if (error) throw error;
+
+                    console.log('[PRICE SORT] Supabase returned:', data.length, 'unique players');
+
+                    const ids = data.map(p => p.asset_id).join(',');
+                    const byIds = await window.apiClient.fetchWithCache(
+                        `/players/by-ids?ids=${ids}&rank=${rank}`,
+                        { cache: false }
+                    );
+                    const fetched = byIds.players || [];
+
+                    // Attach price to each player
+                    fetched.forEach(p => {
+                        const entry = data.find(r => String(r.asset_id) === String(p.player_id));
+                        if (entry) p.price = entry[priceCol];
+                    });
+
+                    // Re-sort to match Supabase order
+                    fetched.sort((a, b) =>
+                        state.sortDirection === 'asc'
+                            ? (a.price || 0) - (b.price || 0)
+                            : (b.price || 0) - (a.price || 0)
+                    );
+
+                    sortedPlayers = fetched;
+                    console.log('[PRICE SORT] Done. Players on screen:', sortedPlayers.length);
+
+                } catch (e) {
+                    console.error('[PRICE SORT] Failed:', e);
+                    sortedPlayers.sort((a, b) => (b.price || 0) - (a.price || 0));
+                }
             }
+
             
             // Render sorted players
             sortedPlayers.forEach(player => {

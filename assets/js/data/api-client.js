@@ -106,7 +106,9 @@ class ZenithAPIClient {
       if (filters.rank !== undefined) params.append('rank', filters.rank);
       if (filters.name_starts_with) params.append('name_starts_with', filters.name_starts_with);
       if (filters.skill_moves !== undefined) params.append('skill_moves', filters.skill_moves);
-      if (filters.is_untradable !== undefined) params.append('is_untradable', filters.is_untradable); // ✅ NEW
+      if (filters.is_untradable !== undefined) params.append('is_untradable', filters.is_untradable);
+      if (filters.sort_by) params.append('sort_by', filters.sort_by);
+      if (filters.order) params.append('order', filters.order);
 
       const endpoint = `/players?${params.toString()}`;
       return this.fetchWithCache(endpoint, { cache: opts.cache ?? true, cacheTTL: opts.cacheTTL });
