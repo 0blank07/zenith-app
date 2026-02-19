@@ -6097,33 +6097,36 @@ body.stats-open #squad-builder-modal {
 
 .preview-card-ovr {
     position: absolute;
-    top: 10px;
-    left: 20px;
-    font-size: 18px;
+    top: 12px;
+    left: 22px;
+    font-size: 1.125rem;
     font-weight: 900;
     z-index: 3;
-    font-family: var(--font-family-base, Arial, sans-serif);
+    font-family: var(--font-family-base, CruyffSans, sans-serif);
     letter-spacing: -0.5px;
 }
 
 .preview-card-position {
     position: absolute;
     top: 28px;
-    left: 23px;
-    font-size: 11px;
+    left: 22.6px;
+    font-size: 0.7400rem;
     font-weight: 850;
     z-index: 3;
-    font-family: var(--font-family-base, Arial, sans-serif);
+    font-family: var(--font-family-base, CruyffSans, sans-serif);
+
+    transform: scaleY(1.1);   /* increases height only */
+    transform-origin: top;    /* prevents shifting */
 }
 
 .preview-card-name {
     position: absolute;
-    bottom: 35px;
+    bottom: 37px;
     left: 0;
     right: 0;
     text-align: center;
-    font-size: 11px;
-    font-weight: 950;
+    font-size: 0.7499rem;
+    font-weight: 999;
     z-index: 3;
     white-space: nowrap;
     overflow: hidden;
@@ -6131,7 +6134,7 @@ body.stats-open #squad-builder-modal {
     padding: 0 8px;
     font-family: var(--font-family-base, Arial, sans-serif);
     text-transform: uppercase;
-    letter-spacing: -0.1px;
+    letter-spacing: -0.2px;
 }
 
 .preview-card-flag-nation {
@@ -6243,21 +6246,22 @@ body.stats-open #squad-builder-modal {
     position: absolute;
     top: 8px;
     left: 15px;
-    font-size: 15px; /* Scaled from 18px */
+    font-size: 0.9375rem;
     font-weight: 900;
     z-index: 3;
-    font-family: var(--font-family-base, Arial, sans-serif);
+    font-family: var(--font-family-base, CruyffSans, sans-serif);
     letter-spacing: -0.5px;
   }
 
   .preview-card-position {
     position: absolute;
     top: 23px;
-    left: 17px;
-    font-size: 9px; /* Scaled from 11px */
+    left: 16.6px;
+    font-size: 0.5625rem; /* Converted from 9px */
     font-weight: 850;
     z-index: 3;
-    font-family: var(--font-family-base, Arial, sans-serif);
+    transform: scaleY(1); 
+    font-family: var(--font-family-base, CruyffSans, sans-serif);
   }
 
   .preview-card-name {
@@ -6273,7 +6277,7 @@ body.stats-open #squad-builder-modal {
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 0 6px;
-    font-family: var(--font-family-base, Arial, sans-serif);
+    font-family: var(--font-family-base, CruyffSans, sans-serif);
     text-transform: uppercase;
     letter-spacing: -0.1px;
   }
