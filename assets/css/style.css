@@ -3182,6 +3182,18 @@ h1, h3, h4, h5, h6 {
     object-fit: contain;
 }
 
+
+.player-card-league-flag{
+    position: absolute;
+    top: 80px;
+    left: 60px;
+    width: 50px;
+    height: 50px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: contain;
+}
+
 /* Player Initials Fallback */
 .player-initials {
     position: absolute;
@@ -7407,37 +7419,41 @@ watchlist-view .view-content {
 /* OVR Badge (Top Center) */
 .card-ovr {
     position: absolute;
-    top: 10%;
-    left: 9%;
-    font-size: 1.4rem;
+    top: 11%;
+    left: 20%;
+    transform: translateX(-50%) scaleY(1.2);   /* keeps centered for 2 or 3 digits */
+
+    font-size: 1.2rem;
     font-weight: 800;
     z-index: 3;
     font-family: "CruyffSans", sans-serif;
 
     letter-spacing: -2.6px;
     line-height: 1.1;
-    transform: scaleY(1);
 }
+
+
 
 /* Position Badge */
 .card-position {
     position: absolute;
     top: 24%;
-    left: 15%;
-    transform: translateX(-50%);
-    font-size: 1rem;
+    left: 22%;
+    transform: translateX(-50%) scaleY(1);
+
+    font-size: 0.9rem;
     font-weight: 999;
     z-index: 3;
     letter-spacing: -0.7px;
     line-height: 0.8;
-    transform: scaleY(0.9);
 }
+
 
 /* Player Name */
 .card-player-name {
     position: absolute;
     bottom: 28%;
-    font-size: 0.9rem;
+    font-size: 0.77rem;
     font-weight: 800;
     text-transform: uppercase;
     z-index: 3;
@@ -7447,16 +7463,16 @@ watchlist-view .view-content {
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: "CruyffSans", sans-serif;
-    letter-spacing: -0.6px;
+    letter-spacing: -0.1px;
     line-height: 0.9;
-    transform: scaleY(1);
+    transform: scaleY(1.1);
 }
 
 /* Nation Flag (Bottom Left) */
 .card-nation-flag {
     position: absolute;
     bottom: 17%;
-    left: 28%;
+    left: 20%;
     width: 15px;
     height: 15px;
     object-fit: cover;
@@ -7468,11 +7484,24 @@ watchlist-view .view-content {
 .card-club-flag {
     position: absolute;
     bottom: 17%;
-    right: 28%;
+    right: 38%;
     width: 15px;
     height: 15px;
     object-fit: contain;
     z-index: 3;
+}
+
+
+.league-logo{
+    position: absolute;
+    bottom: 17%;
+    right: 44%;
+    width: 15px;
+    height: 15px;
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    z-index: 4;
 }
 
 /* Responsive Design */
@@ -7491,23 +7520,50 @@ watchlist-view .view-content {
     }
 
     .card-ovr {
-        top: 10%;
-        left: 9%;
-        font-size: 1.7rem;
-        letter-spacing: -2.9px;
+        position: absolute;
+        top: 12%;
+        left: 22%;
+        transform: translateX(-50%) scaleY(1.3);   /* keeps centered for 2 or 3 digits */
+
+        font-size: 1.2rem;
+        font-weight: 800;
+        z-index: 3;
+        font-family: "CruyffSans", sans-serif;
+
+        letter-spacing: -0.5px;
+        line-height: 0.9;
     }
 
     .card-position {
-        top: 24%;
-        left: 14.5%;
-        font-size: 1.2rem;
-        letter-spacing: -0.4px;
+        position: absolute;
+        top: 25%;
+        left: 23%;
+        transform: translateX(-50%) scaleY(1);
+
+        font-size: 1rem;
+        font-weight: 800;
+        z-index: 3;
+        letter-spacing: -0.9px;
+        line-height: 0.8;
     }
 
     .card-player-name {
-        bottom: 27%;
-        font-size: 1.1rem;
-        letter-spacing: -0.5px;
+
+        position: absolute;
+        bottom: 28%;
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        z-index: 3;
+        text-align: center;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-family: "CruyffSans", sans-serif;
+        letter-spacing: -0.6px;
+        line-height: 0.9;
+        transform: scaleY(1);
     }
 
     .card-nation-flag {
@@ -7550,24 +7606,24 @@ watchlist-view .view-content {
     }
 
     .card-ovr {
-        top: 9%;
-        left: 9%;
-        font-size: 1.9rem;
-        letter-spacing: -3px;
+        top: 12%;
+        left: 22%;
+        font-size: 1.2rem;
+        letter-spacing: -0.1px;
     }
 
     .card-position {
-        top: 25%;
-        left: 14%;
-        font-size: 1.3rem;
+        top: 24%;
+        left: 23%;
+        font-size: 1rem;
         letter-spacing: -1.4px;
     }
 
     .card-player-name {
         bottom: 28%;
-        font-size: 1.1rem;
-        letter-spacing: -1.5px;
-        max-width: 95%;
+        font-size: 0.9rem;
+        letter-spacing: -0.6px;
+        max-width: 100%;
     }
 
     .card-nation-flag {
@@ -7615,26 +7671,26 @@ watchlist-view .view-content {
     }
 
     .card-ovr {
-        top: 9%;
-        left: 8%;
-        font-size: 1.7rem;
+        top: 11%;
+        left: 21%;
+        font-size: 1.3rem;
         font-weight: 800;
         letter-spacing: -2px;
     }
 
     .card-position {
-        top: 24%;
-        left: 15%;
-        font-size: 1.2rem;
+        top: 23%;
+        left: 23%;
+        font-size: 1rem;
         font-weight: 900;
         letter-spacing: -1.5px;
     }
 
     .card-player-name {
-        bottom: 30%;
-        font-size: 1rem;
+        bottom: 28%;
+        font-size: 0.8rem;
         font-weight: 800;
-        letter-spacing: -1.2px;
+        letter-spacing: -0.7px;
         max-width: 90%;
     }
 
@@ -7682,27 +7738,27 @@ watchlist-view .view-content {
     }
 
     .card-ovr {
-        top: 9%;
-        left: 10%;
-        font-size: 1.5rem;
-        font-weight: 800;
-        letter-spacing: -2px;
+        top: 12%;
+        left: 23%;
+        font-size: 1rem;
+        font-weight: 799;
+        letter-spacing: -0.4px;
     }
 
     .card-position {
-        top: 24%;
-        left: 15%;
-        font-size: 1rem;
+        top: 26%;
+        left: 23%;
+        font-size: 0.7rem;
         font-weight: 800;
-        letter-spacing: -1.5px;
+        letter-spacing: -0.3px;
     }
 
     .card-player-name {
-        bottom: 30%;
-        font-size: 1rem;
+        bottom: 28%;
+        font-size: 0.6rem;
         font-weight: 800;
-        letter-spacing: -1.2px;
-        max-width: 90%;
+        letter-spacing: -0.3px;
+        max-width: 100%;
     }
 
     .card-nation-flag {
@@ -9149,14 +9205,23 @@ watchlist-view .view-content {
 
 .skill-detail-modal {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: 23000 !important;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(5px);
 }
+
+/* inner modal box */
+.skill-detail-modal-content {
+  margin: auto;
+}
+
+
 
 .skill-modal-content {
   background: #14181C;
@@ -9719,6 +9784,16 @@ watchlist-view .view-content {
     z-index: 3;
 }
 
+
+.card-league-flag-inside{
+    position: absolute;
+    bottom: 16%;
+    right: 32%;
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    z-index: 3;
+}
 
 .players-grid .player-row,
 .players-grid .player-card {

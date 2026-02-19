@@ -512,13 +512,13 @@
         margin-top: -6px;
         margin-left: 15px;
         transform: translateX(-50%);
-        font-size: 11px;
+        font-size: 0.32rem;        /* smaller */
         font-weight: 800;
         font-family: 'CruyffSans', sans-serif;
         text-transform: uppercase;
         z-index: 10;
-        letter-spacing: -0.8px;
-        line-height: 1;
+        letter-spacing: -0.9px;    /* slightly tighter */
+        line-height: 0.55;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -529,13 +529,13 @@
 
     .player-row-ovr {
         position: absolute;
-        top: 10px;
-        left: 17px;
-        font-size: 16px;
+        top: 12px;
+        left: 19px;
+        font-size: 1rem;
         font-weight: 700;
         font-family: 'CruyffSans', sans-serif;
         z-index: 10;
-        letter-spacing: -1px;
+        letter-spacing: -0.5px;
         line-height: 1.1;
     }
     
@@ -543,7 +543,7 @@
         position: absolute;
         top: 28px;
         left: 22px;
-        font-size: 10px;
+        font-size: 0.625rem;
         font-weight: 800;
         font-family: 'CruyffSans', sans-serif;
         z-index: 10;
@@ -601,7 +601,7 @@
     }
 
     .player-row-name {
-        font-size: 9px;
+        font-size: 0.5625rem;
         top: 62px;
         margin-left: 9px;
         margin-bottom: 40px;
@@ -612,8 +612,8 @@
     .player-row-ovr {
         position: absolute;
         top: 6px;
-        left: 17px;
-        font-size: 16px;
+        left: 19px;
+        font-size: 1rem;
         font-weight: 700;
         font-family: 'CruyffSans', sans-serif;
         z-index: 10;
@@ -623,9 +623,9 @@
     
     .player-row-position {
         position: absolute;
-        top: 25px;
-        left: 22px;
-        font-size: 10px;
+        top: 21.6px;
+        left: 21.6px;
+        font-size: 0.625rem;
         font-weight: 800;
         font-family: 'CruyffSans', sans-serif;
         z-index: 10;
@@ -678,8 +678,8 @@
         top: 83px;
         left: 50px;
         transform: translateX(-50%);
-        font-size: 11px;
-        font-weight: 800;
+        font-size: 0.6875rem;
+        font-weight: 799;
         font-family: 'CruyffSans', sans-serif;
         text-transform: uppercase;
         z-index: 10;
@@ -698,20 +698,20 @@
     .player-row-ovr {
         position: absolute;
         top: 10px;
-        left: 13px;
-        font-size: 16px;
+        left: 15px;
+        font-size: 1rem;
         font-weight: 700;
         font-family: 'CruyffSans', sans-serif;
         z-index: 10;
-        letter-spacing: -1px;
+        letter-spacing: -0.3px;
         line-height: 1.1;
     }
     
     .player-row-position {
         position: absolute;
-        top: 28px;
+        top: 26px;
         left: 19px;
-        font-size: 10px;
+        font-size: 0.625rem;
         font-weight: 800;
         font-family: 'CruyffSans', sans-serif;
         z-index: 10;
@@ -769,10 +769,10 @@
 
     .player-row-name {
         position: absolute;
-        top: 83px;
+        top: 80px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 11px;
+        font-size: 0.6875rem;
         font-weight: 800;
         font-family: 'CruyffSans', sans-serif;
         text-transform: uppercase;
@@ -786,12 +786,11 @@
         margin-top: 6px;
     }
 
-
     .player-row-ovr {
         position: absolute;
-        top: 13px;
-        left: 11px;
-        font-size: 16px;
+        top: 10px;
+        left: 14px;
+        font-size: 1rem;
         font-weight: 700;
         font-family: 'CruyffSans', sans-serif;
         z-index: 10;
@@ -801,9 +800,9 @@
     
     .player-row-position {
         position: absolute;
-        top: 30px;
+        top: 25px;
         left: 17px;
-        font-size: 10px;
+        font-size: 0.625rem;
         font-weight: 800;
         font-family: 'CruyffSans', sans-serif;
         z-index: 10;
