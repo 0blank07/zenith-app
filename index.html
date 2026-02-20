@@ -2,12 +2,18 @@
 <html lang="en">
 
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/js/data/config.js"></script>
+
+  <script>
+    // Auto base href: local vs production
+    const base = document.createElement('base');
+    base.href = window.location.hostname === 'localhost' ? '/zenith-app/' : '/';
+    document.head.appendChild(base);
+  </script>
+
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zenith - Ultimate Market Tracker</title>
+  <title>Zenith - FC Mobile Database</title>
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/tool-style.css">  
   <link rel="stylesheet" href="assets/css/watchlist-styles.css">
@@ -620,25 +626,52 @@
   <!-- Header -->
   <header class="header">
     <div class="header-content">
-      <div class="logo">
-        <img src="assets/images/zenith_logo_svg.svg" alt="Zenith logo" class="logo-image">
-        <span class="logo-text">Zenith</span>
-      </div>
-      <nav class="nav-desktop">
-        <button class="nav-link" data-view="dashboard">Home</button>
-        <button class="nav-link" data-view="database">Players</button>
-        <button class="nav-link" data-view="market">Market</button>
-        <button class="nav-link" data-view="watchlist">Watchlist</button>
-        <button class="tools-btn active">Tools</button>
 
+      <!-- Logo → clicking goes home -->
+      <div class="logo">
+        <a href="/" data-link data-nav-link style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+          <img src="assets/images/zenith_logo_svg.svg" alt="Zenith logo" class="logo-image">
+          <span class="logo-text">Zenith</span>
+        </a>
+      </div>
+
+      <!-- Desktop Nav -->
+      <nav class="nav-desktop">
+        <a href="/"          data-link data-nav-link class="nav-link">Home</a>
+        <a href="/players"   data-link data-nav-link class="nav-link">Players</a>
+        <a href="/market"    data-link data-nav-link class="nav-link">Market</a>
+        <a href="/watchlist" data-link data-nav-link class="nav-link">Watchlist</a>
+
+        <!-- Tools: stays a button, opens dropdown -->
+        <div class="tools-dropdown-wrapper" style="align-self: center;">
+          <button class="tools-btn" id="tools-dropdown-btn" onclick="toggleToolsDropdown()">
+            Tools ▾
+          </button>
+
+          <!-- Dropdown menu -->
+          <div class="tools-dropdown-menu" id="tools-dropdown-menu" style="display:none;">
+            <a href="/squad-builder"    data-link data-nav-link class="tools-dropdown-item">
+              🏟️ Squad Builder
+            </a>
+            <a href="/compare"          data-link data-nav-link class="tools-dropdown-item">
+              ⚖️ Compare Players
+            </a>
+            <a href="/shard-calculator" data-link data-nav-link class="tools-dropdown-item">
+              💎 Shard Calculator
+            </a>
+          </div>
+        </div>
       </nav>
+
       <div class="header-actions">
         <div class="user-avatar">
           <div class="avatar-circle">FC</div>
         </div>
       </div>
+
     </div>
   </header>
+
 
   <div class="slider" style="max-width: 100vw; overflow: hidden;">
     <span>Trade, Build, Dominate – Massive Rewards Await on Zenith!</span>
@@ -5451,6 +5484,7 @@
   <script src="assets/js/watchlist-professional.js"></script>
 
   <script src="assets/js/refresh-time.js"></script>
+  <script src="assets/js/router.js"></script>
   <script src="assets/js/app.js"></script>
 
 
@@ -5960,10 +5994,10 @@
 
     <!-- Center: Navigation -->
     <div class="zenith-footer-center">
-      <a href="#" onclick="switchView('dashboard')">Home</a>
-      <a href="#" onclick="switchView('database')">Database</a>
-      <a href="#" onclick="switchView('market')">Market</a>
-      <a href="#" onclick="switchView('watchlist')">Watchlist</a>
+      <a href="/" data-link data-nav-link>Home</a>
+      <a href="/players" data-link data-nav-link>Database</a>
+      <a href="/market" data-link data-nav-link>Market</a>
+      <a href="/watchlist" data-link data-nav-link>Watchlist</a>
     </div>
 
     <!-- Right: System Info -->

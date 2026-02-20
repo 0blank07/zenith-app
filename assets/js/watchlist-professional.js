@@ -1003,20 +1003,21 @@ function attachWatchlistEventListeners() {
     console.log('[WATCHLIST] Attaching row click listener', index + 1, 'for player ID:', playerId);
 
     row.addEventListener('click', function(e) {
-      // Don't trigger if clicking the heart button
-      if (e.target.closest('.player-row-watchlist')) return;
-
-      console.log('[WATCHLIST] Row clicked! Opening player detail for ID:', playerId);
-      
-      // ✅ FIX: Pass both playerId AND fallback player object
-      if (typeof viewPlayerDetail === 'function') {
-        viewPlayerDetail(playerId, fullPlayer || fallbackPlayer);
-      } else {
-        console.error('[WATCHLIST] viewPlayerDetail function not found!');
-      }
+        if (e.target.closest('.player-row-watchlist')) return;
+        console.log('[WATCHLIST] Row clicked! Opening player detail for ID:', playerId);
+        const pid = playerId;
+        if (!pid || pid === 'undefined') {
+            console.error('[WATCHLIST] Invalid player ID', pid);
+            return;
+        }
+        if (window.ZRouter) {
+            ZRouter.navigate(`/player/${pid}`);
+        } else if (typeof viewPlayerDetail === 'function') {
+            viewPlayerDetail(pid, fullPlayer || fallbackPlayer);
+        } else {
+            console.error('[WATCHLIST] Neither ZRouter nor viewPlayerDetail found!');
+        }
     });
-
-    // Add cursor pointer to show it's clickable
     row.style.cursor = 'pointer';
   });
 

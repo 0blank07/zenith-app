@@ -156,7 +156,7 @@ html, body {
 
 @font-face {
     font-family: "CruyffSans";
-    src: url("assets\fonts\CruyffSansCondensed-Bold (1).woff2") format("woff2");
+    src: url("assets/fonts/CruyffSansCondensed-Bold.woff2") format("woff2");
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -11315,4 +11315,49 @@ body {
   content: none !important;
 }
 
+/* ── Tools Dropdown ── */
+.tools-dropdown-wrapper {
+    position: relative;
+}
 
+.tools-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 200px;
+    background: var(--color-graphite-900, #0E1114);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    z-index: 9999;
+    overflow: hidden;
+    animation: fadeInDown 0.15s ease;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.tools-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    color: #d4d4d4;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.15s;
+}
+
+.tools-dropdown-item:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: #fff;
+}
+
+/* Active tool gets highlighted */
+.tools-dropdown-item.active {
+    color: #6366F1;
+    background: rgba(99,102,241,0.1);
+}

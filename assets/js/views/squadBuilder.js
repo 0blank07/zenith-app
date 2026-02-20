@@ -298,10 +298,12 @@ function getPlayers() {
 
 // Function to add player to local cache
 function addPlayerToCache(player) {
-  const exists = players.find(p => p.id === player.id || p.player_id === player.id);
-  if (!exists) {
+  const existingIndex = players.findIndex(p => p.id === player.id || p.player_id === player.id);
+  if (existingIndex === -1) {
     players.push(player);
     console.log('✅ Player added to cache:', player.name);
+  } else {
+    players[existingIndex] = { ...players[existingIndex], ...player };
   }
 }
 
@@ -709,6 +711,31 @@ function ensurePlayerInGlobalList(p, pid, overall) {
   console.log('📦 Ensuring player in list:', p.name, pid);
   
   const resolvedId = p.player_id || pid || p.id;
+  const pickMediaValue = (...values) => {
+    for (const value of values) {
+      if (value === undefined || value === null) continue;
+      if (typeof value === 'string' && value.trim() === '') continue;
+      return value;
+    }
+    return null;
+  };
+  const cardBackground = pickMediaValue(
+    p.card_background, p.cardbackground, p.cardBackground, p.card_bg, p.cardBg,
+    p.card_image, p.cardImage, p.cardimg, p.card
+  );
+  const playerImage = pickMediaValue(
+    p.player_image, p.playerimage, p.playerImage, p.playerimg, p.playerImg, p.player_img,
+    p.image, p.image_url, p.imageUrl, p.imageurl, p.player_face, p.playerFace
+  );
+  const nationFlag = pickMediaValue(
+    p.nation_flag, p.nationflag, p.nationFlag, p.nationflagurl, p.country_flag, p.countryFlag
+  );
+  const clubFlag = pickMediaValue(
+    p.club_flag, p.clubflag, p.clubFlag, p.clublogourl, p.club_logo, p.clubLogo, p.team_flag, p.teamFlag
+  );
+  const leagueFlag = pickMediaValue(
+    p.league_flag, p.leagueflag, p.leagueFlag, p.leagueflagurl, p.league_logo, p.leagueLogo
+  );
   const normalizedPlayer = {
     ...p,
     id: resolvedId,
@@ -720,10 +747,43 @@ function ensurePlayerInGlobalList(p, pid, overall) {
     team: p.club || p.team,
     club: p.club || p.team,
     price: resolveSquadPlayerPrice(p),
-    player_img: p.player_img || p.playerImg || p.image
+    ...(cardBackground ? {
+      card_background: cardBackground,
+      cardbackground: cardBackground,
+      cardBackground
+    } : {}),
+    ...(playerImage ? {
+      player_image: playerImage,
+      playerimage: playerImage,
+      player_img: playerImage,
+      playerImg: playerImage
+    } : {}),
+    ...(nationFlag ? {
+      nation_flag: nationFlag,
+      nationflag: nationFlag,
+      nationFlag
+    } : {}),
+    ...(clubFlag ? {
+      club_flag: clubFlag,
+      clubflag: clubFlag,
+      clubFlag
+    } : {}),
+    ...(leagueFlag ? {
+      league_flag: leagueFlag,
+      leagueflag: leagueFlag,
+      leagueFlag
+    } : {})
   };
   
   addPlayerToCache(normalizedPlayer);
+  console.info('[SQUAD MEDIA] Normalized player media', {
+    playerId: resolvedId,
+    hasCardBackground: Boolean(cardBackground),
+    hasPlayerImage: Boolean(playerImage),
+    hasNationFlag: Boolean(nationFlag),
+    hasClubFlag: Boolean(clubFlag),
+    hasLeagueFlag: Boolean(leagueFlag)
+  });
   
   // Also add to global state if available
   if (window.state && window.state.allPlayers) {
@@ -734,6 +794,8 @@ function ensurePlayerInGlobalList(p, pid, overall) {
     if (!exists) {
       window.state.allPlayers.push(normalizedPlayer);
       console.log('✅ Added to global state');
+    } else {
+      Object.assign(exists, normalizedPlayer);
     }
   }
 }

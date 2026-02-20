@@ -1884,8 +1884,9 @@
 }
 
 #squad-builder-modal {
-  position: relative;
-  z-index: 100;
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
 }
 
 #filter-sidebar {
@@ -1985,8 +1986,9 @@
 
 /* Make sure squad builder sits below modal */
 #squad-builder-modal {
-  position: relative;
-  z-index: 100;
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
 }
 
 /* If your app adds a blur class to the app when any modal opens, neutralize it for stats */

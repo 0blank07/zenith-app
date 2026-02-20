@@ -232,6 +232,35 @@ function createAnimatedRankIcon(rank, size = 48) {
     `;
 }
 
+function toggleToolsDropdown() {
+    const menu = document.getElementById('tools-dropdown-menu');
+    const btn  = document.getElementById('tools-dropdown-btn');
+
+    if (!menu) {
+        console.error('[Zenith] tools-dropdown-menu not found');
+        return;
+    }
+
+    const isOpen = menu.style.display === 'block';
+    menu.style.display = isOpen ? 'none' : 'block';
+    btn.classList.toggle('active', !isOpen);
+
+    console.log(`%c[Zenith] Tools dropdown ${isOpen ? 'closed' : 'opened'}`, 'color:#6366F1;font-weight:600');
+}
+
+// Close dropdown when clicking anywhere outside it
+document.addEventListener('click', (e) => {
+    const wrapper = document.querySelector('.tools-dropdown-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+        const menu = document.getElementById('tools-dropdown-menu');
+        const btn  = document.getElementById('tools-dropdown-btn');
+        if (menu) menu.style.display = 'none';
+        if (btn)  btn.classList.remove('active');
+    }
+});
+
+
+
 function startRankAnimation(element) {
     if (!element) return;
 
@@ -935,7 +964,7 @@ async function renderPlayerDetail(player) {
                 padding: 24px 24px 0 24px;
             ">
                 <!-- Back Button -->
-                <button onclick="switchView('database')" style="
+                <button onclick="window.ZRouter ? ZRouter.navigate('players') : switchView('database')" style="
                     background: transparent;
                     border: 1px solid rgba(255,255,255,0.1);
                     color: var(--color-text-muted, #98A0A6);
@@ -3475,6 +3504,7 @@ window.state = {
     allPlayers: [],
     filteredPlayers: [],
     isLoadingAPI: false,
+    isLoadingDatabase: false,
     apiRank: 0,
     // ========== PAGINATION ==========
     currentOffset: 0,
@@ -3655,13 +3685,17 @@ function switchView(viewName) {
     // loadMarket(); // Uncomment when ready
   } else if (viewName === 'watchlist') {
     // Use new professional watchlist
-        if (typeof initProfessionalWatchlist === 'function') {
-            setTimeout(() => {
-                initProfessionalWatchlist();
-            }, 100);
-        } else {
-            console.error('❌ initProfessionalWatchlist not found - make sure watchlist-professional.js is loaded');
-        }
+    if (typeof window.initProfessionalWatchlist === 'function') {
+        window.initProfessionalWatchlist();
+    } else {
+        setTimeout(() => {
+            if (typeof window.initProfessionalWatchlist === 'function') {
+                window.initProfessionalWatchlist();
+            } else {
+                console.error('❌ initProfessionalWatchlist not found');
+            }
+        }, 300);
+    }
   } else if (viewName === 'event-guide') {
         if (typeof initEventGuide === 'function') {
             setTimeout(initEventGuide, 100);
@@ -4130,13 +4164,18 @@ function createDashboardPlayerCard(player) {
     card.className = 'dashboard-player-card';
 
     card.addEventListener('click', () => {
-        if (typeof viewPlayerDetail === 'function') {
-            // adjust field names if needed (player.playerid vs player.player_id)
-            viewPlayerDetail(player.player_id || player.playerid, player);
-        } else {
-            console.log('Clicked player', player.name, 'ID:', player.player_id || player.playerid);
+        const pid = player.playerid || player.player_id;
+        if (!pid) {
+            console.error('[Zenith] Dashboard card click: missing player_id', player);
+            return;
+        }
+        if (window.ZRouter) {
+            ZRouter.navigate(`/player/${pid}`);
+        } else if (typeof viewPlayerDetail === 'function') {
+            viewPlayerDetail(pid, player); // fallback if router not loaded
         }
     });
+
 
     // Normalize untradable value to a boolean
     const isUntradableText = String(player.is_untradable ?? player.isuntradable ?? '').toLowerCase();
@@ -4715,7 +4754,10 @@ function updateAllWatchlistButtons() {
 
 // Helper function to get unique ID from player object
 function getPlayerUniqueId(player) {
-  return `${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}`;
+  const playerId = player?.player_id ?? player?.playerid ?? player?.id ?? 'unknown';
+  const isUntradable = String(player?.is_untradable ?? player?.isuntradable ?? '').toLowerCase();
+  const untradableFlag = isUntradable === 'true' || isUntradable === '1' || player?.is_untradable === 1 ? 1 : 0;
+  return `${playerId}_${player?.rank || 0}_${untradableFlag}`;
 }
 
 window.toggleWatchlist = function(uniqueId) {
@@ -4762,8 +4804,12 @@ window.toggleWatchlist = function(uniqueId) {
       console.log('[TOGGLE] Player found:', playerObj.name);
       
       // ✅ FIX: Ensure nation_region is saved
+      const resolvedPlayerId = playerObj.player_id || playerObj.playerid || playerObj.id;
       const playerToSave = {
         ...playerObj,
+        player_id: resolvedPlayerId,
+        playerid: resolvedPlayerId,
+        id: resolvedPlayerId,
         // Make sure nation_region is included
         nation_region: playerObj.nation_region || playerObj.nationregion || playerObj.nation || playerObj.nationality || 'NA',
         nationregion: playerObj.nation_region || playerObj.nationregion || playerObj.nation || playerObj.nationality || 'NA',
@@ -4977,7 +5023,7 @@ function createPlayerCard(player) {
     card.dataset.rating = player.ovr || 0;
 
     // 2. Create Unique ID for Watchlist (handles ranks and tradability)
-    const uniqueId = `${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}`;
+    const uniqueId = getPlayerUniqueId(player);
     const isWatchlisted = state.watchlist && state.watchlist.includes(uniqueId);
     const isUntradableText = String(player.is_untradable ?? player.isuntradable ?? '').toLowerCase();
     const isUntradable = isUntradableText === 'true' || isUntradableText === '1' || isUntradableText === 'yes';
@@ -5184,10 +5230,14 @@ function createPlayerCard(player) {
             return;
         }
 
-        if (typeof viewPlayerDetail === 'function') {
-            viewPlayerDetail(player.player_id);
+        const pid = player.playerid || player.player_id;
+        if (!pid) { console.warn('[Zenith] No player ID found', player); return; }
+        if (window.ZRouter) {
+            ZRouter.navigate(`/player/${pid}`);
+        } else if (typeof viewPlayerDetail === 'function') {
+            viewPlayerDetail(pid);
         } else {
-            console.log('Clicked player:', player.name, 'ID:', player.player_id);
+            console.log('[Zenith] No router or viewPlayerDetail found', pid);
         }
     });
 
@@ -5365,7 +5415,7 @@ async function loadDatabase() {
         return;
     }
 
-    if (state.isLoadingAPI) {
+    if (state.isLoadingDatabase) {
         console.log('[DATABASE] Already loading...');
         return;
     }
@@ -5381,7 +5431,7 @@ async function loadDatabase() {
         container.innerHTML = '<div class="loading-spinner">Loading players...</div>';
     }
 
-    state.isLoadingAPI = true;
+    state.isLoadingDatabase = true;
 
     try {
         // Build filter object from state
@@ -5630,7 +5680,7 @@ async function loadDatabase() {
         `;
         if (loadMoreBtn) loadMoreBtn.style.display = 'none';
     } finally {
-        state.isLoadingAPI = false;
+        state.isLoadingDatabase = false;
     }
 }
 
@@ -6158,9 +6208,18 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {
-    backBtn.removeEventListener('click', backBtn._zenithBackHandler);
-    backBtn._zenithBackHandler = () => switchView('database');
-    backBtn.addEventListener('click', backBtn._zenithBackHandler);
+      backBtn.removeEventListener('click', backBtn.zenithBackHandler);
+      backBtn.zenithBackHandler = () => {
+          console.log('%c[Zenith] Back button clicked', 'color:#6366F1;font-weight:600', {
+              historyLength: window.history.length
+          });
+          if (window.ZRouter && window.history.length > 1) {
+              window.history.back();
+          } else {
+              ZRouter ? ZRouter.navigate('/players') : switchView('database');
+          }
+      };
+      backBtn.addEventListener('click', backBtn.zenithBackHandler);
   }
 
   const loadMoreBtn = document.getElementById('load-more-btn');
@@ -6320,7 +6379,11 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   function applyDatabaseSearchAndFilters(players, query) {
-    const normalizedQuery = (query || '').trim().toLowerCase();
+    const normalizeDatabaseSearchValue = (value) => String(value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+    const normalizedQuery = normalizeDatabaseSearchValue((query || '').trim());
     const filters = state.filters || {};
     const ratingMin = Number.isFinite(filters.ratingMin) ? filters.ratingMin : 40;
     const ratingMax = Number.isFinite(filters.ratingMax) ? filters.ratingMax : 150;
@@ -6383,11 +6446,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     const searchedPlayers = filteredPlayers.filter(player => {
-      const name = (player.name || '').toLowerCase();
-      const position = (player.position || '').toLowerCase();
-      const club = (player.team || player.club || '').toLowerCase();
-      const league = (player.league || '').toLowerCase();
-      const nation = (player.nation || player.nation_region || player.nationality || '').toLowerCase();
+      const name = normalizeDatabaseSearchValue(player.name);
+      const position = normalizeDatabaseSearchValue(player.position);
+      const club = normalizeDatabaseSearchValue(player.team || player.club || '');
+      const league = normalizeDatabaseSearchValue(player.league);
+      const nation = normalizeDatabaseSearchValue(player.nation || player.nation_region || player.nationality || '');
       return name.includes(normalizedQuery) ||
         position.includes(normalizedQuery) ||
         club.includes(normalizedQuery) ||
@@ -6456,6 +6519,18 @@ document.addEventListener('DOMContentLoaded', async function () {
         total = response.total || 0;
       }
 
+      players = players.map(player => {
+        const resolvedPlayerId = player.player_id || player.playerid || player.id;
+        if (!resolvedPlayerId) return player;
+        return {
+          ...player,
+          player_id: resolvedPlayerId,
+          playerid: resolvedPlayerId,
+          id: resolvedPlayerId
+        };
+      });
+      console.log('[SEARCH] Identifier normalization sample:', players.slice(0, 3).map(p => p.player_id));
+
       if (requestId !== playerSearchRequestId || query !== currentPlayerSearchQuery) {
         return;
       }
@@ -6500,6 +6575,20 @@ document.addEventListener('DOMContentLoaded', async function () {
       console.error('[SEARCH] Container not found');
       return;
     }
+
+    if (!append) {
+      state.searchResults = [...players];
+    } else {
+      const merged = [...(state.searchResults || []), ...players];
+      const seen = new Set();
+      state.searchResults = merged.filter(player => {
+        const key = getPlayerUniqueId(player);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+    console.log('[SEARCH] Cached results for watchlist lookup:', state.searchResults.length);
 
     if (!append) {
       container.innerHTML = '';
@@ -6844,10 +6933,17 @@ document.addEventListener('DOMContentLoaded', async function () {
       if (searchDropdown) searchDropdown.classList.remove('active');
       if (homeSearch) homeSearch.value = '';
       // Navigate to player detail
-      viewPlayerDetail(player.player_id);
+      const pid = player.playerid || player.player_id;
+      if (!pid) { console.error('[SEARCH] Missing player ID', player); return; }
+      if (window.ZRouter) {
+          ZRouter.navigate(`/player/${pid}`);
+      } else if (typeof viewPlayerDetail === 'function') {
+          viewPlayerDetail(pid);
+      }
     });
 
     return row;
+
   }
 
   // Sort dropdown
@@ -6908,17 +7004,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
   }
 
-  // ----------------------------
-  // Resolve initial view on page load
-  // ----------------------------
-  const isRootPath = window.location.pathname === '/' || window.location.pathname === '/index.html';
-  const hasNoHash = !window.location.hash;
-  if (isRootPath && hasNoHash) {
-    switchView('dashboard');
-  } else {
-    const savedView = localStorage.getItem('currentView') || state.currentView || 'dashboard';
-    switchView(savedView);
-  }
+  // -------------------------------
+  // Resolve initial view on page load → now handled by ZRouter
+  // ZRouter.init() below will read the URL and call switchView correctly
+  // -------------------------------
+
+  console.log('%c[Zenith] View init delegated to ZRouter', 'color:#10B981;font-weight:600');
 
   // ----------------------------
   // Real-time simulation (safe guard: use state.filteredPlayers)
@@ -6932,10 +7023,20 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   }, 5000);
 
-  console.log('[APP] Initialization complete');
+  console.log('%c[Zenith] APP Initialization complete', 'color:#10B981;font-weight:600');
+  updateAllWatchlistButtons();
+
+  // ── ROUTER: Must be LAST (all functions defined above) ──────────
+  if (window.ZRouter) {
+    console.log('%c[Zenith] Starting ZRouter...', 'color:#10B981;font-weight:600');
+    ZRouter.init();
+  } else {
+    console.error('[Zenith] ZRouter not found on window! Did router.js load before app.js in index.html?');
+    // Safe fallback: load dashboard manually
+    switchView(localStorage.getItem('currentView') || 'dashboard');
+  }
 });
 
-updateAllWatchlistButtons();
 
 
 
@@ -9344,14 +9445,15 @@ function openTool(toolName) {
 
   switch (toolName) {
     case 'squadbuilder':
-      switchView('squadbuilder');
-      openSquadBuilderModal();
-      closeToolsModal();
-      closeToolsSheet();
-      break;
+        if (window.ZRouter) ZRouter.navigate('/squad-builder');
+        else { switchView('squadbuilder'); openSquadBuilderModal(); }
+        closeToolsModal(); closeToolsSheet();
+        break;
     case 'compare':
-      openCompareModal();
-      break;
+        if (window.ZRouter) ZRouter.navigate('/compare');
+        else openCompareModal();
+        closeToolsModal(); closeToolsSheet();
+        break;
     case 'cardgen':
       break;
     case 'programs':

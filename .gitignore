@@ -21,3 +21,6 @@ zenith_full_schema.sql
 prompt_for_opus.md
 .idea/
 tests/
+dev-tools.txt
+.github/
+.vscode/
