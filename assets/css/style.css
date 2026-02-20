@@ -9748,22 +9748,22 @@ watchlist-view .view-content {
     position: absolute;
     top: 11%;
     left: 21%;
-    font-size: 1.8rem;
-    font-weight: 900;
+    font-size: 1.7rem;
+    font-weight: 899;
     z-index: 3;
     font-family: "CruyffSans", sans-serif;
-
     letter-spacing: -2.6px;
     line-height: 1.1;
-    transform: scaleY(1.4);
+    transform: scaleY(1.3);
 }
 
 .card-position-inside {
     position: absolute;
-    top: 26%;
-    left: 26%;
+    top: 25.4%;
+    left: 22.6%;
     transform: translateX(-50%);
-    font-size: 1.4rem;
+    font-family: "CruyffSans", sans-serif;
+    font-size: 1.3rem;
     font-weight: 799;
     z-index: 3;
     letter-spacing: -0.7px;

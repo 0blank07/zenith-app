@@ -11,9 +11,8 @@
   justify-content: center;
   background: rgba(0, 0, 0, 0.7);
   z-index: 10000;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(10px);
   margin-top: -50px;
-  /*this was 0*/
 }
 
 .squad-modal {
@@ -402,14 +401,14 @@
   gap: 6px;
   padding: 6px 8px;
   transform: scale(1.1);
-  z-index: 50;
+  z-index: 10;
 }
 
 .squad-bench:hover .squad-player {
   transform: scale(1.15) translateY(-10px);
   box-shadow: 0 15px 50px rgba(59, 130, 246, 0.5);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.3s ease;
+  box-shadow 0.3s ease;
 }
 
 
@@ -6244,7 +6243,7 @@ body.stats-open #squad-builder-modal {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1;
+    z-index: 5;
     transition: all 0.3s ease;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
     
@@ -6851,6 +6850,7 @@ body.stats-open #squad-builder-modal {
 
 .bench-cell:hover {
     transform: scale(1.03);
+    z-index: 2;
 }
 
 .bench-cell.filled {
@@ -6872,7 +6872,7 @@ body.stats-open #squad-builder-modal {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1; 
+    z-index: 2; 
     transition: all 0.3s ease;
     
     /* FC Mobile shield shape */
@@ -6961,33 +6961,35 @@ body.stats-open #squad-builder-modal {
 
 .bench-card-ovr {
     position: absolute;
-    top: 9px;
-    left: 11px;
-    font-size: 15px;
+    top: 10px;
+    left: 14px;
+    font-size: 0.9375rem;
     font-weight: 900;
     z-index: 3;
-    font-family: var(--font-family-base, Arial, sans-serif);
+    font-family: var(--font-family-base, "CruyffSans", sans-serif);
+    transform: scaleY(1.1);
 }
 
 .bench-card-position {
     position: absolute;
-    top: 23px;
-    left: 15px;
-    font-size: 10px;
+    top: 26px;
+    left: 14.7px;
+    font-size: 0.600rem;
     font-weight: 800;
     z-index: 3;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
-    font-family: var(--font-family-base, Arial, sans-serif);
+    font-family: var(--font-family-base, "CruyffSans", sans-serif);
+    transform: scaleY(1.1);
 }
 
 .bench-card-name {
     position: absolute;
-    top: 75px; 
-    left: 20px;
-    text-align: center;
+    top: 77px;
+
+    left: 53%;
+    transform: translateX(-50%);
+
     font-size: 9px;
     font-weight: 850;
-    text-align: center;
     text-transform: uppercase;
     z-index: 3;
     white-space: nowrap;
@@ -7086,16 +7088,16 @@ body.stats-open #squad-builder-modal {
     }
 
     .bench-card-ovr {
-        top: 8px;
+        top: 9px;
         left: 15px;
-        font-size: 15px;
-        letter-spacing: -0.5px;
+        font-size: 0.9375rem;
+        letter-spacing: -0.4px;
     }
 
     .bench-card-position {
-        top: 23px;
-        left: 17px;
-        font-size: 9px;
+        top: 24px;
+        left: 16px;
+        font-size: 0.5625rem;
     }
 
     .bench-card-name {
@@ -7160,14 +7162,14 @@ body.stats-open #squad-builder-modal {
     .bench-card-ovr {
         top: 6px;
         left: 12px;
-        font-size: 12px; /* Scaled from 15px */
+        font-size: 0.75rem;
         letter-spacing: -0.4px;
     }
 
     .bench-card-position {
         top: 18px;
-        left: 14px;
-        font-size: 7px; /* Scaled from 9px */
+        left: 13.2px;
+        font-size: 0.4375rem;
     }
 
     .bench-card-name {
@@ -7230,14 +7232,14 @@ body.stats-open #squad-builder-modal {
     .bench-card-ovr {
         top: 4px;
         left: 10px;
-        font-size: 10px; /* Scaled from 12px */
+        font-size: 0.625rem;
         letter-spacing: -0.3px;
     }
 
     .bench-card-position {
         top: 14px;
         left: 11px;
-        font-size: 6px; /* Minimum legible size */
+        font-size: 0.310rem;
     }
 
     .bench-card-name {
