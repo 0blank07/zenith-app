@@ -159,3 +159,11 @@ function applyRankOverlay(container, rank, options = {}) {
 window.getRankOverlaySrc = getRankOverlaySrc;
 window.applyRankOverlay = applyRankOverlay;
 window.devLog = devLog;
+
+
+function getPlayerType(player) {
+  const event = (player.event || '').toLowerCase();
+  if (event.includes('icon')) return 'icon';
+  if (event.includes('hero')) return 'hero';
+  return 'normal';
+}

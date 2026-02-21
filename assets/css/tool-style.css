@@ -8181,30 +8181,7 @@ body.stats-open #squad-builder-modal {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-/* Nation Flag (bottom-left) */
-.compare-nation-flag {
-  position: absolute;
-  bottom: 35px;
-  left: 36%;
-  width: 15px;
-  height: 15px;
-  object-fit: cover;
-  border-radius: 1px;
-  z-index: 3;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
 
-/* Club Badge (bottom-right) */
-.compare-club-flag {
-  position: absolute;
-  bottom: 35px;
-  right: 36%;
-  width: 15px;
-  height: 15px;
-  object-fit: contain;
-  z-index: 3;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
 
 /* League Badge (top-right corner) */
 .compare-league-badge {
@@ -8760,4 +8737,136 @@ body.stats-open #squad-builder-modal {
 
     z-index: 10;
   }
+}
+
+
+.picker-squad-card-flag-nation.hero-icon-squad-nation-flag{
+  position: absolute;
+  bottom: 14%;
+  left: 22px;
+  width: 10px;
+  height: 10px;
+  object-fit: contain;
+  z-index: 3;
+}
+
+
+.picker-squad-card-flag-club.hero-icon-squad-club-flag{
+  position: absolute;
+  bottom: 14%;
+  right: 30%;
+  width: 10px;
+  height: 10px;
+  object-fit: contain;
+  z-index: 3;
+}
+
+.picker-squad-card-flag-nation.normal-squad-nation-flag{
+  position: absolute;
+  bottom: 16%;
+  right: 30%;
+  width: 10px;
+  height: 10px;
+  object-fit: contain;
+  z-index: 3; 
+}
+
+
+.picker-squad-card-flag-club.normal-squad-club-flag{
+  position: absolute;
+  bottom: 16%;
+  right: 30%;
+  width: 10px;
+  height: 10px;
+  object-fit: contain;
+  z-index: 3;
+}
+
+
+.bench-card-flag-nation.hero-icon-nation-flag{
+  position: absolute;
+  top: 92px;
+  left: 30px;
+  width: 12px;
+  height: 8px;
+  object-fit: cover;
+  border-radius: 2px;
+  z-index: 3;
+}
+
+
+.bench-card-flag-club.hero-icon-club-flag{
+  position: absolute;
+  top: 89px;
+  left: 60px;
+  width: 15px;
+  height: 12px;
+  object-fit: contain;
+  z-index: 3;
+}
+
+.bench-card-flag-nation.normal-nation-flag{
+  position: absolute;
+  top: 92px;
+  left: 30px;
+  width: 12px;
+  height: 8px;
+  object-fit: cover;
+  border-radius: 2px;
+  z-index: 3; 
+}
+
+
+.bench-card-flag-club.normal-club-flag{
+  position: absolute;
+  top: 89px;
+  left: 60px;
+  width: 15px;
+  height: 12px;
+  object-fit: contain;
+  z-index: 3;
+}
+
+
+.compare-nation-flag.hero-icon-nation-flag{
+  position: absolute;
+  bottom: 36px;
+  left: 33%;
+  width: 20px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 1px;
+  z-index: 3;
+}
+
+.compare-club-flag.hero-icon-club-flag{
+  position: absolute;
+  bottom: 36px;
+  right: 33%;
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+  z-index: 3;
+}
+
+.compare-nation-flag.normal-nation-flag{
+  position: absolute;
+  bottom: 35px;
+  left: 36%;
+  width: 15px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 1px;
+  z-index: 3; 
+}
+
+
+.compare-club-flag.normal-club-flag{
+  position: absolute;
+  bottom: 35px;
+  right: 36%;
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+  z-index: 3;
 }

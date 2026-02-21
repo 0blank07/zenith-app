@@ -3162,8 +3162,8 @@ h1, h3, h4, h5, h6 {
 /* Nation Flag */
 .player-card-nation-flag {
     position: absolute;
-    bottom: 24px;
-    left: 35px;
+    bottom: 18px;
+    left: 24px;
     width: 12px;
     height: 9px;
     border-radius: 1px;
@@ -3174,7 +3174,7 @@ h1, h3, h4, h5, h6 {
 /* Club Flag */
 .player-card-club-flag {
     position: absolute;
-    top: 99px;
+    top: 55px;
     left: 60px;
     width: 14px;
     height: 14px;
@@ -11360,4 +11360,100 @@ body {
 .tools-dropdown-item.active {
     color: #6366F1;
     background: rgba(99,102,241,0.1);
+}
+
+
+.card-nation-flag.hero-icon-nation-flag{
+  position: absolute;
+  bottom: 15%;
+  left: 25%;
+  width: 15px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 3px;
+  z-index: 3;
+}
+
+
+.card-club-flag.hero-icon-club-flag{
+  position: absolute;
+  bottom: 14.5%;
+  left: 60%;
+  width: 15px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 3px;
+  z-index: 3;
+}
+
+
+.card-nation-flag.normal-nation-flag{
+  position: absolute;
+  bottom: 15%;
+  left: 25%;
+  width: 15px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 3px;
+  z-index: 3;
+}
+
+
+.card-club-flag.normal-club-flag{
+  position: absolute;
+  bottom: 14.5%;
+  left: 60%;
+  width: 15px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 3px;
+  z-index: 3;
+}
+
+
+.player-view-card-nation-flag.hero-icon-players-nation-flag{
+  position: absolute;
+  bottom: 20px;
+  left: 30px;
+  width: 12px;
+  height: 9px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+}
+
+
+.player-view-card-club-flag.hero-icon-club-players-flag{
+  position: absolute;
+  bottom: 20px;
+  left: 68px;
+  width: 12px;
+  height: 9px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+}
+
+
+.player-view-card-nation-flag.normal-players-nation-flag{
+  position: absolute;
+  bottom: 18px;
+  left: 40px;
+  width: 12px;
+  height: 9px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+}
+
+
+.player-view-card-nation-flag.normal-club-players-flag{
+  position: absolute;
+  bottom: 18px;
+  left: 40px;
+  width: 12px;
+  height: 9px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
 }

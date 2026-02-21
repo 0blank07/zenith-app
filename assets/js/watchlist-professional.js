@@ -896,21 +896,9 @@ function createPlayerCardHTML(player) {
           ${player.position || '?'}
         </div>
 
-        <!-- Nation Flag -->
-        ${player.nationflag || player.nation_flag ? `
-          <img src="${player.nationflag || player.nation_flag}" 
-               alt="Nation" 
-               class="player-row-nation"
-               onerror="this.style.display='none'">
-        ` : ''}
+        <img src="${player.nationflag}" alt="Nation" class="player-card-nation-flag ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
+        <img src="${player.clubflag}" alt="Club" class="player-card-club-flag ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
 
-        <!-- Club Badge -->
-        ${player.clubflag || player.club_flag ? `
-          <img src="${player.clubflag || player.club_flag}" 
-               alt="Club" 
-               class="player-row-club"
-               onerror="this.style.display='none'">
-        ` : ''}
 
         ${untradableBadgeHTML}
 

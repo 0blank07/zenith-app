@@ -573,15 +573,9 @@ function renderPlayerPicker() {
                 ${p.name}
             </div>
 
-            <img src="${p.nation_flag || ''}"
-                alt="Nation"
-                class="picker-card-flag-nation"
-                onerror="this.style.display='none'">
+            <img src="${p.nation_flag}" alt="Nation" class="picker-squad-card-flag-nation ${getPlayerType(p) === 'normal' ? 'normal-squad-nation-flag' : 'hero-icon-squad-nation-flag'}" onerror="this.style.display='none'">
+            <img src="${p.club_flag}" alt="Club" class="picker-squad-card-flag-club ${getPlayerType(p) === 'normal' ? 'normal-squad-club-flag' : 'hero-icon-squad-club-flag'}" onerror="this.style.display='none'">
 
-            <img src="${p.club_flag || ''}"
-                alt="Club"
-                class="picker-card-flag-club"
-                onerror="this.style.display='none'">
             ${untradableBadgeHTML}
         </div>
 
@@ -3219,12 +3213,9 @@ function buildSquadPreviewCardMarkup(player, slotLabel, slotId, options = {}) {
                 <div class="preview-card-ovr" style="color: ${colorRating};">${adjustedOVR > 0 ? adjustedOVR : 'NA'}</div>
                 <div class="preview-card-position" style="color: ${colorPosition}">${position}</div>
                 <div class="preview-card-name" style="color: ${colorName}">${playerName}</div>
-                ${player.nationflag || player.nation_flag ?
-                    `<img src="${player.nationflag || player.nation_flag}" alt="Nation" class="preview-card-flag-nation"${crossOriginAttr} onerror="this.style.display='none'">`
-                    : ''}
-                ${player.clubflag || player.club_flag ?
-                    `<img src="${player.clubflag || player.club_flag}" alt="Club" class="preview-card-flag-club"${crossOriginAttr} onerror="this.style.display='none'">`
-                    : ''}
+                <img src="${player.nationflag || ''}" alt="Nation" class="card-nation-flag ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
+                <img src="${player.clubflag || ''}" alt="Club" class="card-club-flag ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
+
                 ${untradableBadgeHTML}
                 ${includeRemoveButton ? `<button class="preview-card-remove" onclick="event.stopPropagation(); delete squadState.starters['${slotId}']; renderSquadBuilder();">×</button>` : ''}
             </div>
@@ -3264,12 +3255,9 @@ function buildSquadBenchCardMarkup(player, benchIndex, options = {}) {
                     <div class="bench-card-ovr" style="color: ${colorRating}">${overall > 0 ? overall : 'NA'}</div>
                     <div class="bench-card-position" style="color: ${colorPosition}">${position}</div>
                     <div class="bench-card-name" style="color: ${colorName}">${playerName}</div>
-                    ${player.nationflag || player.nation_flag ?
-                        `<img src="${player.nationflag || player.nation_flag}" alt="Nation" class="bench-card-flag-nation"${crossOriginAttr} onerror="this.style.display='none'">`
-                        : ''}
-                    ${player.clubflag || player.club_flag ?
-                        `<img src="${player.clubflag || player.club_flag}" alt="Club" class="bench-card-flag-club"${crossOriginAttr} onerror="this.style.display='none'">`
-                        : ''}
+                    ${player.nation_flag || player.nation_flag ? `<img src="${player.nationflag || player.nationflag}" alt="Nation" class="bench-card-flag-nation ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}"${crossOriginAttr} onerror="this.style.display='none'">` : ''}
+                    ${player.club_flag || player.club_flag ? `<img src="${player.clubflag || player.clubflag}" alt="Club" class="bench-card-flag-club ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}"${crossOriginAttr} onerror="this.style.display='none'">` : ''}
+
                     ${untradableBadgeHTML}
                     ${includeRemoveButton ? `<button class="bench-card-remove" onclick="event.stopPropagation(); squadState.bench.splice(${benchIndex}, 1); renderSquadBuilder();">×</button>` : ''}
                 </div>

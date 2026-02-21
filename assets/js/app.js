@@ -1038,15 +1038,9 @@ async function renderPlayerDetail(player) {
                                                 ${player.name}
                                             </div>
 
-                                            <img src="${player.nation_flag || ''}"
-                                                alt="Nation"
-                                                class="card-nation-flag-inside"
-                                                onerror="this.style.display='none'">
+                                            <img src="${player.nationflag}" alt="Nation" class="card-nation-flag-inside ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
+                                            <img src="${player.clubflag}" alt="Club" class="card-club-flag-inside ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
 
-                                            <img src="${player.club_flag || ''}"
-                                                alt="Club"
-                                                class="card-club-flag-inside"
-                                                onerror="this.style.display='none'">
                                 
                                 
 
@@ -4213,16 +4207,10 @@ function createDashboardPlayerCard(player) {
                 ${player.name}
             </div>
 
-            <!-- Nation / club -->
-            <img src="${player.nation_flag || player.nationflag || ''}"
-                 alt="Nation"
-                 class="card-nation-flag"
-                 onerror="this.style.display='none'">
 
-            <img src="${player.club_flag || player.clubflag || ''}"
-                 alt="Club"
-                 class="card-club-flag"
-                 onerror="this.style.display='none'">
+            <img src="${player.nation_flag || ''}" alt="Nation" class="card-nation-flag ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
+            <img src="${player.club_flag || ''}" alt="Club" class="card-club-flag ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
+
 
             <!-- ✅ Untradable badge -->
             ${
@@ -5116,17 +5104,22 @@ function createPlayerCard(player) {
                         ${player.position || '?'}
                     </div>
 
-                    ${player.nation_flag ? `
-                        <img src="${player.nation_flag}" 
-                            alt="Nation"
-                            class="player-card-nation-flag">
-                    ` : ''}
 
-                    ${player.club_flag ? `
-                        <img src="${player.club_flag}" 
-                            alt="Club"
-                            class="player-card-club-flag">
-                    ` : ''}
+                    ${player.nation_flag 
+                      ? `<img src="${player.nation_flag}" 
+                              alt="Nation" 
+                              class="player-view-card-nation-flag ${getPlayerType(player) === 'normal' 
+                                ? 'normal-players-nation-flag' 
+                                : 'hero-icon-players-nation-flag'}">` 
+                      : ''}
+
+                    ${player.club_flag 
+                      ? `<img src="${player.club_flag}" 
+                              alt="Club" 
+                              class="player-view-card-club-flag ${getPlayerType(player) === 'normal' 
+                                ? 'normal-club-players-flag' 
+                                : 'hero-icon-club-players-flag'}">` 
+                      : ''}
 
                     ${untradableBadgeHTML}
 
@@ -8021,21 +8014,23 @@ function createFilledPlayerCard(player) {
       ${playerName}
     </div>
       
-    <!-- Nation -->
-    ${player.nation_flag ? `
-      <img class="compare-nation-flag"
-           src="${player.nation_flag}"
-           alt="Nation"
-           onerror="this.style.display='none'">
-    ` : ''}
+    ${player.nation_flag 
+      ? `<img class="compare-nation-flag ${getPlayerType(player) === 'normal' 
+          ? 'normal-nation-flag' 
+          : 'hero-icon-nation-flag'}" 
+          src="${player.nation_flag}" 
+          alt="Nation" 
+          onerror="this.style.display='none'">` 
+      : ''}
 
-    <!-- Club -->
-    ${player.club_flag ? `
-      <img class="compare-club-flag"
-           src="${player.club_flag}"
-           alt="Club"
-           onerror="this.style.display='none'">
-    ` : ''}
+    ${player.club_flag 
+      ? `<img class="compare-club-flag ${getPlayerType(player) === 'normal' 
+          ? 'normal-club-flag' 
+          : 'hero-icon-club-flag'}" 
+          src="${player.club_flag}" 
+          alt="Club" 
+          onerror="this.style.display='none'">` 
+      : ''}
 
     ${untradableBadgeHTML}
 
@@ -8217,8 +8212,9 @@ function renderCompareCustomizationMiniCard(player) {
       <div class="squad-custom-card-ovr" style="color: ${player.color_rating || '#FFFFFF'}">${player.ovr && player.ovr > 0 ? player.ovr : 'N/A'}</div>
       <div class="squad-custom-card-position" style="color: ${player.color_position || '#FFFFFF'}">${position}</div>
       <div class="squad-custom-card-flags">
-        ${nationFlag ? `<img src="${nationFlag}" alt="Nation" class="squad-custom-card-flag" onerror="this.style.display='none'">` : ''}
-        ${clubFlag ? `<img src="${clubFlag}" alt="Club" class="squad-custom-card-club" onerror="this.style.display='none'">` : ''}
+        <img src="${nationFlag}" alt="Nation" class="squad-custom-card-flag ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
+        <img src="${clubFlag}" alt="Club" class="squad-custom-card-club ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
+
       </div>
       <div class="squad-custom-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
       ${untradableBadgeHTML}
@@ -9019,8 +9015,9 @@ function createCompareSearchResultItem(player) {
         <div class="picker-card-ovr" style="color: ${player.color_rating || '#FFB86B'}">${playerOvr}</div>
         <div class="picker-card-position" style="color: ${player.color_position || '#FFFFFF'}">${playerPosition}</div>
         <div class="picker-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
-        ${nationFlag ? `<img src="${nationFlag}" alt="Nation" class="picker-card-flag-nation" onerror="this.style.display='none'">` : ''}
-        ${clubFlag ? `<img src="${clubFlag}" alt="Club" class="picker-card-flag-club" onerror="this.style.display='none'">` : ''}
+        <img src="${nationFlag}" alt="Nation" class="picker-card-flag-nation ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
+        <img src="${clubFlag}" alt="Club" class="picker-card-flag-club ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
+
         ${untradableBadgeHTML}
       </div>
     </div>

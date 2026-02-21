@@ -907,3 +907,28 @@
       height: 10px;
 }
 }
+
+
+.player-card-nation-flag.hero-icon-nation-flag{
+  position: absolute;
+  bottom: 18px;
+  left: 24px;
+  width: 12px;
+  height: 9px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+}
+
+
+.player-card-club-flag.hero-icon-club-flag{
+  position: absolute;
+  bottom: 18px;
+  margin-top: 25px;
+  left: 53px;
+  width: 12px;
+  height: 9px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+}
