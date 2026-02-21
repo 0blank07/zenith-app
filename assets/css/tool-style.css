@@ -1186,9 +1186,11 @@
 
 .squad-export-slot .player-preview-card,
 .squad-export-bench-card {
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-50%, -60%) scale(1);
   transform-origin: center;
   cursor: default;
+  margin-top: 14px;
+  margin-right: 4px;
 }
 
 .squad-export-slot .preview-card-remove,
@@ -1198,14 +1200,14 @@
 
 .squad-export-slot .player-preview-card:hover,
 .squad-export-bench-card:hover {
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-50%, -50%) scale(0.97);
   box-shadow: none;
 }
 
 .squad-export-slot .player-preview-card {
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 50%;  
 }
 
 .squad-export-bench-card {
@@ -1215,15 +1217,15 @@
 }
 
 .squad-export-bench-card {
-  transform: translate(-50%, -50%) scale(1.1);
+  transform: translate(-50%, -50%) scale(0.97);
 }
 
 .squad-export-slot .player-preview-card {
-  transform: translate(-50%, -50%) scale(1.05);
+  transform: translate(-50%, -50%) scale(0.97);
 }
 
 .squad-export-slot .player-preview-card:hover {
-  transform: translate(-50%, -50%) scale(1.05);
+  transform: translate(-50%, -50%) scale(0.97);
 }
 
 #squad-export-root .squad-slot.drag-over .position-dot,
@@ -1243,6 +1245,16 @@
   background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 45%),
     radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.18), transparent 50%);
   pointer-events: none;
+}
+
+
+.squad-export-bench-card .bench-card-ovr{
+  margin-left: 5px;
+}
+
+
+.squad-export-bench-card .bench-card-position {
+  margin-left: 6px;
 }
 
 /* Scrollbar for theme gallery */
@@ -6288,16 +6300,16 @@ body.stats-open #squad-builder-modal {
     box-shadow: 0 8px 25px rgba(0, 194, 168, 0.5);
 }
 
-/* Player Preview Card - SITS ON TOP (30% bigger than dot) */
+/* Player Preview Card - SITS ON TOP (25% bigger than dot) */
 .player-preview-card {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-    cursor: grab;
-    transition: transform 0.2s ease;
-    touch-action: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.97);
+  z-index: 10;
+  cursor: grab;
+  transition: transform 0.2s ease;
+  touch-action: none;
 }
 
 .player-preview-card:active {
