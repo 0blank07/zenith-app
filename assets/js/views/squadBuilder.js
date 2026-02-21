@@ -4443,10 +4443,30 @@ function renderCustomizationMiniCard(player) {
       <img src="${playerImg}" alt="${playerName}" class="squad-custom-card-player-img" onerror="this.style.display='none'">
       <div class="squad-custom-card-ovr" style="color: ${player.color_rating || '#FFFFFF'}">${overall > 0 ? overall : 'N/A'}</div>
       <div class="squad-custom-card-position" style="color: ${player.color_position || '#FFFFFF'}">${position}</div>
+
+
+
       <div class="squad-custom-card-flags">
-        ${nationFlag ? `<img src="${nationFlag}" alt="Nation" class="squad-custom-card-flag" onerror="this.style.display='none'">` : ''}
-        ${clubFlag ? `<img src="${clubFlag}" alt="Club" class="squad-custom-card-club" onerror="this.style.display='none'">` : ''}
+        ${nationFlag 
+          ? `<img src="${nationFlag}" 
+                alt="Nation" 
+                class="squad-modal-custom-card-flag ${getPlayerType(player) === 'normal' 
+                  ? 'normal-modal-nation-flag' 
+                  : 'hero-icon-modal-nation-flag'}" 
+                onerror="this.style.display='none'">` 
+          : ''}
+        ${clubFlag 
+          ? `<img src="${clubFlag}" 
+                alt="Club" 
+                class="squad-modal-custom-card-club ${getPlayerType(player) === 'normal' 
+                  ? 'normal-modal-club-flag' 
+                  : 'hero-icon-modal-club-flag'}" 
+                onerror="this.style.display='none'">` 
+          : ''}
       </div>
+
+
+
       <div class="squad-custom-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
       ${untradableBadgeHTML}
     </div>

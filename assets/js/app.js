@@ -8214,7 +8214,6 @@ function renderCompareCustomizationMiniCard(player) {
       <div class="squad-custom-card-flags">
         <img src="${nationFlag}" alt="Nation" class="squad-custom-card-flag ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
         <img src="${clubFlag}" alt="Club" class="squad-custom-card-club ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
-
       </div>
       <div class="squad-custom-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
       ${untradableBadgeHTML}

@@ -8456,33 +8456,6 @@ body.stats-open #squad-builder-modal {
   white-space: nowrap;
 }
 
-
-.squad-custom-card-flag{
-  position: absolute;
-  bottom: -29%;
-  left: 12%;
-  width: 15px;
-  height: 15px;
-  object-fit: cover;
-  border-radius: 3px;
-  z-index: 3;
-  transform: scale(0.1);
-  margin-left: 8px;
-}
-
-
-.squad-custom-card-club {
-  position: absolute;
-  bottom: -29%;
-  left: -10%;
-  width: 15px;
-  height: 15px;
-  object-fit: cover;
-  border-radius: 3px;
-  z-index: 3;
-  transform: scale(0.1);
-}
-
 /* ============================================
    RANK SELECTOR WITH IMAGES
    ============================================ */
@@ -8686,6 +8659,7 @@ body.stats-open #squad-builder-modal {
   margin-bottom: 7px;
 }
 
+
 .squad-custom-card-club {
   position: static;
   bottom: auto;
@@ -8860,7 +8834,6 @@ body.stats-open #squad-builder-modal {
   z-index: 3; 
 }
 
-
 .compare-club-flag.normal-club-flag{
   position: absolute;
   bottom: 35px;
@@ -8869,4 +8842,54 @@ body.stats-open #squad-builder-modal {
   height: 15px;
   object-fit: contain;
   z-index: 3;
+}
+
+
+
+/* Squad Customization Modal — Hero/Icon card flags */
+.squad-custom-mini-card .squad-modal-custom-card-flag.hero-icon-modal-nation-flag {
+  position: absolute;
+  bottom: 3px;
+  left: -35px;
+  width: 16px;
+  height: 13px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+  transform: scale(1.5);
+}
+
+.squad-custom-mini-card .squad-modal-custom-card-club.hero-icon-modal-club-flag {
+  position: absolute;
+  bottom: 3px;
+  left: 20px;
+  width: 16px;
+  height: 13px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+  transform: scale(1.7);
+}
+
+/* Squad Customization Modal — Normal card flags */
+.squad-custom-mini-card .squad-modal-custom-card-flag.normal-modal-nation-flag {
+  position: absolute;
+  bottom: 18px;
+  left: 34px;
+  width: 12px;
+  height: 9px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+}
+
+.squad-custom-mini-card .squad-modal-custom-card-club.normal-modal-club-flag {
+  position: absolute;
+  bottom: 18px;
+  left: 50px;
+  width: 12px;
+  height: 12px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
 }
