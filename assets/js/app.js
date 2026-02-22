@@ -4231,8 +4231,8 @@ function createDashboardPlayerCard(player) {
             </div>
 
 
-            <img src="${player.nation_flag || ''}" alt="Nation" class="card-nation-flag ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
-            <img src="${player.club_flag || ''}" alt="Club" class="card-club-flag ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
+            <img src="${player.nation_flag || ''}" alt="Nation" class="card-nation-flag-home ${getPlayerType(player) === 'normal' ? 'normal-nation-flag-home' : 'hero-icon-nation-flag-home'}" onerror="this.style.display='none'">
+            <img src="${player.club_flag || ''}" alt="Club" class="card-club-flag-home ${getPlayerType(player) === 'normal' ? 'normal-club-flag-home' : 'hero-icon-club-flag-home'}" onerror="this.style.display='none'">
             ${getPlayerType(player) === 'normal' && player.league_image ? `
                 <img src="${player.league_image}" 
                      alt="League" 
