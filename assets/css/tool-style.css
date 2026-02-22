@@ -6388,22 +6388,58 @@ body.stats-open #squad-builder-modal {
     letter-spacing: -0.2px;
 }
 
-.preview-card-flag-nation {
+
+.card-nation-flag.hero-icon-nation-flag{
     position: absolute;
-    top: 102px;
-    left: 40px;
-    width: 13px;
+    bottom: 24px;
+    left: 35px;
+    width: 14px;
     height: 11px;
     object-fit: cover;
     z-index: 3;
 }
 
-.preview-card-flag-club {
+.card-club-flag.hero-icon-club-flag{
     position: absolute;
-    top: 102px;
-    left: 65px;
-    width: 15px;
-    height: 13px;
+    bottom: 24px;
+    left: 70px;
+    width: 14px;
+    height: 11px;
+    object-fit: cover;
+    z-index: 3;
+}
+
+
+.card-nation-flag.normal-nation-flag{
+    position: absolute;
+    bottom: 25px;
+    left: 28px;
+    width: 11px;
+    height: 9px;
+    object-fit: cover;
+    z-index: 3;
+}
+
+
+
+.card-club-flag.normal-club-flag{
+    position: absolute;
+    bottom: 24px;
+    left: 78px;
+    width: 13px;
+    height: 11px;
+    object-fit: contain;
+    z-index: 3;
+    border-radius: 2px;
+}
+
+
+.card-league-flag.normal-league-flag{
+    position: absolute;
+    bottom: 24px;
+    left: 52px;
+    width: 13px;
+    height: 11px;
     object-fit: contain;
     z-index: 3;
     border-radius: 2px;
@@ -6495,20 +6531,20 @@ body.stats-open #squad-builder-modal {
 
   .preview-card-ovr {
     position: absolute;
-    top: 8px;
-    left: 15px;
+    top: 10px;
+    left: 16px;
     font-size: 0.9375rem;
     font-weight: 900;
     z-index: 3;
     font-family: var(--font-family-base, CruyffSans, sans-serif);
-    letter-spacing: -0.5px;
+    letter-spacing: -0.1px;
   }
 
   .preview-card-position {
     position: absolute;
-    top: 23px;
-    left: 16.6px;
-    font-size: 0.5625rem; /* Converted from 9px */
+    top: 25px;
+    left: 16.4px;
+    font-size: 0.5825rem; /* Converted from 9px */
     font-weight: 850;
     z-index: 3;
     transform: scaleY(1); 
@@ -6533,25 +6569,61 @@ body.stats-open #squad-builder-modal {
     letter-spacing: -0.1px;
   }
 
-  .preview-card-flag-nation {
-    position: absolute;
-    top: 82px; /* Adjusted for smaller height */
-    left: 32px;
-    width: 11px;
-    height: 9px;
-    object-fit: cover;
-    z-index: 3;
+  
+  .card-nation-flag.hero-icon-nation-flag{
+      position: absolute;
+      bottom: 19px;
+      left: 27px;
+      width: 13px;
+      height: 10px;
+      object-fit: cover;
+      z-index: 3;
   }
 
-  .preview-card-flag-club {
-    position: absolute;
-    top: 82px;
-    left: 52px;
-    width: 13px;
-    height: 11px;
-    object-fit: contain;
-    z-index: 3;
-    border-radius: 2px;
+  .card-club-flag.hero-icon-club-flag{
+      position: absolute;
+      bottom: 18px;
+      left: 57px;
+      width: 13px;
+      height: 10px;
+      object-fit: cover;
+      z-index: 3;
+  }
+
+
+  .card-nation-flag.normal-nation-flag{
+      position: absolute;
+      bottom: 19px;
+      left: 22px;
+      width: 11px;
+      height: 9px;
+      object-fit: cover;
+      z-index: 3;
+  }
+
+
+
+  .card-club-flag.normal-club-flag{
+      position: absolute;
+      bottom: 18px;
+      left: 62px;
+      width: 13px;
+      height: 11px;
+      object-fit: contain;
+      z-index: 3;
+      border-radius: 2px;
+  }
+
+
+  .card-league-flag.normal-league-flag{
+      position: absolute;
+      bottom: 18px;
+      left: 42px;
+      width: 13px;
+      height: 11px;
+      object-fit: contain;
+      z-index: 3;
+      border-radius: 2px;
   }
 
   .preview-card-remove {
@@ -6668,25 +6740,61 @@ body.stats-open #squad-builder-modal {
     letter-spacing: -0.1px;
   }
 
-  .preview-card-flag-nation {
-    position: absolute;
-    top: 78px; 
-    left: 30px;
-    width: 10px;
-    height: 8px;
-    object-fit: cover;
-    z-index: 3;
+  
+  .card-nation-flag.hero-icon-nation-flag{
+      position: absolute;
+      bottom: 19px;
+      left: 27px;
+      width: 13px;
+      height: 10px;
+      object-fit: cover;
+      z-index: 3;
   }
 
-  .preview-card-flag-club {
-    position: absolute;
-    top: 78px;
-    left: 48px;
-    width: 12px;
-    height: 10px;
-    object-fit: contain;
-    z-index: 3;
-    border-radius: 1px;
+  .card-club-flag.hero-icon-club-flag{
+      position: absolute;
+      bottom: 18px;
+      left: 57px;
+      width: 13px;
+      height: 10px;
+      object-fit: cover;
+      z-index: 3;
+  }
+
+
+  .card-nation-flag.normal-nation-flag{
+      position: absolute;
+      bottom: 19px;
+      left: 22px;
+      width: 11px;
+      height: 9px;
+      object-fit: cover;
+      z-index: 3;
+  }
+
+
+
+  .card-club-flag.normal-club-flag{
+      position: absolute;
+      bottom: 18px;
+      left: 62px;
+      width: 13px;
+      height: 11px;
+      object-fit: contain;
+      z-index: 3;
+      border-radius: 2px;
+  }
+
+
+  .card-league-flag.normal-league-flag{
+      position: absolute;
+      bottom: 18px;
+      left: 42px;
+      width: 13px;
+      height: 11px;
+      object-fit: contain;
+      z-index: 3;
+      border-radius: 2px;
   }
 
   .preview-card-remove {
@@ -6771,7 +6879,7 @@ body.stats-open #squad-builder-modal {
 
   .preview-card-name {
     position: absolute;
-    bottom: 18px; /* Adjusted for smaller height */
+    bottom: 22px; /* Adjusted for smaller height */
     left: 0;
     right: 0;
     text-align: center;
@@ -6787,25 +6895,56 @@ body.stats-open #squad-builder-modal {
     letter-spacing: -0.1px;
   }
 
-  .preview-card-flag-nation {
+  .card-nation-flag.hero-icon-nation-flag{
     position: absolute;
-    top: 58px; /* Lifted up for smaller card */
-    left: 23px;
-    width: 8px;
-    height: 6px;
+    bottom: 14px;
+    left: 20px;
+    width: 11px;
+    height: 8px;
     object-fit: cover;
     z-index: 3;
+}
+
+  .card-club-flag.hero-icon-club-flag{
+      position: absolute;
+      bottom: 14px;
+      left: 45px;
+      width: 11px;
+      height: 8px;
+      object-fit: cover;
+      z-index: 3;
   }
 
-  .preview-card-flag-club {
-    position: absolute;
-    top: 58px;
-    left: 36px;
-    width: 9px;
-    height: 8px;
-    object-fit: contain;
-    z-index: 3;
-    border-radius: 1px;
+  .card-nation-flag.normal-nation-flag{
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      width: 9px;
+      height: 7px;
+      object-fit: cover;
+      z-index: 3;
+  }
+
+  .card-club-flag.normal-club-flag{
+      position: absolute;
+      bottom: 15px;
+      left: 48px;
+      width: 11px;
+      height: 9px;
+      object-fit: contain;
+      z-index: 3;
+      border-radius: 2px;
+  }
+
+  .card-league-flag.normal-league-flag{
+      position: absolute;
+      bottom: 15px;
+      left: 32px;
+      width: 11px;
+      height: 9px;
+      object-fit: contain;
+      z-index: 3;
+      border-radius: 2px;
   }
 
   .preview-card-remove {

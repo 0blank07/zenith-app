@@ -413,12 +413,12 @@
     text-align: center;
     padding: 2px 5px;
     border-radius: 4px;
-    font-size: 10px;
-    font-weight: 900;
+    font-size: 0.625rem;
+    font-weight: 800;
     font-family: "CruyffSans", sans-serif;
     color: var(--player-name-color, #FFFFFF);
     z-index: 10;
-    letter-spacing: -1.3px;
+    letter-spacing: -0.7px;
     line-height: 1;
     text-transform: uppercase;
     white-space: nowrap;
@@ -596,7 +596,7 @@
         top: 83px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 11px;
+        font-size: 0.6875rem;
         font-weight: 800;
         font-family: 'CruyffSans', sans-serif;
         text-transform: uppercase;
@@ -636,8 +636,8 @@
 
     .player-card-nation-flag.normal-nation-flag {
         position: absolute;
-        bottom: 10px;
-        left: 23px;
+        bottom: 7px;
+        left: 30px;
         width: 14px;
         height: 10px;
         border-radius: 2px;
@@ -647,28 +647,26 @@
 
     .player-card-club-flag.normal-club-flag {
         position: absolute;
-        bottom: 10px;
-        left: 64px;
+        bottom: 7px;
+        left: 75px;
         width: 14px;
         height: 10px;
         border-radius: 2px;
         z-index: 10;
         object-fit: cover;
+        margin-top: 37px;
   }
 
     .player-card-league-watchlist-flag.normal-league-watchlist-flag {
         position: absolute;
-        bottom: 10px;
-        left: 44px;
+        bottom: 7px;
+        left: 53px;
         width: 13px;
         height: 9px;
         border-radius: 2px;
         z-index: 10;
         object-fit: cover;
   }
-
-
-
 }
 
 
@@ -690,12 +688,12 @@
     }
 
     .player-row-name {
-        font-size: 0.5625rem;
+        font-size: 0.6995rem;
         top: 62px;
         margin-left: 9px;
         margin-bottom: 40px;
-        font-size: 11px;
         margin-top: 7px;
+        font-weight: 800;
     }
     
     .player-row-ovr {
@@ -721,28 +719,64 @@
         letter-spacing: -0.8px;
         line-height: 1.1;
     }
+   
     
-    .player-row-nation {
-        position: absolute;
-        top: 85px;
-        left: 37px;
-        width: 10px;
-        height: 7px;
-        border-radius: 1px;
-        z-index: 10;
-        object-fit: cover;
-    }
-    
-    .player-row-club {
-        position: absolute;
-        top: 83px;
-        left: 70px;
-        width: 12px;
-        height: 12px;
-        border-radius: 2px;
-        z-index: 10;
-        object-fit: contain;
-    }
+    .player-card-nation-flag.hero-icon-nation-flag {
+      position: absolute;
+      bottom: 2px;
+      left: 38px;
+      width: 14px;
+      height: 10px;
+      border-radius: 2px;
+      z-index: 10;
+      object-fit: cover;
+  }
+
+  .player-card-club-flag.hero-icon-club-flag {
+    position: absolute;
+    bottom: -5px;
+    left: 67px;
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: cover;
+    margin-top: 30px;
+  }
+
+  .player-card-nation-flag.normal-nation-flag {
+    position: absolute;
+    bottom: 7px;
+    left: 30px;
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: cover;
+  }
+
+  .player-card-club-flag.normal-club-flag {
+    position: absolute;
+    bottom: 7px;
+    left: 75px;
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: cover;
+    margin-top: 27px;
+  }
+
+  .player-card-league-watchlist-flag.normal-league-watchlist-flag {
+    position: absolute;
+    bottom: 7px;
+    left: 53px;
+    width: 13px;
+    height: 9px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: cover;
+  }
 }
 
 @media (max-width: 768px) {
@@ -767,7 +801,7 @@
         top: 83px;
         left: 50px;
         transform: translateX(-50%);
-        font-size: 0.6875rem;
+        font-size: 0.6275rem;
         font-weight: 799;
         font-family: 'CruyffSans', sans-serif;
         text-transform: uppercase;
@@ -808,21 +842,62 @@
         line-height: 1.1;
     }
     
-    .player-row-nation {
-        width: 10px;
-        height: 10px;
-        bottom: 14px;
-        left: 32px;
-        top: 95px;
-    }
-    
-    .player-row-club {
-        width: 13px;
-        height: 10px;
-        bottom: 14px;
-        left: 64px;
-        top: 96px;
-    }
+    .player-card-nation-flag.hero-icon-nation-flag {
+      position: absolute;
+      bottom: 22px;
+      left: 30px;
+      width: 14px;
+      height: 10px;
+      border-radius: 2px;
+      z-index: 10;
+      object-fit: cover;
+  }
+
+  .player-card-club-flag.hero-icon-club-flag {
+    position: absolute;
+    bottom: -5px;
+    left: 67px;
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: cover;
+    margin-top: 40px;
+  }
+
+  .player-card-nation-flag.normal-nation-flag {
+    position: absolute;
+    bottom: 25px;
+    left: 25px;
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: cover;
+  }
+
+  .player-card-club-flag.normal-club-flag {
+    position: absolute;
+    bottom: 7px;
+    left: 75px;
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: cover;
+    margin-top: 38px;
+  }
+
+  .player-card-league-watchlist-flag.normal-league-watchlist-flag {
+    position: absolute;
+    bottom: 25px;
+    left: 50px;
+    width: 13px;
+    height: 9px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: cover;
+  }
 
     .player-row-name{
         position: absolute;
@@ -899,42 +974,81 @@
         line-height: 1.1;
     }
     
-    .player-row-nation {
-        position: absolute; 
-        left: 33px;
-        width: 12px;
-        height: 9px;
-        border-radius: 1px;
-        z-index: 10;
-        object-fit: cover;
-        top: 105px;
-    }
-    
-    .player-row-club {
-        width: 13px;
-        height: 10px;
-        left: 70px;
-        top: 105px;
-    }
+    .player-card-nation-flag.hero-icon-nation-flag {
+      position: absolute;
+      bottom: 22px;
+      left: 30px;
+      width: 14px;
+      height: 10px;
+      border-radius: 2px;
+      z-index: 10;
+      object-fit: cover;
+  }
 
-    .player-row-name{
-        position: absolute;
-        top: 83px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 11px;
-        font-weight: 800;
-        font-family: 'CruyffSans', sans-serif;
-        text-transform: uppercase;
-        z-index: 10;
-        letter-spacing: -0.8px;
-        line-height: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
-        padding: 0 4px;
-    }
+  .player-card-club-flag.hero-icon-club-flag {
+    position: absolute;
+    bottom: -5px;
+    left: 67px;
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: cover;
+    margin-top: 40px;
+  }
+
+  .player-card-nation-flag.normal-nation-flag {
+    position: absolute;
+    bottom: 25px;
+    left: 25px;
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: cover;
+  }
+
+  .player-card-club-flag.normal-club-flag {
+    position: absolute;
+    bottom: 7px;
+    left: 75px;
+    width: 14px;
+    height: 10px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: cover;
+    margin-top: 38px;
+  }
+
+  .player-card-league-watchlist-flag.normal-league-watchlist-flag {
+    position: absolute;
+    bottom: 25px;
+    left: 50px;
+    width: 13px;
+    height: 9px;
+    border-radius: 2px;
+    z-index: 10;
+    object-fit: cover;
+  }
+
+  .player-row-name{
+      position: absolute;
+      top: 73px;
+      left: 53%;
+      transform: translateX(-50%);
+      font-size: 0.6875rem;
+      font-weight: 800;
+      font-family: 'CruyffSans', sans-serif;
+      text-transform: uppercase;
+      z-index: 10;
+      letter-spacing: -0.8px;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      padding: 0 4px;
+  }
 }
 
 /* ==========================================

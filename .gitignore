@@ -24,3 +24,12 @@ tests/
 dev-tools.txt
 .github/
 .vscode/
+extract_and_test.js
+extract_functions.py
+find_and_extract.js
+find_functions.py
+inline_test.sh
+run-position-test.js
+run-test.bat
+test-position-filter.js
+validate_filters.js
