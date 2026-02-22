@@ -4236,7 +4236,7 @@ function createDashboardPlayerCard(player) {
             ${getPlayerType(player) === 'normal' && player.league_image ? `
                 <img src="${player.league_image}" 
                      alt="League" 
-                     class="card-league-flag normal-league-flag" 
+                     class="card-league-flag-home normal-league-flag-home" 
                      onerror="this.style.display='none'">
             ` : ''}
 
