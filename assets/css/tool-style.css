@@ -8948,3 +8948,26 @@ body.stats-open #squad-builder-modal {
     border-radius: 2px;
     z-index: 3;
 }
+
+
+.card-nation-flag-inside.hero-icon-nation-flag{
+    position: absolute;
+    bottom: 17%;
+    left: 60%;
+    width: 10px;
+    height: 10px;
+    object-fit: cover;
+    border-radius: 2px;
+    z-index: 3;
+}
+
+.card-club-flag-inside.hero-icon-club-flag{
+    position: absolute;
+    bottom: 17%;
+    left: 70%;
+    width: 10px;
+    height: 10px;
+    object-fit: cover;
+    border-radius: 2px;
+    z-index: 3;
+}

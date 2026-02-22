@@ -896,8 +896,15 @@ function createPlayerCardHTML(player) {
           ${player.position || '?'}
         </div>
 
-        <img src="${player.nationflag}" alt="Nation" class="player-card-nation-flag ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
-        <img src="${player.clubflag}" alt="Club" class="player-card-club-flag ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
+        <img src="${player.nationflag}" 
+             alt="Nation" 
+             class="player-card-nation-flag ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}"
+             onerror="this.style.display='none'">
+        
+        <img src="${player.clubflag}" 
+             alt="Club" 
+             class="player-card-club-flag ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}"
+             onerror="this.style.display='none'">
         
         ${getPlayerType(player) === 'normal' && player.league_image ? `
             <img src="${player.league_image}" 

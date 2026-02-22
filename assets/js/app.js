@@ -1037,13 +1037,36 @@ async function renderPlayerDetail(player) {
                                             <div class="card-player-name-inside" style="color: ${player.color_name || '#FFFFFF'}">
                                                 ${player.name}
                                             </div>
-
-                                            <img src="${player.nationflag}" alt="Nation" class="card-nation-flag-inside ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
-                                            <img src="${player.clubflag}" alt="Club" class="card-club-flag-inside ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
-
-                                
-                                
-
+                                            
+                                                                                        
+                                            ${player.nation_flag ? `
+                                                <img src="${player.nation_flag}" 
+                                                     alt="Nation" 
+                                                     class="card-nation-flag-inside-detail ${
+                                                        getPlayerType(player) === 'normal' 
+                                                            ? 'normal-nation-flag-detail' 
+                                                            : 'hero-icon-nation-flag-detail'
+                                                     }"
+                                                     onerror="this.style.display='none'">
+                                            ` : ''}
+                                            
+                                            ${player.club_flag ? `
+                                                <img src="${player.club_flag}" 
+                                                     alt="Club" 
+                                                     class="card-club-flag-inside-detail ${
+                                                        getPlayerType(player) === 'normal' 
+                                                            ? 'normal-club-flag-detail' 
+                                                            : 'hero-icon-club-flag-detail'
+                                                     }"
+                                                     onerror="this.style.display='none'">
+                                            ` : ''}
+                                            
+                                            ${player.league_image && getPlayerType(player) === 'normal' ? `
+                                                <img src="${player.league_image}" 
+                                                     alt="League" 
+                                                     class="card-league-flag-inside normal-league-flag"
+                                                     onerror="this.style.display='none'">
+                                            ` : ''}
                             </div>
                             <h1 style="
                                 font-size: 28px;

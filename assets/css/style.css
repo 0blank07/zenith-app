@@ -9790,38 +9790,6 @@ watchlist-view .view-content {
     transform: scaleY(1.2);
 }
 
-.card-nation-flag-inside {
-    position: absolute;
-    bottom: 16%;
-    left: 32%;
-    width: 28px;
-    height: 28px;
-    object-fit: cover;
-    border-radius: 3px;
-    z-index: 3;
-}
-
-.card-club-flag-inside {
-    position: absolute;
-    bottom: 16%;
-    right: 32%;
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-    z-index: 3;
-}
-
-
-.card-league-flag-inside{
-    position: absolute;
-    bottom: 16%;
-    right: 32%;
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
-    z-index: 3;
-}
-
 .players-grid .player-row,
 .players-grid .player-card {
   background: rgba(20,24,28,0.7) !important;
@@ -11480,4 +11448,61 @@ body {
   border-radius: 1px;
   z-index: 10;
   object-fit: cover;
+}
+
+
+.card-nation-flag-inside-detail.hero-icon-nation-flag-detail{
+  position: absolute;
+  bottom: 15%;
+  left: 32.5%;
+  width: 25px;
+  height: 25px;
+  object-fit: cover;
+  border-radius: 3px;
+  z-index: 3;
+}
+
+.card-club-flag-inside-detail.hero-icon-club-flag-detail{
+  position: absolute;
+  bottom: 15%;
+  left: 60%;
+  width: 25px;
+  height: 25px;
+  object-fit: cover;
+  border-radius: 3px;
+  z-index: 3;
+}
+
+.card-nation-flag-inside-detail.normal-nation-flag-detail{
+  position: absolute;
+  bottom: 17%;
+  left: 28%;
+  width: 25px;
+  height: 25px;
+  object-fit: cover;
+  border-radius: 3px;
+  z-index: 3;
+}
+
+.card-club-flag-inside-detail.normal-club-flag-detail{
+  position: absolute;
+  bottom: 17%;
+  left: 62%;
+  width: 25px;
+  height: 25px;
+  object-fit: cover;
+  border-radius: 3px;
+  z-index: 3;
+}
+
+
+.card-league-flag-inside.normal-league-flag{
+  position: absolute;
+  bottom: 17%;
+  left: 45%;
+  width: 25px;
+  height: 25px;
+  object-fit: cover;
+  border-radius: 3px;
+  z-index: 3;
 }

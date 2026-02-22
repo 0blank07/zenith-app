@@ -461,31 +461,68 @@
     transform: scaleY(1);
 }
 
-/* Nation Flag */
-.player-row-nation {
-    position: absolute;
-    bottom: 18px;
-    left: 26px;
-    width: 12px;
-    height: 10px;
-    object-fit: cover;
-    border-radius: 1px;
-    z-index: 10;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+
+.player-card-nation-flag.hero-icon-nation-flag{
+  position: absolute;
+  bottom: 20px;
+  left: 25px;
+  width: 11px;
+  height: 8px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
 }
 
-/* Club Badge */
-.player-row-club {
-    position: absolute;
-    bottom: 16px;
-    right: 25px;
-    width: 15px;
-    height: 12px;
-    object-fit: contain;
-    border-radius: 2px;
-    z-index: 10;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+
+.player-card-club-flag.hero-icon-club-flag{
+  position: absolute;
+  bottom: 24px;
+  margin-top: 25px;
+  left: 52px;
+  width: 11px;
+  height: 8px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
 }
+
+
+.player-card-nation-flag.normal-nation-flag{
+  position: absolute;
+  bottom: 21px;
+  left: 19.5px;
+  width: 11px;
+  height: 8px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+}
+
+
+.player-card-club-flag.normal-club-flag{
+  position: absolute;
+  bottom: 15px;
+  margin-top: 25px;
+  left: 56.5px;
+  width: 11px;
+  height: 8px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+}
+
+.player-card-league-watchlist-flag.normal-league-watchlist-flag{
+  position: absolute;
+  bottom: 19%;
+  margin-top: 25px;
+  left: 44%;
+  width: 11%;
+  height: 8%;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+}
+
 /* ==========================================
    OTHER DEVICES FROM HERE
    ========================================== */
@@ -550,20 +587,9 @@
         letter-spacing: -0.8px;
         line-height: 1.1;
     }
-    
-    .player-row-nation {
-        width: 10px;
-        height: 10px;
-        bottom: 6px;
-        left: 40px;
-    }
-    
-    .player-row-club {
-        width: 13px;
-        height: 8px;
-        bottom: 7px;
-        left: 68px;
-    }
+
+
+
 
     .player-row-name{
         position: absolute;
@@ -583,7 +609,70 @@
         max-width: 100%;
         padding: 0 4px;
     }
+
+
+    .player-card-nation-flag.hero-icon-nation-flag {
+        position: absolute;
+        bottom: 7px;
+        left: 38px;
+        width: 14px;
+        height: 10px;
+        border-radius: 2px;
+        z-index: 10;
+        object-fit: cover;
+  }
+
+    .player-card-club-flag.hero-icon-club-flag {
+        position: absolute;
+        bottom: -5px;
+        left: 67px;
+        width: 14px;
+        height: 10px;
+        border-radius: 2px;
+        z-index: 10;
+        object-fit: cover;
+        margin-top: 37px;
+  }
+
+    .player-card-nation-flag.normal-nation-flag {
+        position: absolute;
+        bottom: 10px;
+        left: 23px;
+        width: 14px;
+        height: 10px;
+        border-radius: 2px;
+        z-index: 10;
+        object-fit: cover;
+  }
+
+    .player-card-club-flag.normal-club-flag {
+        position: absolute;
+        bottom: 10px;
+        left: 64px;
+        width: 14px;
+        height: 10px;
+        border-radius: 2px;
+        z-index: 10;
+        object-fit: cover;
+  }
+
+    .player-card-league-watchlist-flag.normal-league-watchlist-flag {
+        position: absolute;
+        bottom: 10px;
+        left: 44px;
+        width: 13px;
+        height: 9px;
+        border-radius: 2px;
+        z-index: 10;
+        object-fit: cover;
+  }
+
+
+
 }
+
+
+
 
 @media (max-width: 968px) {
 
@@ -906,66 +995,4 @@
       width: 10px;
       height: 10px;
 }
-}
-
-
-.player-card-nation-flag.hero-icon-nation-flag{
-  position: absolute;
-  bottom: 19px;
-  left: 24px;
-  width: 12px;
-  height: 9px;
-  border-radius: 1px;
-  z-index: 10;
-  object-fit: cover;
-}
-
-
-.player-card-club-flag.hero-icon-club-flag{
-  position: absolute;
-  bottom: 20px;
-  margin-top: 25px;
-  left: 53px;
-  width: 12px;
-  height: 9px;
-  border-radius: 1px;
-  z-index: 10;
-  object-fit: cover;
-}
-
-
-.player-card-nation-flag.normal-nation-flag{
-  position: absolute;
-  bottom: 19px;
-  left: 19.5px;
-  width: 12px;
-  height: 9px;
-  border-radius: 1px;
-  z-index: 10;
-  object-fit: cover;
-}
-
-
-.player-card-club-flag.normal-club-flag{
-  position: absolute;
-  bottom: 20px;
-  margin-top: 25px;
-  left: 56.5px;
-  width: 12px;
-  height: 9px;
-  border-radius: 1px;
-  z-index: 10;
-  object-fit: cover;
-}
-
-.player-card-league-watchlist-flag.normal-league-watchlist-flag{
-  position: absolute;
-  bottom: 19%;
-  margin-top: 25px;
-  left: 38.5%;
-  width: 11%;
-  height: 8%;
-  border-radius: 1px;
-  z-index: 10;
-  object-fit: cover;
 }
