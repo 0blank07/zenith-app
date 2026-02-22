@@ -575,7 +575,12 @@ function renderPlayerPicker() {
 
             <img src="${p.nation_flag}" alt="Nation" class="picker-squad-card-flag-nation ${getPlayerType(p) === 'normal' ? 'normal-squad-nation-flag' : 'hero-icon-squad-nation-flag'}" onerror="this.style.display='none'">
             <img src="${p.club_flag}" alt="Club" class="picker-squad-card-flag-club ${getPlayerType(p) === 'normal' ? 'normal-squad-club-flag' : 'hero-icon-squad-club-flag'}" onerror="this.style.display='none'">
-
+            ${getPlayerType(p) === 'normal' && p.league_image ? `
+                <img src="${p.league_image}" 
+                     alt="League" 
+                     class="picker-squad-card-flag-league normal-squad-league-flag" 
+                     onerror="this.style.display='none'">
+            ` : ''}
             ${untradableBadgeHTML}
         </div>
 
@@ -3215,7 +3220,12 @@ function buildSquadPreviewCardMarkup(player, slotLabel, slotId, options = {}) {
                 <div class="preview-card-name" style="color: ${colorName}">${playerName}</div>
                 <img src="${player.nationflag || ''}" alt="Nation" class="card-nation-flag ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
                 <img src="${player.clubflag || ''}" alt="Club" class="card-club-flag ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
-
+                ${getPlayerType(player) === 'normal' && player.league_image ? `
+                    <img src="${player.league_image}" 
+                         alt="League" 
+                         class="card-league-flag normal-league-flag"
+                         onerror="this.style.display='none'">
+                ` : ''}
                 ${untradableBadgeHTML}
                 ${includeRemoveButton ? `<button class="preview-card-remove" onclick="event.stopPropagation(); delete squadState.starters['${slotId}']; renderSquadBuilder();">×</button>` : ''}
             </div>

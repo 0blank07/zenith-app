@@ -8050,6 +8050,13 @@ function createFilledPlayerCard(player) {
           alt="Club" 
           onerror="this.style.display='none'">` 
       : ''}
+    
+    ${player.league_image && getPlayerType(player) === 'normal'
+      ? `<img class="compare-league-flag normal-league-flag"
+              src="${player.league_image}"
+              alt="League"
+              onerror="this.style.display='none'">`
+      : ''}
 
     ${untradableBadgeHTML}
 
@@ -9035,7 +9042,7 @@ function createCompareSearchResultItem(player) {
         <div class="picker-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
         <img src="${nationFlag}" alt="Nation" class="picker-card-flag-nation ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
         <img src="${clubFlag}" alt="Club" class="picker-card-flag-club ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
-
+        
         ${untradableBadgeHTML}
       </div>
     </div>

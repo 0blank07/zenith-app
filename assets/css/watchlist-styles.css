@@ -911,7 +911,7 @@
 
 .player-card-nation-flag.hero-icon-nation-flag{
   position: absolute;
-  bottom: 18px;
+  bottom: 19px;
   left: 24px;
   width: 12px;
   height: 9px;
@@ -923,11 +923,48 @@
 
 .player-card-club-flag.hero-icon-club-flag{
   position: absolute;
-  bottom: 18px;
+  bottom: 20px;
   margin-top: 25px;
   left: 53px;
   width: 12px;
   height: 9px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+}
+
+
+.player-card-nation-flag.normal-nation-flag{
+  position: absolute;
+  bottom: 19px;
+  left: 19.5px;
+  width: 12px;
+  height: 9px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+}
+
+
+.player-card-club-flag.normal-club-flag{
+  position: absolute;
+  bottom: 20px;
+  margin-top: 25px;
+  left: 56.5px;
+  width: 12px;
+  height: 9px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+}
+
+.player-card-league-watchlist-flag.normal-league-watchlist-flag{
+  position: absolute;
+  bottom: 19%;
+  margin-top: 25px;
+  left: 38.5%;
+  width: 11%;
+  height: 8%;
   border-radius: 1px;
   z-index: 10;
   object-fit: cover;

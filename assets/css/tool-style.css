@@ -8716,7 +8716,7 @@ body.stats-open #squad-builder-modal {
 
 .picker-squad-card-flag-nation.hero-icon-squad-nation-flag{
   position: absolute;
-  bottom: 14%;
+  bottom: 14.5%;
   left: 22px;
   width: 10px;
   height: 10px;
@@ -8738,7 +8738,7 @@ body.stats-open #squad-builder-modal {
 .picker-squad-card-flag-nation.normal-squad-nation-flag{
   position: absolute;
   bottom: 16%;
-  right: 30%;
+  left: 16.5px;
   width: 10px;
   height: 10px;
   object-fit: contain;
@@ -8749,12 +8749,24 @@ body.stats-open #squad-builder-modal {
 .picker-squad-card-flag-club.normal-squad-club-flag{
   position: absolute;
   bottom: 16%;
-  right: 30%;
+  right: 21.5%;
   width: 10px;
   height: 10px;
   object-fit: contain;
   z-index: 3;
 }
+
+
+.picker-squad-card-flag-league.normal-squad-league-flag{
+  position: absolute;
+  bottom: 16%;
+  right: 43%;
+  width: 10px;
+  height: 10px;
+  object-fit: contain;
+  z-index: 3;
+}
+
 
 
 .bench-card-flag-nation.hero-icon-nation-flag{
@@ -8825,10 +8837,10 @@ body.stats-open #squad-builder-modal {
 
 .compare-nation-flag.normal-nation-flag{
   position: absolute;
-  bottom: 35px;
-  left: 36%;
-  width: 15px;
-  height: 15px;
+  bottom: 27px;
+  left: 29%;
+  width: 18px;
+  height: 18px;
   object-fit: cover;
   border-radius: 1px;
   z-index: 3; 
@@ -8836,15 +8848,24 @@ body.stats-open #squad-builder-modal {
 
 .compare-club-flag.normal-club-flag{
   position: absolute;
-  bottom: 35px;
-  right: 36%;
-  width: 15px;
-  height: 15px;
+  bottom: 27px;
+  right: 29%;
+  width: 18px;
+  height: 18px;
   object-fit: contain;
   z-index: 3;
 }
 
 
+.compare-league-flag.normal-league-flag{
+  position: absolute;
+  bottom: 27px;
+  right: 45.5%;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  z-index: 3;
+}
 
 /* Squad Customization Modal — Hero/Icon card flags */
 .squad-custom-mini-card .squad-modal-custom-card-flag.hero-icon-modal-nation-flag {
