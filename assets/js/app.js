@@ -4210,7 +4210,12 @@ function createDashboardPlayerCard(player) {
 
             <img src="${player.nation_flag || ''}" alt="Nation" class="card-nation-flag ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
             <img src="${player.club_flag || ''}" alt="Club" class="card-club-flag ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
-
+            ${getPlayerType(player) === 'normal' && player.league_image ? `
+                <img src="${player.league_image}" 
+                     alt="League" 
+                     class="card-league-flag normal-league-flag" 
+                     onerror="this.style.display='none'">
+            ` : ''}
 
             <!-- ✅ Untradable badge -->
             ${
@@ -5040,7 +5045,14 @@ function createPlayerCard(player) {
     // 4. ROBUST PRICE & IMAGE LOGIC
     let displayPriceHTML = '';
 
-    if (player.price !== undefined && player.price !== null) {
+    if (isUntradable) {
+        displayPriceHTML = `
+            <img src="assets/images/untradable-red-flag.png"
+                alt="Non-auctionable"
+                style="height: 18px; width: auto; vertical-align: middle; opacity: 0.95; margin-left: 6px;"
+                title="Non-auctionable">
+        `;
+    } else if (player.price !== undefined && player.price !== null) {
         const formattedPrice = typeof formatPrice === 'function'
             ? formatPrice(player.price)
             : player.price.toLocaleString();
@@ -5119,6 +5131,13 @@ function createPlayerCard(player) {
                               class="player-view-card-club-flag ${getPlayerType(player) === 'normal' 
                                 ? 'normal-club-players-flag' 
                                 : 'hero-icon-club-players-flag'}">` 
+                      : ''}
+                    
+                    
+                    ${player.league_image && getPlayerType(player) === 'normal'
+                      ? `<img src="${player.league_image}" 
+                              alt="League" 
+                              class="player-view-card-league-flag normal-league-players-flag">`
                       : ''}
 
                     ${untradableBadgeHTML}
