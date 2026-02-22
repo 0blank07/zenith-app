@@ -533,27 +533,6 @@
     letter-spacing: -0.3px;
 }
 
-.picker-card-flag-nation {
-    position: absolute;
-    bottom: 16%;
-    left: 30%;
-    width: 10px;
-    height: 10px;
-    object-fit: cover;
-    border-radius: 2px;
-    z-index: 3;
-}
-
-.picker-card-flag-club {
-    position: absolute;
-    bottom: 16%;
-    right: 30%;
-    width: 10px;
-    height: 10px;
-    object-fit: contain;
-    z-index: 3;
-}
-
 .picker-ovr-right {
     font-weight: 800;
     text-align: center;
@@ -8913,4 +8892,59 @@ body.stats-open #squad-builder-modal {
   border-radius: 1px;
   z-index: 10;
   object-fit: cover;
+}
+
+
+.picker-card-flag-nation.hero-icon-nation-flag{
+    position: absolute;
+    bottom: 16%;
+    left: 30%;
+    width: 10px;
+    height: 10px;
+    object-fit: cover;
+    border-radius: 2px;
+    z-index: 3;
+}
+
+.picker-card-flag-club.hero-icon-club-flag{
+    position: absolute;
+    bottom: 16%;
+    right: 30%;
+    width: 10px;
+    height: 10px;
+    object-fit: contain;
+    z-index: 3;
+}
+
+.picker-card-flag-nation.normal-nation-flag{
+    position: absolute;
+    bottom: 17%;
+    left: 22%;
+    width: 10px;
+    height: 10px;
+    object-fit: cover;
+    border-radius: 2px;
+    z-index: 3;
+}
+
+
+.picker-card-flag-club.normal-club-flag{
+    position: absolute;
+    bottom: 17%;
+    right: 23%;
+    width: 10px;
+    height: 10px;
+    object-fit: contain;
+    z-index: 3;
+}
+
+.picker-card-flag-league-compare.normal-league-flag-compare{
+    position: absolute;
+    bottom: 17%;
+    left: 44%;
+    width: 10px;
+    height: 10px;
+    object-fit: cover;
+    border-radius: 2px;
+    z-index: 3;
 }

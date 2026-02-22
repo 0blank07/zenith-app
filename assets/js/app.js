@@ -9043,6 +9043,13 @@ function createCompareSearchResultItem(player) {
         <img src="${nationFlag}" alt="Nation" class="picker-card-flag-nation ${getPlayerType(player) === 'normal' ? 'normal-nation-flag' : 'hero-icon-nation-flag'}" onerror="this.style.display='none'">
         <img src="${clubFlag}" alt="Club" class="picker-card-flag-club ${getPlayerType(player) === 'normal' ? 'normal-club-flag' : 'hero-icon-club-flag'}" onerror="this.style.display='none'">
         
+        ${getPlayerType(player) === 'normal' && player.league_image ? `
+            <img src="${player.league_image}" 
+                 alt="League" 
+                 class="picker-card-flag-league-compare normal-league-flag-compare"
+                 onerror="this.style.display='none'">
+        ` : ''}
+        
         ${untradableBadgeHTML}
       </div>
     </div>
