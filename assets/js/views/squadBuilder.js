@@ -3142,7 +3142,13 @@ function renderSquadBuilder() {
   const valueEl = document.getElementById('squad-value');
   const formationSelect = document.getElementById('formation-select');
   
-  if (nameEl) nameEl.value = squadState.name || 'My Squad';
+  if (nameEl) {
+    const currentName = (nameEl.value || '').trim();
+    if (currentName) {
+      squadState.name = currentName;
+    }
+    nameEl.value = squadState.name || 'My Squad';
+  }
   if (formationSelect) formationSelect.value = squadState.formationId;
   if (ovrEl) ovrEl.textContent = getFinalTeamOVR() || 0;
   if (valueEl) valueEl.textContent = formatPrice(calculateValue() || 0);
