@@ -10,6 +10,22 @@
 function calculateValue() {
     let total = 0;
     const missing = [];
+    const parseOptionalBoolean = (value) => {
+        if (value === undefined || value === null || value === '') return null;
+        const normalized = String(value).trim().toLowerCase();
+        if (normalized === 'true' || normalized === '1' || normalized === 'yes') return true;
+        if (normalized === 'false' || normalized === '0' || normalized === 'no') return false;
+        return null;
+    };
+    const shouldIncludePlayerValue = (player) => {
+        const untradable = parseOptionalBoolean(player.is_untradable ?? player.isuntradable ?? player.untradable);
+        const unauctionable = parseOptionalBoolean(player.is_unauctionable ?? player.unauctionable);
+        const tradable = parseOptionalBoolean(player.tradable);
+        const auctionable = parseOptionalBoolean(player.auctionable);
+        const isTradable = tradable !== null ? tradable : (untradable !== null ? !untradable : true);
+        const isAuctionable = auctionable !== null ? auctionable : (unauctionable !== null ? !unauctionable : (untradable !== null ? !untradable : true));
+        return isTradable && isAuctionable;
+    };
     
     // Sum starter values
     Object.values(squadState.starters).forEach(pid => {
@@ -17,7 +33,7 @@ function calculateValue() {
         const player = getPlayers().find(p => 
             p.id === pid || p.playerid === pid || p.player_id === pid
         );
-        if (player) {
+        if (player && shouldIncludePlayerValue(player)) {
             const price = typeof resolveSquadPlayerPrice === 'function'
                 ? resolveSquadPlayerPrice(player)
                 : (player.price || 0);
@@ -33,7 +49,7 @@ function calculateValue() {
         const player = getPlayers().find(p => 
             p.id === pid || p.playerid === pid || p.player_id === pid
         );
-        if (player) {
+        if (player && shouldIncludePlayerValue(player)) {
             const price = typeof resolveSquadPlayerPrice === 'function'
                 ? resolveSquadPlayerPrice(player)
                 : (player.price || 0);
