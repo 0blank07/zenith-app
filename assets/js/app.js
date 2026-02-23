@@ -946,6 +946,7 @@ async function renderPlayerDetail(player) {
 
     const uniqueId = `${player.player_id}_${player.rank || 0}_${player.is_untradable ? 1 : 0}`;
     const isWatchlisted = state.watchlist && state.watchlist.includes(uniqueId);
+    const canShowPriceHistory = canShowPlayerPriceHistory(player);
 
     const nationField = player.nation_region || player.nation || '';
     const flagUrl = typeof getCountryFlagUrl === 'function' ? getCountryFlagUrl(nationField) : '';
@@ -1254,7 +1255,7 @@ async function renderPlayerDetail(player) {
                         </div>
 
                         <!-- 📈 PRICE HISTORY SECTION -->
-                        <div class="player-price-history-section" data-auctionable="${player.price ? 'true' : 'false'}">
+                        <div class="player-price-history-section" data-auctionable="${canShowPriceHistory ? 'true' : 'false'}">
                           <div class="price-history-header">
                             <div>
                               <h3>📈 Price History</h3>
@@ -1643,11 +1644,20 @@ window.updatePlayerStatsSection = function(player) {
 };
 
 // ==================== PRICE HISTORY (PLAYER DETAIL) ====================
+function canShowPlayerPriceHistory(player) {
+  const isUntradableText = String(player?.is_untradable ?? player?.isuntradable ?? '').toLowerCase();
+  const isUntradable =
+    isUntradableText === 'true' ||
+    isUntradableText === '1' ||
+    isUntradableText === 'yes';
+  return !isUntradable && !!player?.price;
+}
+
 window.initPlayerPriceHistory = function(player) {
   const container = document.querySelector('.player-price-history-section');
   if (!container || !player) return;
 
-  const isAuctionable = !!player.price;
+  const isAuctionable = canShowPlayerPriceHistory(player);
   container.style.display = isAuctionable ? '' : 'none';
   console.log('[PRICE HISTORY] Auctionable:', isAuctionable);
   if (!isAuctionable) {
@@ -1710,8 +1720,8 @@ window.initPlayerPriceHistory = function(player) {
 window.refreshPlayerPriceHistory = async function(player, { range = '7D', customDays } = {}) {
   if (!player) return;
 
-  if (!player.price) {
-    console.log('[PRICE HISTORY] Skipping fetch for unauctionable player.');
+  if (!canShowPlayerPriceHistory(player)) {
+    console.log('[PRICE HISTORY] Skipping fetch for non-auctionable player.');
     return;
   }
 
