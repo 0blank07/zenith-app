@@ -950,6 +950,7 @@
   background: url() center/cover no-repeat;
 }
 
+
 /* ===== EXPORT LAYOUT ===== */
 
 #squad-export-root {
@@ -6392,7 +6393,7 @@ body.stats-open #squad-builder-modal {
 .card-nation-flag.hero-icon-nation-flag{
     position: absolute;
     bottom: 24px;
-    left: 35px;
+    left: 38px;
     width: 14px;
     height: 11px;
     object-fit: cover;
@@ -6402,7 +6403,7 @@ body.stats-open #squad-builder-modal {
 .card-club-flag.hero-icon-club-flag{
     position: absolute;
     bottom: 24px;
-    left: 70px;
+    left: 66px;
     width: 14px;
     height: 11px;
     object-fit: cover;

@@ -610,39 +610,39 @@ function hydrateExportCardMedia(cardElement, playerId, fallbackPlayer, cardType)
     const isBenchCard = cardType === 'bench';
     const backgroundImage = cardElement.querySelector(isBenchCard ? '.bench-card-bg' : '.preview-card-bg');
     const playerImage = cardElement.querySelector(isBenchCard ? '.bench-card-player-img' : '.preview-card-player-img');
-    const nationFlag = cardElement.querySelector(isBenchCard ? '.bench-card-flag-nation' : '.preview-card-flag-nation');
-    const clubFlag = cardElement.querySelector(isBenchCard ? '.bench-card-flag-club' : '.preview-card-flag-club');
     const cardInner = cardElement.querySelector(isBenchCard ? '.bench-card-inner' : '.preview-card-inner');
 
     setExportImageSource(backgroundImage, sources.cardBg, 'card-bg', resolvedPlayerId);
     setExportImageSource(playerImage, sources.playerImg, 'player-img', resolvedPlayerId);
-    setExportImageSource(nationFlag, sources.nationFlag, 'nation-flag', resolvedPlayerId);
-    setExportImageSource(clubFlag, sources.clubFlag, 'club-flag', resolvedPlayerId);
-    ensureExportFlagImage(
-        cardInner,
-        isBenchCard ? 'bench-card-flag-nation' : 'preview-card-flag-nation',
-        sources.nationFlag,
-        'nation-flag',
-        resolvedPlayerId
-    );
-    ensureExportFlagImage(
-        cardInner,
-        isBenchCard ? 'bench-card-flag-club' : 'preview-card-flag-club',
-        sources.clubFlag,
-        'club-flag',
-        resolvedPlayerId
-    );
 
-    ensureExportFlagImage(
-        cardInner,
-        isBenchCard ? 'bench-card-flag-league' : 'preview-card-flag-league',
-        sources.leagueFlag,
-        'league-flag',
-        resolvedPlayerId,
-        isBenchCard
-            ? 'position:absolute;top:89px;left:11px;width:12px;height:10px;object-fit:contain;z-index:3;'
-            : 'position:absolute;top:102px;left:17px;width:13px;height:11px;object-fit:contain;z-index:3;'
-    );
+    if (cardInner) {
+        ensureExportFlagImage(
+            cardInner,
+            isBenchCard ? 'bench-card-flag-nation' : 'preview-card-flag-nation',
+            sources.nationFlag, 'nation-flag', resolvedPlayerId,
+            isBenchCard
+                ? 'position:absolute;bottom:18px;left:8px;width:13px;height:10px;object-fit:cover;z-index:3;border-radius:2px;'
+                : 'position:absolute;bottom:24px;left:28px;width:11px;height:9px;object-fit:cover;z-index:3;border-radius:2px;'
+        );
+        ensureExportFlagImage(
+            cardInner,
+            isBenchCard ? 'bench-card-flag-club' : 'preview-card-flag-club',
+            sources.clubFlag, 'club-flag', resolvedPlayerId,
+            isBenchCard
+                ? 'position:absolute;bottom:18px;left:55px;width:13px;height:13px;object-fit:contain;z-index:3;border-radius:2px;'
+                : 'position:absolute;bottom:24px;left:78px;width:13px;height:11px;object-fit:contain;z-index:3;border-radius:2px;'
+        );
+        ensureExportFlagImage(
+            cardInner,
+            isBenchCard ? 'bench-card-flag-league' : 'preview-card-flag-league',
+            sources.leagueFlag, 'league-flag', resolvedPlayerId,
+            isBenchCard
+                ? 'position:absolute;bottom:18px;left:31px;width:13px;height:10px;object-fit:contain;z-index:3;border-radius:2px;'
+                : 'position:absolute;bottom:24px;left:52px;width:13px;height:11px;object-fit:contain;z-index:3;border-radius:2px;'
+        );
+    }
+
+
 }
 
 function cloneLiveSquadCard(cardClassName, playerId, exportClassName, cardType, fallbackPlayer) {
@@ -663,6 +663,14 @@ function cloneLiveSquadCard(cardClassName, playerId, exportClassName, cardType, 
     clonedCard.classList.add(exportClassName);
     clonedCard.removeAttribute('draggable');
     clonedCard.querySelectorAll('.preview-card-remove, .bench-card-remove').forEach(button => button.remove());
+
+    // Strip all flag images from export cards
+    clonedCard.querySelectorAll(
+      '.preview-card-flag-nation, .preview-card-flag-club, .preview-card-flag-league, ' +
+      '.bench-card-flag-nation, .bench-card-flag-club, .bench-card-flag-league, ' +
+      '.card-nation-flag, .card-club-flag, .card-league-flag'
+    ).forEach(flag => flag.remove());
+
     hydrateExportCardMedia(clonedCard, playerId, fallbackPlayer, cardType);
     return clonedCard;
 }
