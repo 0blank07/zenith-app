@@ -9026,21 +9026,37 @@ body.stats-open #squad-builder-modal {
 /* Squad Customization Modal — Normal card flags */
 .squad-custom-mini-card .squad-modal-custom-card-flag.normal-modal-nation-flag {
   position: absolute;
-  bottom: 18px;
-  left: 34px;
-  width: 12px;
-  height: 9px;
+  bottom: 9px;
+  left: -45px;
+  width: 16px;
+  height: 13px;
+  border-radius: 1px;
+  z-index: 10;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+
+
+.squad-custom-mini-card .squad-modal-custom-card-club.normal-modal-club-flag {
+  position: absolute;
+  bottom: 8px;
+  left: 30px;
+  width: 16px;
+  height: 13px;
   border-radius: 1px;
   z-index: 10;
   object-fit: cover;
 }
 
-.squad-custom-mini-card .squad-modal-custom-card-club.normal-modal-club-flag {
+
+
+.squad-modal-custom-card-league.normal-modal-league-flag{
   position: absolute;
-  bottom: 18px;
-  left: 50px;
-  width: 12px;
-  height: 12px;
+  bottom: 8px;
+  left: -8px;
+  width: 16px;
+  height: 13px;
   border-radius: 1px;
   z-index: 10;
   object-fit: cover;

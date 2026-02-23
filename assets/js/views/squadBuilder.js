@@ -4479,8 +4479,15 @@ function renderCustomizationMiniCard(player) {
                   : 'hero-icon-modal-club-flag'}" 
                 onerror="this.style.display='none'">` 
           : ''}
-      </div>
+        
 
+        ${getPlayerType(player) === 'normal' && player.league_image ? `
+            <img src="${player.league_image}" 
+                 alt="League" 
+                 class="squad-modal-custom-card-league normal-modal-league-flag"
+                 onerror="this.style.display='none'">
+        ` : ''}
+      </div>
 
 
       <div class="squad-custom-card-name" style="color: ${player.color_name || '#FFFFFF'}">${playerName}</div>
