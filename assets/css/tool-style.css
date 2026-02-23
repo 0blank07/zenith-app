@@ -9111,3 +9111,121 @@ body.stats-open #squad-builder-modal {
     border-radius: 2px;
     z-index: 3;
 }
+
+/* ===== EXPORT BENCH FLAG OVERRIDES ===== */
+
+/* ── Normal players ── */
+.squad-export-bench-card.bench-type-normal .bench-card-flag-nation {
+    position: absolute;
+    bottom: 14px;
+    left: 23px;
+    width: 12px;
+    height: 10px;
+    object-fit: cover;
+    z-index: 3;
+    border-radius: 2px;
+    padding-bottom: 2px;
+    margin-bottom: 5px;
+}
+.squad-export-bench-card.bench-type-normal .bench-card-flag-club {
+    position: absolute;
+    bottom: 13px;
+    left: 60px;
+    width: 12px;
+    height: 9px;
+    object-fit: contain;
+    z-index: 3;
+    border-radius: 2px;
+    margin-top: 2px;
+}
+.squad-export-bench-card.bench-type-normal .bench-card-flag-league {
+    position: absolute;
+    bottom: 17px;
+    left: 43px;
+    width: 11px;
+    height: 9px;
+    object-fit: contain;
+    z-index: 3;
+    border-radius: 2px;
+}
+
+
+/* ===== EXPORT CARD IMAGE HOOKS (EDIT THESE) ===== */
+
+/* ── Hero export card (starter) ── */
+
+
+#squad-export-root .squad-export-player-card.card-type-hero .preview-card-flag-nation {
+    position: absolute;
+    bottom: 24px;
+    left: 65px;
+    width: 14px;
+    height: 12px;
+    object-fit: cover;
+    z-index: 3;
+}
+
+#squad-export-root .squad-export-player-card.card-type-hero .preview-card-flag-club {
+    position: absolute;
+    bottom: 24px;
+    left: 59px;
+    width: 14px;
+    height: 12px;
+    object-fit: contain;
+    z-index: 3;
+}
+
+#squad-export-root .squad-export-player-card.card-type-icon .preview-card-flag-nation {
+    position: absolute;
+    bottom: 24px;
+    left: 70px;
+    width: 14px;
+    height: 12px;
+    object-fit: cover;
+    z-index: 3;
+    margin-left: 5px;
+}
+
+#squad-export-root .squad-export-player-card.card-type-icon .preview-card-flag-club {
+    position: absolute;
+    bottom: 24px;
+    left: 50px;
+    width: 14px;
+    height: 12px;
+    object-fit: contain;
+    z-index: 3;
+}
+
+/* ── Normal export card (starter) ── */
+#squad-export-root .squad-export-player-card.card-type-normal .preview-card-flag-nation {
+    position: absolute;
+    bottom: 24px;
+    left: 28px;
+    width: 11px;
+    height: 9px;
+    object-fit: cover;
+    z-index: 3;
+    border-radius: 2px;
+}
+
+#squad-export-root .squad-export-player-card.card-type-normal .preview-card-flag-club {
+    position: absolute;
+    bottom: 24px;
+    left: 78px;
+    width: 13px;
+    height: 11px;
+    object-fit: contain;
+    z-index: 3;
+    border-radius: 2px;
+}
+
+#squad-export-root .squad-export-player-card.card-type-normal .preview-card-flag-league {
+    position: absolute;
+    bottom: 24px;
+    left: 52px;
+    width: 13px;
+    height: 11px;
+    object-fit: contain;
+    z-index: 3;
+    border-radius: 2px;
+}

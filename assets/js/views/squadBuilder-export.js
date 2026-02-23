@@ -620,25 +620,19 @@ function hydrateExportCardMedia(cardElement, playerId, fallbackPlayer, cardType)
             cardInner,
             isBenchCard ? 'bench-card-flag-nation' : 'preview-card-flag-nation',
             sources.nationFlag, 'nation-flag', resolvedPlayerId,
-            isBenchCard
-                ? 'position:absolute;bottom:18px;left:8px;width:13px;height:10px;object-fit:cover;z-index:3;border-radius:2px;'
-                : 'position:absolute;bottom:24px;left:28px;width:11px;height:9px;object-fit:cover;z-index:3;border-radius:2px;'
+            null
         );
         ensureExportFlagImage(
             cardInner,
             isBenchCard ? 'bench-card-flag-club' : 'preview-card-flag-club',
             sources.clubFlag, 'club-flag', resolvedPlayerId,
-            isBenchCard
-                ? 'position:absolute;bottom:18px;left:55px;width:13px;height:13px;object-fit:contain;z-index:3;border-radius:2px;'
-                : 'position:absolute;bottom:24px;left:78px;width:13px;height:11px;object-fit:contain;z-index:3;border-radius:2px;'
+            null
         );
         ensureExportFlagImage(
             cardInner,
             isBenchCard ? 'bench-card-flag-league' : 'preview-card-flag-league',
             sources.leagueFlag, 'league-flag', resolvedPlayerId,
-            isBenchCard
-                ? 'position:absolute;bottom:18px;left:31px;width:13px;height:10px;object-fit:contain;z-index:3;border-radius:2px;'
-                : 'position:absolute;bottom:24px;left:52px;width:13px;height:11px;object-fit:contain;z-index:3;border-radius:2px;'
+            null
         );
     }
 
@@ -699,18 +693,25 @@ function buildExportSlot(slot) {
         return container;
     }
 
+    // ── Determine card type class ──
+    const isIcon = !!(player.isicon || player.is_icon || player.isIcon);
+    const isHero = !!(player.ishero || player.is_hero || player.isHero);
+    const cardTypeClass = isIcon ? 'card-type-icon' : isHero ? 'card-type-hero' : 'card-type-normal';
+
     const playerId = typeof resolveSquadPlayerId === 'function'
         ? (resolveSquadPlayerId(player) || assignedId)
         : (player.player_id || player.id || player.playerid || assignedId);
+
     const livePreviewCard = cloneLiveSquadCard('player-preview-card', playerId, 'squad-export-player-card', 'starter', player);
     if (livePreviewCard) {
+        livePreviewCard.classList.add(cardTypeClass);
         livePreviewCard.style.zIndex = '2';
         container.appendChild(livePreviewCard);
         return container;
     }
 
     const previewCard = document.createElement('div');
-    previewCard.className = 'player-preview-card squad-export-player-card';
+    previewCard.className = `player-preview-card squad-export-player-card ${cardTypeClass}`;
     previewCard.style.zIndex = '2';
     previewCard.dataset.playerId = String(playerId);
     previewCard.innerHTML = buildSquadPreviewCardMarkup(player, slot.label || '', slot.id, {
@@ -722,6 +723,7 @@ function buildExportSlot(slot) {
     container.appendChild(previewCard);
     return container;
 }
+
 
 function buildExportBench() {
     const benchContainer = document.createElement('div');
@@ -754,13 +756,19 @@ function buildExportBench() {
         cell.appendChild(emptySlot);
 
         if (player) {
+            // ── Determine card type class ──
+            const isIcon = !!(player.isicon || player.is_icon || player.isIcon);
+            const isHero = !!(player.ishero || player.is_hero || player.isHero);
+            const cardTypeClass = isIcon ? 'bench-type-icon' : isHero ? 'bench-type-hero' : 'bench-type-normal';
+
             const liveBenchCard = cloneLiveSquadCard('bench-preview-card', playerId, 'squad-export-bench-card', 'bench', player);
             if (liveBenchCard) {
+                liveBenchCard.classList.add(cardTypeClass);
                 liveBenchCard.style.zIndex = '2';
                 cell.appendChild(liveBenchCard);
             } else {
                 const benchCard = document.createElement('div');
-                benchCard.className = 'bench-preview-card squad-export-bench-card';
+                benchCard.className = `bench-preview-card squad-export-bench-card ${cardTypeClass}`;
                 benchCard.style.zIndex = '2';
                 benchCard.dataset.playerId = String(playerId);
                 benchCard.innerHTML = buildSquadBenchCardMarkup(player, i, {
@@ -778,6 +786,7 @@ function buildExportBench() {
     benchContainer.appendChild(benchGrid);
     return benchContainer;
 }
+
 
 function formatFormationLabel(formationId) {
     const select = document.getElementById('formation-select');
