@@ -5598,10 +5598,15 @@ async function loadDatabase() {
         // If first load, replace content
         if (state.currentOffset === 0) {
             container.innerHTML = '';
-            state.filteredPlayers = players;
-        } else {
-            // Append to existing
-            state.filteredPlayers = [...state.filteredPlayers, ...players];
+        }
+
+        if (state.sortBy !== 'price') {
+            if (state.currentOffset === 0) {
+                state.filteredPlayers = players;
+            } else {
+                // Append to existing
+                state.filteredPlayers = [...state.filteredPlayers, ...players];
+            }
         }
 
         // 4. Render player cards
@@ -5678,6 +5683,21 @@ async function loadDatabase() {
                 } catch (e) {
                     console.error('[PRICE SORT] Failed:', e);
                     sortedPlayers.sort((a, b) => (b.price || 0) - (a.price || 0));
+                }
+            }
+
+            if (state.sortBy === 'price') {
+                if (state.currentOffset === 0) {
+                    state.filteredPlayers = [...sortedPlayers];
+                } else {
+                    const mergedPricePlayers = [...(state.filteredPlayers || []), ...sortedPlayers];
+                    const seenPriceIds = new Set();
+                    state.filteredPlayers = mergedPricePlayers.filter(player => {
+                        const key = getPlayerUniqueId(player);
+                        if (seenPriceIds.has(key)) return false;
+                        seenPriceIds.add(key);
+                        return true;
+                    });
                 }
             }
 
