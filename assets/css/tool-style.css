@@ -1178,7 +1178,7 @@
 
 .squad-export-slot .player-preview-card,
 .squad-export-bench-card {
-  transform: translate(-50%, -60%) scale(1);
+  transform: translate(-50%, -60%) scale(0.85);
   transform-origin: center;
   cursor: default;
   margin-top: 14px;
@@ -1192,7 +1192,7 @@
 
 .squad-export-slot .player-preview-card:hover,
 .squad-export-bench-card:hover {
-  transform: translate(-50%, -50%) scale(0.97);
+  transform: translate(-50%, -50%) scale(0.85);
   box-shadow: none;
 }
 
@@ -1209,15 +1209,15 @@
 }
 
 .squad-export-bench-card {
-  transform: translate(-50%, -50%) scale(0.97);
+  transform: translate(-50%, -50%) scale(0.85);
 }
 
 .squad-export-slot .player-preview-card {
-  transform: translate(-50%, -50%) scale(0.97);
+  transform: translate(-50%, -50%) scale(0.85);
 }
 
 .squad-export-slot .player-preview-card:hover {
-  transform: translate(-50%, -50%) scale(0.97);
+  transform: translate(-50%, -50%) scale(0.85);
 }
 
 #squad-export-root .squad-slot.drag-over .position-dot,
@@ -6297,7 +6297,7 @@ body.stats-open #squad-builder-modal {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.97);
+  transform: translate(-50%, -50%) scale(0.85);
   z-index: 10;
   cursor: grab;
   transition: transform 0.2s ease;
@@ -6309,7 +6309,7 @@ body.stats-open #squad-builder-modal {
 }
 
 .player-preview-card:hover {
-    transform: translate(-50%, -50%) scale(1.08);
+    transform: translate(-50%, -50%) scale(0.95);
 }
 
 .preview-card-inner {
