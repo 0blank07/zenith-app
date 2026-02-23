@@ -627,6 +627,14 @@
     transform: scale(0.85);
     transform-origin: center;
   }
+
+  #squad-theme-btn {
+    display: none !important;
+  }
+
+  .squad-theme-btn-mobile-tablet {
+    display: flex !important;
+  }
 }
 
 @media (max-width: 640px) {
@@ -752,6 +760,10 @@
   align-items: center;
   justify-content: center;
   transition: all 100ms ease;
+}
+
+.squad-theme-btn-mobile-tablet {
+  display: none;
 }
 
 /* ===== THEME SELECTOR OVERLAY ===== */
