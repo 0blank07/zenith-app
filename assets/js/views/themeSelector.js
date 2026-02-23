@@ -143,11 +143,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // Theme button click
-  const themeBtn = document.getElementById('squad-theme-btn');
-  if (themeBtn) {
-    themeBtn.addEventListener('click', () => {
-
-      openThemeSelector();
+  const themeButtons = [
+    document.getElementById('squad-theme-btn'),
+    document.getElementById('squad-theme-btn-mobile-tablet')
+  ].filter(Boolean);
+  if (themeButtons.length) {
+    themeButtons.forEach((themeBtn) => {
+      themeBtn.addEventListener('click', () => {
+        openThemeSelector();
+      });
     });
   } else {
     console.warn('⚠️ Theme button not found');
