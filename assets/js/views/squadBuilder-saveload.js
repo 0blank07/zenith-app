@@ -78,6 +78,25 @@ function formatPrice(price) {
     return price.toString();
 }
 
+
+/**
+ * Show squad saved toast notification
+ */
+function showSquadSavedToast() {
+    const toast = document.createElement('div');
+    toast.className = 'toast squad-saved';
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <span class="toast-icon">✓</span>
+        <span class="toast-message">Squad saved successfully!</span>
+    `;
+    document.getElementById('toast-container').appendChild(toast);
+    
+    // Auto-remove after 3.5 seconds
+    setTimeout(() => toast.remove(), 3500);
+}
+
+
 /**
  * Save current squad to localStorage
  */
