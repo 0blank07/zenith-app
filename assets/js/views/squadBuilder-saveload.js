@@ -121,7 +121,8 @@ function saveSquad() {
         localStorage.setItem('savedSquad_main', JSON.stringify(squadData));
         
         console.log('✅ Squad saved successfully:', squadData);
-        
+        showSquadSavedToast();
+
         return true;
     } catch (error) {
         console.error('❌ Error saving squad:', error);
