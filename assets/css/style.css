@@ -9461,13 +9461,13 @@ watchlist-view .view-content {
   border-radius: 16px;
   padding: 30px;
   max-width: 600px;
-  max-height: calc(100vh - 40px);
+  max-height: calc(100vh - 60px);
   overflow-y: auto;
   position: fixed;
-  top: 50%;
-  left: 50%;
+  inset: 0;
+  margin: auto;
   width: min(600px, 92vw);
-  transform: translate(-50%, -50%);
+  height: fit-content;
   z-index: 23001 !important;
 }
 
