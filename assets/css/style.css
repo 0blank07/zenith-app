@@ -9446,7 +9446,6 @@ watchlist-view .view-content {
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(5px);
-  overflow-y: auto;
 }
 
 /* inner modal box */
@@ -9462,10 +9461,10 @@ watchlist-view .view-content {
   border-radius: 16px;
   padding: 30px;
   max-width: 600px;
-  max-height: 90vh;
+  max-height: 80vh;
   overflow-y: auto;
-  position: relative;
   width: min(600px, 92vw);
+  z-index: 23001 !important;
 }
 
 .modal-close-btn {
