@@ -2626,12 +2626,18 @@ select.form-control {
 }
 
 .latest-players-scroll .player-avatar {
+  font-family: 'Bebas Neue', sans-serif;
   width: 48px;
   height: 48px;
   font-size: 16px;
   background: var(--color-graphite-700);
   border: 1px solid var(--color-border);
   color: var(--color-text-primary);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8),
+                -1px  -1px 0  rgba(0,0,0,0.5);
+                
+                     letter-spacing: 1px;
+
 }
 
 .latest-players-scroll .player-rating {
@@ -4713,7 +4719,7 @@ watchlist-view .view-content {
 }
 
 .latest-player-name {
-  color: var(--color-text-primary);
+  color: var(--color-primary-text);
   font-weight: 600;
   font-size: 0.95rem;
   margin-bottom: 0.3rem;
