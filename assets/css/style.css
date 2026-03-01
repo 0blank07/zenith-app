@@ -9463,7 +9463,7 @@ watchlist-view .view-content {
   max-width: 600px;
   max-height: 80vh;
   overflow-y: auto;
-  position: absolute;
+  position: auto;
   top: 100%;
   left: 0;
   width: min(600px, 92vw);
