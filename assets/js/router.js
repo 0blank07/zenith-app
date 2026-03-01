@@ -148,8 +148,21 @@
           if (typeof openCompareModal === "function") {
             setTimeout(openCompareModal, 100);
           }
-        },
+        }, 
       },
+
+      "/redeem-codes": {
+        title: "Redeem Codes - Zenith FCM",
+        handler(params, query) {
+         ZRouter.log("Rendering → Redeem Codes");
+         if (typeof switchView === "function") {
+           switchView("redeem-codes");
+         }
+         if (typeof renderRedeemCodesView === "function") {
+           setTimeout(renderRedeemCodesView, 100);
+         }
+       },
+    },
 
       "/404": {
         title: "Page Not Found - Zenith FCM",
