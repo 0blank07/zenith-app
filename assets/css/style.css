@@ -9486,7 +9486,11 @@ watchlist-view .view-content {
   max-width: 600px;
   max-height: 80vh;
   overflow-y: auto;
+<<<<<<< HEAD
   position: absolute;
+=======
+  position: auto;
+>>>>>>> 0d414917aef624bb96388e42648f7d77baf5158e
   top: 100%;
   left: 0;
   width: min(600px, 92vw);
