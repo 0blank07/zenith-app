@@ -9436,7 +9436,7 @@ watchlist-view .view-content {
 /* ==================== SKILL MODAL ==================== */
 
 .skill-detail-modal {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100vw;
@@ -9463,11 +9463,11 @@ watchlist-view .view-content {
   max-width: 600px;
   max-height: 80vh;
   overflow-y: auto;
-  position: fixed;
-  top: 50%;
-  left: 50%;
+  position: absolute;
+  top: 100%;
+  left: 0;
   width: min(600px, 92vw);
-  transform: translate(-50%, -50%);
+  transform: none;
 }
 
 .modal-close-btn {
