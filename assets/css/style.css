@@ -9463,8 +9463,11 @@ watchlist-view .view-content {
   max-width: 600px;
   max-height: 80vh;
   overflow-y: auto;
+  position: fixed;
+  top: 50%;
+  left: 50%;
   width: min(600px, 92vw);
-  z-index: 23001 !important;
+  transform: translate(-50%, -50%);
 }
 
 .modal-close-btn {
