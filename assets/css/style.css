@@ -9436,9 +9436,9 @@ watchlist-view .view-content {
 /* ==================== SKILL MODAL ==================== */
 
 .skill-detail-modal {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: fixed;
+  top: 500px;
+  left: 10px;
   width: 100vw;
   height: 100vh;
   z-index: 23000 !important;
