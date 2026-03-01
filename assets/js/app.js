@@ -3728,7 +3728,10 @@ function switchView(viewName) {
             setTimeout(initEventGuide, 100);
         } else {
             console.error('initEventGuide not found - make sure eventGuide.js is loaded');
-        }
+        } else if (viewName === 'redeem-codes') {
+              if (typeof renderRedeemCodesView === 'function') {
+                  setTimeout(renderRedeemCodesView, 100);
+              }
     }
 
 
@@ -9560,6 +9563,10 @@ function openTool(toolName) {
       closeToolsModal();
       closeToolsSheet();
       setTimeout(() => initShardCalculator(), 100);
+      break;
+
+    case 'redeem-codes':       
+      renderRedeemCodesView();       
       break;
 
     case 'eventguide':
