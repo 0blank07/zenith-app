@@ -497,7 +497,7 @@
     font-size: 0.8rem;
     font-weight: 750;
     z-index: 3;
-    font-family: "CruyffSans", sans-serif;
+    font-family: "Bebas Neue", sans-serif;
     letter-spacing: 0.5px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
@@ -510,7 +510,7 @@
     font-weight: 600;
     z-index: 3;
     text-transform: uppercase;
-    font-family: "CruyffSans", sans-serif;
+    font-family: "Bebas Neue", sans-serif;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
     letter-spacing: 0.5px;
 }
@@ -529,7 +529,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: "CruyffSans", sans-serif;
+    font-family: "Bebas Neue", sans-serif;
     letter-spacing: -0.3px;
 }
 
@@ -5777,7 +5777,7 @@ body.stats-open #squad-builder-modal {
   margin-left: 26px;
   font-size: clamp(16px, 2vw, 22px);
   font-weight: 800;
-  font-family: 'CruyffSans', sans-serif;
+  font-family: 'Bebas Neue', sans-serif;
   z-index: 3;
   letter-spacing: -1px;
   line-height: 1.2;
@@ -5791,7 +5791,7 @@ body.stats-open #squad-builder-modal {
   left:48px;
   font-size: clamp(12px, 1.6vw, 16px);
   font-weight: 800;
-  font-family: 'CruyffSans', sans-serif;
+  font-family: 'Bebas Neue', sans-serif;
   z-index: 3;
   letter-spacing: -1px;
   line-height: 1.2;
@@ -5806,7 +5806,7 @@ body.stats-open #squad-builder-modal {
   transform: translateX(-50%);
   font-size: 17px;
   font-weight: 800;
-  font-family: 'CruyffSans', sans-serif;
+  font-family: 'Bebas Neue', sans-serif;
   text-transform: uppercase;
   text-align: center;
   z-index: 3;
@@ -5904,7 +5904,7 @@ body.stats-open #squad-builder-modal {
   margin-left: 26px;
   font-size: clamp(16px, 2vw, 22px);
   font-weight: 800;
-  font-family: 'CruyffSans', sans-serif;
+  font-family: 'Bebas Neue', sans-serif;
   z-index: 3;
   letter-spacing: -1px;
   line-height: 1.2;
@@ -5918,7 +5918,7 @@ body.stats-open #squad-builder-modal {
   left:30px;
   font-size: clamp(12px, 1.6vw, 16px);
   font-weight: 800;
-  font-family: 'CruyffSans', sans-serif;
+  font-family: 'Bebas Neue', sans-serif;
   z-index: 3;
   letter-spacing: -1px;
   line-height: 1.2;
@@ -5933,7 +5933,7 @@ body.stats-open #squad-builder-modal {
   transform: translateX(-50%);
   font-size: 17px;
   font-weight: 800;
-  font-family: 'CruyffSans', sans-serif;
+  font-family: 'Bebas Neue', sans-serif;
   text-transform: uppercase;
   text-align: center;
   z-index: 3;
@@ -5967,7 +5967,7 @@ body.stats-open #squad-builder-modal {
     left: 3px;
     font-size: clamp(14px, 3vw, 20px);
     font-weight: 800;
-    font-family: 'CruyffSans', sans-serif;
+    font-family: 'Bebas Neue', sans-serif;
     z-index: 3;
     letter-spacing: -1px;
     line-height: 1.2;
@@ -5981,7 +5981,7 @@ body.stats-open #squad-builder-modal {
     left: 32px;
     font-size: clamp(11px, 2.5vw, 14px);
     font-weight: 800;
-    font-family: 'CruyffSans', sans-serif;
+    font-family: 'Bebas Neue', sans-serif;
     z-index: 3;
     letter-spacing: -1px;
     line-height: 1.2;
@@ -5996,7 +5996,7 @@ body.stats-open #squad-builder-modal {
     transform: translateX(-50%);
     font-size: clamp(13px, 3vw, 16px);
     font-weight: 800;
-    font-family: 'CruyffSans', sans-serif;
+    font-family: 'Bebas Neue', sans-serif;
     text-transform: uppercase;
     text-align: center;
     z-index: 3;
@@ -6031,7 +6031,7 @@ body.stats-open #squad-builder-modal {
     left: 8px;
     font-size: clamp(14px, 3vw, 20px);
     font-weight: 800;
-    font-family: 'CruyffSans', sans-serif;
+    font-family: 'Bebas Neue', sans-serif;
     z-index: 3;
     letter-spacing: -1px;
     line-height: 1.2;
@@ -6046,7 +6046,7 @@ body.stats-open #squad-builder-modal {
     left: 36px;
     font-size: clamp(11px, 2.5vw, 14px);
     font-weight: 800;
-    font-family: 'CruyffSans', sans-serif;
+    font-family: 'Bebas Neue', sans-serif;
     z-index: 3;
     letter-spacing: -1px;
     line-height: 1.2;
@@ -6061,7 +6061,7 @@ body.stats-open #squad-builder-modal {
     transform: translateX(-50%);
     font-size: clamp(13px, 3vw, 16px);
     font-weight: 800;
-    font-family: 'CruyffSans', sans-serif;
+    font-family: 'Bebas Neue', sans-serif;
     text-transform: uppercase;
     text-align: center;
     z-index: 3;
@@ -6096,7 +6096,7 @@ body.stats-open #squad-builder-modal {
     left: 1px;
     font-size: clamp(14px, 3vw, 20px);
     font-weight: 800;
-    font-family: 'CruyffSans', sans-serif;
+    font-family: 'Bebas Neue', sans-serif;
     z-index: 3;
     letter-spacing: -1px;
     line-height: 1.2;
@@ -6111,7 +6111,7 @@ body.stats-open #squad-builder-modal {
     left: 29px;
     font-size: clamp(11px, 2.5vw, 14px);
     font-weight: 800;
-    font-family: 'CruyffSans', sans-serif;
+    font-family: 'Bebas Neue', sans-serif;
     z-index: 3;
     letter-spacing: -1px;
     line-height: 1.2;
@@ -6126,7 +6126,7 @@ body.stats-open #squad-builder-modal {
     transform: translateX(-50%);
     font-size: clamp(13px, 3vw, 16px);
     font-weight: 800;
-    font-family: 'CruyffSans', sans-serif;
+    font-family: 'Bebas Neue', sans-serif;
     text-transform: uppercase;
     text-align: center;
     z-index: 3;
@@ -6366,7 +6366,7 @@ body.stats-open #squad-builder-modal {
     font-size: 1.125rem;
     font-weight: 900;
     z-index: 3;
-    font-family: var(--font-family-base, CruyffSans, sans-serif);
+    font-family: var(--font-family-base, Bebas Neue, sans-serif);
     letter-spacing: -0.5px;
 }
 
@@ -6377,7 +6377,7 @@ body.stats-open #squad-builder-modal {
     font-size: 0.7400rem;
     font-weight: 850;
     z-index: 3;
-    font-family: var(--font-family-base, CruyffSans, sans-serif);
+    font-family: var(--font-family-base, Bebas Neue, sans-serif);
 
     transform: scaleY(1.1);   /* increases height only */
     transform-origin: top;    /* prevents shifting */
@@ -6549,7 +6549,7 @@ body.stats-open #squad-builder-modal {
     font-size: 0.9375rem;
     font-weight: 900;
     z-index: 3;
-    font-family: var(--font-family-base, CruyffSans, sans-serif);
+    font-family: var(--font-family-base, Bebas Neue, sans-serif);
     letter-spacing: -0.1px;
   }
 
@@ -6561,7 +6561,7 @@ body.stats-open #squad-builder-modal {
     font-weight: 850;
     z-index: 3;
     transform: scaleY(1); 
-    font-family: var(--font-family-base, CruyffSans, sans-serif);
+    font-family: var(--font-family-base, Bebas Neue, sans-serif);
   }
 
   .preview-card-name {
@@ -6577,7 +6577,7 @@ body.stats-open #squad-builder-modal {
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 0 6px;
-    font-family: var(--font-family-base, CruyffSans, sans-serif);
+    font-family: var(--font-family-base, Bebas Neue, sans-serif);
     text-transform: uppercase;
     letter-spacing: -0.1px;
   }
@@ -6713,7 +6713,7 @@ body.stats-open #squad-builder-modal {
     font-size: 0.875rem;
     font-weight: 900;
     z-index: 3;
-    font-family: var(--font-family-base, CruyffSans, sans-serif);
+    font-family: var(--font-family-base, Bebas Neue, sans-serif);
     letter-spacing: -0.5px;
 
     transform: scaleY(1);      /* increases height only */
@@ -6728,7 +6728,7 @@ body.stats-open #squad-builder-modal {
     font-size: 0.5rem;
     font-weight: 850;
     z-index: 3;
-    font-family: var(--font-family-base, CruyffSans, sans-serif);
+    font-family: var(--font-family-base, Bebas Neue, sans-serif);
 
     transform: scaleY(1.15);   /* increase height only */
     transform-origin: top;     /* prevents downward shifting */
@@ -6748,7 +6748,7 @@ body.stats-open #squad-builder-modal {
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 0 5px;
-    font-family: var(--font-family-base, CruyffSans, sans-serif);
+    font-family: var(--font-family-base, Bebas Neue, sans-serif);
     text-transform: uppercase;
     letter-spacing: -0.1px;
   }
@@ -7109,7 +7109,7 @@ body.stats-open #squad-builder-modal {
     font-size: 0.9375rem;
     font-weight: 900;
     z-index: 3;
-    font-family: var(--font-family-base, "CruyffSans", sans-serif);
+    font-family: var(--font-family-base, "Bebas Neue", sans-serif);
     transform: scaleY(1.1);
 }
 
@@ -7120,7 +7120,7 @@ body.stats-open #squad-builder-modal {
     font-size: 0.600rem;
     font-weight: 800;
     z-index: 3;
-    font-family: var(--font-family-base, "CruyffSans", sans-serif);
+    font-family: var(--font-family-base, "Bebas Neue", sans-serif);
     transform: scaleY(1.1);
 }
 
@@ -8272,7 +8272,7 @@ body.stats-open #squad-builder-modal {
   left: 14px;
   font-size: 22px;
   font-weight: 800;
-  font-family: 'CruyffSans', Arial, sans-serif;
+  font-family: 'Bebas Neue', Arial, sans-serif;
   z-index: 3;
   letter-spacing: -1px;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
@@ -8285,7 +8285,7 @@ body.stats-open #squad-builder-modal {
   left: 18px;
   font-size: 12px;
   font-weight: 700;
-  font-family: 'CruyffSans', Arial, sans-serif;
+  font-family: 'Bebas Neue', Arial, sans-serif;
   text-transform: uppercase;
   z-index: 3;
   letter-spacing: -0.3px;
@@ -8300,7 +8300,7 @@ body.stats-open #squad-builder-modal {
   transform: translateX(-50%);
   font-size: 12px;
   font-weight: 800;
-  font-family: 'CruyffSans', Arial, sans-serif;
+  font-family: 'Bebas Neue', Arial, sans-serif;
   text-transform: uppercase;
   text-align: center;
   z-index: 3;
@@ -8578,7 +8578,7 @@ body.stats-open #squad-builder-modal {
   font-size: 1.3rem;
   font-weight: 800;
   z-index: 3;
-  font-family: "CruyffSans", sans-serif;
+  font-family: "Bebas Neue", sans-serif;
 
   letter-spacing: -2.6px;
   line-height: 1.1;

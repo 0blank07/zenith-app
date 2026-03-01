@@ -415,7 +415,7 @@
     border-radius: 4px;
     font-size: 0.625rem;
     font-weight: 800;
-    font-family: "CruyffSans", sans-serif;
+    font-family: "Bebas Neue", sans-serif;
     color: var(--player-name-color, #FFFFFF);
     z-index: 10;
     letter-spacing: -0.7px;
@@ -436,7 +436,7 @@
     border-radius: 4px;
     font-size: 15px;
     font-weight: 800;
-    font-family: "CruyffSans", sans-serif;
+    font-family: "Bebas Neue", sans-serif;
     color: var(--player-ovr-color, #FFB86B);
     z-index: 10;
     letter-spacing: -2.2px;
@@ -453,7 +453,7 @@
     border-radius: 3px;
     font-size: 9px;
     font-weight: 800;
-    font-family: "CruyffSans", sans-serif;
+    font-family: "Bebas Neue", sans-serif;
     color: var(--player-position-color, #FFFFFF);
     z-index: 10;
     letter-spacing: -0.8px;
@@ -551,7 +551,7 @@
         transform: translateX(-50%);
         font-size: 0.32rem;        /* smaller */
         font-weight: 800;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         text-transform: uppercase;
         z-index: 10;
         letter-spacing: -0.9px;    /* slightly tighter */
@@ -570,7 +570,7 @@
         left: 19px;
         font-size: 1rem;
         font-weight: 700;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         z-index: 10;
         letter-spacing: -0.5px;
         line-height: 1.1;
@@ -582,7 +582,7 @@
         left: 22px;
         font-size: 0.625rem;
         font-weight: 800;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         z-index: 10;
         letter-spacing: -0.8px;
         line-height: 1.1;
@@ -598,7 +598,7 @@
         transform: translateX(-50%);
         font-size: 0.6875rem;
         font-weight: 800;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         text-transform: uppercase;
         z-index: 10;
         letter-spacing: -0.8px;
@@ -702,7 +702,7 @@
         left: 19px;
         font-size: 1rem;
         font-weight: 700;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         z-index: 10;
         letter-spacing: -1px;
         line-height: 1.1;
@@ -714,7 +714,7 @@
         left: 21.6px;
         font-size: 0.625rem;
         font-weight: 800;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         z-index: 10;
         letter-spacing: -0.8px;
         line-height: 1.1;
@@ -803,7 +803,7 @@
         transform: translateX(-50%);
         font-size: 0.6275rem;
         font-weight: 799;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         text-transform: uppercase;
         z-index: 10;
         letter-spacing: -0.8px;
@@ -824,7 +824,7 @@
         left: 15px;
         font-size: 1rem;
         font-weight: 700;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         z-index: 10;
         letter-spacing: -0.3px;
         line-height: 1.1;
@@ -836,7 +836,7 @@
         left: 19px;
         font-size: 0.625rem;
         font-weight: 800;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         z-index: 10;
         letter-spacing: -0.8px;
         line-height: 1.1;
@@ -906,7 +906,7 @@
         transform: translateX(-50%);
         font-size: 11px;
         font-weight: 800;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         text-transform: uppercase;
         z-index: 10;
         letter-spacing: -0.8px;
@@ -938,7 +938,7 @@
         transform: translateX(-50%);
         font-size: 0.6875rem;
         font-weight: 800;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         text-transform: uppercase;
         z-index: 10;
         letter-spacing: -0.8px;
@@ -956,7 +956,7 @@
         left: 14px;
         font-size: 1rem;
         font-weight: 700;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         z-index: 10;
         letter-spacing: -1px;
         line-height: 1.1;
@@ -968,7 +968,7 @@
         left: 17px;
         font-size: 0.625rem;
         font-weight: 800;
-        font-family: 'CruyffSans', sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         z-index: 10;
         letter-spacing: -0.8px;
         line-height: 1.1;
@@ -1038,7 +1038,7 @@
       transform: translateX(-50%);
       font-size: 0.6875rem;
       font-weight: 800;
-      font-family: 'CruyffSans', sans-serif;
+      font-family: 'Bebas Neue', sans-serif;
       text-transform: uppercase;
       z-index: 10;
       letter-spacing: -0.8px;
