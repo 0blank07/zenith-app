@@ -7484,7 +7484,7 @@ watchlist-view .view-content {
 
     letter-spacing: -2.6px;
     line-height: 1.1;
-    color: #ffffff
+    color: #ffffff;
 }
 
 
@@ -7613,6 +7613,8 @@ watchlist-view .view-content {
 
         letter-spacing: -0.5px;
         line-height: 0.9;
+        color: #ffffff;
+
     }
 
     .card-position {
